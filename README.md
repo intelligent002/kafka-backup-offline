@@ -1,2 +1,2 @@
 # kafka-backup-offline
-Backup&amp;restore your Kafka Cluster Offline
+Backup &amp; Restore your Kafka Cluster Offline
