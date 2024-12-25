@@ -19,7 +19,7 @@ restore operations.
 |-----------------------------|------------------------------|-------------------------------------------|-------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
 | **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐⭐	                               | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
 | **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs with KBO | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
-| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★<br>Poor                          | ★★<br>Poor                 | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
+| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
 | **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium                       | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
 | **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★★<br>Moderate                    | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
 | **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★★<br>High                       | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
@@ -66,6 +66,7 @@ operations efficiently.
 ## **Cluster Deployment**
 
 Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
+
 ### Plan your resources!
 
 ![resources map](charts/resources.png)
