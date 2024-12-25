@@ -19,7 +19,7 @@ restore operations.
 |-----------------------------|------------------------------|-------------------------------------------|-------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
 | **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐⭐	                               | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
 | **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs with KBO | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
-| **Performance**             | ★★★★★<br>Excelent            | ★★★★<br>Good                              | ★★<br>Poor                          | ★★<br>Poor                 | ★★★★<br>Good          | ★★★★★<br>Excelent                  | ★★<br>Poor                           |
+| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★<br>Poor                          | ★★<br>Poor                 | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
 | **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium                       | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
 | **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★★<br>Moderate                    | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
 | **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★★<br>High                       | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
@@ -32,47 +32,41 @@ restore operations.
 | **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
 | **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
 
-If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use virtual machines (VMs) and Docker inside them.
+If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use
+virtual machines (VMs) and Docker inside them.
 
-In this setup, deploy Kafka nodes as containers within Docker and utilize **Kafka-Backup-Offline** to manage your Kafka operations efficiently. 
+In this setup, deploy Kafka nodes as containers within Docker and utilize **Kafka-Backup-Offline** to manage your Kafka
+operations efficiently.
 
 ![topology](charts/topology.png)
 
 ## Benefits of this Approach: ##
 
-1. **Resource Isolation:** The use of VMs ensures that each Kafka node operates in its own isolated environment, reducing risks of interference or resource contention.
-
-
-2. **Data Confidence:** Kafka-Backup-Offline provides foolproof routines for automated backups and restores, offering unparalleled reliability and peace of mind.
-
-
-3. **Ease of Deployment:** With Kafka-Backup-Offline, deploying and managing Kafka containers becomes a simple, streamlined process, even for complex setups.
-
-
-4. **Cost Efficiency:** Running Kafka in Docker on VMs eliminates the need for a fully managed service or complex Kubernetes infrastructure, making it a cost-effective solution.
-
-  
-5. **Portability:** Containers can easily be moved between environments, whether on different VMs, clouds, or on-premises servers.
-   
-   
-6. **Operational Flexibility:** You can customize VM and container configurations to suit your workload, scaling horizontally as needed by adding more VMs and Kafka nodes.
-   
-
-7. **Improved Backup Retention:** Kafka-Backup-Offline supports backup retention policies, ensuring that older backups are rotated out while critical backups can be pinned and retained.
-   
-
-8. **Disaster Recovery:** With automated restore routines, recovering from system failures becomes a fast and straightforward process.
-   
-
-9. **Developer-Friendly:** The foolproof tools offered by Kafka-Backup-Offline make it easy for developers to work with the cluster, enhancing productivity and reducing the learning curve.
-   
-
-10. **Minimal Downtime:** Routine backups and updates can be performed with minimal impact on cluster availability, ensuring smooth operations.
-
+1. **Resource Isolation:** The use of VMs ensures that each Kafka node operates in its own isolated environment,
+   reducing risks of interference or resource contention.<br><br>
+2. **Data Confidence:** Kafka-Backup-Offline provides foolproof routines for automated backups and restores, offering
+   unparalleled reliability and peace of mind.<br><br>
+3. **Ease of Deployment:** With Kafka-Backup-Offline, deploying and managing Kafka containers becomes a simple,
+   streamlined process, even for complex setups.<br><br>
+4. **Cost Efficiency:** Running Kafka in Docker on VMs eliminates the need for a fully managed service or complex
+   Kubernetes infrastructure, making it a cost-effective solution.<br><br>
+5. **Portability:** Containers can easily be moved between environments, whether on different VMs, clouds, or
+   on-premises servers.<br><br>
+6. **Operational Flexibility:** You can customize VM and container configurations to suit your workload, scaling
+   horizontally as needed by adding more VMs and Kafka nodes.<br><br>
+7. **Improved Backup Retention:** Kafka-Backup-Offline supports backup retention policies, ensuring that older backups
+   are rotated out while critical backups can be pinned and retained.<br><br>
+8. **Disaster Recovery:** With automated restore routines, recovering from system failures becomes a fast and
+   straightforward process.<br><br>
+9. **Developer-Friendly:** The foolproof tools offered by Kafka-Backup-Offline make it easy for developers to work with
+   the cluster, enhancing productivity and reducing the learning curve.<br><br>
+10. **Minimal Downtime:** Routine backups and restores can be performed with minimal impact on cluster availability,
+    ensuring smooth operations.
 
 ## **Cluster Deployment**
 
-### Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**. Plan your resources!
+Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
+### Plan your resources!
 
 ![resources map](charts/resources.png)
 
@@ -86,10 +80,13 @@ In this setup, deploy Kafka nodes as containers within Docker and utilize **Kafk
         - **Single SSD** for maximum performance.
         - **RAID-0** for performance without redundancy.
         - **RAID-10** for a balance of performance and redundancy.
-    - Use **eagerzeroedthick** provisioning for virtual disks to enhance I/O performance by pre-allocating disk space
+    - Use **eagerzeroedthick** in ESXi (or **Fixed Size Disk** in HyperV) provisioning for virtual disks to enhance I/O
+      performance by pre-allocating disk space
       and avoiding fragmentation during write operations.
 
 ### **Cluster Roles**
+
+![vms list](charts/vms.png)
 
 The minimal development/testing cluster should include of the following roles:
 
@@ -114,29 +111,29 @@ The minimal development/testing cluster should include of the following roles:
         - `kafka-broker-2`
         - `kafka-broker-3`
 
-
-
 ---
-
 
 ## Kafka-Backup-Offline Features
 
 ### Backup
+
 - **Scheduled backups** for configurations and data
 - **On-demand backups** for configurations or data
 
 ### Restore
+
 - **On-demand restores** for configurations or data
 
 ### Container Management
+
 - Stop Kafka containers
 - Start Kafka containers
 - Restart Kafka containers
 - Remove Kafka containers
 - Deploy Kafka containers
 
-This approach provides flexibility, simplicity, and robust management of your Kafka environment while avoiding the complexity of Kubernetes.
-
+This approach provides flexibility, simplicity, and robust management of your Kafka environment while avoiding the
+complexity of Kubernetes.
 
 ## **Cluster Procedures**
 
