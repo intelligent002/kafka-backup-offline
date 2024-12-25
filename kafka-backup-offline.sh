@@ -152,7 +152,7 @@ function cluster_backup()
 function create_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
-        log "DEBUG" "Script is already running (PID: $(cat "$PID_FILE")). Exiting."
+        log "INFO" "Script is already running (PID: $(cat "$PID_FILE")). Exiting."
         exit 1
     fi
 

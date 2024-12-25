@@ -35,10 +35,9 @@ Deployment options are:
 | **Automation**              | ★★★★★<br>Fully automated.                       | ★★★★<br>Possible with Kafka-Backup-Offline.           | ★★★★<br>Partial automation with Helm.                | ★<br>No automation.                         | ★<br>No automation.                           | ★<br>No automation.                     | ★<br>No automation.                       |
 | **Modern DevOps Practices** | ★★★★★<br>Fully aligned with CI/CD.              | ★★★★★<br>Fully aligned with modern DevOps.            | ★★★★★<br>Supports containerized workflows.           | ★★★★<br>Supports CI/CD workflows.           | ★★<br>Not containerized.                      | ★<br>Not aligned with modern practices. | ★★★<br>Good for development environments. |
 
-In case you do not wish to deal with kubernetes cluster or do not want to run kafka cluster there, the recommended
-deployment
-approach is to use **virtual machines (VMs)** with guaranteed hardware resource allocation for each Kafka node, like you
-would have with kubernetes.
+in case cloud managed service is no match, and you do not want to deal with kubernetes, your next best option is VMs with docker on them, and Kafka Nodes as containers in those dockers, kafka-backup-offline will deal with the rest: which is backup and restore, as an option it can also deploy the containers, and if you will specify :latest and redeploy daily after the backup - you will achieve backed up and updated state on daily basis.
+benefits of this approach are: resource isolation, data confidence.
+
 
 ### **VM Setup**
 
