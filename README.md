@@ -67,17 +67,18 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 
 ![resources map](charts/resources.png)
 
-### **VM Setup**
+## **Virtual Machines Setup**
 
-- **Resource Recommendations**: Ensure the VMs are provisioned with sufficient CPU, RAM, and disk space to meet Kafka's
-  workload demands.
+- **Resource Recommendations**: 
+  - Ensure the VMs are provisioned with sufficient CPU, RAM and DISK to meet Kafka's
+    workload demands.
 - **Storage Considerations**:
     - Avoid **RAID-5** due to its high write latency, which can degrade Kafka performance.
     - Prefer configurations such as:
-        - **Single SSD** for maximum performance.
+        - **Single SSD** for high performance.
         - **RAID-0** for performance without redundancy.
         - **RAID-10** for a balance of performance and redundancy.
-    - Use **eagerzeroedthick** in ESXi (or **Fixed Size Disk** in HyperV) provisioning for virtual disks to enhance I/O
+    - Use **eagerzeroedthick** in ESXi (**Fixed Size Disk** in HyperV) provisioning for virtual disks to enhance I/O
       performance by pre-allocating disk space
       and avoiding fragmentation during write operations.
 
@@ -85,16 +86,18 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 
 ![vms list](charts/vms.png)
 
-The minimal development/testing cluster should include of the following roles:
+The minimal development/testing cluster should include the following roles:
 
 1. **Central node(s):**
     - Responsible for running web console for GUI, backup & restore operations
+    - Mount (or bind via NFS) **Large size & Slow I/O** drive for **backup.**
     - Includes at least one node:
         - `kafka-central-1`
 
 
 2. **Controllers**:
     - Responsible for managing cluster metadata, leader elections, and topic configurations.
+    - Mount **Small size & Fast I/O** drive for **meta-data.**
     - Includes at least three controllers:
         - `kafka-controller-1`
         - `kafka-controller-2`
@@ -103,10 +106,13 @@ The minimal development/testing cluster should include of the following roles:
 
 3. **Brokers**:
     - Handle data storage, replication, and client requests.
+    - Mount **Medium size & Fast I/O** drive for **data.**
     - Includes at least three brokers:
         - `kafka-broker-1`
         - `kafka-broker-2`
         - `kafka-broker-3`
+
+once the virtual machines are up and runnig, lets see what the Kafka-Backup-Offline can offer you:
 
 ---
 
