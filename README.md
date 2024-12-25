@@ -19,61 +19,62 @@ restore operations.
 |-----------------------------|------------------------------|-------------------------------------------|-------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
 | **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐⭐	                               | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
 | **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs with KBO | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
-| **Performance**             | ★★★★★<br>Excelent            | ★★★★<br>Good                              | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★★★<br>Good          | ★★★★★<br>Excelent                  | ★★<br>Poor                           |
-| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★<br>Medium                       | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
-| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★★<br>Moderate                    | ★★★<br>Medium              | ★★<br>High            | ★<br>Very high                     | ★<br>Very high                       |
+| **Performance**             | ★★★★★<br>Excelent            | ★★★★<br>Good                              | ★★<br>Poor                          | ★★<br>Poor                 | ★★★★<br>Good          | ★★★★★<br>Excelent                  | ★★<br>Poor                           |
+| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium                       | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
+| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★★<br>Moderate                    | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
 | **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★★<br>High                       | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
-| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                              | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★★<br>Weak                           |
-| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★<br>Helm or Operators                  | ★★★★★<br>Next version               | ★★★<br>Docker images       | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
+| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                              | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★<br>Very Weak                       |
+| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★★<br>Helm or Operators                 | ★★★★★<br>Next version               | ★★★<br>Docker images       | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
 | **Backup**                  | ★★★★★<br>Fully Automatic     | ★★<br>Requires tooling                    | ★★★★★<br>With downtime              | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Recovery**                | ★★★★★<br>On demand           | ★★<br>Requires tooling                    | ★★★★★<br>With downtime              | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                              | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very poor                       |
-| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Poor                         | ★★<br>Poor                           |
-| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
+| **Recovery**                | ★★★★<br>On demand            | ★★<br>Requires tooling                    | ★★★★★<br>With downtime              | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
+| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                              | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very Poor                       |
+| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★★<br>Good               | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
+| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
 | **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
 
-In case a cloud-managed service is not a viable option, and you prefer to avoid the Kubernetes, your next best choice is
-virtual machines (VMs) with Docker.
+If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use virtual machines (VMs) and Docker inside them.
 
-Deploy Kafka nodes as containers within those Dockers, and let Kafka-Backup-Offline handle the rest:
+In this setup, deploy Kafka nodes as containers within Docker and utilize **Kafka-Backup-Offline** to manage your Kafka operations efficiently. 
 
-* backup on demand
-* backup on schedule
-* restore on demand
-* option of container deployment
-* daily updates on schedule. By specifying the tag `:latest` for containers and redeploying them daily after backups,
-  you can achieve a fully backed-up and up-to-date Kafka cluster with minimal manual intervention.
-* in case the next version will cause issues - you can safely recover from previous backup and redeploy older version of
-  docker container.
+![topology](charts/topology.png)
 
 ## Benefits of this Approach: ##
 
-1. **Resource Isolation:** The use of VMs ensures that each Kafka node operates in its own isolated environment,
-   reducing risks of interference or resource contention.
-   Data Confidence: Kafka-Backup-Offline provides foolproof routines for automated backups and restores, offering
-   unparalleled reliability and peace of mind.
-   Ease of Deployment: With Kafka-Backup-Offline, deploying and managing Kafka containers becomes a simple, streamlined
-   process, even for complex setups.
-   Cost Efficiency: Running Kafka in Docker on VMs eliminates the need for a fully managed service or complex Kubernetes
-   infrastructure, making it a cost-effective solution.
-   Portability: Containers can easily be moved between environments, whether on different VMs, clouds, or on-premises
-   servers.
-   Simplified Updates: Daily redeployments with the :latest tag ensure that your Kafka cluster stays updated without
-   requiring additional maintenance efforts.
-   Operational Flexibility: You can customize VM and container configurations to suit your workload, scaling
-   horizontally as needed by adding more VMs and Kafka nodes.
-   Improved Backup Retention: Kafka-Backup-Offline supports backup retention policies, ensuring that older backups are
-   rotated out while critical backups can be pinned and retained.
-   Disaster Recovery: With automated restore routines, recovering from system failures becomes a fast and
-   straightforward process.
-   Developer-Friendly: The foolproof tools offered by Kafka-Backup-Offline make it easy for developers to work with the
-   cluster, enhancing productivity and reducing the learning curve.
-   Minimal Downtime: Routine backups and updates can be performed with minimal impact on cluster availability, ensuring
-   smooth operations.
+1. **Resource Isolation:** The use of VMs ensures that each Kafka node operates in its own isolated environment, reducing risks of interference or resource contention.
 
-## **Cluster Topology**
 
-Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
+2. **Data Confidence:** Kafka-Backup-Offline provides foolproof routines for automated backups and restores, offering unparalleled reliability and peace of mind.
+
+
+3. **Ease of Deployment:** With Kafka-Backup-Offline, deploying and managing Kafka containers becomes a simple, streamlined process, even for complex setups.
+
+
+4. **Cost Efficiency:** Running Kafka in Docker on VMs eliminates the need for a fully managed service or complex Kubernetes infrastructure, making it a cost-effective solution.
+
+  
+5. **Portability:** Containers can easily be moved between environments, whether on different VMs, clouds, or on-premises servers.
+   
+   
+6. **Operational Flexibility:** You can customize VM and container configurations to suit your workload, scaling horizontally as needed by adding more VMs and Kafka nodes.
+   
+
+7. **Improved Backup Retention:** Kafka-Backup-Offline supports backup retention policies, ensuring that older backups are rotated out while critical backups can be pinned and retained.
+   
+
+8. **Disaster Recovery:** With automated restore routines, recovering from system failures becomes a fast and straightforward process.
+   
+
+9. **Developer-Friendly:** The foolproof tools offered by Kafka-Backup-Offline make it easy for developers to work with the cluster, enhancing productivity and reducing the learning curve.
+   
+
+10. **Minimal Downtime:** Routine backups and updates can be performed with minimal impact on cluster availability, ensuring smooth operations.
+
+
+## **Cluster Deployment**
+
+### Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**. Plan your resources!
+
+![resources map](charts/resources.png)
 
 ### **VM Setup**
 
@@ -113,19 +114,29 @@ The minimal development/testing cluster should include of the following roles:
         - `kafka-broker-2`
         - `kafka-broker-3`
 
-## Plan your resources! ##
 
-![resources map](charts/resources.png)
-
-### **Deployment**
-
-Each VM runs a **Docker engine** to streamline Kafka node management: including starting, stopping, backups, restores
-and version updates.
-
-The choice of Kafka vendor distribution — whether Apache, Confluent, Bitnami or others — is less critical, as all
-provide easily deployable Docker images.
 
 ---
+
+
+## Kafka-Backup-Offline Features
+
+### Backup
+- **Scheduled backups** for configurations and data
+- **On-demand backups** for configurations or data
+
+### Restore
+- **On-demand restores** for configurations or data
+
+### Container Management
+- Stop Kafka containers
+- Start Kafka containers
+- Restart Kafka containers
+- Remove Kafka containers
+- Deploy Kafka containers
+
+This approach provides flexibility, simplicity, and robust management of your Kafka environment while avoiding the complexity of Kubernetes.
+
 
 ## **Cluster Procedures**
 
