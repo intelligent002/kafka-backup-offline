@@ -1,7 +1,5 @@
 # **Kafka-Backup-Offline Utility**
 
----
-
 ## **Project Overview**
 
 The `Kafka-Backup-Offline Utility` is a robust Bash-based tool designed to manage Kafka clusters in **development and
@@ -10,8 +8,6 @@ following proper startup and shutdown procedures to maintain data integrity.
 
 This utility is **NOT SUITABLE FOR PRODUCTION USE**, as it requires taking the Kafka cluster offline during backup and
 restore operations.
-
----
 
 ## **In general, Kafka Cluster deployment options are:**
 
