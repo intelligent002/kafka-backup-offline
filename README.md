@@ -29,7 +29,7 @@ restore operations.
 | **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
 
 If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use
-virtual machines (VMs) and Docker inside them.
+**virtual machines (VMs) and Docker inside them.**
 
 In this setup, deploy Kafka nodes as containers within Docker and utilize **Kafka-Backup-Offline** to manage your Kafka
 operations efficiently.
