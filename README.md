@@ -8,16 +8,11 @@ The `Kafka-Backup-Offline Utility` is a robust Bash-based tool designed to manag
 testing environments**. Its primary focus is to enable **safe and reliable cluster backups and restores** while
 following proper startup and shutdown procedures to maintain data integrity.
 
-This utility is **NOT SUITABLE FOR PRODUCTION USE**, as it requires taking the Kafka cluster offline during backup and
-restore operations.
+This utility is **NOT SUITABLE FOR PRODUCTION USE**, as it requires taking the Kafka cluster offline during backup and restore operations.
 
 ---
 
-## **Cluster Topology**
-
-Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
-
-Deployment options are:
+## **In general, Kafka Cluster deployment options are:**
 
 | **Aspect**                  | **Cloud-Managed Services**                      | **Docker in VM with<br>Kafka-Backup-Offline**         | **Kubernetes**                                       | **Docker in VMs**                           | **Virtual Machines**                          | **Bare Metal**                          | **Docker Compose**                        |
 |-----------------------------|-------------------------------------------------|-------------------------------------------------------|------------------------------------------------------|---------------------------------------------|-----------------------------------------------|-----------------------------------------|-------------------------------------------|
@@ -35,8 +30,33 @@ Deployment options are:
 | **Automation**              | ★★★★★<br>Fully automated.                       | ★★★★<br>Possible with Kafka-Backup-Offline.           | ★★★★<br>Partial automation with Helm.                | ★<br>No automation.                         | ★<br>No automation.                           | ★<br>No automation.                     | ★<br>No automation.                       |
 | **Modern DevOps Practices** | ★★★★★<br>Fully aligned with CI/CD.              | ★★★★★<br>Fully aligned with modern DevOps.            | ★★★★★<br>Supports containerized workflows.           | ★★★★<br>Supports CI/CD workflows.           | ★★<br>Not containerized.                      | ★<br>Not aligned with modern practices. | ★★★<br>Good for development environments. |
 
-in case cloud managed service is no match, and you do not want to deal with kubernetes, your next best option is VMs with docker on them, and Kafka Nodes as containers in those dockers, kafka-backup-offline will deal with the rest: which is backup and restore, as an option it can also deploy the containers, and if you will specify :latest and redeploy daily after the backup - you will achieve backed up and updated state on daily basis.
-benefits of this approach are: resource isolation, data confidence.
+In case a cloud-managed service is not a viable option, and you prefer to avoid the Kubernetes, your next best choice is virtual machines (VMs) with Docker.
+
+Deploy Kafka nodes as containers within those Dockers, and let Kafka-Backup-Offline handle the rest:
+* backup on demand
+* backup on schedule
+* restore on demand
+* option of container deployment
+* daily updates on schedule. By specifying the tag `:latest` for containers and redeploying them daily after backups, you can achieve a fully backed-up and up-to-date Kafka cluster with minimal manual intervention.
+* in case the next version will cause issues - you can safely recover from previous backup and redeploy older version of docker container. 
+
+## Benefits of this Approach: ##
+
+1. **Resource Isolation:** The use of VMs ensures that each Kafka node operates in its own isolated environment, reducing risks of interference or resource contention.
+Data Confidence: Kafka-Backup-Offline provides foolproof routines for automated backups and restores, offering unparalleled reliability and peace of mind.
+Ease of Deployment: With Kafka-Backup-Offline, deploying and managing Kafka containers becomes a simple, streamlined process, even for complex setups.
+Cost Efficiency: Running Kafka in Docker on VMs eliminates the need for a fully managed service or complex Kubernetes infrastructure, making it a cost-effective solution.
+Portability: Containers can easily be moved between environments, whether on different VMs, clouds, or on-premises servers.
+Simplified Updates: Daily redeployments with the :latest tag ensure that your Kafka cluster stays updated without requiring additional maintenance efforts.
+Operational Flexibility: You can customize VM and container configurations to suit your workload, scaling horizontally as needed by adding more VMs and Kafka nodes.
+Improved Backup Retention: Kafka-Backup-Offline supports backup retention policies, ensuring that older backups are rotated out while critical backups can be pinned and retained.
+Disaster Recovery: With automated restore routines, recovering from system failures becomes a fast and straightforward process.
+Developer-Friendly: The foolproof tools offered by Kafka-Backup-Offline make it easy for developers to work with the cluster, enhancing productivity and reducing the learning curve.
+Minimal Downtime: Routine backups and updates can be performed with minimal impact on cluster availability, ensuring smooth operations.
+
+## **Cluster Topology**
+
+Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 
 
 ### **VM Setup**
