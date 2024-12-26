@@ -1,0 +1,11 @@
+auth:
+  type: DISABLED
+kafka:
+  clusters:
+  - bootstrapServers: 10.1.3.24:9092,10.1.3.25:9092,10.1.3.26:9092
+    name: stam
+    properties: {}
+    readOnly: false
+rbac:
+  roles: []
+webclient: {}
