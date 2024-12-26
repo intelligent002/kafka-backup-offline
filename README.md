@@ -13,7 +13,7 @@ restore operations.
 
 | **Aspect**                  | **Cloud-Managed Services**   | **Kubernetes**                            | **Docker in VMs**          | **Virtual Machines**  | **Bare Metal**                     | **Docker Compose**                   |
 |-----------------------------|------------------------------|-------------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
-| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
+| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐⭐	                                    | ⭐⭐⭐⭐                       | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
 | **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
 | **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
 | **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
