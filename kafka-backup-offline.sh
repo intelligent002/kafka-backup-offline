@@ -1119,7 +1119,7 @@ else
         "$1"
     else
         # Show help if the function doesn't exist
-        echo "Error: Function '$1' not found."
+        log "ERROR" "Error: Function '$1' not found."
         help
         exit 1
     fi
