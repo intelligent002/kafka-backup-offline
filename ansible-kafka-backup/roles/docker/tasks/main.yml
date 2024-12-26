@@ -1,0 +1,6 @@
+---
+- include_tasks: start.yml
+- include_tasks: stop.yml
+- include_tasks: restart.yml
+- include_tasks: remove.yml
+- include_tasks: run.yml

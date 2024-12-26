@@ -1,0 +1,9 @@
+---
+- name: Backup Kafka data
+  shell: tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
+  register: backup_result
+
+- name: Copy data backup to cold storage
+  copy:
+    src: "{{ storage_temp }}/data.tar.gz"
+    dest: "{{ storage_cold }}/data/"

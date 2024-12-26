@@ -1,0 +1,6 @@
+---
+- include_tasks: rotate.yml
+- include_tasks: backup_config.yml
+- include_tasks: backup_data.yml
+- include_tasks: restore_config.yml
+- include_tasks: restore_data.yml
