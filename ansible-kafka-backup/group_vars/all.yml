@@ -1,0 +1,22 @@
+startup_order:
+  - kafka-controller-1
+  - kafka-controller-2
+  - kafka-controller-3
+  - kafka-broker-1
+  - kafka-broker-2
+  - kafka-broker-3
+
+shutdown_order:
+  - kafka-broker-3
+  - kafka-broker-2
+  - kafka-broker-1
+  - kafka-controller-3
+  - kafka-controller-2
+  - kafka-controller-1
+
+image: confluentinc/cp-kafka:7.8.0
+retention_policy: 30
+storage_temp: /data/temp
+storage_cold: /backup/cold
+node_config: /data/cluster/config
+node_data: /data/cluster/data

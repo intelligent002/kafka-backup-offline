@@ -1,0 +1,4 @@
+---
+- name: Start Docker containers in startup order
+  shell: docker start {{ item }}
+  with_items: "{{ startup_order }}"

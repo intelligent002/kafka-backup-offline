@@ -1,0 +1,8 @@
+---
+- name: Manage Kafka Cluster Backup
+  hosts: nodes
+  become: yes
+  roles:
+    - role: ssh
+    - role: docker
+    - role: backup

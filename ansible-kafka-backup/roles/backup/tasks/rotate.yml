@@ -1,0 +1,14 @@
+---
+- name: Rotate old backups
+  find:
+    paths: "{{ storage_cold }}/rotated"
+    age: "{{ retention_policy }}d"
+    recurse: yes
+    patterns: "*.tar.gz"
+  register: old_backups
+
+- name: Remove old backups
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_backups.files }}"

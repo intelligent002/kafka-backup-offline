@@ -1,0 +1,4 @@
+---
+- name: Run Docker containers
+  shell: docker run -d --name {{ item }} {{ image }}
+  with_items: "{{ startup_order }}"

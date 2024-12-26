@@ -1,0 +1,4 @@
+---
+- name: Stop Docker containers in shutdown order
+  shell: docker stop {{ item }}
+  with_items: "{{ shutdown_order }}"
