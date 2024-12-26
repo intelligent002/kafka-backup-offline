@@ -11,22 +11,22 @@ restore operations.
 
 ## **In general, Kafka Cluster deployment options are:**
 
-| **Aspect**                  | **Cloud-Managed Services**   | **Kubernetes**                            | **Docker in VM with KBO**           | **Docker in VMs**          | **Virtual Machines**  | **Bare Metal**                     | **Docker Compose**                   |
-|-----------------------------|------------------------------|-------------------------------------------|-------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
-| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐⭐	                               | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
-| **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs with KBO | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
-| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
-| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium                       | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
-| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★★<br>Moderate                    | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
-| **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★★<br>High                       | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
-| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                              | ★★★★<br>Good                        | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★<br>Very Weak                       |
-| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★★<br>Helm or Operators                 | ★★★★★<br>Next version               | ★★★<br>Docker images       | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
-| **Backup**                  | ★★★★★<br>Fully Automatic     | ★★<br>Requires tooling                    | ★★★★★<br>With downtime              | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Recovery**                | ★★★★<br>On demand            | ★★<br>Requires tooling                    | ★★★★★<br>With downtime              | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                              | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very Poor                       |
-| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★★<br>Good               | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
-| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate                     | ★★★<br>Moderate            | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
-| **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★★<br>Good                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
+| **Aspect**                  | **Cloud-Managed Services**   | **Kubernetes**                            | **Docker in VMs**          | **Virtual Machines**  | **Bare Metal**                     | **Docker Compose**                   |
+|-----------------------------|------------------------------|-------------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
+| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐	                                     | ⭐⭐⭐                        | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
+| **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
+| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
+| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
+| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
+| **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
+| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★<br>Very Weak                       |
+| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★★<br>Helm or Operators                 | ★★★<br>Docker images       | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
+| **Backup**                  | ★★★★★<br>Fully Automatic     | ★★<br>Requires tooling                    | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
+| **Recovery**                | ★★★★<br>On demand            | ★★<br>Requires tooling                    | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
+| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                              | ★★★<br>Moderate            | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very Poor                       |
+| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent                        | ★★★★<br>Good               | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
+| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate            | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
+| **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
 
 If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use
 **virtual machines (VMs) and Docker inside them.**
@@ -69,9 +69,9 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 
 ## **Virtual Machines Setup**
 
-- **Resource Recommendations**: 
-  - Ensure the VMs are provisioned with sufficient CPU, RAM and DISK to meet Kafka's
-    workload demands.
+- **Resource Recommendations**:
+    - Ensure the VMs are provisioned with sufficient CPU, RAM and DISK to meet Kafka's
+      workload demands.
 - **Storage Considerations**:
     - Avoid **RAID-5** due to its high write latency, which can degrade Kafka performance.
     - Prefer configurations such as:
