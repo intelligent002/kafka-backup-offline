@@ -1107,11 +1107,10 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 CONFIG_FILE="$SCRIPT_DIR/config.ini"
 load_configuration "$CONFIG_FILE"
 create_pid_file
-# Render welcome message
-help
 # Decide what to run
 if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
+    disclaimer
     menu
 else
     # Parameter provided, assume it's a function name
@@ -1121,7 +1120,7 @@ else
     else
         # Show help if the function doesn't exist
         echo "Error: Function '$1' not found."
-        show_help
+        help
         exit 1
     fi
 fi
