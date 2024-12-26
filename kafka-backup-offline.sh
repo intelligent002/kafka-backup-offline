@@ -1081,7 +1081,6 @@ function menu()
 
         case $choice in
             0)
-                disclaimer
                 log "INFO" "Have a nice day!"
                 break
                 ;;
@@ -1112,6 +1111,7 @@ if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
     disclaimer
     menu
+    disclaimer
 else
     # Parameter provided, assume it's a function name
     if declare -f "$1" >/dev/null; then
