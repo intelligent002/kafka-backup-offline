@@ -1,16 +1,48 @@
 ---
-- name: Create temporary backup directory
-  file:
-    path: "{{ storage_temp }}/config"
-    state: directory
-    mode: '0755'
+- name: Backup Kafka configuration files
+  hosts: kafka_nodes
+  tasks:
+    - name: Create temporary backup directory on node
+      file:
+        path: "{{ node_temp }}/config"
+        state: directory
+        mode: '0755'
 
-- name: Archive Kafka configuration files
-  shell: >
-    tar -czf {{ storage_temp }}/config.tar.gz {{ node_config }}
-  register: backup_config_result
+    - name: Archive Kafka configuration files on node
+      shell: >
+        tar -czf {{ node_temp }}/config.tar.gz {{ node_config }}
+      register: backup_config_result
 
-- name: Copy configuration backup to cold storage
-  copy:
-    src: "{{ storage_temp }}/config.tar.gz"
-    dest: "{{ storage_cold }}/config/"
+    - name: Transfer configuration archive to central server
+      fetch:
+        src: "{{ node_temp }}/config.tar.gz"
+        dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
+        flat: yes
+
+    - name: Cleanup temporary files on node
+      file:
+        path: "{{ node_temp }}"
+        state: absent
+
+- name: Consolidate backups and create final archive
+  hosts: localhost
+  tasks:
+    - name: Create temporary storage directory
+      file:
+        path: "{{ storage_temp }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create zip of zips from storage_temp
+      shell: >
+        tar -czf {{ storage_temp }}/backup-{{ ansible_date_time.date }}.tar.gz -C {{ storage_temp }} .
+
+    - name: Move final archive to cold storage
+      copy:
+        src: "{{ storage_temp }}/backup-{{ ansible_date_time.date }}.tar.gz"
+        dest: "{{ storage_cold }}/backup-{{ ansible_date_time.date }}.tar.gz"
+
+    - name: Cleanup temporary storage directory
+      file:
+        path: "{{ storage_temp }}"
+        state: absent

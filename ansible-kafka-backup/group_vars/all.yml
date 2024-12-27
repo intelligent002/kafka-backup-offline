@@ -20,3 +20,4 @@ storage_temp: /data/temp
 storage_cold: /backup/cold
 node_config: /data/cluster/config
 node_data: /data/cluster/data
+node_temp: /data/temp
