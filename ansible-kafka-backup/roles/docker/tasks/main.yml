@@ -1,6 +1,15 @@
 ---
 - include_tasks: start.yml
+  tags: containers_start
+
 - include_tasks: stop.yml
+  tags: containers_stop
+
 - include_tasks: restart.yml
+  tags: containers_restart
+
 - include_tasks: remove.yml
+  tags: containers_remove
+
 - include_tasks: run.yml
+  tags: containers_run
