@@ -1,7 +1,14 @@
 ---
-- name: Backup Kafka configuration
-  shell: tar -czf {{ storage_temp }}/config.tar.gz {{ node_config }}
-  register: backup_result
+- name: Create temporary backup directory
+  file:
+    path: "{{ storage_temp }}/config"
+    state: directory
+    mode: '0755'
+
+- name: Archive Kafka configuration files
+  shell: >
+    tar -czf {{ storage_temp }}/config.tar.gz {{ node_config }}
+  register: backup_config_result
 
 - name: Copy configuration backup to cold storage
   copy:
