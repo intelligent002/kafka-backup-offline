@@ -50,17 +50,10 @@
     flat: yes
   register: fetch_archive_result
 
-- name: List files in a local directory
+- name: Archive nodes config into zip of zips
   tags: backup_config
-  ansible.builtin.find:
-    paths: "{{ storage_temp }}"
-    file_type: file
+  shell: (cd {{ storage_temp }} && tar -czf /backup/cold/config.tar.gz ./)
   delegate_to: localhost
   run_once: true
-  register: local_files
+  register: zip_of_zips_results
 
-- name: Show list of local files
-  tags: backup_config
-  run_once: true
-  debug:
-    var: local_files.files
