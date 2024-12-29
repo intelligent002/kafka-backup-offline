@@ -6,5 +6,3 @@
     - role: ssh
     - role: docker
     - role: backup
-      tags:
-        - backup_config
