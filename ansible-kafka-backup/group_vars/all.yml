@@ -16,8 +16,8 @@ shutdown_order:
 
 image: confluentinc/cp-kafka:7.8.0
 retention_policy: 30
-storage_temp: /data/temp
 storage_cold: /backup/cold
+storage_temp: /data/temp
 node_config: /data/cluster/config
 node_data: /data/cluster/data
 node_temp: /data/temp
