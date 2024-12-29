@@ -15,6 +15,19 @@
         state: directory
         mode: '0755'
 
+    - name: List files in a local directory
+      tags: backup_config
+      ansible.builtin.find:
+        paths: "{{ storage_temp }}"
+        file_type: file
+      register: local_files
+
+    - name: Show list of local files
+      tags: backup_config
+      run_once: true
+      debug:
+        var: local_files.files
+
 - name: Cleanup and prepare temporary directories on nodes
   hosts: all
   become: yes
@@ -51,17 +64,3 @@
         dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
         flat: yes
       register: fetch_archive_result
-
-    - name: List files in a local directory
-      hosts: localhost
-      tags: backup_config
-      ansible.builtin.find:
-        paths: "{{ storage_temp }}"
-        file_type: file
-      register: local_files
-
-    - name: Show list of local files
-      tags: backup_config
-      run_once: true
-      debug:
-        var: local_files.files
