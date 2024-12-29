@@ -51,7 +51,7 @@
 - name: List files in a local directory
   tags: backup_config
   ansible.builtin.find:
-    paths: /data/temp/
+    paths: "{{ storage_temp }}"
     file_type: file
   delegate_to: localhost
   register: local_files
