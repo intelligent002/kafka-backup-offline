@@ -36,13 +36,6 @@
     - role: ../roles/docker
     - role: ../roles/backup
 
-  post_tasks:
-    - name: Clean temporary directory on nodes
-      file:
-        path: "{{ node_temp }}"
-        state: absent
-      register: node_temp_clean_results
-
 - name: Post-execution
   hosts: localhost
   become: yes
