@@ -7,14 +7,19 @@
 - name: Create temporary directory on nodes
   tags: backup_config
   file:
-    path: "{{ node_temp }}"
+    path: "{{ node_temp }}/{{ inventory_hostname }}"
     state: directory
     mode: '0755'
 
+- name: Copy node configs to temp folder
+  tags: backup_config
+  shell: cp {{ node_config }} {{ node_temp }}/{{ inventory_hostname }}/ -R
+  register: copy_config_results
+
 - name: Archive Kafka configuration files on nodes
   tags: backup_config
-  shell: tar -czf {{ node_temp }}/{{ inventory_hostname }}-config.tar.gz {{ node_config }}
-  register: backup_config_result
+  shell: (cd {{ node_temp }} && tar -czf {{ inventory_hostname }}-config.tar.gz {{ inventory_hostname }})
+  register: tar_config_result
 
 - name: Transfer configuration archive to central server
   tags: backup_config
@@ -22,3 +27,4 @@
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
+  register: tar_config_result
