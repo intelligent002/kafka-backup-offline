@@ -1,11 +1,11 @@
-- name: Create temporary backup directory on node
+- name: Create temporary backup directory on nodes
   tags: backup_config
   file:
     path: "{{ node_temp }}/config"
     state: directory
     mode: '0755'
 
-- name: Archive Kafka configuration files on node
+- name: Archive Kafka configuration files on nodes
   tags: backup_config
   shell: tar -czf {{ node_temp }}/config.tar.gz {{ node_config }}
   register: backup_config_result
