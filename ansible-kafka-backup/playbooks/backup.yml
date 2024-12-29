@@ -7,6 +7,7 @@
       file:
         path: "{{ storage_temp }}"
         state: absent
+
     - name: Create temporary directory on localhost
       file:
         path: "{{ storage_temp }}"
@@ -22,15 +23,15 @@
         path: "{{ node_temp }}"
         state: absent
       register: node_temp_clean_results
+
     - name: Create temporary directory on nodes
       file:
         path: "{{ node_temp }}"
         state: directory
         mode: '0755'
       register: node_temp_create_results
+
   roles:
-    - role: ../roles/ssh
-    - role: ../roles/docker
     - role: ../roles/backup
       tags: backup_config
   post_tasks:
