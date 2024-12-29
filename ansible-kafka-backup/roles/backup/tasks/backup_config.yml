@@ -1,21 +1,25 @@
 - name: Create temporary backup directory on node
+  tags: backup_config
   file:
     path: "{{ node_temp }}/config"
     state: directory
     mode: '0755'
 
 - name: Archive Kafka configuration files on node
+  tags: backup_config
   shell: >
     tar -czf {{ node_temp }}/config.tar.gz {{ node_config }}
   register: backup_config_result
 
 - name: Transfer configuration archive to central server
+  tags: backup_config
   fetch:
     src: "{{ node_temp }}/config.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
 
 - name: Cleanup temporary files on node
+  tags: backup_config
   file:
     path: "{{ node_temp }}"
     state: absent

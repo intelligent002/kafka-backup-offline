@@ -1,5 +1,6 @@
 ---
 - name: Set up SSH key on nodes
+  tags: ssh_install
   authorized_key:
     user: "{{ ansible_user }}"
     state: present

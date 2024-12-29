@@ -1,4 +1,5 @@
 ---
 - name: Restart Docker containers
+  tags: containers_restart
   shell: docker restart {{ item }}
   with_items: "{{ startup_order + shutdown_order }}"

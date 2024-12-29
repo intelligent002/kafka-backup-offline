@@ -1,6 +1,6 @@
 ---
 - include_tasks: rotate.yml
-  tags: backups_rotate
+  tags: rotate_backups
 
 - include_tasks: backup_config.yml
   tags: backup_config

@@ -1,16 +1,19 @@
 ---
 - name: Create temporary data backup directory
+  tags: backup_data
   file:
     path: "{{ storage_temp }}/data"
     state: directory
     mode: '0755'
 
 - name: Archive Kafka data files
+  tags: backup_data
   shell: >
     tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
   register: backup_data_result
 
 - name: Copy data backup to cold storage
+  tags: backup_data
   copy:
     src: "{{ storage_temp }}/data.tar.gz"
     dest: "{{ storage_cold }}/data/"

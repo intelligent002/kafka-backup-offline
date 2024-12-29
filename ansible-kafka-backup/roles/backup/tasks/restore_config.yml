@@ -1,3 +1,4 @@
 ---
 - name: Restore Kafka configuration
+  tags: restore_config
   shell: tar -xzf {{ storage_cold }}/config/config.tar.gz -C {{ node_config }}

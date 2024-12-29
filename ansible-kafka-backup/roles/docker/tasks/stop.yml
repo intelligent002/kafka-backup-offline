@@ -1,4 +1,5 @@
 ---
 - name: Stop Docker containers in shutdown order
+  tags: containers_stop
   shell: docker stop {{ item }}
   with_items: "{{ shutdown_order }}"

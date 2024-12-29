@@ -1,5 +1,6 @@
 ---
 - name: Rotate old backups
+  tags: rotate_backups
   find:
     paths: "{{ storage_cold }}/rotated"
     age: "{{ retention_policy }}d"
@@ -8,6 +9,7 @@
   register: old_backups
 
 - name: Remove old backups
+  tags: rotate_backups
   file:
     path: "{{ item.path }}"
     state: absent
