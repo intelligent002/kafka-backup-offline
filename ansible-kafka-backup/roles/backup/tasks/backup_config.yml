@@ -31,7 +31,7 @@
 
 - name: List files in a local directory
   ansible.builtin.find:
-    paths: {{ storage_temp }}/
+    paths: /data/temp/
     file_type: file
   delegate_to: localhost
   register: local_files
