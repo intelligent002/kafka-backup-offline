@@ -28,3 +28,14 @@
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
   register: tar_config_result
+
+- name: List files in a local directory
+  ansible.builtin.find:
+    paths: {{ storage_temp }}
+    file_type: file
+  delegate_to: localhost
+  register: local_files
+
+- name: Show list of local files
+  debug:
+    var: local_files.files
