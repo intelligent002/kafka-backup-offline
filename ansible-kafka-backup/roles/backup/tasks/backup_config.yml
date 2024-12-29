@@ -1,3 +1,9 @@
+- name: Cleanup temporary files on node
+  tags: backup_config
+  file:
+    path: "{{ node_temp }}"
+    state: absent
+
 - name: Create temporary backup directory on nodes
   tags: backup_config
   file:
@@ -16,9 +22,3 @@
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
-#
-#- name: Cleanup temporary files on node
-#  tags: backup_config
-#  file:
-#    path: "{{ node_temp }}"
-#    state: absent
