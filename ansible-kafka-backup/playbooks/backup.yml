@@ -33,11 +33,8 @@
 
   roles:
     - role: ../roles/ssh
-      tags: ssh
     - role: ../roles/docker
-      tags: docker
     - role: ../roles/backup
-      tags: backup_config
 
   post_tasks:
     - name: Clean temporary directory on nodes
