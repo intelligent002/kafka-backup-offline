@@ -21,3 +21,9 @@ storage_temp: /data/temp
 node_config: /data/cluster/config
 node_data: /data/cluster/data
 node_temp: /data/temp
+
+backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
+backup_config_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+backup_data_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+backup_config_archive: "{{ backup_config_path }}/{{ backup_date }}---config.tar.gz"
+backup_data_archive: "{{ backup_data_path }}/{{ backup_date }}---data.tar.gz"

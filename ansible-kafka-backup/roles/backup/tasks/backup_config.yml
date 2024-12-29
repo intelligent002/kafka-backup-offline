@@ -52,7 +52,7 @@
 
 - name: Archive nodes config into zip of zips
   tags: backup_config
-  shell: (cd /data/temp && tar -czf /backup/cold/config.tar.gz ./)
+  shell: (cd {{ storage_temp }} && tar -czf {{ backup_config_archive }} ./)
   delegate_to: localhost
   run_once: true
   register: zip_of_zips_results
