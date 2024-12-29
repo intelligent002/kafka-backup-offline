@@ -30,6 +30,7 @@
   register: tar_config_result
 
 - name: List files in a local directory
+  tags: backup_config
   ansible.builtin.find:
     paths: /data/temp/
     file_type: file
@@ -37,5 +38,6 @@
   register: local_files
 
 - name: Show list of local files
+  tags: backup_config
   debug:
     var: local_files.files
