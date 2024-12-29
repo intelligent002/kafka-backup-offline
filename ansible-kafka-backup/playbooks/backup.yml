@@ -32,6 +32,10 @@
       register: node_temp_create_results
 
   roles:
+    - role: ../roles/ssh
+      tags: ssh
+    - role: ../roles/docker
+      tags: docker
     - role: ../roles/backup
       tags: backup_config
 
