@@ -1,10 +1,10 @@
-- name: Cleanup temporary files on node
+- name: Cleanup temporary directory on nodes
   tags: backup_config
   file:
     path: "{{ node_temp }}"
     state: absent
 
-- name: Create temporary backup directory on nodes
+- name: Create temporary directory on nodes
   tags: backup_config
   file:
     path: "{{ node_temp }}/config"
