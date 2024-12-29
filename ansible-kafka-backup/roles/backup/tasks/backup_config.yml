@@ -3,6 +3,7 @@
   file:
     path: "{{ node_temp }}"
     state: absent
+  register: node_temp_cleanup_results
 
 - name: Create temporary directory on nodes
   tags: backup_config
@@ -10,16 +11,34 @@
     path: "{{ node_temp }}/{{ inventory_hostname }}"
     state: directory
     mode: '0755'
+  register: node_temp_create_results
+
+- name: Cleanup temporary directory on the localhost
+  tags: backup_config
+  file:
+    path: "{{ storage_temp }}"
+    state: absent
+  delegate_to: localhost
+  register: local_temp_cleanup_results
+
+- name: Create temporary directory on the localhost
+  tags: backup_config
+  file:
+    path: "{{ storage_temp }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  register: local_temp_create_results
 
 - name: Copy node configs to temp folder
   tags: backup_config
   shell: cp {{ node_config }}/* {{ node_temp }}/{{ inventory_hostname }}/ -R
-  register: copy_config_results
+  register: copy_config_to_temp_results
 
 - name: Archive Kafka configuration files on nodes
   tags: backup_config
   shell: (cd {{ node_temp }} && tar -czf {{ inventory_hostname }}-config.tar.gz {{ inventory_hostname }})
-  register: tar_config_result
+  register: config_archive_result
 
 - name: Transfer configuration archive to central server
   tags: backup_config
@@ -27,7 +46,7 @@
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
-  register: tar_config_result
+  register: fetch_archive_result
 
 - name: List files in a local directory
   tags: backup_config
