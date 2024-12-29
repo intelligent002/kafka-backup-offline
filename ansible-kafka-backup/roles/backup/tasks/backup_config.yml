@@ -11,7 +11,7 @@
   shell: cp {{ node_config }}/* {{ node_temp }}/{{ inventory_hostname }}/ -R
   register: copy_config_to_temp_results
 
-- name: Archive Kafka configuration files on nodes
+- name: Archive cluster configuration files on nodes
   tags: backup_config
   shell: (cd {{ node_temp }} && tar -czf {{ inventory_hostname }}-config.tar.gz {{ inventory_hostname }})
   register: config_archive_result

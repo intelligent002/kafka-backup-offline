@@ -14,7 +14,7 @@
         state: directory
         mode: '0755'
 
-- name: Manage Kafka Cluster Backup
+- name: Manage cluster backup
   hosts: nodes
   become: yes
   pre_tasks:

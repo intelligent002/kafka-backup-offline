@@ -1,4 +1,4 @@
 ---
-- name: Restore Kafka data
+- name: Restore Cluster data
   tags: restore_data
   shell: tar -xzf {{ storage_cold }}/data/data.tar.gz -C {{ node_data }}

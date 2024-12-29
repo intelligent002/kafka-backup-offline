@@ -6,7 +6,7 @@
     state: directory
     mode: '0755'
 
-- name: Archive Kafka data files
+- name: Archive cluster data files
   tags: backup_data
   shell: tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
   register: backup_data_result
