@@ -19,6 +19,7 @@
     path: "{{ storage_temp }}"
     state: absent
   delegate_to: localhost
+  run_once: true
   register: local_temp_cleanup_results
 
 - name: Create temporary directory on the localhost
@@ -28,6 +29,7 @@
     state: directory
     mode: '0755'
   delegate_to: localhost
+  run_once: true
   register: local_temp_create_results
 
 - name: Copy node configs to temp folder
@@ -54,9 +56,11 @@
     paths: "{{ storage_temp }}"
     file_type: file
   delegate_to: localhost
+  run_once: true
   register: local_files
 
 - name: Show list of local files
   tags: backup_config
+  run_once: true
   debug:
     var: local_files.files
