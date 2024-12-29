@@ -7,7 +7,7 @@
 - name: Create temporary directory on nodes
   tags: backup_config
   file:
-    path: "{{ node_temp }}/config"
+    path: "{{ node_temp }}"
     state: directory
     mode: '0755'
 
