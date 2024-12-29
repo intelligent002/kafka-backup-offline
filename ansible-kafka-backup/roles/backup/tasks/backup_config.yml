@@ -13,7 +13,7 @@
 
 - name: Copy node configs to temp folder
   tags: backup_config
-  shell: cp {{ node_config }} {{ node_temp }}/{{ inventory_hostname }}/ -R
+  shell: cp {{ node_config }}/ {{ node_temp }}/{{ inventory_hostname }}/ -R
   register: copy_config_results
 
 - name: Archive Kafka configuration files on nodes
