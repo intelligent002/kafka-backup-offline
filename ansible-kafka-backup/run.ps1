@@ -1,6 +1,6 @@
 alias ansible-playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v ~/.aws:/root/.aws -v $(pwd):/apps -v /data:/data -v /backup:/backup -w /apps alpine/ansible ansible-playbook"
 
-ansible-playbook -i inventory playbook.yml --tags "backup_config"
+ansible-playbook -i inventories/productions/inventory playbooks/playbook.yml --tags "backup_config"
 
 docker run -ti --rm `
     -v "c:\users\intel\.ssh:/root/.ssh" `

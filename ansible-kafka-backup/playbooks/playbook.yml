@@ -29,9 +29,9 @@
         mode: '0755'
       register: node_temp_create_results
   roles:
-    - role: ssh
-    - role: docker
-    - role: backup
+    - role: ../roles/ssh
+    - role: ../roles/docker
+    - role: ../roles/backup
   post_tasks:
     - name: Clean temporary directory on nodes
       file:
