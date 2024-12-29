@@ -32,6 +32,7 @@
     - role: ../roles/ssh
     - role: ../roles/docker
     - role: ../roles/backup
+      tags: backup_config
   post_tasks:
     - name: Clean temporary directory on nodes
       file:
