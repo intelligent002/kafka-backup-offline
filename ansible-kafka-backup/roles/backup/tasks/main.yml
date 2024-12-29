@@ -1,15 +1,20 @@
 ---
-- include_tasks: rotate.yml
-  tags: rotate_backups
+- name: Rotate old backups
+  include_tasks: rotate.yml
+  tags: rotate
 
-- include_tasks: backup_config.yml
+- name: Run backup configuration
+  include_tasks: backup_config.yml
   tags: backup_config
 
-- include_tasks: backup_data.yml
+- name: Run backup data
+  include_tasks: backup_data.yml
   tags: backup_data
 
-- include_tasks: restore_config.yml
-  tags: restore_config
+- name: Run recovery configuration
+  include_tasks: recovery_config.yml
+  tags: recovery_config
 
-- include_tasks: restore_data.yml
-  tags: restore_data
+- name: Run recovery data
+  include_tasks: recovery_data.yml
+  tags: recovery_data

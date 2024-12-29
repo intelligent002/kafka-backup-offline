@@ -1,0 +1,54 @@
+---
+- name: Pre-execution
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Clean temporary directory on localhost
+      file:
+        path: "{{ storage_temp }}"
+        state: absent
+    - name: Create temporary directory on localhost
+      file:
+        path: "{{ storage_temp }}"
+        state: directory
+        mode: '0755'
+
+- name: Manage Kafka Cluster Backup
+  hosts: all
+  become: yes
+  pre_tasks:
+    - name: Clean temporary directory on nodes
+      file:
+        path: "{{ node_temp }}"
+        state: absent
+      register: node_temp_clean_results
+    - name: Create temporary directory on nodes
+      file:
+        path: "{{ node_temp }}"
+        state: directory
+        mode: '0755'
+      register: node_temp_create_results
+  roles:
+    - role: ssh
+    - role: docker
+    - role: backup
+  post_tasks:
+    - name: Clean temporary directory on nodes
+      file:
+        path: "{{ node_temp }}"
+        state: absent
+      register: node_temp_clean_results
+
+- name: Post-execution
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Clean temporary directory on localhost
+      file:
+        path: "{{ storage_temp }}"
+        state: absent
+    - name: Create temporary directory on localhost
+      file:
+        path: "{{ storage_temp }}"
+        state: directory
+        mode: '0755'
