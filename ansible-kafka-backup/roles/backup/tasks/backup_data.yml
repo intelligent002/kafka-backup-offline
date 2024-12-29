@@ -8,8 +8,7 @@
 
 - name: Archive Kafka data files
   tags: backup_data
-  shell: >
-    tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
+  shell: tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
   register: backup_data_result
 
 - name: Copy data backup to cold storage

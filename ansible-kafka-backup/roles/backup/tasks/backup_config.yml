@@ -7,13 +7,13 @@
 
 - name: Archive Kafka configuration files on nodes
   tags: backup_config
-  shell: tar -czf {{ node_temp }}/config.tar.gz {{ node_config }}
+  shell: tar -czf {{ node_temp }}/{{ inventory_hostname }}-config.tar.gz {{ node_config }}
   register: backup_config_result
 
 - name: Transfer configuration archive to central server
   tags: backup_config
   fetch:
-    src: "{{ node_temp }}/config.tar.gz"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
     flat: yes
 #
