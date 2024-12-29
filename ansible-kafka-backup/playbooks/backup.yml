@@ -32,7 +32,7 @@
       register: node_temp_create_results
 
   roles:
-    - role: ../roles/backup/main.yml
+    - role: ../roles/backup
       tags: backup_config
 
   post_tasks:
