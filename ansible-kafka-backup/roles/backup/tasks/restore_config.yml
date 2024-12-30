@@ -24,7 +24,6 @@
     src: "{{ recovery_archive }}"
     dest: "{{ storage_temp }}"
     remote_src: yes
-    executable: "/usr/bin/tar"
 
 - name: Push extracted configuration files to nodes
   tags:
@@ -58,4 +57,3 @@
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
     dest: "{{ node_config }}"
     remote_src: yes
-    executable: "/usr/bin/tar"
