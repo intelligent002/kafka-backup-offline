@@ -2,9 +2,11 @@
 - name: Stop Docker containers in shutdown order (one by one)
   shell: docker stop {{ item }}
   with_items: "{{ shutdown_order }}"
-  when: inventory_hostname == item
+  delegate_to: "{{ item }}"
+  run_once: true
   register: stop_results
 
-- name: Debug container stop status
+- name: Debug container stop results
   debug:
-    var: stop_results.results
+    msg: "Container {{ item.item }} stop result: {{ item.rc == 0 | ternary('success', 'failure') }}"
+  with_items: "{{ stop_results.results }}"
