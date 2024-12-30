@@ -9,7 +9,7 @@
   run_once: true
   shell: rm -rf {{ storage_temp }} && mkdir -p {{ storage_temp }} && chmod 0755 {{ storage_temp }}
 
-- name: Remove temporal folder on nodes
+- name: Cleanup temporal folder on nodes
   tags:
     - backup_config
     - backup_data
