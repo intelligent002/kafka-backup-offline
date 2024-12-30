@@ -11,6 +11,7 @@
   tags:
     - backup_data
     - backup_config
+  run_once: true
   delegate_to: localhost
   file:
     path: "{{ storage_temp }}"

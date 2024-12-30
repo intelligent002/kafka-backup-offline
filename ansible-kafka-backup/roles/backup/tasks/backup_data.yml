@@ -1,23 +1,25 @@
 ---
 # Include containers_stop tasks
 - name: Stop containers before backing up data
-  include_tasks: ../../docker/tasks/stop.yml
   tags:
     - backup_data
+  include_tasks: ../../docker/tasks/stop.yml
 
 - name: Archive cluster data files on nodes
-  tags: backup_data
+  tags:
+    - backup_data
   shell: (cd {{ node_data }} && tar -czf {{ node_temp }}/{{ inventory_hostname }}-data.tar.gz ./)
   register: data_archive_result
 
 # Include containers_stop tasks
 - name: Start containers after backing up data
-  include_tasks: ../../docker/tasks/start.yml
   tags:
     - backup_data
+  include_tasks: ../../docker/tasks/start.yml
 
 - name: Transfer data archive to central server
-  tags: backup_data
+  tags:
+    - backup_data
   fetch:
     src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.gz"
@@ -25,7 +27,8 @@
   register: fetch_data_archive_result
 
 - name: Archive nodes data into zip of zips
-  tags: backup_data
+  tags:
+    - backup_data
   shell: (cd {{ storage_temp }} && tar -czf {{ backup_data_archive }} ./)
   delegate_to: localhost
   run_once: true
