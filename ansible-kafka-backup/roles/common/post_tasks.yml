@@ -1,0 +1,15 @@
+---
+- name: Clean up temporary directory on nodes
+  file:
+    path: "{{ node_temp }}"
+    state: absent
+
+- name: Clean up temporary directory on localhost
+  delegate_to: localhost
+  file:
+    path: "{{ storage_temp }}"
+    state: absent
+
+- name: Summarize execution results
+  debug:
+    msg: "Execution completed successfully. Temporary directories have been cleaned up."

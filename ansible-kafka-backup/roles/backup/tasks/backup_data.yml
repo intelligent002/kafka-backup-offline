@@ -1,4 +1,11 @@
 ---
+# Include containers_stop tasks
+- name: Stop containers before backing up data
+  include_tasks: ../../docker/tasks/containers_stop.yml
+  tags:
+    - containers_stop
+    - backup_data
+
 - name: Archive cluster data files on nodes
   tags: backup_data
   shell: (cd {{ node_data }} && tar -czf {{ node_temp }}/{{ inventory_hostname }}-data.tar.gz ./)
