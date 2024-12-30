@@ -5,6 +5,11 @@
 
   pre_tasks:
     - name: Cleanup temporary files before execution
+      tags:
+        - backup_config
+        - backup_data
+        - restore_config
+        - restore_data
       include_tasks: ../roles/common/cleanup.yml
 
   roles:
@@ -14,4 +19,9 @@
 
   post_tasks:
     - name: Cleanup temporary files after execution
+      tags:
+        - backup_config
+        - backup_data
+        - restore_config
+        - restore_data
       include_tasks: ../roles/common/cleanup.yml
