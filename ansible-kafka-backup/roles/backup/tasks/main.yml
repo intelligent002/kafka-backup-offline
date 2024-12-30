@@ -12,9 +12,9 @@
   tags: backup_data
 
 - name: Run recovery configuration
-  include_tasks: recovery_config.yml
+  include_tasks: restore_config.yml
   tags: restore_config
 
 - name: Run recovery data
-  include_tasks: recovery_data.yml
+  include_tasks: restore_data.yml
   tags: restore_data
