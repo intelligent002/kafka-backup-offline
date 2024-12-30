@@ -1,7 +1,7 @@
 ---
 # Include containers_stop tasks
 - name: Stop containers before backing up data
-  include_tasks: ../../docker/tasks/containers_stop.yml
+  include_tasks: ../../docker/tasks/stop.yml
   tags:
     - containers_stop
     - backup_data
