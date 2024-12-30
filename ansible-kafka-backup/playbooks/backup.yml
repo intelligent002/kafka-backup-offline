@@ -2,7 +2,7 @@
 - name: Pre-execution
   hosts: localhost
   become: yes
-  tasks:
+  pre_tasks:
     - name: Clean temporary directory on localhost
       file:
         path: "{{ storage_temp }}"
@@ -39,7 +39,7 @@
 - name: Post-execution
   hosts: localhost
   become: yes
-  tasks:
+  post_tasks:
     - name: Clean temporary directory on localhost
       file:
         path: "{{ storage_temp }}"

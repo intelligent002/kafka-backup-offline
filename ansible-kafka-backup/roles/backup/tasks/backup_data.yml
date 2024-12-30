@@ -1,18 +1,21 @@
 ---
-- name: Create temporary data backup directory
+- name: Archive cluster data files on nodes
   tags: backup_data
-  file:
-    path: "{{ storage_temp }}/data"
-    state: directory
-    mode: '0755'
+  shell: (cd {{ node_data }} && tar -czf {{ node_temp }}/{{ inventory_hostname }}-data.tar.gz ./)
+  register: data_archive_result
 
-- name: Archive cluster data files
+- name: Transfer data archive to central server
   tags: backup_data
-  shell: tar -czf {{ storage_temp }}/data.tar.gz {{ node_data }}
-  register: backup_data_result
+  fetch:
+    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
+    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.gz"
+    flat: yes
+  register: fetch_data_archive_result
 
-- name: Copy data backup to cold storage
+- name: Archive nodes data into zip of zips
   tags: backup_data
-  copy:
-    src: "{{ storage_temp }}/data.tar.gz"
-    dest: "{{ storage_cold }}/data/"
+  shell: (cd {{ storage_temp }} && tar -czf {{ backup_data_archive }} ./)
+  delegate_to: localhost
+  run_once: true
+  register: zip_of_zips_results
+
