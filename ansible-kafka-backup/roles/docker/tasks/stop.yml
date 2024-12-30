@@ -1,6 +1,8 @@
 ---
 - name: Stop Docker containers in shutdown order
-  tags: containers_stop
+  tags:
+    - containers_stop
+    - backup_data
   shell: docker stop {{ inventory_hostname }}
   with_items: "{{ shutdown_order }}"
   when: inventory_hostname == item
