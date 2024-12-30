@@ -1,51 +1,30 @@
 ---
-- name: Pre-execution
-  hosts: localhost
+- name: Manage cluster operations
+  hosts: all
   become: yes
   pre_tasks:
-    - name: Clean temporary directory on localhost
-      file:
-        path: "{{ storage_temp }}"
-        state: absent
-
-    - name: Create temporary directory on localhost
-      file:
-        path: "{{ storage_temp }}"
-        state: directory
-        mode: '0755'
-
-- name: Manage cluster backup
-  hosts: nodes
-  become: yes
-  pre_tasks:
-    - name: Clean temporary directory on nodes
-      file:
-        path: "{{ node_temp }}"
-        state: absent
-      register: node_temp_clean_results
-
-    - name: Create temporary directory on nodes
-      file:
-        path: "{{ node_temp }}"
-        state: directory
-        mode: '0755'
-      register: node_temp_create_results
+    - name: Perform pre-execution steps
+      include_tasks: ../roles/common/pre_tasks.yml
 
   roles:
-    - role: ../roles/ssh
-    - role: ../roles/docker
-    - role: ../roles/backup
+    - role: ../roles/ssh  # Include SSH-related tasks
+    - role: ../roles/docker  # Include Docker-related tasks
+    - role: ../roles/backup  # Include Backup and Restore tasks
+  tags:
+    - ssh_install
+    - backup_config
+    - backup_data
+    - restore_config
+    - restore_data
+    - wipe_data
+    - format_data
+    - rotate_backups
+    - containers_run
+    - containers_stop
+    - containers_start
+    - containers_restart
+    - containers_remove
 
-- name: Post-execution
-  hosts: localhost
-  become: yes
   post_tasks:
-    - name: Clean temporary directory on localhost
-      file:
-        path: "{{ storage_temp }}"
-        state: absent
-    - name: Create temporary directory on localhost
-      file:
-        path: "{{ storage_temp }}"
-        state: directory
-        mode: '0755'
+    - name: Perform post-execution cleanup
+      include_tasks: ../roles/common/post_tasks.yml
