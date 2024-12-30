@@ -1,5 +1,5 @@
 ---
 - name: Remove Docker containers
   tags: containers_remove
-  shell: docker rm -f {{ item }}
+  shell: docker rm -f {{ inventory_hostname }}
   with_items: "{{ shutdown_order }}"

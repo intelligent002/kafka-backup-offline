@@ -1,5 +1,5 @@
 ---
 - name: Run Docker containers
   tags: containers_run
-  shell: docker run -d --name {{ item }} {{ image }}
+  shell: docker run -d --name {{ inventory_hostname }} {{ image }}
   with_items: "{{ startup_order }}"
