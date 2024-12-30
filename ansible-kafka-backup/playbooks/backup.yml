@@ -10,20 +10,6 @@
     - role: ../roles/ssh  # Include SSH-related tasks
     - role: ../roles/docker  # Include Docker-related tasks
     - role: ../roles/backup  # Include Backup and Restore tasks
-  tags:
-    - ssh_install
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
-    - wipe_data
-    - format_data
-    - rotate_backups
-    - containers_run
-    - containers_stop
-    - containers_start
-    - containers_restart
-    - containers_remove
 
   post_tasks:
     - name: Perform post-execution cleanup
