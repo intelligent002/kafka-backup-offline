@@ -1,15 +1,24 @@
 ---
 - name: Clean up temporary directory on nodes
+  tags:
+    - backup_data
+    - backup_config
   file:
     path: "{{ node_temp }}"
     state: absent
 
 - name: Clean up temporary directory on localhost
+  tags:
+    - backup_data
+    - backup_config
   delegate_to: localhost
   file:
     path: "{{ storage_temp }}"
     state: absent
 
 - name: Summarize execution results
+  tags:
+    - backup_data
+    - backup_config
   debug:
     msg: "Execution completed successfully. Temporary directories have been cleaned up."
