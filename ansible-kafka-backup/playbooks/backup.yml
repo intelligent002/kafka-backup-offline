@@ -3,12 +3,8 @@
   hosts: all
   become: yes
   pre_tasks:
-    - name: Perform pre-execution steps
-      tags:
-        - backup_data
-        - backup_config
-      include_tasks: ../roles/common/pre_tasks.yml
-
+    - name: Pre execution cleanup
+      include_tasks: pre_tasks.yml
 
   roles:
     - role: ../roles/ssh  # Include SSH-related tasks
@@ -16,8 +12,5 @@
     - role: ../roles/backup  # Include Backup and Restore tasks
 
   post_tasks:
-    - name: Perform post-execution cleanup
-      tags:
-        - backup_data
-        - backup_config
-      include_tasks: ../roles/common/post_tasks.yml
+    - name: Post execution cleanup
+      include_tasks: post_tasks.yml
