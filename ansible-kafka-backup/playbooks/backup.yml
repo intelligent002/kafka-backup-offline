@@ -1,5 +1,5 @@
 ---
-- import_playbook: pre.yml
+- import_playbook: pre_tasks.yml
 
 - name: Manage cluster backup
   hosts: all
@@ -9,4 +9,4 @@
     - role: ../roles/docker  # Include Docker-related tasks
     - role: ../roles/backup  # Include Backup and Restore tasks
 
-- import_playbook: post.yml
+- import_playbook: post_tasks.yml
