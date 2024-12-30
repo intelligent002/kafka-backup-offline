@@ -1,9 +1,10 @@
 ---
+- name: Debug shutdown containers for the host
+  tags: containers_stop
+  debug:
+    msg: "Stopping container(s): {{ shutdown_order | select('match', inventory_hostname) | list }}"
+
 - name: Stop Docker containers in shutdown order
   tags: containers_stop
   shell: docker stop {{ item }}
   with_items: "{{ shutdown_order | select('match', inventory_hostname) | list }}"
-
-- name: Debug shutdown containers for the host
-  debug:
-    msg: "Stopping container(s): {{ shutdown_order | select('match', inventory_hostname) | list }}"
