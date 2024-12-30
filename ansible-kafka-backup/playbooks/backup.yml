@@ -13,6 +13,7 @@
       include_tasks: ../roles/common/cleanup.yml
 
   roles:
+    - role: ../roles/prerequisites  # Ensure prerequisites are installed
     - role: ../roles/ssh  # Include SSH-related tasks
     - role: ../roles/docker  # Include Docker-related tasks
     - role: ../roles/backup  # Include Backup and Restore tasks
