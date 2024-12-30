@@ -3,3 +3,4 @@
   tags: containers_start
   shell: docker start {{ inventory_hostname }}
   with_items: "{{ startup_order }}"
+  when: inventory_hostname == item
