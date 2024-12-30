@@ -1,5 +1,6 @@
 ---
 - name: Debug the current item being processed
+  tags: containers_stop
   debug:
     msg: "Currently processing: {{ item }}"
   with_items: "{{ shutdown_order }}"
