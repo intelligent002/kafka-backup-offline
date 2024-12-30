@@ -6,14 +6,9 @@
     mode: '0755'
   register: node_temp_create_results
 
-- name: Copy node configs to temp folder
-  tags: backup_config
-  shell: cp {{ node_config }}/* {{ node_temp }}/{{ inventory_hostname }}/ -R
-  register: copy_config_to_temp_results
-
 - name: Archive cluster configuration files on nodes
   tags: backup_config
-  shell: (cd {{ node_temp }} && tar -czf {{ inventory_hostname }}-config.tar.gz {{ inventory_hostname }})
+  shell: (cd {{ node_config }} && tar -czf {{ inventory_hostname }}-config.tar.gz ./)
   register: config_archive_result
 
 - name: Transfer configuration archive to central server
