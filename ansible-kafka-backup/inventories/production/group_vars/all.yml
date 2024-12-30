@@ -24,6 +24,9 @@ node_config: /data/cluster/config
 node_data: /data/cluster/data
 node_temp: /data/temp
 
+# this should be populated as a full path to the archive via cli params
+recovery_archive: ""
+
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
 backup_config_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 backup_data_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"

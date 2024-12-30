@@ -1,4 +1,59 @@
 ---
-- name: Restore cluster configuration
-  tags: restore_config
-  shell: tar -xzf {{ storage_cold }}/config/config.tar.gz -C {{ node_config }}
+- name: Verify recovery archive exists
+  tags:
+    - restore_config
+  delegate_to: localhost
+  run_once: true
+  stat:
+    path: "{{ recovery_archive }}"
+  register: archive_stat
+
+- name: Fail if archive does not exist
+  tags:
+    - restore_config
+  fail:
+    msg: "The specified recovery archive {{ recovery_archive }} does not exist!"
+  when: not archive_stat.stat.exists
+
+- name: Extract configuration archive to temp on localhost
+  tags:
+    - restore_config
+  delegate_to: localhost
+  run_once: true
+  unarchive:
+    src: "{{ recovery_archive }}"
+    dest: "{{ storage_temp }}"
+    remote_src: yes
+
+- name: Push extracted configuration files to nodes
+  tags:
+    - restore_config
+  copy:
+    src: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Remove cluster config folder on nodes
+  tags:
+    - restore_config
+  file:
+    path: "{{ node_config }}"
+    state: absent
+
+- name: Create cluster config folder on nodes
+  tags:
+    - restore_config
+  file:
+    path: "{{ node_config }}"
+    state: directory
+    mode: '0755'
+
+- name: Extract configuration archive on nodes
+  tags:
+    - restore_config
+  unarchive:
+    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    dest: "{{ node_config }}"
+    remote_src: yes
