@@ -1,12 +1,17 @@
 ---
-- import_playbook: pre_tasks.yml
-
 - name: Manage cluster backup
   hosts: all
   become: yes
+
+  pre_tasks:
+    - name: Cleanup temporary files before execution
+      include_tasks: ../roles/common/cleanup.yml
+
   roles:
     - role: ../roles/ssh  # Include SSH-related tasks
     - role: ../roles/docker  # Include Docker-related tasks
     - role: ../roles/backup  # Include Backup and Restore tasks
 
-- import_playbook: post_tasks.yml
+  post_tasks:
+    - name: Cleanup temporary files after execution
+      include_tasks: ../roles/common/cleanup.yml
