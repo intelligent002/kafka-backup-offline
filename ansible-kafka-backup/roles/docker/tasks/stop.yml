@@ -4,8 +4,6 @@
   with_items: "{{ shutdown_order }}"
   when: inventory_hostname == item
   register: stop_results
-  run_once: true
-  serial: 1
 
 - name: Debug container stop status
   debug:
