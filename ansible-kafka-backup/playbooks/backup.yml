@@ -4,7 +4,11 @@
   become: yes
   pre_tasks:
     - name: Perform pre-execution steps
+      tags:
+        - backup_data
+        - backup_config
       include_tasks: ../roles/common/pre_tasks.yml
+
 
   roles:
     - role: ../roles/ssh  # Include SSH-related tasks
@@ -13,4 +17,7 @@
 
   post_tasks:
     - name: Perform post-execution cleanup
+      tags:
+        - backup_data
+        - backup_config
       include_tasks: ../roles/common/post_tasks.yml
