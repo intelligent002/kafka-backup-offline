@@ -3,7 +3,6 @@
   shell: docker stop {{ item }}
   with_items: "{{ shutdown_order }}"
   delegate_to: "{{ item }}"
-  run_once: true
   register: stop_results
 
 - name: Debug container stop results
