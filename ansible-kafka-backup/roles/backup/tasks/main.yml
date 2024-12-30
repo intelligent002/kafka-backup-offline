@@ -13,8 +13,8 @@
 
 - name: Run recovery configuration
   include_tasks: recovery_config.yml
-  tags: recovery_config
+  tags: restore_config
 
 - name: Run recovery data
   include_tasks: recovery_data.yml
-  tags: recovery_data
+  tags: restore_data
