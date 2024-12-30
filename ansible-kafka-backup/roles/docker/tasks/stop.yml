@@ -1,16 +1,18 @@
----
+# Debugging the items being processed
 - name: Debug the current item being processed
   debug:
     msg: "Currently processing: {{ item }}"
   with_items: "{{ shutdown_order }}"
+  when: inventory_hostname == item
 
-- name: Stop Docker containers in shutdown order (one by one)
-  shell: docker stop {{ item }}
-  with_items: "{{ shutdown_order }}"
-  delegate_to: "{{ item }}"
+# Stopping containers in the correct order
+- name: Stop Docker containers in shutdown order
+  shell: docker stop {{ inventory_hostname }}
+  when: inventory_hostname == item
   register: stop_results
 
+# Debugging container stop results
 - name: Debug container stop results
   debug:
-    msg: "Container {{ item.item }} stop result: {{ item.rc == 0 | ternary('success', 'failure') }}"
-  with_items: "{{ stop_results.results }}"
+    msg: "Container stop result: {{ stop_results.stdout }}"
+  when: inventory_hostname in shutdown_order
