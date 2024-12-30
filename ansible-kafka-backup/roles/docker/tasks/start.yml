@@ -1,5 +1,5 @@
 ---
-- name: Start Docker containers in shutdown order
+- name: Start Docker containers in startup order
   tags:
     - containers_start
     - backup_data
