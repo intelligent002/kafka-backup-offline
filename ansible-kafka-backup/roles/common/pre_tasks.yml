@@ -1,13 +1,4 @@
 ---
-- name: Ensure temporary directory exists on nodes
-  tags:
-    - backup_data
-    - backup_config
-  file:
-    path: "{{ node_temp }}"
-    state: directory
-    mode: '0755'
-
 - name: Ensure temporary directory exists on localhost
   tags:
     - backup_data
@@ -19,10 +10,12 @@
     state: directory
     mode: '0755'
 
-- name: Validate configuration before execution
+- name: Ensure temporary directory exists on nodes
   tags:
     - backup_data
     - backup_config
-  command: echo "Validating configurations..."
-  register: validation_result
-  failed_when: "'error' in validation_result.stdout"
+  file:
+    path: "{{ node_temp }}"
+    state: directory
+    mode: '0755'
+
