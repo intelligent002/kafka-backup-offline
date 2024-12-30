@@ -4,6 +4,9 @@
   become: yes
   tasks:
     - name: Create temporal folder
+      tags:
+        - backup_config
+        - backup_data
       file:
         path: "{{ storage_temp }}"
         state: directory
@@ -14,6 +17,9 @@
   become: yes
   tasks:
     - name: Create temporal folder
+      tags:
+        - backup_config
+        - backup_data
       file:
         path: "{{ node_temp }}"
         state: directory

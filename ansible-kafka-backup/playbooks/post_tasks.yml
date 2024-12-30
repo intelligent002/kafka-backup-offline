@@ -4,6 +4,9 @@
   become: yes
   tasks:
     - name: Remove temporal folder
+      tags:
+        - backup_config
+        - backup_data
       file:
         path: "{{ storage_temp }}"
         state: absent
@@ -13,6 +16,9 @@
   become: yes
   tasks:
     - name: Remove temporal folder
+      tags:
+        - backup_config
+        - backup_data
       file:
         path: "{{ node_temp }}"
         state: absent
