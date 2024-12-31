@@ -68,21 +68,20 @@ node_roles:
     port_monitoring_ext: 9999
 
 # Docker image to be used for cluster, with version specified.
-docker_run_command: |
-  docker run -d --restart=always \
-  --name={{ inventory_hostname }} \ 
-  -h {{ inventory_hostname }} \
-  -p {{ node_roles[item].port_service_ext }}:{{ node_roles[item].port_service_int }} \
-  -p {{ node_roles[item].port_monitoring_ext }}:{{ node_roles[item].port_monitoring_int }} \
-  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote \
-  -Dcom.sun.management.jmxremote.port={{ node_roles[item].port_monitoring_int }} \
-  -Dcom.sun.management.jmxremote.rmi.port={{ node_roles[item].port_monitoring_int }} \
-  -Dcom.sun.management.jmxremote.authenticate=false \
-  -Dcom.sun.management.jmxremote.ssl=false \
-  -Djava.rmi.server.hostname={{ ansible_host }}" \
-  -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties \
-  -v {{ node_data }}:/var/lib/kafka/data \
-  {{ image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties
+docker_run_command: 'docker run -d --restart=always 
+  --name={{ inventory_hostname }}  
+  -h {{ inventory_hostname }} 
+  -p {{ node_roles[item].port_service_ext }}:{{ node_roles[item].port_service_int }} 
+  -p {{ node_roles[item].port_monitoring_ext }}:{{ node_roles[item].port_monitoring_int }} 
+  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote 
+  -Dcom.sun.management.jmxremote.port={{ node_roles[item].port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.rmi.port={{ node_roles[item].port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.authenticate=false 
+  -Dcom.sun.management.jmxremote.ssl=false 
+  -Djava.rmi.server.hostname={{ ansible_host }}" 
+  -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties 
+  -v {{ node_data }}:/var/lib/kafka/data 
+  {{ image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
 
