@@ -2,11 +2,11 @@
 # Include containers_stop tasks
 - name: Stop containers
   tags:
-    - backup_data
+    - containers_restart
   include_tasks: stop.yml
 
 # Include containers_start tasks
 - name: Start containers
   tags:
-    - backup_data
+    - containers_restart
   include_tasks: start.yml
