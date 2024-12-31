@@ -8,8 +8,12 @@
 - name: Archive cluster data files on nodes
   tags:
     - backup_data
-  shell: (cd {{ node_data }} && tar -czf {{ node_temp }}/{{ inventory_hostname }}-data.tar.gz ./)
-  register: data_archive_result
+  community.general.archive:
+    path: "{{ node_data }}/"  # The directory or files to be archived
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"  # Destination archive
+    format: zip  # Use zip compression
+    remove: no  # Set to 'yes' to remove the original files after archiving
+  register: config_archive_result
 
 # Include containers_stop tasks
 - name: Start containers after backing up data
@@ -21,17 +25,29 @@
   tags:
     - backup_data
   fetch:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
-    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.gz"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"
+    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.zip"
     flat: yes
   register: fetch_data_archive_result
+
+- name: Create backup folders
+  tags:
+    - backup_data
+  delegate_to: localhost
+  run_once: true
+  file:
+    path: "{{ backup_data_path }}"
+    state: directory
+    mode: '0755'
 
 - name: Archive nodes data into zip of zips
   tags:
     - backup_data
-  shell: (cd {{ storage_temp }} && tar -czf {{ backup_data_archive }} ./)
   delegate_to: localhost
   run_once: true
+  community.general.archive:
+    path: "{{ storage_temp }}"  # The directory or files to be archived
+    dest: "{{ backup_data_archive }}"  # Destination archive
+    format: zip  # Use zip compression
+    remove: yes  # Set to 'yes' to remove the original files after archiving
   register: zip_of_zips_results
-
-
