@@ -17,3 +17,7 @@ ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags
 
 ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_stop"
 ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_start"
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_restart"
+
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_remove"
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_run"
