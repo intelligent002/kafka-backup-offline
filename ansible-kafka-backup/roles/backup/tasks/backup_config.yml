@@ -10,44 +10,34 @@
     - backup_config
   community.general.archive:
     path: "{{ node_config }}"  # The directory or files to be archived
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"  # Destination archive
-    format: gz  # Use gzip compression
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.zip"  # Destination archive
+    format: zip  # Use gzip compression
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
-
-- name: Create /tmp/bla
-  tags:
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
-  file:
-    path: "/tmp/bla"
-    state: directory
-    mode: '0755'
-
-- name: Extract configuration archive to /tmp
-  tags:
-    - backup_config
-  unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
-    dest: "/tmp/bla"
-    remote_src: yes
 
 - name: Transfer configuration archive to central server
   tags:
     - backup_config
   fetch:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
-    dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-config.zip"
+    dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.zip"
     flat: yes
   register: fetch_config_archive_result
+
+#- name: Archive nodes config into zip of zips
+#  tags:
+#    - backup_config
+#  shell: (cd {{ storage_temp }} && tar -czf {{ backup_config_archive }} ./)
+#  delegate_to: localhost
+#  run_once: true
+#  register: zip_of_zips_results
 
 - name: Archive nodes config into zip of zips
   tags:
     - backup_config
-  shell: (cd {{ storage_temp }} && tar -czf {{ backup_config_archive }} ./)
-  delegate_to: localhost
-  run_once: true
+  community.general.archive:
+    path: "{{ storage_temp }}/"  # The directory or files to be archived
+    dest: "{{ backup_config_archive }}"  # Destination archive
+    format: zip  # Use gzip compression
+    remove: yes  # Set to 'yes' to remove the original files after archiving
   register: zip_of_zips_results
-
