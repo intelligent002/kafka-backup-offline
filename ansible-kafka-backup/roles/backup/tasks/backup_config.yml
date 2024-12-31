@@ -1,10 +1,4 @@
 ---
-#- name: Archive cluster configuration files on nodes
-#  tags:
-#    - backup_config
-#  shell: (cd {{ node_config }} && tar -czf {{ node_temp }}/{{ inventory_hostname }}-config.tar.gz ./)
-#  register: config_archive_result
-
 - name: Archive cluster configuration files on nodes
   tags:
     - backup_config
@@ -23,14 +17,6 @@
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.zip"
     flat: yes
   register: fetch_config_archive_result
-
-#- name: Archive nodes config into zip of zips
-#  tags:
-#    - backup_config
-#  shell: (cd {{ storage_temp }} && tar -czf {{ backup_config_archive }} ./)
-#  delegate_to: localhost
-#  run_once: true
-#  register: zip_of_zips_results
 
 - name: Create backup folders
   tags:
