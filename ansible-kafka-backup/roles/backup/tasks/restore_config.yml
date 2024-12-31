@@ -29,8 +29,8 @@
   tags:
     - restore_config
   copy:
-    src: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.gz"
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    src: "{{ storage_temp }}/{{ inventory_hostname }}-config.zip"
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.zip"
     owner: root
     group: root
     mode: '0644'
@@ -54,6 +54,6 @@
   tags:
     - restore_config
   unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.gz"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-config.zip"
     dest: "{{ node_config }}"
     remote_src: yes
