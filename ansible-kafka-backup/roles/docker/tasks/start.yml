@@ -3,6 +3,7 @@
   tags:
     - containers_start
     - backup_data
+    - restore_data
   shell: docker start {{ inventory_hostname }}
   with_items: "{{ startup_order }}"
   when: inventory_hostname == item

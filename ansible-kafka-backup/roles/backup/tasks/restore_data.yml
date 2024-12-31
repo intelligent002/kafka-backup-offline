@@ -1,4 +1,71 @@
 ---
-- name: Restore Cluster data
-  tags: restore_data
-  shell: tar -xzf {{ storage_cold }}/data/data.tar.gz -C {{ node_data }}
+- name: Verify recovery archive exists
+  tags:
+    - restore_data
+  delegate_to: localhost
+  run_once: true
+  stat:
+    path: "{{ recovery_archive }}"
+  register: archive_stat
+
+- name: Fail if archive does not exist
+  tags:
+    - restore_data
+  fail:
+    msg: "The specified recovery archive {{ recovery_archive }} does not exist!"
+  when: not archive_stat.stat.exists
+
+- name: Extract data archive to temp on localhost
+  tags:
+    - restore_data
+  delegate_to: localhost
+  run_once: true
+  unarchive:
+    src: "{{ recovery_archive }}"
+    dest: "{{ storage_temp }}"
+    remote_src: yes
+
+- name: Push extracted data files to nodes
+  tags:
+    - restore_data
+  copy:
+    src: "{{ storage_temp }}/{{ inventory_hostname }}-data.zip"
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"
+    owner: root
+    group: root
+    mode: '0644'
+
+# Include containers_stop tasks
+- name: Stop containers before backing up data
+  tags:
+    - backup_data
+  include_tasks: ../../docker/tasks/stop.yml
+
+- name: Remove cluster data folder on nodes
+  tags:
+    - restore_data
+  file:
+    path: "{{ node_data }}"
+    state: absent
+
+- name: Create cluster data folder on nodes
+  tags:
+    - restore_data
+  file:
+    path: "{{ node_data }}"
+    state: directory
+    mode: '0755'
+
+- name: Restore cluster data on nodes
+  tags:
+    - restore_data
+  unarchive:
+    src: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"
+    dest: "{{ node_data }}"
+    remote_src: yes
+
+# Include containers_start tasks
+- name: Start containers after backing up data
+  tags:
+    - backup_data
+  include_tasks: ../../docker/tasks/start.yml

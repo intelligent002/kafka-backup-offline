@@ -15,7 +15,7 @@
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
 
-# Include containers_stop tasks
+# Include containers_start tasks
 - name: Start containers after backing up data
   tags:
     - backup_data
