@@ -29,8 +29,8 @@
   tags:
     - restore_data
   copy:
-    src: "{{ storage_temp }}/{{ inventory_hostname }}-data.zip"
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"
+    src: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.gz"
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
     owner: root
     group: root
     mode: '0644'
@@ -62,7 +62,7 @@
   tags:
     - restore_data
   unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-data.zip"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
     dest: "{{ node_data }}"
     remote_src: yes
 
