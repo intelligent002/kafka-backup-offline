@@ -68,7 +68,7 @@ node_roles:
     port_monitoring_ext: 9999
 
 # Docker image to be used for cluster, with version specified.
-run_command: |
+docker_run_command: |
   docker run -d --restart=always \
   --name={{ inventory_hostname }} \ 
   -h {{ inventory_hostname }} \
