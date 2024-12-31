@@ -38,7 +38,7 @@
 # Include containers_stop tasks
 - name: Stop containers before backing up data
   tags:
-    - backup_data
+    - restore_data
   include_tasks: ../../docker/tasks/stop.yml
 
 - name: Remove cluster data folder on nodes
@@ -67,5 +67,5 @@
 # Include containers_start tasks
 - name: Start containers after backing up data
   tags:
-    - backup_data
+    - restore_data
   include_tasks: ../../docker/tasks/start.yml
