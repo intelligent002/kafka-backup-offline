@@ -8,3 +8,12 @@ docker run -ti --rm `
     -v "$(Get-Location):/apps" `
     -w "/apps" `
     alpine/ansible ansible-playbook -i inventory playbook.yml --tags "backup_config"
+
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "backup_config"
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "backup_data"
+
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "restore_config" --extra-vars "recovery_archive=/backup/cold/config/rotated/2024/12/31/2024-12-31---16-08-10---config.zip"
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "restore_data"  --extra-vars "recovery_archive=/backup/cold/data/rotated/2024/12/31/2024-12-31---16-08-27---data.zip"
+
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_stop"
+ansible-playbook -i inventories/production/inventory playbooks/backup.yml --tags "containers_start"

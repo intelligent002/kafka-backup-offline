@@ -1,5 +1,12 @@
 ---
-- name: Restart Docker containers
-  tags: containers_restart
-  shell: docker restart {{ inventory_hostname }}
-  with_items: "{{ startup_order + shutdown_order }}"
+# Include containers_stop tasks
+- name: Stop containers before backing up data
+  tags:
+    - backup_data
+  include_tasks: stop.yml
+
+# Include containers_start tasks
+- name: Start containers after backing up data
+  tags:
+    - backup_data
+  include_tasks: start.yml
