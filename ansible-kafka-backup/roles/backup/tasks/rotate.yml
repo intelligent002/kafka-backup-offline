@@ -1,6 +1,8 @@
 ---
 - name: Rotate old data backups
   tags: rotate_backups
+  delegate_to: localhost
+  run_once: true
   find:
     paths: "{{ storage_cold }}/data/rotated/"
     age: "{{ retention_policy }}d"
@@ -10,6 +12,8 @@
 
 - name: Remove old data backups
   tags: rotate_backups
+  delegate_to: localhost
+  run_once: true
   file:
     path: "{{ item.path }}"
     state: absent
@@ -17,6 +21,8 @@
 
 - name: Rotate old config backups
   tags: rotate_backups
+  delegate_to: localhost
+  run_once: true
   find:
     paths: "{{ storage_cold }}/config/rotated/"
     age: "{{ retention_policy }}d"
@@ -26,6 +32,8 @@
 
 - name: Remove old config backups
   tags: rotate_backups
+  delegate_to: localhost
+  run_once: true
   file:
     path: "{{ item.path }}"
     state: absent
