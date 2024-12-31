@@ -1,7 +1,7 @@
 ---
 - name: Archive cluster configuration files on nodes
   tags:
-    - backup_config
+    - config_backup
   community.general.archive:
     path: "{{ node_config }}/"  # The directory or files to be archived
     dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"  # Destination archive
@@ -11,7 +11,7 @@
 
 - name: Transfer configuration archive to central server
   tags:
-    - backup_config
+    - config_backup
   fetch:
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.zx"
@@ -20,22 +20,22 @@
 
 - name: Create backup folders
   tags:
-    - backup_config
+    - config_backup
   delegate_to: localhost
   run_once: true
   file:
-    path: "{{ backup_config_path }}"
+    path: "{{ config_backup_path }}"
     state: directory
     mode: '0755'
 
 - name: Archive nodes config into zip of zips
   tags:
-    - backup_config
+    - config_backup
   delegate_to: localhost
   run_once: true
   community.general.archive:
     path: "{{ storage_temp }}/"  # The directory or files to be archived
-    dest: "{{ backup_config_archive }}"  # Destination archive
+    dest: "{{ config_backup_archive }}"  # Destination archive
     format: xz  # Use XZ compression
     remove: yes  # Set to 'yes' to remove the original files after archiving
   register: zip_of_zips_results

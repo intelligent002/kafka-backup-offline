@@ -1,7 +1,7 @@
 ---
 - name: Verify restore archive exists
   tags:
-    - restore_config
+    - config_restore
   delegate_to: localhost
   run_once: true
   stat:
@@ -10,14 +10,14 @@
 
 - name: Fail if archive does not exist
   tags:
-    - restore_config
+    - config_restore
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
 - name: Extract configuration archive to temp on localhost
   tags:
-    - restore_config
+    - config_restore
   delegate_to: localhost
   run_once: true
   unarchive:
@@ -27,7 +27,7 @@
 
 - name: Push extracted configuration files to nodes
   tags:
-    - restore_config
+    - config_restore
   copy:
     src: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
@@ -37,14 +37,14 @@
 
 - name: Remove cluster config folder on nodes
   tags:
-    - restore_config
+    - config_restore
   file:
     path: "{{ node_config }}"
     state: absent
 
 - name: Create cluster config folder on nodes
   tags:
-    - restore_config
+    - config_restore
   file:
     path: "{{ node_config }}"
     state: directory
@@ -52,7 +52,7 @@
 
 - name: Restore cluster config on nodes
   tags:
-    - restore_config
+    - config_restore
   unarchive:
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_config }}"

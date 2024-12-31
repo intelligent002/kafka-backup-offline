@@ -3,8 +3,8 @@
   tags:
     - containers_stop
     - containers_restart
-    - backup_data
-    - restore_data
+    - data_backup
+    - data_restore
   shell: docker stop {{ inventory_hostname }}
   with_items: "{{ shutdown_order }}"
   when: inventory_hostname == item

@@ -1,7 +1,7 @@
 ---
 - name: Verify restore archive exists
   tags:
-    - restore_data
+    - data_restore
   delegate_to: localhost
   run_once: true
   stat:
@@ -10,14 +10,14 @@
 
 - name: Fail if archive does not exist
   tags:
-    - restore_data
+    - data_restore
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
 - name: Extract data archive to temp on localhost
   tags:
-    - restore_data
+    - data_restore
   delegate_to: localhost
   run_once: true
   unarchive:
@@ -27,7 +27,7 @@
 
 - name: Push extracted data files to nodes
   tags:
-    - restore_data
+    - data_restore
   copy:
     src: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
@@ -38,19 +38,19 @@
 # Include containers_stop tasks
 - name: Stop containers before backing up data
   tags:
-    - restore_data
+    - data_restore
   include_tasks: ../../docker/tasks/stop.yml
 
 - name: Remove cluster data folder on nodes
   tags:
-    - restore_data
+    - data_restore
   file:
     path: "{{ node_data }}"
     state: absent
 
 - name: Create cluster data folder on nodes
   tags:
-    - restore_data
+    - data_restore
   file:
     path: "{{ node_data }}"
     state: directory
@@ -60,7 +60,7 @@
 
 - name: Restore cluster data on nodes
   tags:
-    - restore_data
+    - data_restore
   unarchive:
     src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_data }}"
@@ -69,5 +69,5 @@
 # Include containers_start tasks
 - name: Start containers after backing up data
   tags:
-    - restore_data
+    - data_restore
   include_tasks: ../../docker/tasks/start.yml

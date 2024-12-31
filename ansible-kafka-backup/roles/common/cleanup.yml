@@ -1,10 +1,10 @@
 ---
 - name: Remove temporal folder on localhost
   tags:
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
+    - config_backup
+    - data_backup
+    - config_restore
+    - data_restore
   delegate_to: localhost
   run_once: true
   file:
@@ -13,10 +13,10 @@
 
 - name: Create temporal folder on localhost
   tags:
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
+    - config_backup
+    - data_backup
+    - config_restore
+    - data_restore
   delegate_to: localhost
   run_once: true
   file:
@@ -26,20 +26,20 @@
 
 - name: Remove temporal folder on nodes
   tags:
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
+    - config_backup
+    - data_backup
+    - config_restore
+    - data_restore
   file:
     path: "{{ node_temp }}"
     state: absent
 
 - name: Create temporal folder on nodes
   tags:
-    - backup_config
-    - backup_data
-    - restore_config
-    - restore_data
+    - config_backup
+    - data_backup
+    - config_restore
+    - data_restore
   file:
     path: "{{ node_temp }}"
     state: directory
