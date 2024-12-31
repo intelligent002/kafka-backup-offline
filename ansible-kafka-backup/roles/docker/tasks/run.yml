@@ -1,5 +1,7 @@
 ---
-- name: Run Docker containers
-  tags: containers_run
-  shell: docker run -d --name {{ inventory_hostname }} {{ image }}
+- name: Run docker containers in startup order
+  tags:
+    - containers_run
+  shell: "{{ docker_run_command }}"
   with_items: "{{ startup_order }}"
+  when: inventory_hostname == item
