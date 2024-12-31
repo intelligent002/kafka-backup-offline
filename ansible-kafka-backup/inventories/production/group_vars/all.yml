@@ -1,4 +1,4 @@
-# === General config =======================================================================
+# === General config ==============================================================================
 
 # Specifies the Python interpreter to be used on the remote nodes.
 ansible_python_interpreter: /usr/bin/python
@@ -23,7 +23,7 @@ shutdown_order:
   - kafka-controller-2
   - kafka-controller-1
 
-# === Cluster Docker image config ==========================================================
+# === Cluster Docker image config =================================================================
 
 # Service user
 data_owner_user: 1000
@@ -35,7 +35,7 @@ data_owner_group: 1000
 data_folder_chmod: 0755
 
 # Specific configs for cluster nodes
-node_roles:
+nodes:
   kafka-controller-1:
     role: controller
     image: 'confluentinc/cp-kafka:7.8.0'
@@ -79,21 +79,21 @@ node_roles:
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
 
-# Docker image to be used for cluster, with version specified.
+# Docker command to run the containers, combining all nodes details
 docker_command_containers_run: 'docker run -d --restart=always 
   --name={{ inventory_hostname }}  
   -h {{ inventory_hostname }} 
-  -p {{ node_roles[item].port_service_ext }}:{{ node_roles[item].port_service_int }} 
-  -p {{ node_roles[item].port_monitoring_ext }}:{{ node_roles[item].port_monitoring_int }} 
+  -p {{ nodes[item].port_service_ext }}:{{ nodes[item].port_service_int }} 
+  -p {{ nodes[item].port_monitoring_ext }}:{{ nodes[item].port_monitoring_int }} 
   -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ node_roles[item].port_monitoring_int }} 
-  -Dcom.sun.management.jmxremote.rmi.port={{ node_roles[item].port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.port={{ nodes[item].port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.rmi.port={{ nodes[item].port_monitoring_int }} 
   -Dcom.sun.management.jmxremote.authenticate=false 
   -Dcom.sun.management.jmxremote.ssl=false 
   -Djava.rmi.server.hostname={{ ansible_host }}" 
   -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties 
   -v {{ node_data }}:/var/lib/kafka/data 
-  {{ node_roles[item].image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
+  {{ nodes[item].image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
 
@@ -117,10 +117,10 @@ node_config: /data/cluster/config
 # Directory containing the cluster node's data files.
 node_data: /data/cluster/data
 
-# Temporary directory on nodes for extracting & creating archives for backups & restore.
+# Temporary directory on nodes for extracting & creating archives for backups & restores.
 node_temp: /data/temp
 
-# === Restore archive parameter ==================================================================
+# === Restore archive parameter ===================================================================
 
 # Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
 restore_archive: ""
