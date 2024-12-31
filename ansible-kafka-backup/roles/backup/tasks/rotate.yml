@@ -1,16 +1,32 @@
 ---
-- name: Rotate old backups
+- name: Rotate old data backups
   tags: rotate_backups
   find:
-    paths: "{{ storage_cold }}/rotated"
+    paths: "{{ storage_cold }}/data/rotated"
     age: "{{ retention_policy }}d"
     recurse: yes
     patterns: "*.tar.gz"
-  register: old_backups
+  register: old_data_backups
 
-- name: Remove old backups
+- name: Remove old data backups
   tags: rotate_backups
   file:
     path: "{{ item.path }}"
     state: absent
-  with_items: "{{ old_backups.files }}"
+  with_items: "{{ old_data_backups.files }}"
+
+- name: Rotate old config backups
+  tags: rotate_backups
+  find:
+    paths: "{{ storage_cold }}/config/rotated"
+    age: "{{ retention_policy }}d"
+    recurse: yes
+    patterns: "*.tar.gz"
+  register: old_config_backups
+
+- name: Remove old config backups
+  tags: rotate_backups
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_config_backups.files }}"
