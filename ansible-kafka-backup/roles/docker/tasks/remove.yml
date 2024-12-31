@@ -3,3 +3,4 @@
   tags: containers_remove
   shell: docker rm -f {{ inventory_hostname }}
   with_items: "{{ shutdown_order }}"
+  when: inventory_hostname == item
