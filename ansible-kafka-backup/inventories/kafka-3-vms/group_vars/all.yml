@@ -7,21 +7,15 @@ ansible_python_interpreter: /usr/bin/python
 
 # Defines the order of starting cluster nodes.
 startup_order:
-  - kafka-controller-1
-  - kafka-controller-2
-  - kafka-controller-3
-  - kafka-broker-1
-  - kafka-broker-2
-  - kafka-broker-3
+  - kafka-node-1
+  - kafka-node-2
+  - kafka-node-3
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - kafka-broker-3
-  - kafka-broker-2
-  - kafka-broker-1
-  - kafka-controller-3
-  - kafka-controller-2
-  - kafka-controller-1
+  - kafka-node-3
+  - kafka-node-2
+  - kafka-node-1
 
 # === Cluster Docker image config =================================================================
 
