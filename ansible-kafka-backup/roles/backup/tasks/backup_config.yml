@@ -32,15 +32,15 @@
 #  run_once: true
 #  register: zip_of_zips_results
 
-#- name: Create backup folders
-#  tags:
-#    - backup_config
-#  delegate_to: localhost
-#  run_once: true
-#  file:
-#    path: "{{ backup_config_path }}"
-#    state: directory
-#    mode: '0755'
+- name: Create backup folders
+  tags:
+    - backup_config
+  delegate_to: localhost
+  run_once: true
+  file:
+    path: "{{ backup_config_path }}"
+    state: directory
+    mode: '0755'
 
 - name: Archive nodes config into zip of zips
   tags:
