@@ -55,6 +55,8 @@
     path: "{{ node_data }}"
     state: directory
     mode: '0755'
+    owner: 1000
+    group: 1000
 
 - name: Restore cluster data on nodes
   tags:
