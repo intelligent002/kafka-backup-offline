@@ -45,6 +45,8 @@
 - name: Archive nodes config into zip of zips
   tags:
     - backup_config
+  delegate_to: localhost
+  run_once: true
   community.general.archive:
     path: "{{ storage_temp }}"  # The directory or files to be archived
     dest: "{{ backup_config_archive }}"  # Destination archive
