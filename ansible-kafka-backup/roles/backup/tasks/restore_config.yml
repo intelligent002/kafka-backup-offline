@@ -50,7 +50,7 @@
     state: directory
     mode: '0755'
 
-- name: Extract configuration archive on nodes
+- name: Restore cluster config on nodes
   tags:
     - restore_config
   unarchive:
