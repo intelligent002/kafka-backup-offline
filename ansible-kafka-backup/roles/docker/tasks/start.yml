@@ -2,6 +2,7 @@
 - name: Start Docker containers in startup order
   tags:
     - containers_start
+    - containers_restart
     - backup_data
     - restore_data
   shell: docker start {{ inventory_hostname }}

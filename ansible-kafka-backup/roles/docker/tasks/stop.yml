@@ -2,6 +2,7 @@
 - name: Stop Docker containers in shutdown order
   tags:
     - containers_stop
+    - containers_restart
     - backup_data
     - restore_data
   shell: docker stop {{ inventory_hostname }}
