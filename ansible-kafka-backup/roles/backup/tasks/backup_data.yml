@@ -10,8 +10,8 @@
     - backup_data
   community.general.archive:
     path: "{{ node_data }}/"  # The directory or files to be archived
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"  # Destination archive
-    format: gz  # Use zip compression
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"  # Destination archive
+    format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
 
@@ -25,8 +25,8 @@
   tags:
     - backup_data
   fetch:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.gz"
-    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.gz"
+    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
     flat: yes
   register: fetch_data_archive_result
 
@@ -48,6 +48,6 @@
   community.general.archive:
     path: "{{ storage_temp }}/"  # The directory or files to be archived
     dest: "{{ backup_data_archive }}"  # Destination archive
-    format: gz  # Use gz compression
+    format: xz  # Use XZ compression
     remove: yes  # Set to 'yes' to remove the original files after archiving
   register: zip_of_zips_results

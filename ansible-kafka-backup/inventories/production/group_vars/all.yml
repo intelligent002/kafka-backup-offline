@@ -125,7 +125,7 @@ backup_config_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year
 backup_data_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the configuration backup archive, named with a timestamp.
-backup_config_archive: "{{ backup_config_path }}/{{ backup_date }}---config.tar.gz"
+backup_config_archive: "{{ backup_config_path }}/{{ backup_date }}---config.tar.zx"
 
 # Full path for the data backup archive, named with a timestamp.
-backup_data_archive: "{{ backup_data_path }}/{{ backup_date }}---data.tar.gz"
+backup_data_archive: "{{ backup_data_path }}/{{ backup_date }}---data.tar.zx"
