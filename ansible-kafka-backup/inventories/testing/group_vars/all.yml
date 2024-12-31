@@ -1,3 +1,11 @@
+# === General configuration =======================================================================
+
+# Specifies the Python interpreter to be used on the remote nodes.
+ansible_python_interpreter: /usr/bin/python
+
+# === Cluster startup and shutdown order ==========================================================
+
+# Defines the order of starting cluster nodes.
 startup_order:
   - kafka-controller-1
   - kafka-controller-2
@@ -6,6 +14,7 @@ startup_order:
   - kafka-broker-2
   - kafka-broker-3
 
+# Defines the order of shutting down cluster nodes.
 shutdown_order:
   - kafka-broker-3
   - kafka-broker-2
@@ -14,16 +23,54 @@ shutdown_order:
   - kafka-controller-2
   - kafka-controller-1
 
+# === Cluster Docker image configuration ==========================================================
+
+# Docker image to be used for cluster, with version specified.
 image: confluentinc/cp-kafka:7.8.0
-retention_policy: 30
+
+# === Backup retention policies ===================================================================
+
+# Number of days to retain configuration backups.
+retention_policy_config: 30
+
+# Number of days to retain data backups.
+retention_policy_data: 7
+
+# === Backup directories ==========================================================================
+
+# Directory for long-term storage (cold storage) of backups.
 storage_cold: /backup/cold
+
+# Temporary directory on central for extracting & creating of backup files.
 storage_temp: /data/temp
+
+# Directory containing the cluster node's configuration files.
 node_config: /data/cluster/config
+
+# Directory containing the cluster node's data files.
 node_data: /data/cluster/data
+
+# Temporary directory on nodes for extracting & creating archives for backups & recovery.
 node_temp: /data/temp
 
+# === Recovery archive parameter ==================================================================
+
+# Path to the recovery archive (to be provided via CLI parameters). Should be an absolute file path.
+recovery_archive: ""
+
+# === Backup metadata =============================================================================
+
+# Timestamp for the backup, formatted as "YYYY-MM-DD---HH-MM-SS".
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
+
+# Path for storing configuration backups, organized by year/month/day.
 backup_config_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+
+# Path for storing data backups, organized by year/month/day.
 backup_data_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
-backup_config_archive: "{{ backup_config_path }}/{{ backup_date }}---config.tar.gz"
-backup_data_archive: "{{ backup_data_path }}/{{ backup_date }}---data.tar.gz"
+
+# Full path for the configuration backup archive, named with a timestamp.
+backup_config_archive: "{{ backup_config_path }}/{{ backup_date }}---config.zip"
+
+# Full path for the data backup archive, named with a timestamp.
+backup_data_archive: "{{ backup_data_path }}/{{ backup_date }}---data.zip"
