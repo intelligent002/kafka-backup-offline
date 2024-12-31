@@ -1,5 +1,5 @@
 ---
-- name: Verify restore archive exists
+- name: Verify archive exists
   tags:
     - config_restore
   delegate_to: localhost
@@ -15,7 +15,7 @@
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
-- name: Extract configuration archive to temp on localhost
+- name: Extract config archive to temp on localhost
   tags:
     - config_restore
   delegate_to: localhost
@@ -25,7 +25,7 @@
     dest: "{{ storage_temp }}"
     remote_src: yes
 
-- name: Push extracted configuration files to nodes
+- name: Push extracted config archives to nodes
   tags:
     - config_restore
   copy:

@@ -1,10 +1,10 @@
 ---
-- name: Manage cluster backup
+- name: Cluster Backup Offline
   hosts: all
   become: yes
 
   pre_tasks:
-    - name: Cleanup temporary files before execution
+    - name: Cleanup temp folders before execution
       tags:
         - config_backup
         - data_backup
@@ -19,7 +19,7 @@
     - role: ../roles/backup  # Include Backup and Restore tasks
 
   post_tasks:
-    - name: Cleanup temporary files after execution
+    - name: Cleanup temp folders after execution
       tags:
         - config_backup
         - data_backup

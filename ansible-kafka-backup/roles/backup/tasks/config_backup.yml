@@ -1,5 +1,5 @@
 ---
-- name: Archive cluster configuration files on nodes
+- name: Archive cluster config on nodes
   tags:
     - config_backup
   community.general.archive:
@@ -9,7 +9,7 @@
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
 
-- name: Transfer configuration archive to central server
+- name: Transfer config archive to central server
   tags:
     - config_backup
   fetch:
@@ -18,7 +18,7 @@
     flat: yes
   register: fetch_config_archive_result
 
-- name: Create backup folders
+- name: Create backup path folders
   tags:
     - config_backup
   delegate_to: localhost
@@ -28,7 +28,7 @@
     state: directory
     mode: '0755'
 
-- name: Archive nodes config into zip of zips
+- name: Archive cluster config into zip of zips
   tags:
     - config_backup
   delegate_to: localhost

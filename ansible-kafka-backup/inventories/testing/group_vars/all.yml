@@ -1,4 +1,4 @@
-# === General configuration =======================================================================
+# === General config =======================================================================
 
 # Specifies the Python interpreter to be used on the remote nodes.
 ansible_python_interpreter: /usr/bin/python
@@ -23,14 +23,14 @@ shutdown_order:
   - kafka-controller-2
   - kafka-controller-1
 
-# === Cluster Docker image configuration ==========================================================
+# === Cluster Docker image config ==========================================================
 
 # Docker image to be used for cluster, with version specified.
 image: confluentinc/cp-kafka:7.8.0
 
 # === Backup retention policies ===================================================================
 
-# Number of days to retain configuration backups.
+# Number of days to retain config backups.
 retention_policy_config: 30
 
 # Number of days to retain data backups.
@@ -44,7 +44,7 @@ storage_cold: /backup/cold
 # Temporary directory on central for extracting & creating of backup files.
 storage_temp: /data/temp
 
-# Directory containing the cluster node's configuration files.
+# Directory containing the cluster node's config files.
 node_config: /data/cluster/config
 
 # Directory containing the cluster node's data files.
@@ -63,13 +63,13 @@ restore_archive: ""
 # Timestamp for the backup, formatted as "YYYY-MM-DD---HH-MM-SS".
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
 
-# Path for storing configuration backups, organized by year/month/day.
+# Path for storing config backups, organized by year/month/day.
 config_backup_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Path for storing data backups, organized by year/month/day.
 data_backup_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
-# Full path for the configuration backup archive, named with a timestamp.
+# Full path for the config backup archive, named with a timestamp.
 config_backup_archive: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
 
 # Full path for the data backup archive, named with a timestamp.

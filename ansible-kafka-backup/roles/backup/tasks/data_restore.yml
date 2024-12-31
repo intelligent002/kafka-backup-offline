@@ -1,5 +1,5 @@
 ---
-- name: Verify restore archive exists
+- name: Verify archive exists
   tags:
     - data_restore
   delegate_to: localhost
@@ -25,7 +25,7 @@
     dest: "{{ storage_temp }}"
     remote_src: yes
 
-- name: Push extracted data files to nodes
+- name: Push extracted data archives to nodes
   tags:
     - data_restore
   copy:
@@ -36,7 +36,7 @@
     mode: '0644'
 
 # Include containers_stop tasks
-- name: Stop containers before backing up data
+- name: Stop containers before data restore
   tags:
     - data_restore
   include_tasks: ../../docker/tasks/stop.yml
@@ -67,7 +67,7 @@
     remote_src: yes
 
 # Include containers_start tasks
-- name: Start containers after backing up data
+- name: Start containers after data restore
   tags:
     - data_restore
   include_tasks: ../../docker/tasks/start.yml
