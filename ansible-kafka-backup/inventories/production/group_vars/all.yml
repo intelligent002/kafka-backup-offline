@@ -25,50 +25,62 @@ shutdown_order:
 
 # === Cluster Docker image config ==========================================================
 
-# Docker image to be used for cluster, with version specified.
-image: confluentinc/cp-kafka:7.8.0
+# Service user
+data_owner_user: 1000
+
+# Service group
+data_owner_group: 1000
+
+# Data folder permissions
+data_folder_chmod: 0755
 
 # Specific configs for cluster nodes
 node_roles:
   kafka-controller-1:
     role: controller
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-controller-2:
     role: controller
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-controller-3:
     role: controller
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-1:
     role: broker
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-2:
     role: broker
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-3:
     role: broker
+    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
 
 # Docker image to be used for cluster, with version specified.
-docker_run_command: 'docker run -d --restart=always 
+docker_command_containers_run: 'docker run -d --restart=always 
   --name={{ inventory_hostname }}  
   -h {{ inventory_hostname }} 
   -p {{ node_roles[item].port_service_ext }}:{{ node_roles[item].port_service_int }} 
@@ -81,7 +93,7 @@ docker_run_command: 'docker run -d --restart=always
   -Djava.rmi.server.hostname={{ ansible_host }}" 
   -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties 
   -v {{ node_data }}:/var/lib/kafka/data 
-  {{ image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
+  {{ node_roles[item].image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
 

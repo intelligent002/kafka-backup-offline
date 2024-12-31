@@ -1,11 +1,11 @@
 ---
 # Include containers_stop tasks
-- name: Stop containers before backing up data
+- name: Stop containers before data backup
   tags:
     - data_backup
   include_tasks: ../../docker/tasks/stop.yml
 
-- name: Archive cluster data files on nodes
+- name: Archive cluster data on nodes
   tags:
     - data_backup
   community.general.archive:
@@ -16,7 +16,7 @@
   register: config_archive_result
 
 # Include containers_start tasks
-- name: Start containers after backing up data
+- name: Start containers after data backup
   tags:
     - data_backup
   include_tasks: ../../docker/tasks/start.yml
