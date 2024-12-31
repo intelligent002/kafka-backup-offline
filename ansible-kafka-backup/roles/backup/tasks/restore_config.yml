@@ -1,18 +1,18 @@
 ---
-- name: Verify recovery archive exists
+- name: Verify restore archive exists
   tags:
     - restore_config
   delegate_to: localhost
   run_once: true
   stat:
-    path: "{{ recovery_archive }}"
+    path: "{{ restore_archive }}"
   register: archive_stat
 
 - name: Fail if archive does not exist
   tags:
     - restore_config
   fail:
-    msg: "The specified recovery archive {{ recovery_archive }} does not exist!"
+    msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
 - name: Extract configuration archive to temp on localhost
@@ -21,7 +21,7 @@
   delegate_to: localhost
   run_once: true
   unarchive:
-    src: "{{ recovery_archive }}"
+    src: "{{ restore_archive }}"
     dest: "{{ storage_temp }}"
     remote_src: yes
 

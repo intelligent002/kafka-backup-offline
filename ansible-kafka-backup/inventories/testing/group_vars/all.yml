@@ -50,13 +50,13 @@ node_config: /data/cluster/config
 # Directory containing the cluster node's data files.
 node_data: /data/cluster/data
 
-# Temporary directory on nodes for extracting & creating archives for backups & recovery.
+# Temporary directory on nodes for extracting & creating archives for backups & restore.
 node_temp: /data/temp
 
-# === Recovery archive parameter ==================================================================
+# === Restore archive parameter ==================================================================
 
-# Path to the recovery archive (to be provided via CLI parameters). Should be an absolute file path.
-recovery_archive: ""
+# Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
+restore_archive: ""
 
 # === Backup metadata =============================================================================
 
