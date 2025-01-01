@@ -3,18 +3,22 @@
   include_tasks: rotate.yml
   tags: rotate_backups
 
-- name: Run backup config
+- name: Run config backup
   include_tasks: config_backup.yml
   tags: config_backup
 
-- name: Run backup data
-  include_tasks: data_backup.yml
-  tags: data_backup
-
-- name: Run restore config
+- name: Run config restore
   include_tasks: config_restore.yml
   tags: config_restore
 
-- name: Run restore data
+- name: Run data backup
+  include_tasks: data_backup.yml
+  tags: data_backup
+
+- name: Run data restore
   include_tasks: data_restore.yml
   tags: data_restore
+
+- name: Run data format
+  include_tasks: data_format.yml
+  tags: data_format
