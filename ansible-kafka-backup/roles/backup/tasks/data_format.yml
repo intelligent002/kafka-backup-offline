@@ -13,8 +13,8 @@
     path: "{{ node_data }}"
     state: directory
     mode: '{{ data_folder_chmod }}'
-    owner: {{ data_owner_user }}
-    group: {{ data_owner_group }}
+    owner: '{{ data_owner_user }}'
+    group: '{{ data_owner_group }}'
 
 - name: Format cluster data folder on nodes
   tags:
