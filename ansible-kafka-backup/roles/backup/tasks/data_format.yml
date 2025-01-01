@@ -1,0 +1,14 @@
+---
+- name: Remove cluster data folder on nodes
+  tags:
+    - data_format
+  file:
+    path: "{{ node_data }}"
+    state: absent
+
+- name: Format cluster data folder on nodes
+  tags:
+    - data_format
+  shell: "{{ docker_command_data_format }}"
+  with_items: "{{ startup_order }}"
+  when: inventory_hostname == item
