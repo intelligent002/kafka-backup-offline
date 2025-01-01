@@ -16,6 +16,23 @@
     owner: '{{ data_owner_user }}'
     group: '{{ data_owner_group }}'
 
+- name: Remove cluster logs folder on nodes
+  tags:
+    - data_format
+  file:
+    path: "{{ node_logs }}"
+    state: absent
+
+- name: Create cluster logs folder on nodes
+  tags:
+    - data_format
+  file:
+    path: "{{ node_logs }}"
+    state: directory
+    mode: '{{ data_folder_chmod }}'
+    owner: '{{ data_owner_user }}'
+    group: '{{ data_owner_group }}'
+
 - name: Format cluster data folder on nodes
   tags:
     - data_format
