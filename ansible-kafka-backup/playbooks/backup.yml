@@ -20,11 +20,11 @@
     - role: ../roles/docker         # Include Docker related tasks
     - role: ../roles/ssh            # Include SSH related tasks
 
-#  post_tasks:
-#    - name: Cleanup temp folders after execution
-#      tags:
-#        - config_backup
-#        - data_backup
-#        - config_restore
-#        - data_restore
-#      include_tasks: ../roles/common/tasks/cleanup.yml
+  post_tasks:
+    - name: Cleanup temp folders after execution
+      tags:
+        - config_backup
+        - data_backup
+        - config_restore
+        - data_restore
+      include_tasks: ../roles/common/tasks/cleanup.yml
