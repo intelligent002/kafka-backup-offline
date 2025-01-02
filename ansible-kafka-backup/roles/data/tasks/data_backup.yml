@@ -3,7 +3,7 @@
 - name: Stop containers before data backup
   tags:
     - data_backup
-  include_tasks: ../../docker/tasks/stop.yml
+  include_tasks: ../../docker/tasks/containers_stop.yml
 
 - name: Archive cluster data on nodes
   tags:
