@@ -10,6 +10,7 @@
   file:
     path: "{{ storage_temp }}"
     state: directory
+    force: yes
     mode: '0755'
 
 - name: Ensure temporal folder on nodes exists
@@ -21,4 +22,5 @@
   file:
     path: "{{ node_temp }}"
     state: directory
+    force: yes
     mode: '0755'
