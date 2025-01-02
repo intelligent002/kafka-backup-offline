@@ -9,8 +9,7 @@
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
 
-# Pull node archives to kafka-node-0 into temp folder
-- name: Transfer config archive to central server
+- name: Pull node archives from nodes into central
   tags:
     - config_backup
   delegate_to: kafka-node-0

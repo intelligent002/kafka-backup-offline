@@ -25,16 +25,15 @@
     dest: "{{ storage_temp }}"
     remote_src: yes
 
-- name: Push extracted data archives to nodes
+- name: Push node archives from central into nodes
   tags:
     - data_restore
   delegate_to: kafka-node-0
-  copy:
+  synchronize:
     src: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
-    owner: root
-    group: root
-    mode: '0644'
+    mode: push
+  register: synchronize_data_archive_result
 
 # Include containers_stop tasks
 - name: Stop containers before data restore

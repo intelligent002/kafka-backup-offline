@@ -21,8 +21,7 @@
     - data_backup
   include_tasks: ../../docker/tasks/containers_start.yml
 
-# Pull node archives to kafka-node-0 into temp folder
-- name: Transfer data archive to central server
+- name: Pull node archives from nodes into central
   tags:
     - data_backup
   synchronize:
