@@ -28,6 +28,8 @@
     src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
     flat: yes
+  remote_src: true
+  delegate_to: kafka-node-0
   register: fetch_data_archive_result
 
 - name: Create backup folders
