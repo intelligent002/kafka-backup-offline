@@ -28,6 +28,7 @@
 - name: Push extracted data archives to nodes
   tags:
     - data_restore
+  delegate_to: kafka-node-0
   copy:
     src: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
