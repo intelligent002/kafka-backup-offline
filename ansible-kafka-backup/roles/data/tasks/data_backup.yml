@@ -27,7 +27,7 @@
   synchronize:
     src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
-    mode: push
+    mode: pull
   delegate_to: kafka-node-0
   register: synchronize_data_archive_result
 
