@@ -15,7 +15,7 @@
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
-- name: Extract config archive to temp on localhost
+- name: Extract config archive to temp on central
   tags:
     - config_restore
   delegate_to: kafka-node-0

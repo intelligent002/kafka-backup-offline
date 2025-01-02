@@ -1,5 +1,5 @@
 ---
-- name: Remove temporal folder on localhost
+- name: Remove temporal folder on central
   tags:
     - config_backup
     - data_backup
@@ -11,7 +11,7 @@
     path: "{{ storage_temp }}"
     state: absent
 
-- name: Create temporal folder on localhost
+- name: Create temporal folder on central
   tags:
     - config_backup
     - data_backup
