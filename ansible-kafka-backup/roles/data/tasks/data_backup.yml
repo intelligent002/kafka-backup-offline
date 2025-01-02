@@ -19,7 +19,7 @@
 - name: Start containers after data backup
   tags:
     - data_backup
-  include_tasks: ../../docker/tasks/start.yml
+  include_tasks: ../../docker/tasks/containers_start.yml
 
 - name: Transfer data archive to central server
   tags:
