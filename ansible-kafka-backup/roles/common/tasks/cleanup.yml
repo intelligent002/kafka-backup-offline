@@ -1,26 +1,46 @@
 ---
-- name: Ensure temporal folder on central exists
+- name: Remove temporal folder on central
   tags:
     - config_backup
-    - config_restore
     - data_backup
+    - config_restore
+    - data_restore
+  delegate_to: kafka-node-0
+  run_once: true
+  file:
+    path: "{{ storage_temp }}"
+    state: absent
+
+- name: Create temporal folder on central
+  tags:
+    - config_backup
+    - data_backup
+    - config_restore
     - data_restore
   delegate_to: kafka-node-0
   run_once: true
   file:
     path: "{{ storage_temp }}"
     state: directory
-    force: yes
     mode: '0755'
 
-- name: Ensure temporal folder on nodes exists
+- name: Remove temporal folder on nodes
   tags:
     - config_backup
-    - config_restore
     - data_backup
+    - config_restore
+    - data_restore
+  file:
+    path: "{{ node_temp }}"
+    state: absent
+
+- name: Create temporal folder on nodes
+  tags:
+    - config_backup
+    - data_backup
+    - config_restore
     - data_restore
   file:
     path: "{{ node_temp }}"
     state: directory
-    force: yes
     mode: '0755'
