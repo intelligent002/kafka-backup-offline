@@ -1,6 +1,6 @@
 ---
 - name: Cluster Backup Offline
-  hosts: all
+  hosts: nodes
   become: yes
 
   pre_tasks:
@@ -10,13 +10,15 @@
         - data_backup
         - config_restore
         - data_restore
-      include_tasks: ../roles/common/cleanup.yml
+      include_tasks: ../roles/common/tasks/cleanup.yml
 
   roles:
     - role: ../roles/prerequisites  # Ensure prerequisites are installed
-    - role: ../roles/ssh  # Include SSH-related tasks
-    - role: ../roles/docker  # Include Docker-related tasks
-    - role: ../roles/backup  # Include Backup and Restore tasks
+    - role: ../roles/certs          # Include Certificates related tasks
+    - role: ../roles/config         # Include Config related tasks
+    - role: ../roles/data           # Include Data related tasks
+    - role: ../roles/docker         # Include Docker related tasks
+    - role: ../roles/ssh            # Include SSH related tasks
 
   post_tasks:
     - name: Cleanup temp folders after execution
@@ -25,4 +27,4 @@
         - data_backup
         - config_restore
         - data_restore
-      include_tasks: ../roles/common/cleanup.yml
+      include_tasks: ../roles/common/tasks/cleanup.yml

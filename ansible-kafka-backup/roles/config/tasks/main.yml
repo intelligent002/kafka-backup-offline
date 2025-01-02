@@ -1,0 +1,12 @@
+---
+- name: Rotate old config backups
+  include_tasks: config_rotate.yml
+  tags: config_rotate
+
+- name: Run config backup
+  include_tasks: config_backup.yml
+  tags: config_backup
+
+- name: Run config restore
+  include_tasks: config_restore.yml
+  tags: config_restore

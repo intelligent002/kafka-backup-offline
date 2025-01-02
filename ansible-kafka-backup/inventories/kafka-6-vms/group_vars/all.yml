@@ -38,53 +38,50 @@ data_folder_chmod: 0755
 nodes:
   kafka-controller-1:
     role: controller
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-controller-2:
     role: controller
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-controller-3:
     role: controller
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9093
     port_service_ext: 9093
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-1:
     role: broker
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-2:
     role: broker
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
   kafka-broker-3:
     role: broker
-    image: 'confluentinc/cp-kafka:7.8.0'
     port_service_int: 9092
     port_service_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
 
-# Docker command to run the containers, combining all nodes details
+cluster_id: 'AkU3OEVBNTcwNTJENDM2Qk'
+
+# Docker command to run the cluster containers, combining all nodes details
 docker_command_containers_run: 'docker run -d --restart=always 
   --name={{ inventory_hostname }}  
   -h {{ inventory_hostname }} 
   -p {{ nodes[item].port_service_ext }}:{{ nodes[item].port_service_int }} 
   -p {{ nodes[item].port_monitoring_ext }}:{{ nodes[item].port_monitoring_int }} 
+  -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote 
   -Dcom.sun.management.jmxremote.port={{ nodes[item].port_monitoring_int }} 
   -Dcom.sun.management.jmxremote.rmi.port={{ nodes[item].port_monitoring_int }} 
@@ -93,7 +90,15 @@ docker_command_containers_run: 'docker run -d --restart=always
   -Djava.rmi.server.hostname={{ ansible_host }}" 
   -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties 
   -v {{ node_data }}:/var/lib/kafka/data 
-  {{ nodes[item].image }} /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
+  -v {{ node_logs }}:/var/log/kafka
+  confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
+
+# Docker command to run the cluster containers, combining all nodes details
+docker_command_data_format: 'docker run --rm 
+  -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties
+  -v {{ node_data }}:/var/lib/kafka/data 
+  -v {{ node_logs }}:/var/log/kafka
+  confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
 
@@ -116,6 +121,9 @@ node_config: /data/cluster/config
 
 # Directory containing the cluster node's data files.
 node_data: /data/cluster/data
+
+# Directory containing the cluster node's logs files.
+node_logs: /data/cluster/logs
 
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
 node_temp: /data/temp
