@@ -28,6 +28,7 @@
 - name: Push extracted config archives to nodes
   tags:
     - config_restore
+  delegate_to: kafka-node-0
   copy:
     src: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"

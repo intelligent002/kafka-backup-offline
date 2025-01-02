@@ -22,7 +22,7 @@ ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tag
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "config_backup"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "config_restore" --extra-vars "restore_archive=/backup/cold/config/rotated/2024/12/31/2024-12-31---20-58-12---config.tar.zx"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_backup"
-ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_restore"  --extra-vars "restore_archive=/backup/cold/data/rotated/2024/12/31/2024-12-31---20-58-40---data.tar.zx"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_restore"  --extra-vars "restore_archive=/backup/cold/data/rotated/2025/01/02/2025-01-02---13-45-56---data.tar.zx"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_stop"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_start"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_restart"

@@ -12,6 +12,7 @@
 - name: Transfer config archive to central server
   tags:
     - config_backup
+  delegate_to: kafka-node-0
   fetch:
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.zx"
