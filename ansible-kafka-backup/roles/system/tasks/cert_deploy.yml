@@ -95,9 +95,9 @@
   run_once: true
   debug:
     msg: >
-      Expiration epoch time: {{ certificate_expiration_epoch }},
+      Expiration epoch time: {{ certificate_expiration_epoch | float}},
       Current epoch time: {{ ansible_date_time.epoch }},
-      Difference in seconds: {{ certificate_expiration_epoch - (ansible_date_time.epoch | int) }}.
+      Difference in seconds: {{ certificate_expiration_epoch | float - (ansible_date_time.epoch | float) }}.
 
 - name: Calculate remaining days until certificate expiration
   tags:
