@@ -1,3 +1,0 @@
----
-- include_tasks: ssh_setup.yml
-  tags: ssh_setup

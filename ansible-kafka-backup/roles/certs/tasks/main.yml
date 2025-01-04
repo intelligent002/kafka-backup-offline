@@ -1,3 +1,0 @@
----
-- include_tasks: cert_deploy.yml
-  tags: cert_deploy

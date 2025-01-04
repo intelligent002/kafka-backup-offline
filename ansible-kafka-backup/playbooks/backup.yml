@@ -7,24 +7,24 @@
     - name: Cleanup temp folders before execution
       tags:
         - config_backup
-        - data_backup
         - config_restore
+        - data_backup
         - data_restore
-      include_tasks: ../roles/common/tasks/cleanup.yml
+        - temp_cleanup
+      include_tasks: ../roles/system/tasks/temp_cleanup.yml
 
   roles:
-    - role: ../roles/prerequisites  # Ensure prerequisites are installed
-    - role: ../roles/certs          # Include Certificates related tasks
     - role: ../roles/config         # Include Config related tasks
     - role: ../roles/data           # Include Data related tasks
     - role: ../roles/docker         # Include Docker related tasks
-    - role: ../roles/ssh            # Include SSH related tasks
+    - role: ../roles/system         # Include stuff like Prerequisites, Config deploy, Certs deploy, temp folder cleanup etc.
 
   post_tasks:
     - name: Cleanup temp folders after execution
       tags:
         - config_backup
-        - data_backup
         - config_restore
+        - data_backup
         - data_restore
-      include_tasks: ../roles/common/tasks/cleanup.yml
+        - temp_cleanup
+      include_tasks: ../roles/system/tasks/temp_cleanup.yml

@@ -1,0 +1,63 @@
+---
+- name: Verify certificate fullchain present on central
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  stat:
+    path: "{{ certificate_file_fullchain }}"
+  register: cert_stat
+
+- name: Fail if certificate fullchain does not exist
+  tags:
+    - cert_deploy
+  fail:
+    msg: "The specified certificate fullchain {{ certificate_file_fullchain }} does not exist!"
+  when: not cert_stat.stat.exists
+
+- name: Verify certificate key present on central
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  stat:
+    path: "{{ certificate_file_key }}"
+  register: cert_stat
+
+- name: Fail if certificate key does not exist
+  tags:
+    - cert_deploy
+  fail:
+    msg: "The specified certificate key {{ certificate_file_key }} does not exist!"
+  when: not cert_stat.stat.exists
+
+- name: Verify certificate CA present on central
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  stat:
+    path: "{{ certificate_file_ca }}"
+  register: cert_stat
+
+- name: Fail if certificate CA does not exist
+  tags:
+    - cert_deploy
+  fail:
+    msg: "The specified certificate CA {{ certificate_file_ca }} does not exist!"
+  when: not cert_stat.stat.exists
+
+- name: Generate KeyStore
+  tags:
+    - cert_deploy
+  shell: openssl pkcs12 -export -in {{ certificate_file_fullchain }} -inkey {{ certificate_file_key }} -out {{ certificate_file_p12 }} -name {{ certificate_host }} -password pass:keystorepassword
+
+  with_items: "{{ shutdown_order }}"
+  when: inventory_hostname == item
+
+- name: Generate KeyStores
+  tags: cert_deploy
+  authorized_key:
+    user: "{{ ansible_user }}"
+    state: present
+    key: "{{ lookup('file', {{ ansible_key_pub }}) }}"

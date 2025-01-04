@@ -1,0 +1,11 @@
+---
+- include_tasks: ssh_setup.yml
+  tags: ssh_setup
+
+- include_tasks: temp_cleanup.yml
+  tags:
+    - config_backup
+    - config_restore
+    - data_backup
+    - data_restore
+    - temp_cleanup
