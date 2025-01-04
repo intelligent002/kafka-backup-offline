@@ -1,57 +1,26 @@
----
-- name: Verify certificate fullchain present on central
+- name: Verify certificate files exist on central
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
   stat:
-    path: "{{ certificate_file_fullchain }}"
-  register: cert_stat_fullchain
+    path: "{{ item }}"
+  with_items:
+    - "{{ certificate_file_fullchain }}"
+    - "{{ certificate_file_key }}"
+    - "{{ certificate_file_ca }}"
+  register: cert_stats
 
-- name: Fail if certificate fullchain does not exist
+- name: Fail if any certificate file is missing
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
   fail:
-    msg: "The specified certificate fullchain {{ certificate_file_fullchain }} does not exist!"
-  when: not cert_stat_fullchain.stat.exists
-
-- name: Verify certificate key present on central
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  stat:
-    path: "{{ certificate_file_key }}"
-  register: cert_stat_key
-
-- name: Fail if certificate key does not exist
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  fail:
-    msg: "The specified certificate key {{ certificate_file_key }} does not exist!"
-  when: not cert_stat_key.stat.exists
-
-- name: Verify certificate CA present on central
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  stat:
-    path: "{{ certificate_file_ca }}"
-  register: cert_stat_ca
-
-- name: Fail if certificate CA does not exist
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  fail:
-    msg: "The specified certificate CA {{ certificate_file_ca }} does not exist!"
-  when: not cert_stat_ca.stat.exists
+    msg: >
+      The specified certificate file {{ item.item }} does not exist!
+  when: not item.stat.exists
+  with_items: "{{ cert_stats.results }}"
 
 - name: Extract certificate expiration details
   tags:
