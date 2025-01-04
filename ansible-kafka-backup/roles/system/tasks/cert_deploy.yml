@@ -68,12 +68,12 @@
   delegate_to: kafka-node-0
   run_once: true
   debug:
-    msg: >
-      "{% if certificate_expire_in_days | float < 0 %}
+    msg: >-
+      {% if certificate_expire_in_days < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago.
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days.
-      {% endif %}"
+      {% endif %}
 
 - name: Fail if certificate is expired or expires soon
   tags:
@@ -81,13 +81,13 @@
   delegate_to: kafka-node-0
   run_once: true
   fail:
-    msg: >
-      "{% if certificate_expire_in_days | float < 0 %}
+    msg: >-
+      {% if certificate_expire_in_days < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago!
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days!
-      {% endif %}"
-  when: certificate_expire_in_days | float < 30
+      {% endif %}
+  when: certificate_expire_in_days < 30
 
 - name: Generate KeyStore
   tags:
