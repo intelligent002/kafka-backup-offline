@@ -83,7 +83,7 @@
   run_once: true
   debug:
     msg: >
-      Raw expiration date: {{ certificate_expiration_date }}.
+      Raw expiration date: {{ certificate_expiration_date }},
       Days until expiration: {{ certificate_expire_in_days }}.
 
 - name: Fail if certificate is expired or expires soon
@@ -100,7 +100,7 @@
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days | float < 90
+  when: certificate_expire_in_days | float < 30
 
 - name: Generate KeyStore
   tags:
