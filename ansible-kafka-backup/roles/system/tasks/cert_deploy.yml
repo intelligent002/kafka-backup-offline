@@ -80,7 +80,7 @@
   debug:
     msg: >
       The certificate {{ certificate_file_fullchain }} will expire in {{
-      certificate_expire_in_days | round(2) }} days.
+      certificate_expire_in_days | float | round(2) }} days.
 
 - name: Fail if certificate is expired or expires soon
   tags:
@@ -89,12 +89,12 @@
   run_once: true
   fail:
     msg: >
-      {% if certificate_expire_in_days < 0 %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs | round(2) }} days ago!
+      {% if certificate_expire_in_days | float < 0 %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
       {% else %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | round(2) }} days!
+      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days < 30  # Less than 30 days
+  when: certificate_expire_in_days | float < 30
 
 - name: Generate KeyStore
   tags:
