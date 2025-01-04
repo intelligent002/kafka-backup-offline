@@ -115,7 +115,7 @@
   run_once: true
   set_fact:
     certificate_expire_in_days: >-
-      {{ certificate_expiration_epoch | float - ansible_date_time.epoch | float / 86400 | round(2) }}
+      {{ ( certificate_expiration_epoch | float - ansible_date_time.epoch | float ) / 86400 | round(2) }}
 
 - name: Debug the rounded value of certificate_expire_in_days
   tags:
