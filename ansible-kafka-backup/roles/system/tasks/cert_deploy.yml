@@ -115,7 +115,7 @@
   run_once: true
   debug:
     msg: >
-      The rounded value of certificate_expire_in_days is: {{ certificate_expire_in_days }} days.
+      The rounded value of certificate_expire_in_days is: {{ certificate_expire_in_days | float }} days.
 
 - name: Fail if certificate is expired or expires soon
   tags:
