@@ -53,7 +53,7 @@
     msg: "The specified certificate CA {{ certificate_file_ca }} does not exist!"
   when: not cert_stat_ca.stat.exists
 
-- name: Get certificate expiration date
+- name: Check certificate expiration and fail if expired or expiring soon
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
@@ -63,15 +63,7 @@
     | sed 's/^notAfter=//'
   register: cert_expiration_date
 
-- name: Debug the raw certificate expiration date
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  debug:
-    msg: "Raw certificate expiration date: {{ cert_expiration_date.stdout }}"
-
-- name: Convert expiration timestamp to epoch time (UTC)
+- name: Process certificate expiration
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
@@ -79,24 +71,19 @@
   set_fact:
     certificate_expiration_epoch: >-
       {{ (cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z')).timestamp() | int }}
-
-- name: Calculate remaining days until certificate expiration
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  set_fact:
     certificate_expire_in_days: >-
-      {{ ( certificate_expiration_epoch | int - ansible_date_time.epoch | int ) / 86400 | round(2) }}
+      {{ ( (certificate_expiration_epoch | int - ansible_date_time.epoch | int) / 86400 ) | float | round(2) }}
 
-- name: Debug the rounded value of certificate_expire_in_days
+- name: Debug certificate expiration details
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
   debug:
     msg: >
-      The rounded value of certificate_expire_in_days is: {{ certificate_expire_in_days | float | round(2) }} days.
+      Raw expiration date: {{ cert_expiration_date.stdout }}.
+      Expiration epoch time: {{ certificate_expiration_epoch }}.
+      Days until expiration: {{ certificate_expire_in_days }}.
 
 - name: Fail if certificate is expired or expires soon
   tags:
