@@ -131,6 +131,7 @@ certificate_file_key: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.key"
 certificate_file_ca: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.ca"
 certificate_file_p12: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.p12"
 keystore_password: "bla-bla!"
+certificate_expiration_threshold: 30
 
 # === Restore archive parameter ===================================================================
 

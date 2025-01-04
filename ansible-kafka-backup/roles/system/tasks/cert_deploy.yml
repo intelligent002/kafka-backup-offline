@@ -69,7 +69,7 @@
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days | float < 30
+  when: certificate_expire_in_days | float < {{ certificate_expiration_threshold }}
 
 - name: Generate KeyStore
   tags:
