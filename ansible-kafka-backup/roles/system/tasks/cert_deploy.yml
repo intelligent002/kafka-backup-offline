@@ -80,34 +80,6 @@
     certificate_expiration_epoch: >-
       {{ (cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z')).timestamp() | int }}
 
-- name: Debug the expiration epoch time
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  debug:
-    msg: "Expiration epoch time: {{ certificate_expiration_epoch }}"
-
-- name: Debug the difference between expiration and current epoch times
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  debug:
-    msg: >
-      Expiration epoch time: {{ certificate_expiration_epoch }},
-      Current epoch time: {{ ansible_date_time.epoch }},
-      Difference in seconds: {{ certificate_expiration_epoch | int - ansible_date_time.epoch | int }}.
-
-- name: Debug the seconds remaining until certificate expiration
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  debug:
-    msg: >
-      Seconds remaining until expiration: {{ certificate_expiration_epoch | int - ansible_date_time.epoch | int }}
-
 - name: Calculate remaining days until certificate expiration
   tags:
     - cert_deploy
