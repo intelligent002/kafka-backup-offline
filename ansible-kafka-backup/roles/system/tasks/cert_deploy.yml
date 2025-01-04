@@ -63,6 +63,14 @@
     | sed 's/^notAfter=//'
   register: cert_expiration_date
 
+- name: Debug the raw certificate expiration date
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  debug:
+    msg: "Raw certificate expiration date: {{ cert_expiration_date.stdout }}"
+
 - name: Calculate remaining days until certificate expiration
   tags:
     - cert_deploy
