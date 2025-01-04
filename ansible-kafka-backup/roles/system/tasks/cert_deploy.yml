@@ -53,27 +53,15 @@
     msg: "The specified certificate CA {{ certificate_file_ca }} does not exist!"
   when: not cert_stat_ca.stat.exists
 
-- name: Calculate remaining days until certificate expiration
+- name: Get certificate expiration date
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
-  set_fact:
-    certificate_expire_in_days: >-
-      ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) / 86400) | float
-
-- name: Debug certificate expiration in days
-  tags:
-    - cert_deploy
-  delegate_to: kafka-node-0
-  run_once: true
-  debug:
-    msg: >-
-      {% if certificate_expire_in_days | float < 0 %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs }} days ago.
-      {% else %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | float }} days.
-      {% endif %}
+  shell: >
+    openssl x509 -enddate -noout -in {{ certificate_file_fullchain }}
+    | sed 's/^notAfter=//'
+  register: cert_expiration_date
 
 - name: Fail if certificate is expired or expires soon
   tags:
@@ -81,13 +69,22 @@
   delegate_to: kafka-node-0
   run_once: true
   fail:
-    msg: >-
-      {% if certificate_expire_in_days | float < 0 %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs }} days ago!
-      {% else %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | float }} days!
-      {% endif %}
-  when: certificate_expire_in_days | float < 30
+    msg: "The specified certificate fullchain {{ certificate_file_fullchain }} has expired or will expire soon!"
+  when: >
+    (cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) < 2592000  # Less than 30 days
+
+- name: Generate KeyStore
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  shell: >
+    openssl pkcs12 -export
+    -in {{ certificate_file_fullchain }}
+    -inkey {{ certificate_file_key }}
+    -out {{ certificate_file_p12 }}
+    -name {{ certificate_host }}
+    -password pass:keystorepassword
 
 - name: Generate KeyStore
   tags:
