@@ -106,7 +106,7 @@
   run_once: true
   debug:
     msg: >
-      Seconds remaining until expiration: {{ certificate_expiration_epoch - (ansible_date_time.epoch | int) }}
+      Seconds remaining until expiration: {{ certificate_expiration_epoch | int - (ansible_date_time.epoch | int) }}
 
 - name: Calculate remaining days until certificate expiration
   tags:
