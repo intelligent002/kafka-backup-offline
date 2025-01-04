@@ -78,7 +78,7 @@
   run_once: true
   set_fact:
     certificate_expiration_epoch: >-
-      {{ cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') | int }}
+      {{ (cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z')).timestamp() | int }}
 
 - name: Debug the expiration epoch time
   tags:
