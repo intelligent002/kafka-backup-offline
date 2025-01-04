@@ -95,7 +95,7 @@
   run_once: true
   debug:
     msg: >
-      Expiration epoch time: {{ certificate_expiration_epoch | float}},
+      Expiration epoch time: {{ certificate_expiration_epoch | float }},
       Current epoch time: {{ ansible_date_time.epoch }},
       Difference in seconds: {{ certificate_expiration_epoch | float - (ansible_date_time.epoch | float) }}.
 
