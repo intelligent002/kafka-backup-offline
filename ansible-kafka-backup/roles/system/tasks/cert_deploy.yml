@@ -71,23 +71,22 @@
   debug:
     msg: "Raw certificate expiration date: {{ cert_expiration_date.stdout }}"
 
-- name: Debug the current epoch time
+- name: Convert expiration timestamp to epoch time (UTC)
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
-  debug:
-    msg: "Current epoch time: {{ ansible_date_time.epoch }}"
+  set_fact:
+    certificate_expiration_epoch: >-
+      {{ cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') | int }}
 
-- name: Debug the expiration timestamp
+- name: Debug the expiration epoch time
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
   debug:
-    msg: >
-      Expiration timestamp: {{
-      cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') }}
+    msg: "Expiration epoch time: {{ certificate_expiration_epoch }}"
 
 - name: Calculate remaining days until certificate expiration
   tags:
@@ -96,7 +95,7 @@
   run_once: true
   set_fact:
     certificate_expire_in_days: >-
-      ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - (ansible_date_time.epoch | int)) / 86400) | float
+      ((certificate_expiration_epoch - (ansible_date_time.epoch | int)) / 86400) | float
 
 - name: Debug the calculated value of certificate_expire_in_days
   tags:
