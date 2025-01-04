@@ -60,7 +60,7 @@
   run_once: true
   set_fact:
     certificate_expire_in_days: >-
-      ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) / 86400) | round(2)
+      ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) / 86400) | float
 
 - name: Debug certificate expiration in days
   tags:
@@ -69,7 +69,7 @@
   run_once: true
   debug:
     msg: >
-      "{% if certificate_expire_in_days < 0 %}
+      "{% if certificate_expire_in_days | float < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago.
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days.
@@ -82,12 +82,12 @@
   run_once: true
   fail:
     msg: >
-      "{% if certificate_expire_in_days < 0 %}
+      "{% if certificate_expire_in_days | float < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago!
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days!
       {% endif %}"
-  when: certificate_expire_in_days < 30  # Expired or less than 30 days to expiry
+  when: certificate_expire_in_days | float < 30
 
 - name: Generate KeyStore
   tags:
