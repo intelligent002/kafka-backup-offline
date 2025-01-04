@@ -87,7 +87,7 @@
   run_once: true
   debug:
     msg: >
-      "The calculated value of certificate_expire_in_days is: {{ certificate_expire_in_days }} days."
+      The calculated value of certificate_expire_in_days is: {{ certificate_expire_in_days | float | round(2) }} days.
 
 - name: Fail if certificate is expired or expires soon
   tags:
@@ -96,14 +96,14 @@
   run_once: true
   fail:
     msg: >
-      {% if certificate_expire_in_days == 0 %}
+      {% if certificate_expire_in_days | float == 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expires today!
-      {% elif certificate_expire_in_days < 0 %}
+      {% elif certificate_expire_in_days | float < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days < 30
+  when: certificate_expire_in_days | float < 30
 
 - name: Generate KeyStore
   tags:
