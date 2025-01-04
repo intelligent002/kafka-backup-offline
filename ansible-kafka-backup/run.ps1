@@ -28,3 +28,4 @@ ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tag
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_restart"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_remove"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_run"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "cert_deploy"

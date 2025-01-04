@@ -57,6 +57,7 @@
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
+  run_once: true
   shell: 'openssl pkcs12 -export 
           -in {{ certificate_file_fullchain }} 
           -inkey {{ certificate_file_key }} 
