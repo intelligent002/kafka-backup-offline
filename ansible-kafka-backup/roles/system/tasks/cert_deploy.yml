@@ -6,7 +6,7 @@
   run_once: true
   stat:
     path: "{{ certificate_file_fullchain }}"
-  register: cert_stat
+  register: cert_stat_fullchain
 
 - name: Fail if certificate fullchain does not exist
   tags:
@@ -15,7 +15,7 @@
   run_once: true
   fail:
     msg: "The specified certificate fullchain {{ certificate_file_fullchain }} does not exist!"
-  when: not cert_stat.stat.exists
+  when: not cert_stat_fullchain.stat.exists
 
 - name: Verify certificate key present on central
   tags:
@@ -24,7 +24,7 @@
   run_once: true
   stat:
     path: "{{ certificate_file_key }}"
-  register: cert_stat
+  register: cert_stat_key
 
 - name: Fail if certificate key does not exist
   tags:
@@ -33,7 +33,7 @@
   run_once: true
   fail:
     msg: "The specified certificate key {{ certificate_file_key }} does not exist!"
-  when: not cert_stat.stat.exists
+  when: not cert_stat_key.stat.exists
 
 - name: Verify certificate CA present on central
   tags:
@@ -42,7 +42,7 @@
   run_once: true
   stat:
     path: "{{ certificate_file_ca }}"
-  register: cert_stat
+  register: cert_stat_ca
 
 - name: Fail if certificate CA does not exist
   tags:
@@ -51,16 +51,53 @@
   run_once: true
   fail:
     msg: "The specified certificate CA {{ certificate_file_ca }} does not exist!"
-  when: not cert_stat.stat.exists
+  when: not cert_stat_ca.stat.exists
+
+- name: Calculate remaining days until certificate expiration
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  set_fact:
+    certificate_expire_in_days: >-
+      ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) / 86400) | round(2)
+
+- name: Debug certificate expiration in days
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  debug:
+    msg: >
+      "{% if certificate_expire_in_days < 0 %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago.
+      {% else %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days.
+      {% endif %}"
+
+- name: Fail if certificate is expired or expires soon
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
+  fail:
+    msg: >
+      "{% if certificate_expire_in_days < 0 %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | abs }} days ago!
+      {% else %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days }} days!
+      {% endif %}"
+  when: certificate_expire_in_days < 30  # Expired or less than 30 days to expiry
 
 - name: Generate KeyStore
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
-  shell: 'openssl pkcs12 -export 
-          -in {{ certificate_file_fullchain }} 
-          -inkey {{ certificate_file_key }} 
-          -out {{ certificate_file_p12 }} 
-          -name {{ certificate_host }} 
-          -password pass:keystorepassword'
+  shell: >
+    openssl pkcs12 -export
+    -in {{ certificate_file_fullchain }}
+    -inkey {{ certificate_file_key }}
+    -out {{ certificate_file_p12 }}
+    -name {{ certificate_host }}
+    -password pass:keystorepassword
