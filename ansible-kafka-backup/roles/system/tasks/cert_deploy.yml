@@ -80,15 +80,14 @@
     certificate_expire_in_days: >-
       ((cert_expiration_date.stdout | to_datetime('%b %d %H:%M:%S %Y %Z') - ansible_date_time.epoch) / 86400) | float
 
-- name: Debug remaining days until certificate expiration
+- name: Debug the calculated value of certificate_expire_in_days
   tags:
     - cert_deploy
   delegate_to: kafka-node-0
   run_once: true
   debug:
     msg: >
-      The certificate {{ certificate_file_fullchain }} will expire in {{
-      certificate_expire_in_days | float | round(2) }} days.
+      "The calculated value of certificate_expire_in_days is: {{ certificate_expire_in_days }} days."
 
 - name: Fail if certificate is expired or expires soon
   tags:
@@ -97,12 +96,14 @@
   run_once: true
   fail:
     msg: >
-      {% if certificate_expire_in_days | float < 0 %}
+      {% if certificate_expire_in_days == 0 %}
+      The specified certificate fullchain {{ certificate_file_fullchain }} expires today!
+      {% elif certificate_expire_in_days < 0 %}
       The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days | float < 30
+  when: certificate_expire_in_days < 30
 
 - name: Generate KeyStore
   tags:
