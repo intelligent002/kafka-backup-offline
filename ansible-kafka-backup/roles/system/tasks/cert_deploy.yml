@@ -64,7 +64,6 @@
     current_epoch=$(date +%s)
     cert_days_remaining=$(( (cert_epoch - current_epoch) / 86400 ))
     echo "expiration_date=$cert_date"
-    echo "expiration_epoch=$cert_epoch"
     echo "days_remaining=$cert_days_remaining"
   register: cert_details
 
@@ -75,7 +74,6 @@
   run_once: true
   set_fact:
     certificate_expiration_date: "{{ cert_details.stdout_lines | select('search', '^expiration_date=') | map('regex_replace', '^expiration_date=', '') | first }}"
-    certificate_expiration_epoch: "{{ cert_details.stdout_lines | select('search', '^expiration_epoch=') | map('regex_replace', '^expiration_epoch=', '') | first | int }}"
     certificate_expire_in_days: "{{ cert_details.stdout_lines | select('search', '^days_remaining=') | map('regex_replace', '^days_remaining=', '') | first | int }}"
 
 - name: Debug certificate expiration details
@@ -86,7 +84,6 @@
   debug:
     msg: >
       Raw expiration date: {{ certificate_expiration_date }}.
-      Expiration epoch time: {{ certificate_expiration_epoch }}.
       Days until expiration: {{ certificate_expire_in_days }}.
 
 - name: Fail if certificate is expired or expires soon
@@ -103,7 +100,7 @@
       {% else %}
       The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
       {% endif %}
-  when: certificate_expire_in_days | float < 30
+  when: certificate_expire_in_days | float < 90
 
 - name: Generate KeyStore
   tags:
