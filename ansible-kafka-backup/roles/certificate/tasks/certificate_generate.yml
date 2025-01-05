@@ -51,5 +51,9 @@
   register: certbot_result
 
 - name: Display Certbot output
+  tags:
+    - cert_deploy
+  delegate_to: kafka-node-0
+  run_once: true
   debug:
     var: certbot_result.stdout
