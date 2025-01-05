@@ -10,3 +10,7 @@
 - name: Run certificate restore
   include_tasks: certificate_restore.yml
   tags: certificate_restore
+
+- name: Run certificate generate
+  include_tasks: certificate_generate.yml
+  tags: certificate_generate

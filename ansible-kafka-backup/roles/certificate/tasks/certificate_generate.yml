@@ -1,0 +1,11 @@
+---
+- name: Create Cloudflare credentials file
+  tags:
+    - certificate_generate
+  delegate_to: kafka-node-0
+  ansible.builtin.template:
+    src: cloudflare.ini.j2
+    dest: "{{ certbot_volume_path }}/cloudflare.ini"
+    owner: root
+    group: root
+    mode: '0600'
