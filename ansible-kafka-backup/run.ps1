@@ -26,6 +26,7 @@ ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tag
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_backup"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_restore" --extra-vars "restore_archive=/backup/cold/certificate/rotated/2025/01/05/2025-01-05---11-11-34---certificate.tar.zx"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_restore"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_generate"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_stop"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_start"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "containers_restart"

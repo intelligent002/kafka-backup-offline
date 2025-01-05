@@ -46,8 +46,6 @@
     {% if force %}
     --force-renewal
     {% endif %}
-  args:
-    chdir: /tmp
   register: certbot_result
 
 - name: Display Certbot output
