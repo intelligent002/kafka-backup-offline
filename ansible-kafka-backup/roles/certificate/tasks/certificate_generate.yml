@@ -1,10 +1,18 @@
 ---
 - name: Ensure Docker is installed
+  tags:
+    - certificate_generate
+  delegate_to: kafka-node-0
+  run_once: true
   ansible.builtin.package:
     name: docker.io
     state: present
 
 - name: Ensure Certbot volume directory exists
+  tags:
+    - certificate_generate
+  delegate_to: kafka-node-0
+  run_once: true
   ansible.builtin.file:
     path: "{{ certbot_volume_path }}"
     state: directory
@@ -16,6 +24,7 @@
   tags:
     - certificate_generate
   delegate_to: kafka-node-0
+  run_once: true
   ansible.builtin.template:
     src: cloudflare.ini.j2
     dest: "{{ certbot_volume_path }}/cloudflare.ini"
