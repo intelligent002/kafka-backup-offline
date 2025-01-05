@@ -5,7 +5,7 @@
   delegate_to: kafka-node-0
   run_once: true
   ansible.builtin.file:
-    path: "{{ certbot_volume_path }}"
+    path: "{{ storage_certificate }}"
     state: directory
     owner: root
     group: root
@@ -18,7 +18,7 @@
   run_once: true
   ansible.builtin.template:
     src: cloudflare.ini.j2
-    dest: "{{ certbot_volume_path }}/cloudflare.ini"
+    dest: "{{ storage_certificate }}/cloudflare.ini"
     owner: root
     group: root
     mode: '0600'
@@ -29,9 +29,9 @@
   delegate_to: kafka-node-0
   run_once: true
   ansible.builtin.shell: >
-    docker run --rm -v "{{ certbot_volume_path }}:/etc/letsencrypt"
-    -v "{{ certbot_volume_path }}:/var/lib/letsencrypt"
-    "{{ docker_certbot_image }}" certonly
+    docker run --rm -v "{{ storage_certificate }}:/etc/letsencrypt"
+    -v "{{ storage_certificate }}:/var/lib/letsencrypt"
+    "{{ certbot_docker_image }}" certonly
     --dns-cloudflare
     --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
     --email "{{ certbot_email }}"
@@ -42,7 +42,7 @@
     {% else %}
     --server https://acme-v02.api.letsencrypt.org/directory
     {% endif %}
-    --domain "{{ certbot_domain }}"
+    --domain "{{ certbot_subject }}"
     {% if force %}
     --force-renewal
     {% endif %}

@@ -81,5 +81,5 @@
     -in {{ certificate_file_fullchain }}
     -inkey {{ certificate_file_key }}
     -out {{ certificate_file_p12 }}
-    -name {{ certificate_host }}
+    -name {{ certificate_name }}
     -password pass:keystorepassword
