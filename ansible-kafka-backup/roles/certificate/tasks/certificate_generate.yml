@@ -52,7 +52,7 @@
 
 - name: Display Certbot output
   tags:
-    - cert_deploy
+    - certificate_generate
   delegate_to: kafka-node-0
   run_once: true
   debug:
