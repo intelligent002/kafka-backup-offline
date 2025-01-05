@@ -152,7 +152,7 @@ certbot_staging: true  # Set to true for testing, change to false for production
 restore_archive: ""
 
 # Certificate regeneration flag
-force: false # Set to true to forcibly regenerate
+force: true # Set to true to forcibly regenerate
 
 # === Backup metadata =============================================================================
 
