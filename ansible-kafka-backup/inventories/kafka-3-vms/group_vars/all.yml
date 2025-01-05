@@ -106,7 +106,7 @@ storage_cold: /backup/cold
 storage_temp: /data/temp
 
 # Directory on central for certificates.
-storage_certs: /data/certs
+storage_certificate: /data/certificate
 
 # Directory containing the cluster node's config files.
 node_config: /data/cluster/config
@@ -118,7 +118,7 @@ node_data: /data/cluster/data
 node_logs: /data/cluster/logs
 
 # Directory containing the cluster node's certificate files.
-node_certs: /data/cluster/certs
+node_certificate: /data/cluster/certificate
 
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
 node_temp: /data/temp
