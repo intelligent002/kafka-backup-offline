@@ -1,4 +1,17 @@
 ---
+- name: Ensure Docker is installed
+  ansible.builtin.package:
+    name: docker.io
+    state: present
+
+- name: Ensure Certbot volume directory exists
+  ansible.builtin.file:
+    path: "{{ certbot_volume_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Create Cloudflare credentials file
   tags:
     - certificate_generate
