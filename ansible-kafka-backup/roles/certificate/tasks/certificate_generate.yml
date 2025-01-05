@@ -29,8 +29,7 @@
   delegate_to: kafka-node-0
   run_once: true
   ansible.builtin.shell: >
-    docker run --rm 
-    -v "{{ certbot_volume_path }}:/etc/letsencrypt"
+    docker run --rm -v "{{ certbot_volume_path }}:/etc/letsencrypt"
     -v "{{ certbot_volume_path }}:/var/lib/letsencrypt"
     "{{ docker_certbot_image }}" certonly
     --dns-cloudflare
@@ -48,8 +47,10 @@
     --force-renewal
     {% endif %}
   args:
-    warn: false
+    chdir: /tmp
   register: certbot_result
+  become: true
+  warn: false  # This goes outside the module parameters
 
 - name: Display Certbot output
   debug:
