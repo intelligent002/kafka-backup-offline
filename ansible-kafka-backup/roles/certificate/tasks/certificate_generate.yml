@@ -154,7 +154,7 @@
     - certificate_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ keystore_certificate_name }}"
+    src: "{{ certificate_file_p12 }}"
     dest: "{{ node_certificate }}/keystore.p12"
     mode: push
   register: synchronize_certificate_result
