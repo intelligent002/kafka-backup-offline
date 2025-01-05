@@ -11,15 +11,15 @@ ansible_key_pri: /root/.ssh/id_rsa
 
 # Defines the order of starting cluster nodes.
 startup_order:
-  - kafka-node-1
-  - kafka-node-2
-  - kafka-node-3
+  - node-1
+  - node-2
+  - node-3
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - kafka-node-3
-  - kafka-node-2
-  - kafka-node-1
+  - node-3
+  - node-2
+  - node-1
 
 # === Cluster Docker image config =================================================================
 
@@ -34,7 +34,7 @@ data_folder_chmod: 0755
 
 # Specific configs for cluster nodes
 nodes:
-  kafka-node-1:
+  node-1:
     role: controller
     port_controller_int: 9093
     port_controller_ext: 9093
@@ -42,7 +42,7 @@ nodes:
     port_broker_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
-  kafka-node-2:
+  node-2:
     role: controller
     port_controller_int: 9093
     port_controller_ext: 9093
@@ -50,7 +50,7 @@ nodes:
     port_broker_ext: 9092
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
-  kafka-node-3:
+  node-3:
     role: controller
     port_controller_int: 9093
     port_controller_ext: 9093
@@ -134,7 +134,7 @@ certbot_staging: true  # Set to true for testing, change to false for production
 
 # Certificate regeneration flag
 certificate_regenerate_force: false # Set to true to forcibly regenerate
-certificate_expiration_threshold: 30 # Below that cert ttl it will be regenerated
+certificate_expiration_threshold: 30 # Below that amount of days it will be regenerated
 
 # Certificate files
 certificate_file_fullchain: "{{ storage_certificate }}/live/{{ keystore_certificate_name }}/fullchain.pem"

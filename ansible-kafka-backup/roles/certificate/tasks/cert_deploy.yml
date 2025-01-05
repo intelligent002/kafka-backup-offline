@@ -1,7 +1,7 @@
 - name: Verify certificate files exist on central
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   stat:
     path: "{{ item }}"
@@ -13,7 +13,7 @@
 - name: Fail if any certificate file is missing
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   fail:
     msg: >
@@ -24,7 +24,7 @@
 - name: Extract certificate expiration details
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   shell: |
     cert_date=$(openssl x509 -enddate -noout -in {{ certificate_file_fullchain }} | sed 's/^notAfter=//')
@@ -38,7 +38,7 @@
 - name: Parse certificate expiration details
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   set_fact:
     certificate_expiration_date: "{{ cert_details.stdout_lines | select('search', '^expiration_date=') | map('regex_replace', '^expiration_date=', '') | first }}"
@@ -47,7 +47,7 @@
 - name: Debug certificate expiration details
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   debug:
     msg: >
@@ -57,7 +57,7 @@
 - name: Fail if certificate is expired or expires soon
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   fail:
     msg: >
@@ -73,7 +73,7 @@
 - name: Generate KeyStore
   tags:
     - cert_deploy
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   shell: >
     openssl pkcs12 -export

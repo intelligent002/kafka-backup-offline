@@ -2,7 +2,7 @@
 - name: Set up SSH key on nodes
   tags:
     - ssh_setup
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   authorized_key:
     user: "{{ ansible_user }}"
     state: present

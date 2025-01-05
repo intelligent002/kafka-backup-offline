@@ -6,7 +6,7 @@
     - data_backup
     - data_restore
     - temp_cleanup
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   file:
     path: "{{ storage_temp }}"
@@ -19,7 +19,7 @@
     - data_backup
     - data_restore
     - temp_cleanup
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   file:
     path: "{{ storage_temp }}"

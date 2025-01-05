@@ -2,7 +2,7 @@
 - name: Ensure Certbot volume directory exists
   tags:
     - certificate_generate
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   ansible.builtin.file:
     path: "{{ storage_certificate }}"
@@ -14,7 +14,7 @@
 - name: Create Cloudflare credentials file
   tags:
     - certificate_generate
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   ansible.builtin.template:
     src: cloudflare.ini.j2
@@ -26,7 +26,7 @@
 - name: Run Certbot to renew certificate
   tags:
     - certificate_generate
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
     docker run --rm -v "{{ storage_certificate }}:/etc/letsencrypt"
@@ -51,7 +51,7 @@
 - name: Display Certbot output
   tags:
     - certificate_generate
-  delegate_to: kafka-node-0
+  delegate_to: node-0
   run_once: true
   debug:
     var: certbot_result.stdout
