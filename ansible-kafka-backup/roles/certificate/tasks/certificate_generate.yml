@@ -49,8 +49,6 @@
   args:
     chdir: /tmp
   register: certbot_result
-  become: true
-  warn: false  # This goes outside the module parameters
 
 - name: Display Certbot output
   debug:
