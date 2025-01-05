@@ -78,7 +78,7 @@ docker_command_containers_run: 'docker run -d --restart=always
   -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties 
   -v {{ node_data }}:/var/lib/kafka/data 
   -v {{ node_logs }}:/var/log/kafka
-  -v {{ node_certs }}:/etc/kafka/ssl
+  -v {{ node_certificate }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # Docker command to run the cluster containers, combining all nodes details
@@ -86,7 +86,7 @@ docker_command_data_format: 'docker run --rm
   -v {{ node_config }}/kraft.properties:/etc/kafka/kraft.properties
   -v {{ node_data }}:/var/lib/kafka/data 
   -v {{ node_logs }}:/var/log/kafka
-  -v {{ node_certs }}:/etc/kafka/ssl
+  -v {{ node_certificate }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
