@@ -141,6 +141,14 @@
     -name {{ keystore_certificate_name }}
     -password pass:keystorepassword
 
+- name: Ensure certificate folder exists on nodes
+  tags:
+    - certificate_generate
+  file:
+    path: "{{ node_certificate }}"
+    state: directory
+    mode: '0755'
+
 - name: Push certificate KeyStore to from central into nodes
   tags:
     - certificate_generate
