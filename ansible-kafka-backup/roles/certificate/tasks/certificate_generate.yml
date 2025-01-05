@@ -140,3 +140,13 @@
     -out {{ certificate_file_p12 }}
     -name {{ keystore_certificate_name }}
     -password pass:keystorepassword
+
+- name: Push certificate KeyStore to from central into nodes
+  tags:
+    - certificate_generate
+  delegate_to: node-0
+  synchronize:
+    src: "{{ keystore_certificate_name }}"
+    dest: "{{ node_certificate }}/"
+    mode: push
+  register: synchronize_data_archive_result
