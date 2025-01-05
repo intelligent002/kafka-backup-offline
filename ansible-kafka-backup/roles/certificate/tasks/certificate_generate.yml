@@ -149,7 +149,7 @@
     state: directory
     mode: '0755'
 
-- name: Push certificate KeyStore to from central into nodes
+- name: Push certificate KeyStore from central into nodes
   tags:
     - certificate_generate
   delegate_to: node-0
