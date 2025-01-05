@@ -155,6 +155,6 @@
   delegate_to: node-0
   synchronize:
     src: "{{ keystore_certificate_name }}"
-    dest: "{{ node_certificate }}/"
+    dest: "{{ node_certificate }}/keystore.p12"
     mode: push
-  register: synchronize_data_archive_result
+  register: synchronize_certificate_result
