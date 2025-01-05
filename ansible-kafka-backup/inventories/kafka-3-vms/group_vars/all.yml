@@ -138,6 +138,7 @@ certbot_email: "intelligent002@gmail.com"
 cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 docker_certbot_image: "certbot/dns-cloudflare"
 certbot_volume_path: "/data/certificate"
+certbot_staging: true  # Set to true for testing, change to false for production
 
 # === Restore archive parameter ===================================================================
 
