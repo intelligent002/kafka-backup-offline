@@ -1,0 +1,12 @@
+---
+- name: Rotate old certificate backups
+  include_tasks: certificate_rotate.yml
+  tags: certificate_rotate
+
+- name: Run certificate backup
+  include_tasks: certificate_backup.yml
+  tags: certificate_backup
+
+- name: Run certificate restore
+  include_tasks: certificate_restore.yml
+  tags: certificate_restore

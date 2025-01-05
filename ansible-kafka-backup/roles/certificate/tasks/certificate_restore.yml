@@ -1,0 +1,59 @@
+---
+- name: Verify archive exists
+  tags:
+    - certificate_restore
+  delegate_to: kafka-node-0
+  run_once: true
+  stat:
+    path: "{{ restore_archive }}"
+  register: archive_stat
+
+- name: Fail if archive does not exist
+  tags:
+    - certificate_restore
+  fail:
+    msg: "The specified restore archive {{ restore_archive }} does not exist!"
+  when: not archive_stat.stat.exists
+
+- name: Extract certificate archive to temp on central
+  tags:
+    - certificate_restore
+  delegate_to: kafka-node-0
+  run_once: true
+  unarchive:
+    src: "{{ restore_archive }}"
+    dest: "{{ storage_temp }}"
+    remote_src: yes
+
+- name: Push node archives from central into nodes
+  tags:
+    - certificate_restore
+  delegate_to: kafka-node-0
+  synchronize:
+    src: "{{ storage_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
+    dest: "{{ node_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
+    mode: push
+  register: synchronize_data_archive_result
+
+- name: Remove cluster certificate folder on nodes
+  tags:
+    - certificate_restore
+  file:
+    path: "{{ node_certificate }}"
+    state: absent
+
+- name: Create cluster certificate folder on nodes
+  tags:
+    - certificate_restore
+  file:
+    path: "{{ node_certificate }}"
+    state: directory
+    mode: '0755'
+
+- name: Restore cluster certificate on nodes
+  tags:
+    - certificate_restore
+  unarchive:
+    src: "{{ node_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
+    dest: "{{ node_certificate }}"
+    remote_src: yes

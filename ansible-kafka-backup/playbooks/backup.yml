@@ -6,6 +6,8 @@
   pre_tasks:
     - name: Cleanup temp folders before execution
       tags:
+        - certificate_backup
+        - certificate_restore
         - config_backup
         - config_restore
         - data_backup
@@ -16,15 +18,18 @@
   roles:
     # the order of include is matter, if we will execute with tags="containers_restart,cert_renew"
     # the tasks will be executed in the order they are included in the code,
-    # and not in the order they were mentioned in the tag parameter.
-    - role: ../roles/system   # Include stuff like Prerequisites, Certs deploy, temp folder cleanup etc.
-    - role: ../roles/config   # Include Config related tasks
-    - role: ../roles/data     # Include Data related tasks
-    - role: ../roles/docker   # Include Docker related tasks
+    # not in the order they were mentioned in the tag parameter.
+    - role: ../roles/system       # Include stuff like Prerequisites, temp folder cleanup etc.
+    - role: ../roles/certificate  # Include Certificate related tasks
+    - role: ../roles/config       # Include Config related tasks
+    - role: ../roles/data         # Include Data related tasks
+    - role: ../roles/docker       # Include Docker related tasks
 
   post_tasks:
     - name: Cleanup temp folders after execution
       tags:
+        - certificate_backup
+        - certificate_restore
         - config_backup
         - config_restore
         - data_backup
