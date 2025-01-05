@@ -146,17 +146,17 @@ backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace
 # Path for storing config backups, organized by year/month/day.
 certificate_backup_path: "{{ storage_cold }}/certificate/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
-# Path for storing config backups, organized by year/month/day.
-config_backup_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
-
-# Path for storing data backups, organized by year/month/day.
-data_backup_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
-
 # Full path for the config backup archive, named with a timestamp.
 certificate_backup_archive: "{{ certificate_backup_path }}/{{ backup_date }}---certificate.tar.zx"
 
+# Path for storing config backups, organized by year/month/day.
+config_backup_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+
 # Full path for the config backup archive, named with a timestamp.
 config_backup_archive: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
+
+# Path for storing data backups, organized by year/month/day.
+data_backup_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the data backup archive, named with a timestamp.
 data_backup_archive: "{{ data_backup_path }}/{{ backup_date }}---data.tar.zx"
