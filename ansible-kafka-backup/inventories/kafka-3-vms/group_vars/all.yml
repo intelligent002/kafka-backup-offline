@@ -135,7 +135,7 @@ certificate_expiration_threshold: 30
 
 certbot_domain: "*.cluster.intel.r7g.org"
 certbot_email: "intelligent002@gmail.com"
-cloudflare_api_token: "<cloudflare_api_token>"
+cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 docker_certbot_image: "certbot/dns-cloudflare"
 certbot_volume_path: "/data/certificate"
 
