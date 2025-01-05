@@ -34,7 +34,7 @@
     "{{ certbot_docker_image }}" certonly
     --dns-cloudflare
     --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
-    --email "{{ certbot_email }}"
+    --email "{{ certbot_cloudflare_user_email }}"
     --agree-tos
     --non-interactive
     {% if certbot_staging %}
@@ -43,7 +43,7 @@
     --server https://acme-v02.api.letsencrypt.org/directory
     {% endif %}
     --domain "{{ certbot_subject }}"
-    {% if force %}
+    {% if certificate_regenerate_force %}
     --force-renewal
     {% endif %}
   register: certbot_result

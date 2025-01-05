@@ -99,14 +99,17 @@ retention_policy_data: 7
 
 # === Backup directories ==========================================================================
 
+# Directory on central for certificates.
+storage_certificate: /data/certificate
+
 # Directory for long-term storage (cold storage) of backups.
 storage_cold: /backup/cold
 
 # Temporary directory on central for extracting & creating of backup files.
 storage_temp: /data/temp
 
-# Directory on central for certificates.
-storage_certificate: /data/certificate
+# Directory containing the cluster node's certificate files.
+node_certificate: /data/cluster/certificate
 
 # Directory containing the cluster node's config files.
 node_config: /data/cluster/config
@@ -117,42 +120,36 @@ node_data: /data/cluster/data
 # Directory containing the cluster node's logs files.
 node_logs: /data/cluster/logs
 
-# Directory containing the cluster node's certificate files.
-node_certificate: /data/cluster/certificate
-
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
 node_temp: /data/temp
 
 # === Certificates related parameters =============================================================
 
-certificate_name: "wildcard.intel.r7g.org"
-certificate_file_fullchain: "{{ storage_certificate }}/live/cluster.intel.r7g.org/wildcard.intel.r7g.org-ACME.fullchain"
-certificate_file_key: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.key"
-certificate_file_ca: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.ca"
-certificate_file_p12: "{{ storage_certs }}/wildcard.intel.r7g.org-ACME.p12"
-keystore_password: "bla-bla!"
-certificate_expiration_threshold: 30
-
+# Certbot generation
 certbot_subject: "*.cluster.intel.r7g.org,cluster.intel.r7g.org"
-certbot_email: "intelligent002@gmail.com"
-#certbot_cloudflare_api_token: !vault |
-#          $ANSIBLE_VAULT;1.1;AES256
-#          37393931626637653030336530323330316665653739643631306464393435383862333639396264
-#          6166306161623764373561643466373565653334363466350a313766323532343535366463383936
-#          31383666336661646431396435653966616262633963336537663831376634356233323163373134
-#          3236623864373435320a376630393964626563613139316233323430363431326537616539326665
-#          35653964366235333230373831366436333365633566343231343635636133316365
+certbot_cloudflare_user_email: "intelligent002@gmail.com"
 certbot_cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 certbot_docker_image: "certbot/dns-cloudflare"
 certbot_staging: true  # Set to true for testing, change to false for production
+
+# Certificate regeneration flag
+certificate_regenerate_force: false # Set to true to forcibly regenerate
+certificate_expiration_threshold: 30 # Below that cert ttl it will be regenerated
+
+# Certificate files
+certificate_file_fullchain: "{{ storage_certificate }}/live/{{ keystore_certificate_name }}/fullchain.pem"
+certificate_file_key:       "{{ storage_certificate }}/live/{{ keystore_certificate_name }}/privkey.pem"
+certificate_file_p12:       "{{ storage_certificate }}/live/{{ keystore_certificate_name }}/keystore.p12"
+
+# Final destination
+keystore_certificate_name: "cluster.intel.r7g.org"
+keystore_password: "bla-bla!"
 
 # === Restore archive parameter ===================================================================
 
 # Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
 restore_archive: ""
 
-# Certificate regeneration flag
-force: true # Set to true to forcibly regenerate
 
 # === Backup metadata =============================================================================
 
