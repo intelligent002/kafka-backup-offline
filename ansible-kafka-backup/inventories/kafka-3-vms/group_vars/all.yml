@@ -135,7 +135,14 @@ certificate_expiration_threshold: 30
 
 certbot_domain: "*.cluster.intel.r7g.org"
 certbot_email: "intelligent002@gmail.com"
-cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
+cloudflare_api_token: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37393931626637653030336530323330316665653739643631306464393435383862333639396264
+          6166306161623764373561643466373565653334363466350a313766323532343535366463383936
+          31383666336661646431396435653966616262633963336537663831376634356233323163373134
+          3236623864373435320a376630393964626563613139316233323430363431326537616539326665
+          35653964366235333230373831366436333365633566343231343635636133316365
+# cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 docker_certbot_image: "certbot/dns-cloudflare"
 certbot_volume_path: "/data/certificate"
 certbot_staging: true  # Set to true for testing, change to false for production
