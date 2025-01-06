@@ -1,0 +1,4 @@
+port_controller_int: 9093
+port_controller_ext: 9093
+port_monitoring_int: 9999
+port_monitoring_ext: 9999
