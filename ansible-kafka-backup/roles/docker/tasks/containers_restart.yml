@@ -3,10 +3,10 @@
 - name: Stop containers
   tags:
     - containers_restart
-  include_tasks: stop.yml
+  include_tasks: containers_stop.yml
 
 # Include containers_start tasks
 - name: Start containers
   tags:
     - containers_restart
-  include_tasks: start.yml
+  include_tasks: containers_start.yml
