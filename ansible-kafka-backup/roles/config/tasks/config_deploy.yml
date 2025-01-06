@@ -4,6 +4,7 @@
   set_fact:
     relevant_group: "{{ item }}"
   with_items: "{{ group_names }}"
+  when: item not in ['all', 'cluster', 'central']
   run_once: false
 
 - name: Debug the relevant group (optional)
