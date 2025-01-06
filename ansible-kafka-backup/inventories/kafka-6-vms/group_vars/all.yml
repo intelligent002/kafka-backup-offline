@@ -11,21 +11,21 @@ ansible_key_pri: /root/.ssh/id_rsa
 
 # Defines the order of starting cluster nodes.
 startup_order:
-  - kafka-controller-1
-  - kafka-controller-2
-  - kafka-controller-3
-  - kafka-broker-1
-  - kafka-broker-2
-  - kafka-broker-3
+  - node-1
+  - node-2
+  - node-3
+  - node-4
+  - node-5
+  - node-6
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - kafka-broker-3
-  - kafka-broker-2
-  - kafka-broker-1
-  - kafka-controller-3
-  - kafka-controller-2
-  - kafka-controller-1
+  - node-6
+  - node-5
+  - node-4
+  - node-3
+  - node-2
+  - node-1
 
 # === Cluster Docker image config =================================================================
 
