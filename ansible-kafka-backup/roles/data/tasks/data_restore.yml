@@ -35,12 +35,6 @@
     mode: push
   register: synchronize_data_archive_result
 
-# Include containers_stop tasks
-- name: Stop containers before data restore
-  tags:
-    - data_restore
-  include_tasks: ../../docker/tasks/containers_stop.yml
-
 - name: Remove cluster data folder on nodes
   tags:
     - data_restore
@@ -65,9 +59,3 @@
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_data_path }}"
     remote_src: yes
-
-# Include containers_start tasks
-- name: Start containers after data restore
-  tags:
-    - data_restore
-  include_tasks: ../../docker/tasks/containers_start.yml

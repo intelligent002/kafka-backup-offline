@@ -37,5 +37,3 @@
   tags:
     - data_format
   shell: "{{ docker_command_data_format }}"
-  with_items: "{{ startup_order }}"
-  when: inventory_hostname == item

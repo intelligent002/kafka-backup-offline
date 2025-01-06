@@ -2,7 +2,6 @@
 - name: Cluster Backup Offline
   hosts: cluster
   become: yes
-  serial: 6
   pre_tasks:
     - name: Cleanup temp folders before execution
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
@@ -11,7 +10,6 @@
     - role: ../roles/certificate  # Include Certificate related tasks
     - role: ../roles/config       # Include Config related tasks
     - role: ../roles/data         # Include Data related tasks
-    - role: ../roles/docker       # Include Docker related tasks
   post_tasks:
     - name: Cleanup temp folders after execution
       include_tasks: ../roles/system/tasks/temp_cleanup.yml

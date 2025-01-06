@@ -1,10 +1,4 @@
 ---
-# Include containers_stop tasks
-- name: Stop containers before data backup
-  tags:
-    - data_backup
-  include_tasks: ../../docker/tasks/containers_stop.yml
-
 - name: Archive cluster data on nodes
   tags:
     - data_backup
@@ -14,12 +8,6 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
-
-# Include containers_start tasks
-- name: Start containers after data backup
-  tags:
-    - data_backup
-  include_tasks: ../../docker/tasks/containers_start.yml
 
 - name: Pull node archives from nodes into central
   tags:
