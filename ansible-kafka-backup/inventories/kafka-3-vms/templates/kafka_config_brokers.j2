@@ -11,17 +11,17 @@ cluster.id={{ cluster_id }}
 # Controller Quorum Configuration
 
 # Define the quorum of controllers with their respective node IDs and addresses
-controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
-{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', port_controller_ext) }}{% if not loop.last %},{% endif %}{% endfor %}
+controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_controller_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 #############################################################################################
 # Listeners and communication
 
 # Specifies the network interface and port where the broker listens for client requests
-listeners=PLAINTEXT://0.0.0.0:{{ port_broker_ext | default(9092) }}
+listeners=PLAINTEXT://0.0.0.0:{{ port_broker_ext }}
 
 # This is the address and port advertised to clients for connecting to this broker
-advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext | default(9092) }}
+advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext }}
 
 # Specifies the listener name used for communication between brokers and controllers
 controller.listener.names=CONTROLLER
