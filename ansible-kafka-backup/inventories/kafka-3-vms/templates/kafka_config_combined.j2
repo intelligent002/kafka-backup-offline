@@ -12,7 +12,7 @@ cluster.id={{ cluster_id }}
 
 # Define the quorum of controllers with their respective node IDs and addresses
 controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
-{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', {{ port_controller_ext }}) }}{% if not loop.last %},{% endif %}{% endfor %}
+{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', port_controller_ext) }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # Timeout for controller quorum elections (in milliseconds)
 controller.quorum.election.timeout.ms=10000
