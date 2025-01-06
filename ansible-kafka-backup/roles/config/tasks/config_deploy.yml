@@ -1,23 +1,28 @@
 ---
 - name: Determine the group for the host dynamically
+  tags: config_deploy
   set_fact:
     relevant_group: "{{ item }}"
   with_items: "{{ group_names }}"
   run_once: false
 
 - name: Debug the relevant group (optional)
+  tags: config_deploy
   debug:
     msg: "Host: {{ inventory_hostname }} | Relevant Group: {{ relevant_group }}"
 
 - name: Determine the template dynamically based on the group
+  tags: config_deploy
   set_fact:
     selected_template: "{{ inventory_dir }}/templates/kafka_config_{{ relevant_group }}.j2"
 
 - name: Debug selected template (optional)
+  tags: config_deploy
   debug:
     msg: "Host: {{ inventory_hostname }} | Selected Template: {{ selected_template }}"
 
 - name: Deploy configuration file for the host
+  tags: config_deploy
   template:
     src: "{{ selected_template }}"
     dest: /etc/kafka/kraft.properties"
