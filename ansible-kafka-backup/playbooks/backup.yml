@@ -35,6 +35,7 @@
 - name: Start Docker containers in startup order
   hosts: localhost
   become: yes
+  tags: containers_start
   tasks:
     - name: Start Docker containers in defined startup order
       tags: containers_start
@@ -46,6 +47,7 @@
 - name: Stop Docker containers in shutdown order
   hosts: localhost
   become: yes
+  tags: containers_stop
   tasks:
     - name: Stop Docker containers in defined shutdown order
       tags: containers_stop
