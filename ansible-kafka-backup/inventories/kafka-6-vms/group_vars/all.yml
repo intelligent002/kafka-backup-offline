@@ -110,7 +110,7 @@ node_data_path: "/data/cluster/data"
 node_logs_path: "/data/cluster/logs"
 
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
-node_temp: "/data/temp"
+node_temp_path: "/data/temp"
 
 # === Certificates related parameters =============================================================
 
