@@ -1,6 +1,6 @@
 ---
 - name: Rotate old data backups
-  tags: rotate_backups
+  tags: data_rotate
   delegate_to: node-0
   run_once: true
   find:
@@ -11,7 +11,7 @@
   register: old_data_backups
 
 - name: Remove old data backups
-  tags: rotate_backups
+  tags: data_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -20,7 +20,7 @@
   with_items: "{{ old_data_backups.files }}"
 
 - name: Remove empty directories in data storage
-  tags: rotate_backups
+  tags: data_rotate
   delegate_to: node-0
   run_once: true
   shell: >
