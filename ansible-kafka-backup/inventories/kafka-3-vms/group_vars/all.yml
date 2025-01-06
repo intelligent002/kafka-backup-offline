@@ -41,7 +41,7 @@ cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_containers_run: >
-  docker run -d --restart=always --name={{ inventory_hostname }} -h {{ inventory_hostname }}
+  docker run -d --restart=always --name={{ item }} -h {{ item }}
   -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
   -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
   -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
@@ -61,10 +61,10 @@ docker_command_containers_run: >
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: >
   docker run --rm
-  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
-  -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties
+  -v {{ node_data_path }}:/var/lib/kafka/data
+  -v {{ node_logs_path }}:/var/log/kafka
+  -v {{ node_certificate_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties
 
