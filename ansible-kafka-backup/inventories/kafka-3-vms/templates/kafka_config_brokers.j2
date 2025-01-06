@@ -1,25 +1,27 @@
 # Node ID
 node.id={{ node_id }}
 
-# Define the roles for this node
+# Define the roles for this node (controller and broker)
 process.roles=broker
 
-# Unique cluster ID that must match across all controllers and brokers
+# Unique cluster ID that must match across all nodes (controller and broker)
 cluster.id={{ cluster_id }}
 
 #############################################################################################
-# Configuration for the quorum of controllers, listing all controller nodes
-controller.quorum.voters={% for host in groups['controllers'] %}
-{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host].get('controller_port', 9093) }}{% if not loop.last %},{% endif %}{% endfor %}
+# Controller Quorum Configuration
+
+# Define the quorum of controllers with their respective node IDs and addresses
+controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
+{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', port_controller_ext) }}{% if not loop.last %},{% endif %}{% endfor %}
 
 #############################################################################################
 # Listeners and communication
 
 # Specifies the network interface and port where the broker listens for client requests
-listeners=PLAINTEXT://0.0.0.0:{{ hostvars[host].get('broker_port', 9092) }}
+listeners=PLAINTEXT://0.0.0.0:{{ port_broker_ext | default(9092) }}
 
 # This is the address and port advertised to clients for connecting to this broker
-advertised.listeners=PLAINTEXT://{{ hostname }}:{{ hostvars[host].get('broker_port', 9092) }}
+advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext | default(9092) }}
 
 # Specifies the listener name used for communication between brokers and controllers
 controller.listener.names=CONTROLLER

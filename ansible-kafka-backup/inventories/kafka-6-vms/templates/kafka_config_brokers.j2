@@ -1,44 +1,38 @@
 # Node ID
-node.id=2
+node.id={{ node_id }}
 
 # Define the roles for this node (controller and broker)
-process.roles=broker,controller
+process.roles=broker
 
 # Unique cluster ID that must match across all nodes (controller and broker)
-cluster.id=AkU3OEVBNTcwNTJENDM2Qk
+cluster.id={{ cluster_id }}
 
 #############################################################################################
 # Controller Quorum Configuration
 
 # Define the quorum of controllers with their respective node IDs and addresses
-controller.quorum.voters=1@node-1.intel.r7g.org:9093,2@node-2.intel.r7g.org:9093,3@node-3.intel.r7g.org:9093
-
-# Timeout for controller quorum elections (in milliseconds)
-controller.quorum.election.timeout.ms=10000
+controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
+{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', port_controller_ext) }}{% if not loop.last %},{% endif %}{% endfor %}
 
 #############################################################################################
-# Listeners and Communication
+# Listeners and communication
 
-# Define the listener for controller-to-controller communication
-listeners=CONTROLLER://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9092
+# Specifies the network interface and port where the broker listens for client requests
+listeners=PLAINTEXT://0.0.0.0:{{ port_broker_ext | default(9092) }}
 
-# Advertise the broker listener for clients to connect
-advertised.listeners=PLAINTEXT://node-2.intel.r7g.org:9092
+# This is the address and port advertised to clients for connecting to this broker
+advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext | default(9092) }}
 
-# Specify the name of the listener used for controller communication
+# Specifies the listener name used for communication between brokers and controllers
 controller.listener.names=CONTROLLER
 
 # Specifies the listener name used for communication between brokers
 inter.broker.listener.name=PLAINTEXT
 
 #############################################################################################
-# Data and Metadata Storage
+# Replication and ISR Settings
 
-# Directory where the controller's metadata logs and broker data are stored
-log.dirs=/var/lib/kafka/data
-
-#############################################################################################
-# Internal Topics Configuration
+# Replication settings for system topics to ensure high availability and fault tolerance
 
 # Replication factor for the __consumer_offsets topic
 offsets.topic.replication.factor=3
@@ -59,16 +53,19 @@ transaction.state.log.num.partitions=10
 transaction.abort.timed.out.transaction.cleanup.interval.ms=300000
 
 #############################################################################################
-# Log Retention Policies
+# Data
+
+# This is where Kafka stores data for topics and logs
+log.dirs=/var/lib/kafka/data
+
+# Interval for checking and applying log retention policies (in ms)
+log.retention.check.interval.ms=300000
 
 # Retention period for logs before they are eligible for deletion (in hours)
 log.retention.hours=168
 
 # Maximum size of a single log segment before it is rolled over (in bytes, 1 GB)
 log.segment.bytes=1073741824
-
-# Interval for checking and applying log retention policies (in ms)
-log.retention.check.interval.ms=300000
 
 # Enable log cleaner for log compaction
 log.cleaner.enable=true

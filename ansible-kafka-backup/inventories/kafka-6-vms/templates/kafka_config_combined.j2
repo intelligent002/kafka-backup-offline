@@ -1,17 +1,18 @@
 # Node ID
-node.id=1
+node.id={{ node_id }}
 
 # Define the roles for this node (controller and broker)
 process.roles=broker,controller
 
 # Unique cluster ID that must match across all nodes (controller and broker)
-cluster.id=AkU3OEVBNTcwNTJENDM2Qk
+cluster.id={{ cluster_id }}
 
 #############################################################################################
 # Controller Quorum Configuration
 
 # Define the quorum of controllers with their respective node IDs and addresses
-controller.quorum.voters=1@node-1.intel.r7g.org:9093,2@node-2.intel.r7g.org:9093,3@node-3.intel.r7g.org:9093
+controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
+{{ hostvars[host].get('node_id', 'undefined') }}@{{ hostvars[host].get('hostname', 'undefined') }}:{{ hostvars[host].get('port_controller_ext', port_controller_ext) }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # Timeout for controller quorum elections (in milliseconds)
 controller.quorum.election.timeout.ms=10000
@@ -20,10 +21,10 @@ controller.quorum.election.timeout.ms=10000
 # Listeners and Communication
 
 # Define the listener for controller-to-controller communication
-listeners=CONTROLLER://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9092
+listeners=CONTROLLER://0.0.0.0:{{ port_controller_ext }},PLAINTEXT://0.0.0.0:{{ port_broker_ext | default(9092) }}
 
 # Advertise the broker listener for clients to connect
-advertised.listeners=PLAINTEXT://node-1.intel.r7g.org:9092
+advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext | default(9092) }}
 
 # Specify the name of the listener used for controller communication
 controller.listener.names=CONTROLLER
