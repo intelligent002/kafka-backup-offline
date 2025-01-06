@@ -92,6 +92,9 @@ docker_command_data_format: 'docker run --rm
 # === Backup retention policies ===================================================================
 
 # Number of days to retain config backups.
+retention_policy_certificate: 7
+
+# Number of days to retain config backups.
 retention_policy_config: 30
 
 # Number of days to retain data backups.
