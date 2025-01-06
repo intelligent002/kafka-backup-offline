@@ -89,15 +89,15 @@ docker_command_containers_run: 'docker run -d --restart=always
   -Dcom.sun.management.jmxremote.ssl=false 
   -Djava.rmi.server.hostname={{ ansible_host }}" 
   -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties 
-  -v {{ node_data }}:/var/lib/kafka/data 
-  -v {{ node_logs }}:/var/log/kafka
+  -v {{ node_data_path }}:/var/lib/kafka/data 
+  -v {{ node_logs_path }}:/var/log/kafka
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: 'docker run --rm 
   -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties
-  -v {{ node_data }}:/var/lib/kafka/data 
-  -v {{ node_logs }}:/var/log/kafka
+  -v {{ node_data_path }}:/var/lib/kafka/data 
+  -v {{ node_logs_path }}:/var/log/kafka
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
@@ -139,10 +139,10 @@ restore_archive: ""
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
 
 # Path for storing config backups, organized by year/month/day.
-config_backup_path: "{{ storage_cold }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+config_backup_path: "{{ storage_cold_path }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Path for storing data backups, organized by year/month/day.
-data_backup_path: "{{ storage_cold }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+data_backup_path: "{{ storage_cold_path }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the config backup archive, named with a timestamp.
 config_backup_archive: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"

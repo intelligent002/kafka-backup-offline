@@ -22,7 +22,7 @@
   run_once: true
   unarchive:
     src: "{{ restore_archive }}"
-    dest: "{{ storage_temp }}"
+    dest: "{{ storage_temp_path }}"
     remote_src: yes
 
 - name: Push node archives from central into nodes
@@ -30,8 +30,8 @@
     - data_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     mode: push
   register: synchronize_data_archive_result
 
@@ -45,14 +45,14 @@
   tags:
     - data_restore
   file:
-    path: "{{ node_data }}"
+    path: "{{ node_data_path }}"
     state: absent
 
 - name: Create cluster data folder on nodes
   tags:
     - data_restore
   file:
-    path: "{{ node_data }}"
+    path: "{{ node_data_path }}"
     state: directory
     mode: '{{ data_folder_chmod }}'
     owner: '{{ data_owner_user }}'
@@ -62,8 +62,8 @@
   tags:
     - data_restore
   unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ node_data }}"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ node_data_path }}"
     remote_src: yes
 
 # Include containers_start tasks

@@ -9,8 +9,8 @@
   tags:
     - data_backup
   community.general.archive:
-    path: "{{ node_data }}/"  # The directory or files to be archived
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"  # Destination archive
+    path: "{{ node_data_path }}/"  # The directory or files to be archived
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
   register: config_archive_result
@@ -25,8 +25,8 @@
   tags:
     - data_backup
   synchronize:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ storage_temp }}/{{ inventory_hostname }}-data.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     mode: pull
   delegate_to: node-0
   register: synchronize_data_archive_result
@@ -48,7 +48,7 @@
   delegate_to: node-0
   run_once: true
   community.general.archive:
-    path: "{{ storage_temp }}/*-data.tar.zx"  # The directory or files to be archived
+    path: "{{ storage_temp_path }}/*-data.tar.zx"  # The directory or files to be archived
     dest: "{{ data_backup_archive }}"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving

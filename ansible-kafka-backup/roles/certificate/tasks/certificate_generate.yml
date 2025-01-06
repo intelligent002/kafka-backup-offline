@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.file:
-    path: "{{ storage_certificate }}"
+    path: "{{ storage_certificate_path }}"
     state: directory
     owner: root
     group: root
@@ -18,7 +18,7 @@
   run_once: true
   ansible.builtin.template:
     src: cloudflare.ini.j2
-    dest: "{{ storage_certificate }}/cloudflare.ini"
+    dest: "{{ storage_certificate_path }}/cloudflare.ini"
     owner: root
     group: root
     mode: '0600'
@@ -29,8 +29,8 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    docker run --rm -v "{{ storage_certificate }}:/etc/letsencrypt"
-    -v "{{ storage_certificate }}:/var/lib/letsencrypt"
+    docker run --rm -v "{{ storage_certificate_path }}:/etc/letsencrypt"
+    -v "{{ storage_certificate_path }}:/var/lib/letsencrypt"
     "{{ certbot_docker_image }}" certonly
     --dns-cloudflare
     --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
@@ -145,7 +145,7 @@
   tags:
     - certificate_generate
   file:
-    path: "{{ node_certificate }}"
+    path: "{{ node_certificate_path }}"
     state: directory
     mode: '0755'
 
@@ -155,6 +155,6 @@
   delegate_to: node-0
   synchronize:
     src: "{{ certificate_file_p12 }}"
-    dest: "{{ node_certificate }}/"
+    dest: "{{ node_certificate_path }}/"
     mode: push
   register: synchronize_certificate_result

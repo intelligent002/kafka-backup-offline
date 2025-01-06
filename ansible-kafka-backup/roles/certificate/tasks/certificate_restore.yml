@@ -22,7 +22,7 @@
   run_once: true
   unarchive:
     src: "{{ restore_archive }}"
-    dest: "{{ storage_temp }}"
+    dest: "{{ storage_temp_path }}"
     remote_src: yes
 
 - name: Push node archives from central into nodes
@@ -30,8 +30,8 @@
     - certificate_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
     mode: push
   register: synchronize_data_archive_result
 
@@ -39,14 +39,14 @@
   tags:
     - certificate_restore
   file:
-    path: "{{ node_certificate }}"
+    path: "{{ node_certificate_path }}"
     state: absent
 
 - name: Create cluster certificate folder on nodes
   tags:
     - certificate_restore
   file:
-    path: "{{ node_certificate }}"
+    path: "{{ node_certificate_path }}"
     state: directory
     mode: '0755'
 
@@ -54,6 +54,6 @@
   tags:
     - certificate_restore
   unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-certificate.tar.zx"
-    dest: "{{ node_certificate }}"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
+    dest: "{{ node_certificate_path }}"
     remote_src: yes

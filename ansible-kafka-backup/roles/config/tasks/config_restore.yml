@@ -22,7 +22,7 @@
   run_once: true
   unarchive:
     src: "{{ restore_archive }}"
-    dest: "{{ storage_temp }}"
+    dest: "{{ storage_temp_path }}"
     remote_src: yes
 
 - name: Push node archives from central into nodes
@@ -30,8 +30,8 @@
     - config_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp }}/{{ inventory_hostname }}-config.tar.zx"
-    dest: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     mode: push
   register: synchronize_data_archive_result
 
@@ -54,6 +54,6 @@
   tags:
     - config_restore
   unarchive:
-    src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_config_path }}"
     remote_src: yes

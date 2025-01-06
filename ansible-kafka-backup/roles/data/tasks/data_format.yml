@@ -3,14 +3,14 @@
   tags:
     - data_format
   file:
-    path: "{{ node_data }}"
+    path: "{{ node_data_path }}"
     state: absent
 
 - name: Create cluster data folder on nodes
   tags:
     - data_format
   file:
-    path: "{{ node_data }}"
+    path: "{{ node_data_path }}"
     state: directory
     mode: '{{ data_folder_chmod }}'
     owner: '{{ data_owner_user }}'
@@ -20,14 +20,14 @@
   tags:
     - data_format
   file:
-    path: "{{ node_logs }}"
+    path: "{{ node_logs_path }}"
     state: absent
 
 - name: Create cluster logs folder on nodes
   tags:
     - data_format
   file:
-    path: "{{ node_logs }}"
+    path: "{{ node_logs_path }}"
     state: directory
     mode: '{{ data_folder_chmod }}'
     owner: '{{ data_owner_user }}'
