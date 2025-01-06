@@ -37,3 +37,28 @@
         - data_restore
         - temp_cleanup
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
+
+
+---
+- name: Start Docker containers in startup order
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Start Docker containers in defined startup order
+      tags: containers_start
+      shell: docker start {{ item }}
+      delegate_to: "{{ item }}"
+      with_items: "{{ startup_order }}"
+      run_once: true  # Ensure task runs only once on localhost
+
+---
+- name: Stop Docker containers in shutdown order
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Stop Docker containers in defined shutdown order
+      tags: containers_stop
+      shell: docker stop {{ item }}
+      delegate_to: "{{ item }}"
+      with_items: "{{ shutdown_order }}"
+      run_once: true  # Ensure task runs only once on localhost
