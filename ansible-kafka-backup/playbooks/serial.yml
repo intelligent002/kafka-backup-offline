@@ -1,6 +1,6 @@
 ---
 - name: Cluster Backup Offline
-  hosts: cluster
+  hosts: localhost
   serial: 1
   become: yes
   roles:
