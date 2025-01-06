@@ -1,6 +1,8 @@
 ---
 - name: Remove temporal folder on central
   tags:
+    - certificate_backup
+    - certificate_restore
     - config_backup
     - config_restore
     - data_backup
@@ -14,6 +16,8 @@
 
 - name: Create temporal folder on central
   tags:
+    - certificate_backup
+    - certificate_restore
     - config_backup
     - config_restore
     - data_backup
