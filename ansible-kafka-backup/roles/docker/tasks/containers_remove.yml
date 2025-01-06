@@ -2,7 +2,7 @@
 - name: Remove Docker containers in shutdown order
   tags:
     - containers_remove
-  shell: docker rm -f {{ inventory_hostname }}
+  shell: docker rm -f {{ item }}
   delegate_to: "{{ item }}"
   with_items: "{{ shutdown_order }}"
   run_once: true  # Ensure task runs only once on localhost
