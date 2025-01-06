@@ -53,7 +53,7 @@ docker_command_containers_run: 'docker run -d --restart=always
   -Dcom.sun.management.jmxremote.authenticate=false 
   -Dcom.sun.management.jmxremote.ssl=false 
   -Djava.rmi.server.hostname={{ ansible_host }}" 
-  -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties 
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties 
   -v {{ node_data }}:/var/lib/kafka/data 
   -v {{ node_logs }}:/var/log/kafka
   -v {{ node_certificate }}:/etc/kafka/ssl
@@ -61,7 +61,7 @@ docker_command_containers_run: 'docker run -d --restart=always
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: 'docker run --rm 
-  -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties
   -v {{ node_data }}:/var/lib/kafka/data 
   -v {{ node_logs }}:/var/log/kafka
   -v {{ node_certificate }}:/etc/kafka/ssl
@@ -90,22 +90,22 @@ storage_cold: /backup/cold
 storage_temp: /data/temp
 
 # Directory containing the cluster node's certificate files.
-node_certificate: /data/cluster/certificate
+node_certificate: "/data/cluster/certificate"
 
 # Directory containing the cluster node's config files.
-node_config_path: /data/cluster/config
+node_config_path: "/data/cluster/config"
 
 # Directory containing the cluster node's config files.
-node_config_file: {{ node_config_path }}/kraft.properties
+node_config_file: "{{ node_config_path }}/kraft.properties"
 
 # Directory containing the cluster node's data files.
-node_data: /data/cluster/data
+node_data: "/data/cluster/data"
 
 # Directory containing the cluster node's logs files.
-node_logs: /data/cluster/logs
+node_logs: "/data/cluster/logs"
 
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
-node_temp: /data/temp
+node_temp: "/data/temp"
 
 # === Certificates related parameters =============================================================
 
