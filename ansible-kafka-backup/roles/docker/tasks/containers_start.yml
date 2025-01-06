@@ -3,6 +3,7 @@
   tags:
     - containers_start
     - containers_restart
-  shell: docker start {{ inventory_hostname }}
+  shell: docker start {{ item }}
+  delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
-  when: inventory_hostname == item
+  run_once: true  # Ensure task runs only once on localhost
