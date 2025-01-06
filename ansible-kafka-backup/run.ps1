@@ -20,8 +20,11 @@ ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tag
 ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tags "containers_run"
 
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "config_backup"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "config_rotate"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "config_restore"      --extra-vars "restore_archive=/backup/cold/config/rotated/2025/01/02/2025-01-02---16-25-28---config.tar.zx"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_backup"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_rotate"
+ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_format"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "data_restore"        --extra-vars "restore_archive=/backup/cold/data/rotated/2025/01/02/2025-01-02---16-12-46---data.tar.zx"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_backup"
 ansible-playbook -i inventories/kafka-3-vms/inventory playbooks/backup.yml --tags "certificate_restore" --extra-vars "restore_archive=/backup/cold/certificate/rotated/2025/01/05/2025-01-05---11-11-34---certificate.tar.zx"

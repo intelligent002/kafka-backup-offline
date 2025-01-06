@@ -18,3 +18,12 @@
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ old_data_backups.files }}"
+
+- name: Remove empty directories in data storage
+  tags: rotate_backups
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    find {{ storage_cold }}/data/rotated/ -depth -type d -empty -delete
+  args:
+    warn: false
