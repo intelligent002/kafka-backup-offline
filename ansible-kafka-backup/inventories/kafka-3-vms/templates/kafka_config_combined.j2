@@ -11,7 +11,7 @@ cluster.id={{ cluster_id }}
 # Controller Quorum Configuration
 
 # Define the quorum of controllers with their respective node IDs and addresses
-controller.quorum.voters={% for host in groups['controllers'] %}
+controller.quorum.voters={% for host in groups['combined'] + groups['controllers'] %}
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host].get('controller_port', 9093) }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # Timeout for controller quorum elections (in milliseconds)

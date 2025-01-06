@@ -1,7 +1,23 @@
 ---
-- name: Deploy configuration based on host role
-  tags:
-    - config_deploy
+- name: Determine the group for the host dynamically
+  set_fact:
+    relevant_group: "{{ item }}"
+  with_items: "{{ group_names }}"
+  run_once: false
+
+- name: Debug the relevant group (optional)
+  debug:
+    msg: "Host: {{ inventory_hostname }} | Relevant Group: {{ relevant_group }}"
+
+- name: Determine the template dynamically based on the group
+  set_fact:
+    selected_template: "{{ inventory_dir }}/templates/kafka_config_{{ relevant_group }}.j2"
+
+- name: Debug selected template (optional)
+  debug:
+    msg: "Host: {{ inventory_hostname }} | Selected Template: {{ selected_template }}"
+
+- name: Deploy configuration file for the host
   template:
-    src: "{{ inventory_dir }}/templates/kafka_config_{{ role }}.j2"
+    src: "{{ selected_template }}"
     dest: /etc/kafka/kraft.properties"
