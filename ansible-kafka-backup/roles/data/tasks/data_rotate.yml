@@ -8,17 +8,9 @@
     paths: "{{ storage_cold }}/data/rotated/"
     age: "{{ retention_policy_data }}d"
     recurse: yes
-    patterns: "*.tar.xz"
+    patterns: "*.tar.*"
   register: old_data_backups
 
-- name: Debug message for files to be removed
-  tags:
-    - data_rotate
-  delegate_to: node-0
-  run_once: true
-  debug:
-    msg: "Removing old data backup: {{ item.path }}"
-  with_items: "{{ old_data_backups.files }}"
 
 - name: Remove old data backups
   tags:
