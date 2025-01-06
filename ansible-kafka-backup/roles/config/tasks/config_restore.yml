@@ -39,14 +39,14 @@
   tags:
     - config_restore
   file:
-    path: "{{ node_config }}"
+    path: "{{ node_config_path }}"
     state: absent
 
 - name: Create cluster config folder on nodes
   tags:
     - config_restore
   file:
-    path: "{{ node_config }}"
+    path: "{{ node_config_path }}"
     state: directory
     mode: '0755'
 
@@ -55,5 +55,5 @@
     - config_restore
   unarchive:
     src: "{{ node_temp }}/{{ inventory_hostname }}-config.tar.zx"
-    dest: "{{ node_config }}"
+    dest: "{{ node_config_path }}"
     remote_src: yes
