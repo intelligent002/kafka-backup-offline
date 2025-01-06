@@ -1,0 +1,5 @@
+default_ports:
+  port_broker_int: 9092
+  port_broker_ext: 9092
+  port_monitoring_int: 9999
+  port_monitoring_ext: 9999

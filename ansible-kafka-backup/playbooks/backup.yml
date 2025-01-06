@@ -1,6 +1,6 @@
 ---
 - name: Cluster Backup Offline
-  hosts: nodes
+  hosts: cluster
   become: yes
 
   pre_tasks:

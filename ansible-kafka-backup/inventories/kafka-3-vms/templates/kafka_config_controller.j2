@@ -1,0 +1,31 @@
+# Node ID
+node.id={{ node_id }}
+
+# Define the roles for this node
+process.roles=controller
+
+# Unique cluster ID that must match across all controllers and brokers
+cluster.id={{ cluster_id }}
+
+#############################################################################################
+# Configuration for the quorum of controllers, listing all controller nodes
+controller.quorum.voters={% for host in groups['controllers'] %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host].get('controller_port', 9093) }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# Timeout for controller quorum elections (in milliseconds)
+controller.quorum.election.timeout.ms=10000
+
+#############################################################################################
+# Listeners and communication
+
+# Define the listener for controller-to-controller communication
+listeners=CONTROLLER://0.0.0.0:{{ hostvars[host].get('controller_port', 9093) }}
+
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
+#############################################################################################
+# Data
+
+# Directory where the controller's metadata logs are stored
+log.dirs=/var/lib/kafka/data

@@ -59,6 +59,11 @@ nodes:
     port_monitoring_int: 9999
     port_monitoring_ext: 9999
 
+config_templates:
+  broker: templates/kafka_broker_config.j2
+  controller: templates/kafka_controller_config.j2
+  combined: templates/kafka_combined_config.j2
+
 cluster_id: 'AkU3OEVBNTcwNTJENDM2Qk'
 
 # Docker command to run the cluster containers, combining all nodes details
