@@ -1,0 +1,24 @@
+---
+- name: Deploy combined configuration for broker and controller
+  tags:
+    - config_deploy
+  template:
+    src: templates/kafka_config_combined.j2
+    dest: /etc/kafka/kraft.properties
+  when: "'controller' in roles and 'broker' in roles"
+
+- name: Deploy broker-only configuration
+  tags:
+    - config_deploy
+  template:
+    src: templates/kafka_config_broker.j2
+    dest: /etc/kafka/kraft.properties
+  when: "'broker' in roles and 'controller' not in roles"
+
+- name: Deploy controller-only configuration
+  tags:
+    - config_deploy
+  template:
+    src: templates/kafka_config_controller.j2
+    dest: /etc/kafka/kraft.properties
+  when: "'controller' in roles and 'broker' not in roles"

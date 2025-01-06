@@ -1,7 +1,7 @@
 ---
-- name: Rotate old data backups
-  include_tasks: data_rotate.yml
-  tags: data_rotate
+- name: Run data format
+  include_tasks: data_format.yml
+  tags: data_format
 
 - name: Run data backup
   include_tasks: data_backup.yml
@@ -11,6 +11,6 @@
   include_tasks: data_restore.yml
   tags: data_restore
 
-- name: Run data format
-  include_tasks: data_format.yml
-  tags: data_format
+- name: Rotate old data backups
+  include_tasks: data_rotate.yml
+  tags: data_rotate
