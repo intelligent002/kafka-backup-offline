@@ -21,10 +21,10 @@ controller.quorum.election.timeout.ms=10000
 # Listeners and Communication
 
 # Define the listener for controller-to-controller communication
-listeners=CONTROLLER://0.0.0.0:{{ port_controller_ext }},PLAINTEXT://0.0.0.0:{{ port_broker_ext | default(9092) }}
+listeners=CONTROLLER://0.0.0.0:{{ port_controller_ext }},PLAINTEXT://0.0.0.0:{{ port_broker_ext }}
 
 # Advertise the broker listener for clients to connect
-advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext | default(9092) }}
+advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_broker_ext }}
 
 # Specify the name of the listener used for controller communication
 controller.listener.names=CONTROLLER
