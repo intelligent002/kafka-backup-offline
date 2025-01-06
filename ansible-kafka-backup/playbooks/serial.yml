@@ -1,22 +1,7 @@
 ---
-- name: Start Docker containers in startup order
+- name: Cluster Backup Offline
   hosts: localhost
+  serial: 1
   become: yes
-  tags: containers_start
-  tasks:
-    - name: Start Docker containers in defined startup order
-      shell: docker start {{ item }}
-      delegate_to: "{{ item }}"
-      with_items: "{{ startup_order }}"
-      run_once: true  # Ensure task runs only once on localhost
-
-- name: Stop Docker containers in shutdown order
-  hosts: localhost
-  become: yes
-  tags: containers_stop
-  tasks:
-    - name: Stop Docker containers in defined shutdown order
-      shell: docker stop {{ item }}
-      delegate_to: "{{ item }}"
-      with_items: "{{ shutdown_order }}"
-      run_once: true  # Ensure task runs only once on localhost
+  roles:
+    - role: ../roles/docker # Include Docker related tasks
