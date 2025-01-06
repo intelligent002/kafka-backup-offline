@@ -134,7 +134,6 @@ keystore_password: "bla-bla!"
 # Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
 restore_archive: ""
 
-
 # === Backup metadata =============================================================================
 
 # Timestamp for the backup, formatted as "YYYY-MM-DD---HH-MM-SS".
@@ -144,16 +143,16 @@ backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace
 certificate_backup_path: "{{ storage_cold_path }}/certificate/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the config backup archive, named with a timestamp.
-certificate_backup_archive: "{{ certificate_backup_path }}/{{ backup_date }}---certificate.tar.zx"
+certificate_backup_file: "{{ certificate_backup_path }}/{{ backup_date }}---certificate.tar.zx"
 
 # Path for storing config backups, organized by year/month/day.
 config_backup_path: "{{ storage_cold_path }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the config backup archive, named with a timestamp.
-config_backup_archive: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
+config_backup_file: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
 
 # Path for storing data backups, organized by year/month/day.
 data_backup_path: "{{ storage_cold_path }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the data backup archive, named with a timestamp.
-data_backup_archive: "{{ data_backup_path }}/{{ backup_date }}---data.tar.zx"
+data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.zx"

@@ -9,7 +9,7 @@ docker run -ti --rm `
     -w "/apps" `
     alpine/ansible ansible-playbook -i inventory playbook.yml --tags "config_backup"
 
-ansible-playbook -i inventories/kafka-6-vms/ playbooks/backup.yml --tags "config_backup"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/backup.yml --tags "config_backup"
 ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tags "config_restore" --extra-vars "restore_archive=/backup/cold/config/rotated/2024/12/31/2024-12-31---20-58-12---config.tar.zx"
 ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tags "data_backup"
 ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/backup.yml --tags "data_restore"  --extra-vars "restore_archive=/backup/cold/data/rotated/2024/12/31/2024-12-31---20-58-40---data.tar.zx"

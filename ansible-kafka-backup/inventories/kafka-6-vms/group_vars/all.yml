@@ -3,6 +3,10 @@
 # Specifies the Python interpreter to be used on the remote nodes.
 ansible_python_interpreter: /usr/bin/python
 
+ansible_user: root
+ansible_key_pub: /root/.ssh/id_rsa.pub
+ansible_key_pri: /root/.ssh/id_rsa
+
 # === Cluster startup and shutdown order ==========================================================
 
 # Defines the order of starting cluster nodes.
@@ -34,73 +38,44 @@ data_owner_group: 1000
 # Data folder permissions
 data_folder_chmod: 0755
 
-# Specific configs for cluster nodes
-nodes:
-  kafka-controller-1:
-    role: controller
-    port_service_int: 9093
-    port_service_ext: 9093
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
-  kafka-controller-2:
-    role: controller
-    port_service_int: 9093
-    port_service_ext: 9093
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
-  kafka-controller-3:
-    role: controller
-    port_service_int: 9093
-    port_service_ext: 9093
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
-  kafka-broker-1:
-    role: broker
-    port_service_int: 9092
-    port_service_ext: 9092
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
-  kafka-broker-2:
-    role: broker
-    port_service_int: 9092
-    port_service_ext: 9092
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
-  kafka-broker-3:
-    role: broker
-    port_service_int: 9092
-    port_service_ext: 9092
-    port_monitoring_int: 9999
-    port_monitoring_ext: 9999
+config_templates:
+  broker: "templates/kafka_broker_config.j2"
+  controller: "templates/kafka_controller_config.j2"
+  combined: "templates/kafka_combined_config.j2"
 
-cluster_id: 'AkU3OEVBNTcwNTJENDM2Qk'
+cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_containers_run: 'docker run -d --restart=always 
   --name={{ inventory_hostname }}  
   -h {{ inventory_hostname }} 
-  -p {{ nodes[item].port_service_ext }}:{{ nodes[item].port_service_int }} 
-  -p {{ nodes[item].port_monitoring_ext }}:{{ nodes[item].port_monitoring_int }} 
+  -p {{ port_service_ext }}:{{ port_service_int }} 
+  -p {{ port_monitoring_ext }}:{{ port_monitoring_int }} 
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ nodes[item].port_monitoring_int }} 
-  -Dcom.sun.management.jmxremote.rmi.port={{ nodes[item].port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.port={{ port_monitoring_int }} 
+  -Dcom.sun.management.jmxremote.rmi.port={{ port_monitoring_int }} 
   -Dcom.sun.management.jmxremote.authenticate=false 
   -Dcom.sun.management.jmxremote.ssl=false 
   -Djava.rmi.server.hostname={{ ansible_host }}" 
-  -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties 
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties 
   -v {{ node_data_path }}:/var/lib/kafka/data 
   -v {{ node_logs_path }}:/var/log/kafka
+  -v {{ node_certificate_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: 'docker run --rm 
-  -v {{ node_config_path }}/kraft.properties:/etc/kafka/kraft.properties
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties
   -v {{ node_data_path }}:/var/lib/kafka/data 
   -v {{ node_logs_path }}:/var/log/kafka
+  -v {{ node_certificate_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties'
 
 # === Backup retention policies ===================================================================
+
+# Number of days to retain config backups.
+retention_policy_certificate: 7
 
 # Number of days to retain config backups.
 retention_policy_config: 30
@@ -110,23 +85,54 @@ retention_policy_data: 7
 
 # === Backup directories ==========================================================================
 
+# Directory on central for certificates.
+storage_certificate_path: "/data/certificate"
+
 # Directory for long-term storage (cold storage) of backups.
-storage_cold: /backup/cold
+storage_cold_path: "/backup/cold"
 
 # Temporary directory on central for extracting & creating of backup files.
-storage_temp: /data/temp
+storage_temp_path: "/data/temp"
+
+# Directory containing the cluster node's certificate files.
+node_certificate_path: "/data/cluster/certificate"
 
 # Directory containing the cluster node's config files.
-node_config: /data/cluster/config
+node_config_path: "/data/cluster/config"
+
+# Directory containing the cluster node's config files.
+node_config_file: "{{ node_config_path }}/kraft.properties"
 
 # Directory containing the cluster node's data files.
-node_data: /data/cluster/data
+node_data_path: "/data/cluster/data"
 
 # Directory containing the cluster node's logs files.
-node_logs: /data/cluster/logs
+node_logs_path: "/data/cluster/logs"
 
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
-node_temp: /data/temp
+node_temp: "/data/temp"
+
+# === Certificates related parameters =============================================================
+
+# Certbot generation
+certbot_subject: "*.intel.r7g.org,intel.r7g.org"
+certbot_cloudflare_user_email: "intelligent002@gmail.com"
+certbot_cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
+certbot_docker_image: "certbot/dns-cloudflare"
+certbot_staging: true  # Set to true for testing, change to false for production
+
+# Certificate regeneration flag
+certificate_regenerate_force: false # Set to true to forcibly regenerate
+certificate_expiration_threshold: 30 # Below that amount of days it will be regenerated
+
+# Certificate files
+certificate_file_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/fullchain.pem"
+certificate_file_key:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/privkey.pem"
+certificate_file_p12:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/keystore.p12"
+
+# Final destination
+keystore_certificate_name: "intel.r7g.org"
+keystore_password: "bla-bla!"
 
 # === Restore archive parameter ===================================================================
 
@@ -139,13 +145,19 @@ restore_archive: ""
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
 
 # Path for storing config backups, organized by year/month/day.
+certificate_backup_path: "{{ storage_cold_path }}/certificate/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+
+# Full path for the config backup archive, named with a timestamp.
+certificate_backup_file: "{{ certificate_backup_path }}/{{ backup_date }}---certificate.tar.zx"
+
+# Path for storing config backups, organized by year/month/day.
 config_backup_path: "{{ storage_cold_path }}/config/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+
+# Full path for the config backup archive, named with a timestamp.
+config_backup_file: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
 
 # Path for storing data backups, organized by year/month/day.
 data_backup_path: "{{ storage_cold_path }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
-# Full path for the config backup archive, named with a timestamp.
-config_backup_archive: "{{ config_backup_path }}/{{ backup_date }}---config.tar.zx"
-
 # Full path for the data backup archive, named with a timestamp.
-data_backup_archive: "{{ data_backup_path }}/{{ backup_date }}---data.tar.zx"
+data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.zx"
