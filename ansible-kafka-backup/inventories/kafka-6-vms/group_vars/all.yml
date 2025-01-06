@@ -46,31 +46,31 @@ config_templates:
 cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
 
 # Docker command to run the cluster containers, combining all nodes details
-docker_command_containers_run: 'docker run -d --restart=always 
-  --name={{ inventory_hostname }}  
-  -h {{ inventory_hostname }} 
-  -p {{ port_service_ext }}:{{ port_service_int }} 
-  -p {{ port_monitoring_ext }}:{{ port_monitoring_int }} 
+docker_command_containers_run: >
+  docker run -d --restart=always --name={{ item }} -h {{ item }}
+  -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
+  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
-  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ port_monitoring_int }} 
-  -Dcom.sun.management.jmxremote.rmi.port={{ port_monitoring_int }} 
-  -Dcom.sun.management.jmxremote.authenticate=false 
-  -Dcom.sun.management.jmxremote.ssl=false 
-  -Djava.rmi.server.hostname={{ ansible_host }}" 
-  -v {{ node_config_file }}:/etc/kafka/kraft.properties 
-  -v {{ node_data_path }}:/var/lib/kafka/data 
-  -v {{ node_logs_path }}:/var/log/kafka
-  -v {{ node_certificate_path }}:/etc/kafka/ssl
-  confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-server-start /etc/kafka/kraft.properties'
+  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}"
+  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
+  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
+  -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
+  -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
+  confluentinc/cp-kafka:7.8.0
+  /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
 # Docker command to run the cluster containers, combining all nodes details
-docker_command_data_format: 'docker run --rm 
+docker_command_data_format: >
+  docker run --rm
   -v {{ node_config_file }}:/etc/kafka/kraft.properties
-  -v {{ node_data_path }}:/var/lib/kafka/data 
+  -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/ssl
-  confluentinc/cp-kafka:7.8.0 /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties'
+  confluentinc/cp-kafka:7.8.0
+  /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties
 
 # === Backup retention policies ===================================================================
 
