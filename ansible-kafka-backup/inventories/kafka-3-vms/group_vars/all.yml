@@ -126,7 +126,7 @@ node_temp: /data/temp
 # === Certificates related parameters =============================================================
 
 # Certbot generation
-certbot_subject: "*.cluster.intel.r7g.org,cluster.intel.r7g.org"
+certbot_subject: "*.intel.r7g.org,intel.r7g.org"
 certbot_cloudflare_user_email: "intelligent002@gmail.com"
 certbot_cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 certbot_docker_image: "certbot/dns-cloudflare"
@@ -142,7 +142,7 @@ certificate_file_key:       "{{ storage_certificate }}/live/{{ keystore_certific
 certificate_file_p12:       "{{ storage_certificate }}/live/{{ keystore_certificate_name }}/keystore.p12"
 
 # Final destination
-keystore_certificate_name: "cluster.intel.r7g.org"
+keystore_certificate_name: "intel.r7g.org"
 keystore_password: "bla-bla!"
 
 # === Restore archive parameter ===================================================================
