@@ -38,7 +38,6 @@
         - temp_cleanup
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
 
----
 - name: Start Docker containers in startup order
   hosts: localhost
   become: yes
@@ -50,7 +49,6 @@
       with_items: "{{ startup_order }}"
       run_once: true  # Ensure task runs only once on localhost
 
----
 - name: Stop Docker containers in shutdown order
   hosts: localhost
   become: yes
