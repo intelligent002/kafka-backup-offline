@@ -1,6 +1,7 @@
 ---
 - name: Rotate old data backups
-  tags: data_rotate
+  tags:
+    - data_rotate
   delegate_to: node-0
   run_once: true
   find:
@@ -10,8 +11,18 @@
     patterns: "*.tar.zx"
   register: old_data_backups
 
+- name: Debug message for files to be removed
+  tags:
+    - data_rotate
+  delegate_to: node-0
+  run_once: true
+  debug:
+    msg: "Removing old data backup: {{ item.path }}"
+  with_items: "{{ old_data_backups.files }}"
+
 - name: Remove old data backups
-  tags: data_rotate
+  tags:
+    - data_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -20,7 +31,8 @@
   with_items: "{{ old_data_backups.files }}"
 
 - name: Remove empty directories in data storage
-  tags: data_rotate
+  tags:
+    - data_rotate
   delegate_to: node-0
   run_once: true
   shell: >
