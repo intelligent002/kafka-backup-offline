@@ -17,7 +17,7 @@ ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --t
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "config_rotate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_backup"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_format"
-ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_restore"        --extra-vars "restore_archive=/backup/cold/data/rotated/2025/01/06/2025-01-06---23-32-21---data.tar.zx"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_restore"        --extra-vars "restore_archive=/backup/cold/data/rotated/2025/01/07/2025-01-07---00-01-28---data.tar.zx"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_rotate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_restart"
