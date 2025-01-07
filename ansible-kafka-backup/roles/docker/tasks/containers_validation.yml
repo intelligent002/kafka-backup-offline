@@ -19,3 +19,4 @@
         Success: Container {{ inventory_hostname }} on {{ ansible_host }} is stopped.
       {% endif %}
   failed_when: container_status.stdout == "true"
+  any_errors_fatal: true
