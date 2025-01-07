@@ -128,7 +128,7 @@
       {% endif %}
   when: certificate_expire_in_days | float < certificate_expiration_threshold
 
-- name: Generate JKS KeyStore from PKCS#12 file
+- name: Generate PKCS#12 KeyStore from fullchain.pem and privkey.pem
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -141,7 +141,7 @@
     -name {{ keystore_certificate_name }}
     -password pass:{{ keystore_password }}
 
-- name: Import CA certificate into JKS TrustStore
+- name: Generate JKS KeyStore from PKCS#12 file
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -154,9 +154,10 @@
       -srckeystore {{ certificate_file_p12 }} \
       -srcstoretype PKCS12 \
       -srcstorepass {{ keystore_password }} \ 
-      -alias {{ keystore_certificate_name }}
+      -alias {{ keystore_certificate_name }} \
+      -noprompt
 
-- name: Generate JKS TrustStore
+- name: Import CA certificate into JKS TrustStore
   tags:
     - certificate_generate
   delegate_to: node-0
