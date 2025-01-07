@@ -84,7 +84,7 @@
     - certificate_generate
   delegate_to: node-0
   run_once: true
-  ansible.builtin.shell: >
+  shell: |
     cert_date=$(openssl x509 -enddate -noout -in {{ certificate_file_fullchain }} | sed 's/^notAfter=//')
     cert_epoch=$(date -d "$cert_date" +%s)
     current_epoch=$(date +%s)
@@ -147,13 +147,13 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -importkeystore  
-      -deststorepass {{ keystore_password }}  
-      -destkeypass {{ keystore_password }} 
-      -destkeystore {{ certificate_file_keystore }}  
-      -srckeystore {{ certificate_file_p12 }} 
+    keytool -importkeystore 
+      -deststorepass {{ keystore_password }} 
+      -destkeypass {{ keystore_password }}
+      -destkeystore {{ certificate_file_keystore }} 
+      -srckeystore {{ certificate_file_p12 }}
       -srcstoretype PKCS12 
-      -srcstorepass {{ keystore_password }}  
+      -srcstorepass {{ keystore_password }} 
       -alias {{ keystore_certificate_name }}
 
 - name: Generate JKS TrustStore
@@ -162,7 +162,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -import 
+    yes | keytool -import 
       -trustcacerts 
       -file {{ certificate_file_fullchain }}
       -alias {{ truststore_ca_name }}
