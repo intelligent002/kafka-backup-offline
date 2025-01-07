@@ -41,7 +41,7 @@ controller.listener.names=CONTROLLER
 listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://0.0.0.0:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
-listener.security.protocol.map={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
+listener.security.protocol.map=CONTROLLER:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %},{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
 
 # Advertise the broker listener for clients to connect
 advertised.listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://{{ hostname }}:{{ port_service_ext }}
