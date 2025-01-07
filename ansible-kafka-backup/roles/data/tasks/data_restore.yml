@@ -1,4 +1,9 @@
 ---
+- name: Validate containers status
+  tags:
+    - data_restore
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
 - name: Verify archive exists
   tags:
     - data_restore
@@ -33,7 +38,6 @@
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     mode: push
-  register: synchronize_data_archive_result
 
 - name: Remove cluster data folder on nodes
   tags:

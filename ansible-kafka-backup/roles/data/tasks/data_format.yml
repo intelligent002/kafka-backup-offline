@@ -1,4 +1,9 @@
 ---
+- name: Validate containers status
+  tags:
+    - data_format
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
 - name: Remove cluster data folder on nodes
   tags:
     - data_format

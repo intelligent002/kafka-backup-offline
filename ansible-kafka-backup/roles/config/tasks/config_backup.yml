@@ -7,7 +7,6 @@
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
-  register: config_archive_result
 
 - name: Pull node archives from nodes into central
   tags:
@@ -17,7 +16,6 @@
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     mode: pull
-  register: synchronize_config_archive_result
 
 # Create directory path for zip-of-zips archive (/backup/cold/config/2025/01/01/)
 - name: Create backup path folders
@@ -40,4 +38,3 @@
     dest: "{{ config_backup_file }}"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
-  register: zip_of_zips_results

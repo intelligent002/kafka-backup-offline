@@ -33,7 +33,6 @@
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     mode: push
-  register: synchronize_data_archive_result
 
 - name: Remove cluster config folder on nodes
   tags:

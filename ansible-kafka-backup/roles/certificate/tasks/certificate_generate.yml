@@ -157,4 +157,3 @@
     src: "{{ certificate_file_p12 }}"
     dest: "{{ node_certificate_path }}/"
     mode: push
-  register: synchronize_certificate_result

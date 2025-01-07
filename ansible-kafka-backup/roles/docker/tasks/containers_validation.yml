@@ -3,6 +3,8 @@
   tags:
     - containers_validation
     - data_backup
+    - data_format
+    - data_restore
   shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ inventory_hostname  }}"
   register: container_status
   ignore_errors: yes
