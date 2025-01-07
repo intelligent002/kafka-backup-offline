@@ -168,7 +168,8 @@
       -file {{ certificate_file_fullchain }} \
       -alias {{ truststore_ca_name }} \
       -keystore {{ certificate_file_truststore }} \
-      -storepass {{ keystore_password }} 
+      -storepass {{ keystore_password }} \
+      -noprompt
 
 - name: Verify Keystore file
   tags:
