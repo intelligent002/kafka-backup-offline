@@ -3,7 +3,7 @@
   tags:
     - containers_validation
     - data_backup
-  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ role }}"
+  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ inventory_hostname  }}"
   register: container_status
   ignore_errors: yes
 
@@ -12,7 +12,7 @@
     - containers_validation
     - data_backup
   fail:
-    msg: "Error: Container {{ role }} on {{ ansible_host }} is still running. Please stop all containers before proceeding."
+    msg: "Error: Container {{ inventory_hostname  }} on {{ ansible_host }} is still running. Please stop all containers before proceeding."
   when: container_status.stdout == "true"
 
 - name: Debug if the container is not running (optional)
@@ -20,4 +20,4 @@
     - containers_validation
     - data_backup
   debug:
-    msg: "Container {{ role }} is not running on {{ ansible_host }}."
+    msg: "Container {{ inventory_hostname  }} is not running on {{ ansible_host }}."
