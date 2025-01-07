@@ -52,9 +52,9 @@
   file:
     path: "{{ node_data_path }}"
     state: directory
-    mode: '{{ data_folder_chmod }}'
-    owner: '{{ data_owner_user }}'
-    group: '{{ data_owner_group }}'
+    mode: "{{ data_folder_chmod }}"
+    owner: "{{ data_owner_user }}"
+    group: "{{ data_owner_group }}"
 
 - name: Restore cluster data on nodes
   tags:
