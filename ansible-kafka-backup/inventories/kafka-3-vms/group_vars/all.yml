@@ -57,7 +57,6 @@ docker_command_containers_run: >
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
-
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: >
   docker run --rm
@@ -67,7 +66,6 @@ docker_command_data_format: >
   -v {{ node_certificate_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties
-
 
 # === Backup retention policies ===================================================================
 
