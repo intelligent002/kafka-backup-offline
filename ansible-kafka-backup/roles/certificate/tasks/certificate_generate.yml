@@ -173,6 +173,8 @@
 - name: Verify Keystore file
   tags:
     - certificate_generate
+  delegate_to: node-0
+  run_once: true
   ansible.builtin.shell: >
     keytool -list -keystore {{ certificate_file_keystore }}
     -storepass {{ keystore_password }}
@@ -187,6 +189,8 @@
 - name: Verify TrustStore file
   tags:
     - certificate_generate
+  delegate_to: node-0
+  run_once: true
   ansible.builtin.shell: >
     keytool -list -keystore {{ certificate_file_truststore }}
     -storepass {{ keystore_password }}
