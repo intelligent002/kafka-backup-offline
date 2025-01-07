@@ -162,7 +162,7 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    yes | keytool -import 
+    keytool -import 
       -trustcacerts 
       -file {{ certificate_file_fullchain }}
       -alias {{ truststore_ca_name }}
