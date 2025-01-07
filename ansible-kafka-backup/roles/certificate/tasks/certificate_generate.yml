@@ -157,6 +157,15 @@
       -alias {{ keystore_certificate_name }} \
       -noprompt
 
+- name: Delete existing JKS TrustStore (if present)
+  tags:
+    - certificate_generate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ certificate_file_truststore }}"
+    state: absent
+
 - name: Import CA certificate into JKS TrustStore
   tags:
     - certificate_generate
