@@ -155,8 +155,6 @@
       -srcstoretype PKCS12 \
       -srcstorepass {{ keystore_password }} \ 
       -alias {{ keystore_certificate_name }}
-  args:
-    executable: /bin/bash
 
 - name: Generate JKS TrustStore
   tags:
@@ -170,8 +168,6 @@
       -alias {{ truststore_ca_name }} \
       -keystore {{ certificate_file_truststore }} \
       -storepass {{ keystore_password }} 
-  args:
-    executable: /bin/bash
 
 - name: Verify Keystore file
   tags:
