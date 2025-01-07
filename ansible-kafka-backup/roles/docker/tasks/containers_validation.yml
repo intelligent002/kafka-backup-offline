@@ -13,6 +13,8 @@
   tags:
     - containers_validation
     - data_backup
+    - data_format
+    - data_restore
   debug:
     msg: >
       {% if container_status.stdout == "true" %}
