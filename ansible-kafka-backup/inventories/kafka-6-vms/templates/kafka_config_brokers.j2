@@ -17,17 +17,38 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 #############################################################################################
 # Listeners and communication
 
+{% if use_certificate %}
+
+# Path to the keystore file (PKCS#12 format) containing the private key and certificate.
+ssl.keystore.location=/etc/kafka/ssl/keystore.p12
+
+# Password to unlock the keystore file. Same password is used for the private key.
+ssl.keystore.password={{ keystore_password }}
+
+# Password to unlock the private key in the keystore. Same password is used as the keystore password.
+ssl.key.password={{ keystore_password }}
+
+# Protocol used for inter-broker communication.
+security.inter.broker.protocol=SSL
+
+# Optional: Require client certificates for authentication.
+ssl.client.auth=required
+
+# Alias of the certificate in the keystore to use
+ssl.keystore.alias={{ keystore_certificate_name }}
+
+{% endif %}
+
 # Specifies the network interface and port where the broker listens for client requests
-listeners=PLAINTEXT://0.0.0.0:{{ port_service_ext }}
+listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://0.0.0.0:{{ port_service_ext }}
 
 # This is the address and port advertised to clients for connecting to this broker
-advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_service_ext }}
-
-# Specifies the listener name used for communication between brokers and controllers
-controller.listener.names=CONTROLLER
+advertised.listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://{{ hostname }}:{{ port_service_ext }}
 
 # Specifies the listener name used for communication between brokers
-inter.broker.listener.name=PLAINTEXT
+inter.broker.listener.name={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
+
+controller.listener.names=CONTROLLER
 
 #############################################################################################
 # Replication and ISR Settings
