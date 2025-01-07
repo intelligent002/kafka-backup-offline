@@ -146,14 +146,14 @@
     - certificate_generate
   delegate_to: node-0
   run_once: true
-  ansible.builtin.shell: >
-    keytool -importkeystore 
-      -deststorepass {{ keystore_password }} 
-      -destkeypass {{ keystore_password }}
-      -destkeystore {{ certificate_file_keystore }} 
-      -srckeystore {{ certificate_file_p12 }}
-      -srcstoretype PKCS12 
-      -srcstorepass {{ keystore_password }} 
+  ansible.builtin.shell: |
+    keytool -importkeystore \ 
+      -deststorepass {{ keystore_password }} \ 
+      -destkeypass {{ keystore_password }} \
+      -destkeystore {{ certificate_file_keystore }} \ 
+      -srckeystore {{ certificate_file_p12 }} \
+      -srcstoretype PKCS12 \
+      -srcstorepass {{ keystore_password }} \ 
       -alias {{ keystore_certificate_name }}
 
 - name: Generate JKS TrustStore
