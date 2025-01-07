@@ -20,7 +20,7 @@
       {% if container_status.stdout == "true" %}
         Error: Container {{ inventory_hostname }} on {{ ansible_host }} is still running. Please stop all containers before proceeding.
       {% else %}
-        Success: Container {{ inventory_hostname }} on {{ ansible_host }} is stopped.
+        Success: Container {{ inventory_hostname }} on {{ ansible_host }} is not running.
       {% endif %}
   failed_when: container_status.stdout == "true"
   any_errors_fatal: true
