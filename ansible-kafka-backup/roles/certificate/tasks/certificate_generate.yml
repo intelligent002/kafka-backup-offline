@@ -193,6 +193,8 @@
 - name: Display Keystore Details
   tags:
     - certificate_generate
+  delegate_to: node-0
+  run_once: true
   debug:
     var: keystore_check.stdout
 
@@ -209,6 +211,8 @@
 - name: Display TrustStore Details
   tags:
     - certificate_generate
+  delegate_to: node-0
+  run_once: true
   debug:
     var: truststore_check.stdout
 
