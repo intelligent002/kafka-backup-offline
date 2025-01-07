@@ -1,0 +1,23 @@
+---
+- name: Check if the containers are running
+  tags:
+    - containers_validation
+    - data_backup
+  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ role }}"
+  register: container_status
+  ignore_errors: yes
+
+- name: Fail if the containers are running
+  tags:
+    - containers_validation
+    - data_backup
+  fail:
+    msg: "Error: Container {{ role }} on {{ ansible_host }} is still running. Please stop all containers before proceeding."
+  when: container_status.stdout == "true"
+
+- name: Debug if the container is not running (optional)
+  tags:
+    - containers_validation
+    - data_backup
+  debug:
+    msg: "Container {{ role }} is not running on {{ ansible_host }}."

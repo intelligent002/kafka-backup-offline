@@ -1,4 +1,9 @@
 ---
+- name: Validate containers status
+  tags:
+    - data_backup
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
 - name: Archive cluster data on nodes
   tags:
     - data_backup
