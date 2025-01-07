@@ -41,8 +41,7 @@ controller.listener.names=CONTROLLER
 listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://0.0.0.0:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
-listener.security.protocol.map=CONTROLLER:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
-
+listener.security.protocol.map=CONTROLLER:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %},SSL:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
 
 # Protocol used for controller communication.
 security.controller.protocol={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
