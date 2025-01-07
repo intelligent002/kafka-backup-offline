@@ -128,7 +128,7 @@
       {% endif %}
   when: certificate_expire_in_days | float < certificate_expiration_threshold
 
-- name: Generate KeyStore
+- name: Generate JKS KeyStore from PKCS#12 file
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -140,6 +140,62 @@
     -out {{ certificate_file_p12 }}
     -name {{ keystore_certificate_name }}
     -password pass:{{ keystore_password }}
+
+- name: Import CA certificate into JKS TrustStore
+  tags:
+    - certificate_generate
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    keytool -importkeystore 
+      -deststorepass {{ keystore_password }} 
+      -destkeypass {{ keystore_password }}
+      -destkeystore {{ certificate_file_keystore }} 
+      -srckeystore {{ certificate_file_p12 }}
+      -srcstoretype PKCS12 
+      -srcstorepass {{ keystore_password }} 
+      -alias {{ keystore_certificate_name }}
+
+- name: Generate JKS TrustStore
+  tags:
+    - certificate_generate
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    yes | keytool -import 
+      -trustcacerts 
+      -file {{ certificate_file_fullchain }}
+      -alias {{ truststore_ca_name }}
+      -keystore {{ certificate_file_truststore }}
+      -storepass {{ keystore_password }} 
+
+- name: Verify Keystore file
+  tags:
+    - certificate_generate
+  shell: >
+    keytool -list -keystore {{ certificate_file_keystore }}
+    -storepass {{ keystore_password }}
+  register: keystore_check
+
+- name: Display Keystore Details
+  tags:
+    - certificate_generate
+  debug:
+    var: keystore_check.stdout
+
+- name: Verify TrustStore file
+  tags:
+    - certificate_generate
+  shell: >
+    keytool -list -keystore {{ certificate_file_truststore }}
+    -storepass {{ keystore_password }}
+  register: truststore_check
+
+- name: Display TrustStore Details
+  tags:
+    - certificate_generate
+  debug:
+    var: truststore_check.stdout
 
 - name: Ensure certificate folder exists on nodes
   tags:

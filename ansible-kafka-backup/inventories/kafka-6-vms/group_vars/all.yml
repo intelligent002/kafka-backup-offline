@@ -119,20 +119,26 @@ certbot_subject: "*.intel.r7g.org,intel.r7g.org"
 certbot_cloudflare_user_email: "intelligent002@gmail.com"
 certbot_cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
 certbot_docker_image: "certbot/dns-cloudflare"
-certbot_staging: false  # Set to true for testing, change to false for production
+# Set to true for testing, change to false for production
+certbot_staging: false
 
 # Certificate regeneration flag
-certificate_regenerate_force: false # Set to true to forcibly regenerate
-certificate_expiration_threshold: 30 # Below that amount of days it will be regenerated
+# Set to true to forcibly regenerate
+certificate_regenerate_force: false
+# Below that amount of days it will be regenerated
+certificate_expiration_threshold: 30
 
 # Certificate files
 certificate_file_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/fullchain.pem"
-certificate_file_key:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/privkey.pem"
-certificate_file_p12:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/keystore.p12"
+certificate_file_key: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/privkey.pem"
+certificate_file_p12: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/keystore.p12"
+certificate_file_keystore: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/keystore.jks"
+certificate_file_truststore: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/truststore.jks"
 
 # Final destination
 use_certificate: true
 keystore_certificate_name: "intel.r7g.org"
+truststore_ca_name: "letsencrypt"
 keystore_password: "insecure"
 
 # === Restore archive parameter ===================================================================
