@@ -128,7 +128,7 @@
       {% endif %}
   when: certificate_expire_in_days | float < certificate_expiration_threshold
 
-- name: Generate PKCS#12 KeyStore from fullchain.pem and privkey.pem
+- name: Generate PKCS#12 KeyStore from full chain and private key
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -141,7 +141,7 @@
     -name {{ keystore_certificate_name }}
     -password pass:{{ keystore_password }}
 
-- name: Generate JKS KeyStore from PKCS#12 file
+- name: Convert PKCS#12 KeyStore to JKS KeyStore
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -157,7 +157,7 @@
       -alias {{ keystore_certificate_name }} \
       -noprompt
 
-- name: Delete existing JKS TrustStore (if present)
+- name: Cleanup JKS TrustStore
   tags:
     - certificate_generate
   delegate_to: node-0
@@ -186,8 +186,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_keystore }}
-    -storepass {{ keystore_password }}
+    keytool -list -keystore {{ certificate_file_keystore }} -storepass {{ keystore_password }}
   register: keystore_check
 
 - name: Display Keystore Details
@@ -204,8 +203,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_truststore }}
-    -storepass {{ keystore_password }}
+    keytool -list -keystore {{ certificate_file_truststore }} -storepass {{ keystore_password }}
   register: truststore_check
 
 - name: Display TrustStore Details
