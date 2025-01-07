@@ -38,13 +38,15 @@ ssl.keystore.alias={{ keystore_certificate_name }}
 controller.listener.names=CONTROLLER
 
 # Define the listener for controller-to-controller communication
-listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}://0.0.0.0:{{ port_service_ext }}
+listeners=CONTROLLER://0.0.0.0:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
-listener.security.protocol.map=CONTROLLER:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %},SSL:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
+listener.security.protocol.map=CONTROLLER:{% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
+
 
 # Protocol used for controller communication.
 security.controller.protocol={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
+
 
 #############################################################################################
 # Data
