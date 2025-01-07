@@ -155,19 +155,23 @@
       -srcstoretype PKCS12 \
       -srcstorepass {{ keystore_password }} \ 
       -alias {{ keystore_certificate_name }}
+  args:
+    executable: /bin/bash
 
 - name: Generate JKS TrustStore
   tags:
     - certificate_generate
   delegate_to: node-0
   run_once: true
-  ansible.builtin.shell: >
-    yes | keytool -import 
-      -trustcacerts 
-      -file {{ certificate_file_fullchain }}
-      -alias {{ truststore_ca_name }}
-      -keystore {{ certificate_file_truststore }}
+  ansible.builtin.shell: |
+    yes | keytool -import \ 
+      -trustcacerts \
+      -file {{ certificate_file_fullchain }} \
+      -alias {{ truststore_ca_name }} \
+      -keystore {{ certificate_file_truststore }} \
       -storepass {{ keystore_password }} 
+  args:
+    executable: /bin/bash
 
 - name: Verify Keystore file
   tags:
