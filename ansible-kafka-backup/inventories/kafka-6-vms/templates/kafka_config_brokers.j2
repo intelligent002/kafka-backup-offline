@@ -49,9 +49,6 @@ advertised.listeners={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}:/
 # Specifies the listener name used for communication between brokers
 inter.broker.listener.name={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
 
-# Protocol used for inter-broker communication.
-security.inter.broker.protocol={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
-
 # Protocol used for controller communication.
 security.controller.protocol={% if use_certificate %}SSL{% else %}PLAINTEXT{% endif %}
 
