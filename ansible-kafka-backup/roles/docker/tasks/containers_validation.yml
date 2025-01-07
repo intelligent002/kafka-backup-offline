@@ -7,21 +7,15 @@
   register: container_status
   ignore_errors: yes
 
-- name: Print container status and fail if running
+- name: Container status output
   tags:
     - containers_validation
     - data_backup
-  block:
-    - name: Print container status
-      debug:
-        msg: >
-          {% if container_status.stdout == "true" %}
-            Error: Container {{ inventory_hostname }} on {{ ansible_host }} is still running. Please stop all containers before proceeding.
-          {% else %}
-            Success: Container {{ inventory_hostname }} on {{ ansible_host }} is stopped.
-          {% endif %}
-
-    - name: Fail if the container is running
-      fail:
-        msg: "Error: Container {{ inventory_hostname }} on {{ ansible_host }} is still running. Please stop all containers before proceeding."
-      when: container_status.stdout == "true"
+  debug:
+    msg: >
+      {% if container_status.stdout == "true" %}
+        Error: Container {{ inventory_hostname }} on {{ ansible_host }} is still running. Please stop all containers before proceeding.
+      {% else %}
+        Success: Container {{ inventory_hostname }} on {{ ansible_host }} is stopped.
+      {% endif %}
+  failed_when: container_status.stdout == "true"
