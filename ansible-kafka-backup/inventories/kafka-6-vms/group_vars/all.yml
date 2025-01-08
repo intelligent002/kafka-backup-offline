@@ -136,7 +136,7 @@ certificate_file_keystore: "{{ storage_certificate_path }}/live/{{ keystore_cert
 certificate_file_truststore: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/truststore.jks"
 
 # Final destination
-use_certificate: true
+use_certificate: false
 keystore_certificate_name: "intel.r7g.org"
 truststore_ca_name: "letsencrypt"
 keystore_password: "insecure"
