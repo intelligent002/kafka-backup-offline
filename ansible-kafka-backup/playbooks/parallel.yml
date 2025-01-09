@@ -7,6 +7,7 @@
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
   roles:
     - role: ../roles/system       # Include stuff like Prerequisites, temp folder cleanup etc.
+    - role: ../roles/credentials  # Include Credentials related tasks
     - role: ../roles/certificate  # Include Certificate related tasks
     - role: ../roles/config       # Include Config related tasks
     - role: ../roles/data         # Include Data related tasks
