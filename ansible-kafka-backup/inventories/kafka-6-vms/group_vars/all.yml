@@ -51,11 +51,13 @@ docker_command_containers_run: >
   -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
   -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
-  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
+  -e KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}"
+  -e KAFKA_OPTS="-Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+  -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf
   -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}"
+  -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
+  -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
@@ -96,6 +98,12 @@ storage_temp_path: "/data/temp"
 
 # Directory containing the cluster node's certificate files.
 node_certificate_path: "/data/cluster/certificate"
+
+# Directory containing the cluster node's credentials file.
+node_credentials_path: "/data/cluster/credentials"
+
+# Directory containing the cluster node's credentials file.
+node_credentials_file: "{{ node_credentials_path }}/kafka_server_jaas.conf"
 
 # Directory containing the cluster node's config files.
 node_config_path: "/data/cluster/config"
