@@ -121,14 +121,14 @@ certificate_regenerate_force: false # Set to true to forcibly regenerate
 certificate_expiration_threshold: 30 # Below that amount of days it will be regenerated
 
 # Certificate files
-certificate_file_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/fullchain.pem"
-certificate_file_key:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/privkey.pem"
-certificate_file_p12:       "{{ storage_certificate_path }}/live/{{ keystore_certificate_name }}/keystore.p12"
+certificate_file_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/fullchain.pem"
+certificate_file_key:       "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/privkey.pem"
+certificate_file_p12:       "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/keystore.p12"
 
 # Final destination
 use_certificate: true
-keystore_certificate_name: "intel.r7g.org"
-keystore_password: "insecure"
+keystore_alias_name: "intel.r7g.org"
+certificate_password: "insecure"
 
 # === Restore archive parameter ===================================================================
 

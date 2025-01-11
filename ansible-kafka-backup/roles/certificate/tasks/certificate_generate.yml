@@ -138,8 +138,8 @@
     -in {{ certificate_file_fullchain }}
     -inkey {{ certificate_file_key }}
     -out {{ certificate_file_p12 }}
-    -name {{ keystore_certificate_name }}
-    -password pass:{{ keystore_password }}
+    -name {{ keystore_alias_name }}
+    -password pass:{{ certificate_password }}
 
 - name: Convert PKCS#12 KeyStore to JKS KeyStore
   tags:
@@ -148,13 +148,13 @@
   run_once: true
   ansible.builtin.shell: |
     keytool -importkeystore \ 
-      -deststorepass {{ keystore_password }} \ 
-      -destkeypass {{ keystore_password }} \
+      -deststorepass {{ certificate_password }} \ 
+      -destkeypass {{ certificate_password }} \
       -destkeystore {{ certificate_file_keystore }} \ 
       -srckeystore {{ certificate_file_p12 }} \
       -srcstoretype PKCS12 \
-      -srcstorepass {{ keystore_password }} \ 
-      -alias {{ keystore_certificate_name }} \
+      -srcstorepass {{ certificate_password }} \ 
+      -alias {{ keystore_alias_name }} \
       -noprompt
 
 - name: Cleanup JKS TrustStore
@@ -177,7 +177,7 @@
       -file {{ certificate_file_fullchain }} \
       -alias {{ truststore_ca_name }} \
       -keystore {{ certificate_file_truststore }} \
-      -storepass {{ keystore_password }} \
+      -storepass {{ certificate_password }} \
       -noprompt
 
 - name: Verify Keystore file
@@ -186,7 +186,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_keystore }} -storepass {{ keystore_password }}
+    keytool -list -keystore {{ certificate_file_keystore }} -storepass {{ certificate_password }}
   register: keystore_check
 
 - name: Display Keystore Details
@@ -203,7 +203,7 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_truststore }} -storepass {{ keystore_password }}
+    keytool -list -keystore {{ certificate_file_truststore }} -storepass {{ certificate_password }}
   register: truststore_check
 
 - name: Display TrustStore Details
