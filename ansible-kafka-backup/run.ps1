@@ -34,6 +34,13 @@ ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tag
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove"
 
 
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove" && \
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "credentials_generate" && \
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "config_deploy" && \
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_format" && \
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_run"
+
+
 
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "certificate_backup"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "certificate_generate"
