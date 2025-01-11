@@ -13,7 +13,7 @@ storage_certificate_path: "/data/certificate"
 certbot_staging: false
 
 # expiration validation
-certificate_expire_in_days: 30
+certificate_expiration_threshold: 30
 
 # Certbot generation
 certbot_subject: "*.intel.r7g.org,intel.r7g.org"
