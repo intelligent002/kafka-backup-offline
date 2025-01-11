@@ -36,6 +36,9 @@ ssl.client.auth=required
 {% endif %}
 {% endif %}
 
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
 # Advertise the broker listener for clients to connect
 {% if use_certificate and use_credentials %}
 advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_service_ext }}
