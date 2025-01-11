@@ -1,3 +1,23 @@
+# === Nodes startup and shutdown order =================================================================================
+
+# Defines the order of starting cluster nodes.
+startup_order:
+  - node-1
+  - node-2
+  - node-3
+  - node-4
+  - node-5
+  - node-6
+
+# Defines the order of shutting down cluster nodes.
+shutdown_order:
+  - node-6
+  - node-5
+  - node-4
+  - node-3
+  - node-2
+  - node-1
+
 # === Docker commands ==================================================================================================
 
 # Run the nodes (all roles use the same command)
