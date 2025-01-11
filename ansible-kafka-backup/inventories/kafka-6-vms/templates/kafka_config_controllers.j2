@@ -82,8 +82,7 @@ listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram
     password="admin";
 
 # Defines the authorizer class to enable ACL-based authorization
-# authorizer.class.name=kafka.security.authorizer.AclAuthorizer
-authorizer.class.name=org.apache.kafka.server.authorizer.BuiltInAuthorizer
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 
 # Specifies superusers who bypass ACL checks
 super.users=User:admin
