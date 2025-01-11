@@ -41,7 +41,8 @@ controller.listener.names=CONTROLLER
 
 # Advertise the broker listener for clients to connect
 {% if use_certificate and use_credentials %}
-advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_service_ext }}
+#advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_service_ext }}
+advertised.listeners=SSL://{{ hostname }}:{{ port_service_ext }}
 {% elif use_certificate and not use_credentials %}
 advertised.listeners=SSL://{{ hostname }}:{{ port_service_ext }}
 {% elif not use_certificate and use_credentials %}
@@ -52,7 +53,8 @@ advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_service_ext }}
 
 # Define the listeners for a broker-only node
 {% if use_certificate and use_credentials %}
-listeners=SASL_SSL://0.0.0.0:{{ port_service_ext }}
+#listeners=SASL_SSL://0.0.0.0:{{ port_service_ext }}
+listeners=SSL://0.0.0.0:{{ port_service_ext }}
 {% elif use_certificate and not use_credentials %}
 listeners=SSL://0.0.0.0:{{ port_service_ext }}
 {% elif not use_certificate and use_credentials %}
@@ -63,7 +65,8 @@ listeners=PLAINTEXT://0.0.0.0:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:SASL_SSL,SASL_SSL:SASL_SSL
+#listener.security.protocol.map=CONTROLLER:SASL_SSL,SASL_SSL:SASL_SSL
+listener.security.protocol.map=CONTROLLER:SSL,SSL:SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,SSL:SSL
 {% elif not use_certificate and use_credentials %}
@@ -74,7 +77,8 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
 
 # Define the security protocol for inter-broker communication
 {% if use_certificate and use_credentials %}
-security.inter.broker.protocol=SASL_SSL
+#security.inter.broker.protocol=SASL_SSL
+security.inter.broker.protocol=SSL
 {% elif use_certificate and not use_credentials %}
 security.inter.broker.protocol=SSL
 {% elif not use_certificate and use_credentials %}
@@ -156,8 +160,10 @@ auto.create.topics.enable=true
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
 sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
+
 # Configures the SASL mechanism used for broker-to-broker communication
 sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+
 
 # Defines the authorizer class to enable ACL-based authorization
 authorizer.class.name=kafka.security.authorizer.AclAuthorizer
