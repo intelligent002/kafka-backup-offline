@@ -43,8 +43,7 @@ listeners=CONTROLLER://0.0.0.0:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-#listener.security.protocol.map=CONTROLLER:SASL_SSL
-listener.security.protocol.map=CONTROLLER:SSL
+listener.security.protocol.map=CONTROLLER:SASL_SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL
 {% elif not use_certificate and use_credentials %}
@@ -55,8 +54,7 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT
 
 # Define the security protocol for controller-to-controller communication
 {% if use_certificate and use_credentials %}
-#security.controller.protocol=SASL_SSL
-security.controller.protocol=SSL
+security.controller.protocol=SASL_SSL
 {% elif use_certificate and not use_credentials %}
 security.controller.protocol=SSL
 {% elif not use_certificate and use_credentials %}

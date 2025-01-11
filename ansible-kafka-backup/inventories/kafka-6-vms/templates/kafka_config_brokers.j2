@@ -42,7 +42,6 @@ controller.listener.names=CONTROLLER
 # Advertise the broker listener for clients to connect
 {% if use_certificate and use_credentials %}
 advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_service_ext }}
-#advertised.listeners=SSL://{{ hostname }}:{{ port_service_ext }}
 {% elif use_certificate and not use_credentials %}
 advertised.listeners=SSL://{{ hostname }}:{{ port_service_ext }}
 {% elif not use_certificate and use_credentials %}
@@ -54,7 +53,6 @@ advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_service_ext }}
 # Define the listeners for a broker-only node
 {% if use_certificate and use_credentials %}
 listeners=SASL_SSL://0.0.0.0:{{ port_service_ext }}
-#listeners=SSL://0.0.0.0:{{ port_service_ext }}
 {% elif use_certificate and not use_credentials %}
 listeners=SSL://0.0.0.0:{{ port_service_ext }}
 {% elif not use_certificate and use_credentials %}
@@ -66,7 +64,6 @@ listeners=PLAINTEXT://0.0.0.0:{{ port_service_ext }}
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
 listener.security.protocol.map=CONTROLLER:SASL_SSL,SASL_SSL:SASL_SSL
-#listener.security.protocol.map=CONTROLLER:SSL,SSL:SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,SSL:SSL
 {% elif not use_certificate and use_credentials %}
@@ -78,7 +75,6 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
 # Define the security protocol for inter-broker communication
 {% if use_certificate and use_credentials %}
 inter.broker.listener.name=SASL_SSL
-#inter.broker.listener.name=SSL
 {% elif use_certificate and not use_credentials %}
 inter.broker.listener.name=SSL
 {% elif not use_certificate and use_credentials %}
