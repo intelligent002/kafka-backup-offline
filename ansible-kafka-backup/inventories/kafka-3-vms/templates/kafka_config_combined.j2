@@ -77,13 +77,13 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
 
 # Define the security protocol for inter-broker communication
 {% if use_certificate and use_credentials %}
-security.inter.broker.protocol=SASL_SSL
+inter.broker.listener.name=SASL_SSL
 {% elif use_certificate and not use_credentials %}
-security.inter.broker.protocol=SSL
+inter.broker.listener.name=SSL
 {% elif not use_certificate and use_credentials %}
-security.inter.broker.protocol=SASL_PLAINTEXT
+inter.broker.listener.name=SASL_PLAINTEXT
 {% elif not use_certificate and not use_credentials %}
-security.inter.broker.protocol=PLAINTEXT
+inter.broker.listener.name=PLAINTEXT
 {% endif %}
 
 # Define the security protocol for controller-to-controller communication
