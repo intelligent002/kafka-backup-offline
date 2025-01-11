@@ -86,17 +86,6 @@ security.inter.broker.protocol=SASL_PLAINTEXT
 security.inter.broker.protocol=PLAINTEXT
 {% endif %}
 
-# Define the listener name used for inter-broker communication for a combined node
-{% if use_certificate and use_credentials %}
-inter.broker.listener.name=SASL_SSL
-{% elif use_certificate and not use_credentials %}
-inter.broker.listener.name=SSL
-{% elif not use_certificate and use_credentials %}
-inter.broker.listener.name=SASL_PLAINTEXT
-{% elif not use_certificate and not use_credentials %}
-inter.broker.listener.name=PLAINTEXT
-{% endif %}
-
 # Define the security protocol for controller-to-controller communication
 {% if use_certificate and use_credentials %}
 security.controller.protocol=SASL_SSL
