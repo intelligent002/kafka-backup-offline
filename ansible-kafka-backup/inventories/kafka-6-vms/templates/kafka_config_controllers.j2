@@ -76,12 +76,12 @@ log.dirs=/var/lib/kafka/data
 # Authentication and Authorization
 
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
-sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+#sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
 
 # Defines the authorizer class to enable ACL-based authorization
-authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+#authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 
 # Specifies superusers who bypass ACL checks
-super.users=User:admin
+#super.users=User:admin
 {% endif %}
