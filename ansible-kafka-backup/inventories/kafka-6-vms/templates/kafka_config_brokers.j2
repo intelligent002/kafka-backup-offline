@@ -158,16 +158,16 @@ auto.create.topics.enable=true
 # Authentication and Authorization
 
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
-#sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
 
 # Configures the SASL mechanism used for broker-to-broker communication
-#sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
 
 # Defines the authorizer class to enable ACL-based authorization
-#authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 
 # Specifies superusers who bypass ACL checks
-#super.users=User:admin
+super.users=User:admin
 {% endif %}
