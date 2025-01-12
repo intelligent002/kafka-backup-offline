@@ -228,11 +228,18 @@
     - certificate_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/"
+    src: "{{ certificate_file_keystore }}"
     dest: "{{ node_certificate_path }}/"
     mode: push
-    rsync_opts:
-      - "--copy-links"
+
+- name: Push certificate TrustStore from central into nodes
+  tags:
+    - certificate_generate
+  delegate_to: node-0
+  synchronize:
+    src: "{{ certificate_file_truststore }}"
+    dest: "{{ node_certificate_path }}/"
+    mode: push
 
 - name: Set ownership and permissions of the certificate folder recursively
   tags:
