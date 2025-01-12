@@ -36,6 +36,9 @@ ssl.truststore.location=/etc/kafka/ssl/truststore.jks
 # Password to unlock the truststore file.
 ssl.truststore.password={{ certificate_password }}
 
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+
 {% if use_credentials %}
 # Optional: Require client certificates for authentication.
 ssl.client.auth=required

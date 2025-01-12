@@ -33,13 +33,17 @@ ssl.key.password={{ certificate_password }}
 
 # Alias of the certificate in the keystore to use
 ssl.keystore.alias={{ keystore_alias_name }}
-{% endif %}
 
 # Path to the truststore file (JKS format) containing trusted CA certificates.
 ssl.truststore.location=/etc/kafka/ssl/truststore.jks
 
 # Password to unlock the truststore file.
 ssl.truststore.password={{ certificate_password }}
+
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+{% endif %}
+
 
 # Specify the name of the listener used for controller communication
 controller.listener.names=CONTROLLER
