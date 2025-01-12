@@ -74,12 +74,15 @@ log.dirs=/var/lib/kafka/data
 # Authentication and Authorization
 
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
-sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+{% if use_certificate %}
+sasl.enabled.mechanisms=SCRAM-SHA-256
+{% else %}
+sasl.enabled.mechanisms=PLAIN
+{% endif %}
 
 # Specify the JAAS configuration for the CONTROLLER listener
-listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required \
-    username="admin" \
-    password="admin";
+listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
+listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
 
 # Defines the authorizer class to enable ACL-based authorization
 authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer

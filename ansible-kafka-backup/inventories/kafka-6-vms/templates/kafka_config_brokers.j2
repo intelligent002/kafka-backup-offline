@@ -149,17 +149,30 @@ log.flush.interval.ms=1000
 # Enable/Disable automatic topic creation (recommended to disable for production)
 auto.create.topics.enable=true
 
+# Enforce re-authentication every 24 hours
+connections.max.reauth.ms=86400000
+
 {% if use_credentials %}
 #############################################################################################
 # Authentication and Authorization
 
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
-sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+{% if use_certificate %}
+sasl.enabled.mechanisms=SCRAM-SHA-256
+{% else %}
+sasl.enabled.mechanisms=PLAIN
+{% endif %}
 
 
 # Configures the SASL mechanism used for broker-to-broker communication
-sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+{% if use_certificate %}
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+{% else %}
+sasl.mechanism.inter.broker.protocol=PLAIN
+{% endif %}
 
+
+listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
 
 # Defines the authorizer class to enable ACL-based authorization
 authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
