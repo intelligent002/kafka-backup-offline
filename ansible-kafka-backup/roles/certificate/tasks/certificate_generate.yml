@@ -29,7 +29,8 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    docker run --rm -v "{{ storage_certificate_path }}:/etc/letsencrypt"
+    docker run --rm 
+    -v "{{ storage_certificate_path }}:/etc/letsencrypt"
     -v "{{ storage_certificate_path }}:/var/lib/letsencrypt"
     "{{ certbot_docker_image }}" certonly
     --dns-cloudflare
@@ -227,7 +228,7 @@
     - certificate_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ certificate_file_p12 }}"
+    src: "{{ storage_certificate_path }}/live/"
     dest: "{{ node_certificate_path }}/"
     mode: push
 
