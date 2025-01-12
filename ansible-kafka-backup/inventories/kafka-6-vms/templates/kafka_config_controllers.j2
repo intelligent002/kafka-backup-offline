@@ -81,8 +81,6 @@ sasl.enabled.mechanisms=PLAIN
 {% endif %}
 
 # Specify the JAAS configuration for the CONTROLLER listener
-listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
-listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
 listener.name.controller.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
 
 # Defines the authorizer class to enable ACL-based authorization
