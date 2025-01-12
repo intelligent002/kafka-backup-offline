@@ -76,9 +76,13 @@ log.dirs=/var/lib/kafka/data
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
 {% if use_certificate %}
 sasl.enabled.mechanisms=SCRAM-SHA-256
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
 {% else %}
 sasl.enabled.mechanisms=PLAIN
+sasl.mechanism.inter.broker.protocol=PLAIN
 {% endif %}
+
+
 
 # Specify the JAAS configuration for the CONTROLLER listener
 listener.name.controller.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
