@@ -21,13 +21,16 @@ docker_command_containers_run: >
   -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
   -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
-  -e KAFKA_OPTS="     -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf"
-  -e KAFKA_JMX_OPTS=" -Dcom.sun.management.jmxremote
-                      -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
-                      -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
-                      -Dcom.sun.management.jmxremote.authenticate=false
-                      -Dcom.sun.management.jmxremote.ssl=false
-                      -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}"
+  -e KAFKA_JMX_OPTS="
+  -Dcom.sun.management.jmxremote 
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+  "
+  -e KAFKA_OPTS="
+  -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf
+  "
   -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
   -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
