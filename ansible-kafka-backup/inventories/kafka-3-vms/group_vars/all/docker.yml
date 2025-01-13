@@ -50,8 +50,9 @@ docker_command_data_format: >
   -v kafka_secrets:/etc/kafka/secrets
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-storage format 
-  --cluster-id {{ cluster_id }} 
+  --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
+  --cluster-id {{ cluster_id }}
   --config /etc/kafka/kraft.properties
 
 
-#--add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
+
