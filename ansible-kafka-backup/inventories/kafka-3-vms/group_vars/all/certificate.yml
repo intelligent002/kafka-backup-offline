@@ -1,0 +1,45 @@
+# === Certificates related =============================================================================================
+
+# false - all communication in cluster will be - Plaintext
+# true - all communication in cluster will be - mTLS with single certificate
+use_certificate: true
+
+# === LetsEncrypt parameters ===========================================================================================
+
+# Directory on central for certificate generation.
+storage_certificate_path: "/data/certificate"
+
+# true for testing, false for production
+certbot_staging: false
+
+# expiration validation
+certificate_expiration_threshold: 30
+
+# Certbot generation
+certbot_subject: "*.intel.r7g.org,intel.r7g.org"
+certbot_cloudflare_user_email: "intelligent002@gmail.com"
+certbot_cloudflare_api_token: "eUIBUat5jTt3XuBZ2UMkI0REl_WLoLzuwRYlKjDh"
+certbot_docker_image: "certbot/dns-cloudflare"
+
+# === Certificate parameters ===========================================================================================
+
+# Alias for certificate in keystore
+keystore_alias_name: "intel.r7g.org"
+
+# Alias for certificate in truststore
+truststore_ca_name: "letsencrypt"
+
+# Password for all certificate stores (truststore, keystore, private key in keystore)
+certificate_password: "insecure"
+
+# Set to true to forcibly regenerate, even if not yet expired
+certificate_regenerate_force: false
+
+# === Certificate Locations ============================================================================================
+
+# Certificate files
+certificate_file_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/fullchain.pem"
+certificate_file_key: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/privkey.pem"
+certificate_file_p12: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/keystore.p12"
+certificate_file_keystore: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/keystore.jks"
+certificate_file_truststore: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/truststore.jks"
