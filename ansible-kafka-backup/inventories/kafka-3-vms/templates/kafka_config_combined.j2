@@ -66,7 +66,7 @@ listeners=SSL://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_contr
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SSL
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,SSL:SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
 {% elif not use_certificate and use_credentials %}
