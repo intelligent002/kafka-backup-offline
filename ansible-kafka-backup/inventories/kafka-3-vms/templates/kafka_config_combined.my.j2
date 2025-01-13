@@ -27,8 +27,6 @@ ssl.keystore.location=/etc/kafka/ssl/keystore.jks
 # Password to unlock the keystore file. Same password is used for the private key.
 ssl.keystore.password={{ certificate_password }}
 
-ssl.keystore.type=JKS
-
 # Password to unlock the private key in the keystore. Same password is used as the keystore password.
 ssl.key.password={{ certificate_password }}
 
@@ -40,11 +38,6 @@ ssl.truststore.location=/etc/kafka/ssl/truststore.jks
 
 # Password to unlock the truststore file.
 ssl.truststore.password={{ certificate_password }}
-
-ssl.truststore.type=JKS
-ssl.secure.random.implementation=SHA1PRNG
-ssl.cipher.suites=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
-ssl.endpoint.identification.algorithm=
 
 # Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
 ssl.enabled.protocols=TLSv1.3
@@ -59,14 +52,14 @@ ssl.client.auth=required
 controller.listener.names=CONTROLLER
 
 # Define the advertised listeners for a combined node
-advertised.listeners=SSL://{{ hostname }}:{{ port_broker_ext }}
+advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
 
 # Define the listeners for a combined node
-listeners=SSL://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
+listeners=BROKER://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SSL
+listener.security.protocol.map=CONTROLLER:SASL_SSL,BROKER:SASL_SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
 {% elif not use_certificate and use_credentials %}
@@ -76,9 +69,7 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
 
 # Define the security protocol for inter-broker communication
-inter.broker.listener.name=SSL
-
-security.protocol=SSL
+inter.broker.listener.name=BROKER
 
 # Define the security protocol for controller-to-controller communication
 {% if use_certificate and use_credentials %}
@@ -144,10 +135,6 @@ num.io.threads=8
 
 # Number of threads for log recovery during broker startup or failure recovery
 num.recovery.threads.per.data.dir=2
-
-socket.send.buffer.bytes=102400
-socket.receive.buffer.bytes=102400
-socket.request.max.bytes=104857600
 
 #############################################################################################
 # Log Flush Policy
