@@ -187,7 +187,7 @@ sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% e
 sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
 # Defines the authorizer class to enable ACL-based authorization
-authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 
 # Specifies superusers who bypass ACL checks
 super.users=User:admin
