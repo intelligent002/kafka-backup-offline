@@ -23,8 +23,7 @@ shutdown_order:
 # Run the nodes (all roles use the same command)
 docker_command_containers_run: >
   docker run -d --restart=always --name={{ item }} -h {{ item }}
-    -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
-    -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
+    -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
     -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
     -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
     -e KAFKA_OPTS="     -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf"

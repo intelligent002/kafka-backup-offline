@@ -34,6 +34,17 @@ ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tag
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove"
 
 
+cd /data/KBO/kafka-backup-offline/ansible-kafka-backup/
+alias ansible-playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook"
+git pull && chmod +x /data/KBO/kafka-backup-offline/kafka-backup-offline.sh
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "data_format"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "config_deploy"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "credentials_generate"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_run"
+
+
+
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "certificate_backup"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "certificate_generate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "certificate_restore" --extra-vars "restore_archive=/backup/cold/certificate/rotated/2025/01/06/2025-01-06---23-32-02---certificate.tar.zx"
