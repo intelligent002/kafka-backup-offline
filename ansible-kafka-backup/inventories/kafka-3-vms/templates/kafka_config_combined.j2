@@ -59,11 +59,11 @@ ssl.enabled.protocols=TLSv1.3
 controller.listener.names=CONTROLLER
 
 # Define the advertised listeners for a combined node
-advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_broker_ext }}
+advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
 advertised.host.name={{ hostname }}
 
 # Define the listeners for a combined node
-listeners=SASL_SSL://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
+listeners=BROKER://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
@@ -77,10 +77,10 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
 
 # Define the security protocol for inter-broker communication
-inter.broker.listener.name=SASL_SSL
+inter.broker.listener.name=BROKER
 
 # protocol to use for communication between clients and brokers or between brokers.
-security.protocol=SASL_SSL
+security.protocol=BROKER
 
 # Define the security protocol for controller-to-controller communication
 {% if use_certificate and use_credentials %}
