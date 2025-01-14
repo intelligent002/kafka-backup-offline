@@ -62,14 +62,12 @@ controller.listener.names=CONTROLLER
 advertised.listeners=SASL_SSL://{{ hostname }}:{{ port_broker_ext }}
 advertised.host.name={{ hostname }}
 
-security.inter.broker.protocol=SASL_SSL
-
 # Define the listeners for a combined node
 listeners=SASL_SSL://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,SASL_SSL:SASL_SSL
+listener.security.protocol.map=CONTROLLER:SASL_SSL,BROKER:SASL_SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
 {% elif not use_certificate and use_credentials %}
@@ -79,8 +77,9 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
 
 # Define the security protocol for inter-broker communication
-#inter.broker.listener.name=SSL
+inter.broker.listener.name=SASL_SSL
 
+# protocol to use for communication between clients and brokers or between brokers.
 security.protocol=SASL_SSL
 
 # Define the security protocol for controller-to-controller communication
@@ -181,15 +180,17 @@ auto.leader.rebalance.enable=true
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
 
+security.inter.broker.protocol=SASL_SSL
+
 {% if use_credentials %}
 #############################################################################################
 # Authentication and Authorization
 
 # Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
-sasl.enabled.mechanisms=PLAIN
+sasl.enabled.mechanisms=SCRAM-SHA-256
 
 # Configures the SASL mechanism used for inter-broker communication
-sasl.mechanism.inter.broker.protocol=PLAIN
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
 sasl.mechanism=PLAIN
 sasl.kerberos.service.name=kafka
 
