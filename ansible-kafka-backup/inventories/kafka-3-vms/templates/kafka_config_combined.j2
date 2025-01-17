@@ -18,7 +18,7 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 controller.quorum.election.timeout.ms=10000
 
 #############################################################################################
-# Listeners and communication
+# Certificates
 
 {% if use_certificate %}
 # Path to the keystore file (JKS format) containing the private key and certificate.
@@ -42,8 +42,7 @@ ssl.truststore.location=/etc/kafka/ssl/truststore.jks
 ssl.truststore.password={{ certificate_password }}
 
 ssl.truststore.type=JKS
-#ssl.secure.random.implementation=SHA1PRNG
-#ssl.cipher.suites=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+
 ssl.endpoint.identification.algorithm=https
 
 # Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
@@ -51,30 +50,32 @@ ssl.enabled.protocols=TLSv1.3
 
 {% if use_credentials %}
 # Optional: Require client certificates for authentication.
-#ssl.client.auth=none
+# ssl.client.auth=required
 {% endif %}
+{% endif %}
+
+#############################################################################################
+# Listeners and communication
+
+# Define the listeners for a combined node
+listeners=CONTROLLER://0.0.0.0:{{ port_controller_ext }},BROKER://0.0.0.0:{{ port_broker_ext }}
+
+# Map listeners to their respective security protocols
+{% if use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL,BROKER:SASL_SSL
+{% elif use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
+{% elif not use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
 
 # Specify the name of the listener used for controller communication
 controller.listener.names=CONTROLLER
 
-# Define the advertised listeners for a combined node
+# Specify the name of the listener used for broker communication
 advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
-advertised.host.name={{ hostname }}
-
-# Define the listeners for a combined node
-listeners=BROKER://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
-
-# Map listeners to their respective security protocols
-{% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:SASL_SSL,BROKER:SASL_SSL
-{% elif use_certificate and not use_credentials %}
-listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
-{% elif not use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT,BROKER:SASL_PLAINTEXT
-{% elif not use_certificate and not use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
-{% endif %}
 
 # Define the security protocol for inter-broker communication
 inter.broker.listener.name=BROKER
@@ -82,14 +83,10 @@ inter.broker.listener.name=BROKER
 # protocol to use for communication between clients and brokers or between brokers.
 security.protocol=BROKER
 
-# Define the security protocol for controller-to-controller communication
-{% if use_certificate and use_credentials %}
-security.controller.protocol=SASL_SSL
-{% elif use_certificate and not use_credentials %}
+# Define the security protocol for controller-to-controller communication (SASL is not supported)
+{% if use_certificate %}
 security.controller.protocol=SSL
-{% elif not use_certificate and use_credentials %}
-security.controller.protocol=SASL_PLAINTEXT
-{% elif not use_certificate and not use_credentials %}
+{% else %}
 security.controller.protocol=PLAINTEXT
 {% endif %}
 
@@ -180,7 +177,7 @@ auto.leader.rebalance.enable=true
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
 
-# outdated, do not use
+# deprecated outdated do not use
 # security.inter.broker.protocol=SASL_SSL
 
 {% if use_credentials %}
