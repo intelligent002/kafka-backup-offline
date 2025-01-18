@@ -225,24 +225,19 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_certificate }}'
 
-
-- name: Push certificate KeyStore from central into nodes
+- name: Push certificate files from central node to target nodes
   tags:
     - certificate_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ certificate_file_keystore }}"
+    src: "{{ item.src }}"
     dest: "{{ node_certificate_path }}/"
     mode: push
-
-- name: Push certificate TrustStore from central into nodes
-  tags:
-    - certificate_generate
-  delegate_to: node-0
-  synchronize:
-    src: "{{ certificate_file_truststore }}"
-    dest: "{{ node_certificate_path }}/"
-    mode: push
+    rsync_opts:
+      - "--checksum"
+  loop:
+    - { src: "{{ certificate_file_keystore }}" }
+    - { src: "{{ certificate_file_truststore }}" }
 
 - name: Set ownership and permissions of the certificate folder recursively
   tags:
