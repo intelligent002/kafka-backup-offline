@@ -82,7 +82,7 @@ docker_command_data_format: >
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/secrets
   apache/kafka:3.9.0
-  /usr/bin/kafka-storage format 
+  kafka-storage.sh format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
   --cluster-id {{ cluster_id }}
   --config /etc/kafka/server.properties
