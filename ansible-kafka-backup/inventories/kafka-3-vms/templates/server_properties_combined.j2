@@ -58,7 +58,7 @@ ssl.enabled.protocols=TLSv1.3
 # Listeners and communication
 
 # Define the listeners for a combined node
-listeners=CONTROLLER://{{ hostname }}:{{ port_controller_ext }},BROKER://{{ hostname }}:{{ port_broker_ext }}
+listeners=CONTROLLER://:{{ port_controller_ext }},BROKER://:{{ port_broker_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
