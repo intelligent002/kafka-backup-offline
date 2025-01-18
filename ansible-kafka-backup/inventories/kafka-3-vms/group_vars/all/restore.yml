@@ -6,16 +6,19 @@ restore_archive: ""
 # === Node Permissions =================================================================================================
 
 # Service user
-data_owner_user: 1000
+owner_user_data: 1000
 
 # Service group
-data_owner_group: 1000
+owner_group_data: 1000
 
 # Data folder permissions
-data_folder_chmod: 0755
+chmod_data: 0755
+
+# Config folder permissions
+chmod_config: 0755
 
 # Credentials file permissions
-credentials_folder_chmod: 0600
+chmod_credentials: 0600
 
 # === Node Restore & Generate Locations ================================================================================
 

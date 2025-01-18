@@ -1,4 +1,14 @@
 ---
+- name: Ensure Config directory exists
+  tags:
+    - config_deploy
+  ansible.builtin.file:
+    path: "{{ node_config_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_config }}'
+
 - name: Determine the group for the host dynamically
   tags: config_deploy
   set_fact:
