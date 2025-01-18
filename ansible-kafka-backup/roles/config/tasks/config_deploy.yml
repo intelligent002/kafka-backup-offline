@@ -27,3 +27,6 @@
   template:
     src: "{{ selected_template }}"
     dest: "{{ node_config_file }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '0755'
