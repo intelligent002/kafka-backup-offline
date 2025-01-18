@@ -81,7 +81,6 @@ docker_command_data_format: >
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/secrets
-  -v kafka_secrets:/etc/kafka/secrets
   apache/kafka:3.9.0
   /usr/bin/kafka-storage format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
