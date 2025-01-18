@@ -221,7 +221,10 @@
   file:
     path: "{{ node_certificate_path }}"
     state: directory
-    mode: '0755'
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_certificate }}'
+
 
 - name: Push certificate KeyStore from central into nodes
   tags:
@@ -248,5 +251,5 @@
     path: "{{ node_certificate_path }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: "0755"
+    mode: "{{ chmod_certificate }}"
     recurse: true

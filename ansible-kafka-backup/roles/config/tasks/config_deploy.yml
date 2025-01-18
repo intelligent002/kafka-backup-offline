@@ -1,14 +1,4 @@
 ---
-- name: Ensure Config directory exists
-  tags:
-    - config_deploy
-  ansible.builtin.file:
-    path: "{{ node_config_path }}"
-    state: directory
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: '{{ chmod_config }}'
-
 - name: Determine the group for the host dynamically
   tags: config_deploy
   set_fact:
@@ -22,6 +12,16 @@
   set_fact:
     selected_template: "{{ inventory_dir }}/templates/server_properties_{{ relevant_group }}.j2"
 
+- name: Ensure Config directory exists
+  tags:
+    - config_deploy
+  ansible.builtin.file:
+    path: "{{ node_config_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_config }}'
+
 - name: Deploy configuration file for the host
   tags: config_deploy
   template:
@@ -29,4 +29,4 @@
     dest: "{{ node_config_file }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '0755'
+    mode: '{{ chmod_config }}'

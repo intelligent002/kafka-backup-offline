@@ -20,6 +20,9 @@ chmod_config: 0755
 # Credentials file permissions
 chmod_credentials: 0600
 
+# Certificate file permissions
+chmod_certificate: 0600
+
 # === Node Restore & Generate Locations ================================================================================
 
 # cluster node's certificate files.
