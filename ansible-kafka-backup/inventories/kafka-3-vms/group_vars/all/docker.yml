@@ -55,7 +55,7 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-server-start.sh /etc/kafka/server.properties
+  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/server.properties
 
 
 # Empty folder should be prepared for usage
@@ -83,7 +83,7 @@ docker_command_data_format: >
   /opt/kafka/bin/kafka-storage.sh format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
   --cluster-id {{ cluster_id }}
-  --config /etc/kafka/server.properties
+  --config /mnt/shared/config/server.properties
 
 
 
