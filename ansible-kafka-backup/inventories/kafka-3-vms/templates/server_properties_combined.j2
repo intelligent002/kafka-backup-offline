@@ -22,7 +22,7 @@ controller.quorum.election.timeout.ms=10000
 
 {% if use_certificate %}
 # Path to the keystore file (JKS format) containing the private key and certificate.
-ssl.keystore.location=/etc/kafka/ssl/keystore.jks
+ssl.keystore.location=/etc/kafka/secrets/keystore.jks
 
 # Password to unlock the keystore file. Same password is used for the private key.
 ssl.keystore.password={{ certificate_password }}
@@ -36,7 +36,7 @@ ssl.key.password={{ certificate_password }}
 ssl.keystore.alias={{ keystore_alias_name }}
 
 # Path to the truststore file (JKS format) containing trusted CA certificates.
-ssl.truststore.location=/etc/kafka/ssl/truststore.jks
+ssl.truststore.location=/etc/kafka/secrets/truststore.jks
 
 # Password to unlock the truststore file.
 ssl.truststore.password={{ certificate_password }}

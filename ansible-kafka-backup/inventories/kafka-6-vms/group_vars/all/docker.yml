@@ -36,18 +36,18 @@ docker_command_containers_run: >
   -e KAFKA_OPTS="
   -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf
   "
-  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
+  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/server.properties
   -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
-  /usr/bin/kafka-server-start /etc/kafka/kraft.properties
+  /usr/bin/kafka-server-start /etc/kafka/server.properties
 
 # Empty folder should be prepared for usage
 docker_command_data_format: >
   docker run --rm
-  -v {{ node_config_file }}:/etc/kafka/kraft.properties
+  -v {{ node_config_file }}:/etc/kafka/server.properties
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/ssl
@@ -55,4 +55,4 @@ docker_command_data_format: >
   /usr/bin/kafka-storage format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]' 
   --cluster-id {{ cluster_id }} 
-  --config /etc/kafka/kraft.properties
+  --config /etc/kafka/server.properties

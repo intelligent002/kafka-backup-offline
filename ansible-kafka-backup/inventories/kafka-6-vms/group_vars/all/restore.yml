@@ -30,7 +30,7 @@ node_credentials_file: "{{ node_credentials_path }}/kafka_server_jaas.conf"
 # cluster node's config files.
 node_config_path: "/data/cluster/config"
 # cluster node's config files.
-node_config_file: "{{ node_config_path }}/kraft.properties"
+node_config_file: "{{ node_config_path }}/server.properties"
 
 # cluster node's data files.
 node_data_path: "/data/cluster/data"

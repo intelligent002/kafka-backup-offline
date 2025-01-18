@@ -53,23 +53,23 @@ docker_command_containers_run: >
                       -Dcom.sun.management.jmxremote.authenticate=false
                       -Dcom.sun.management.jmxremote.ssl=false
                       -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}"
-  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
+  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/server.properties
   -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
-  /usr/bin/kafka-server-start /etc/kafka/kraft.properties
+  /usr/bin/kafka-server-start /etc/kafka/server.properties
 
 # Docker command to run the cluster containers, combining all nodes details
 docker_command_data_format: >
   docker run --rm
-  -v {{ node_config_file }}:/etc/kafka/kraft.properties
+  -v {{ node_config_file }}:/etc/kafka/server.properties
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
-  /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/kraft.properties
+  /usr/bin/kafka-storage format -t {{ cluster_id }} -c /etc/kafka/server.properties
 
 # === Backup retention policies ===================================================================
 
@@ -100,7 +100,7 @@ node_certificate_path: "/data/cluster/certificate"
 node_config_path: "/data/cluster/config"
 
 # Directory containing the cluster node's config files.
-node_config_file: "{{ node_config_path }}/kraft.properties"
+node_config_file: "{{ node_config_path }}/server.properties"
 
 # Directory containing the cluster node's data files.
 node_data_path: "/data/cluster/data"
