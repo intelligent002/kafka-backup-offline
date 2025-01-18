@@ -55,9 +55,8 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/secrets
-  -v kafka_secrets:/etc/kafka/secrets
   apache/kafka:3.9.0
-  /usr/bin/kafka-server-start /etc/kafka/server.properties
+  /opt/kafka/bin/kafka-server-start.sh /etc/kafka/server.properties
 
 
 # Empty folder should be prepared for usage
