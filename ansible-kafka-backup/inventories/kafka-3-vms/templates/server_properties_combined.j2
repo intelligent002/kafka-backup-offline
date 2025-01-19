@@ -207,12 +207,14 @@ sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
 # Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN, GSSAPI, OAUTHBEARER.
 sasl.mechanism=SCRAM-SHA-256
 
+listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
+
 # Enable the StandardAuthorizer for ACL-based access control.
 # Default: None (Authorization is disabled by default).
 # Options:
 #   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
 #   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
-#authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 
 # Specify whether to allow access to resources when no ACLs are defined.
 # Default: true (Allow access when no ACLs are found).
