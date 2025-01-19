@@ -4,39 +4,30 @@
     - data_format
   include_tasks: ../../docker/tasks/containers_validation.yml
 
-- name: Remove cluster data folder on nodes
+- name: Remove Cluster Data folders on nodes
   tags:
     - data_format
   file:
-    path: "{{ node_data_path }}"
+    path: "{{ item }}"
     state: absent
+  loop:
+    - "{{ node_data_path }}"
+    - "{{ node_meta_path }}"
+    - "{{ node_logs_path }}"
 
-- name: Create cluster data folder on nodes
+- name: Create Cluster Data folders on nodes
   tags:
     - data_format
   file:
-    path: "{{ node_data_path }}"
+    path: "{{ item }}"
     state: directory
     mode: "{{ chmod_data }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-
-- name: Remove cluster logs folder on nodes
-  tags:
-    - data_format
-  file:
-    path: "{{ node_logs_path }}"
-    state: absent
-
-- name: Create cluster logs folder on nodes
-  tags:
-    - data_format
-  file:
-    path: "{{ node_logs_path }}"
-    state: directory
-    mode: "{{ chmod_data }}"
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
+  loop:
+    - "{{ node_data_path }}"
+    - "{{ node_meta_path }}"
+    - "{{ node_logs_path }}"
 
 - name: Format cluster data folder on nodes
   tags:

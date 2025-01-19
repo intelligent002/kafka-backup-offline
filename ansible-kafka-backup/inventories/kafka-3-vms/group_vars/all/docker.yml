@@ -60,7 +60,8 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/etc/kafka/credentials
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
+  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
+  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
   apache/kafka:3.9.0
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/server.properties
 
@@ -70,6 +71,7 @@ docker_command_data_format_confluent: >
   docker run --rm
   -v {{ node_config_file }}:/etc/kafka/server.properties
   -v {{ node_data_path }}:/var/lib/kafka/data
+  -v {{ node_meta_path }}:/var/lib/kafka/meta
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/ssl
   -v kafka_secrets:/etc/kafka/secrets
@@ -83,9 +85,10 @@ docker_command_data_format_confluent: >
 docker_command_data_format: >
   docker run --rm
   -v {{ node_config_path }}/:/mnt/shared/config/
-  -v {{ node_data_path }}/:/var/lib/kafka/data/
-  -v {{ node_logs_path }}/:/var/log/kafka/
-  -v {{ node_certificate_path }}/:/etc/kafka/secrets/
+  -v {{ node_data_path }}:/var/lib/kafka/data
+  -v {{ node_meta_path }}:/var/lib/kafka/meta
+  -v {{ node_logs_path }}:/opt/kafka/logs
+  -v {{ node_certificate_path }}/:/etc/kafka/secrets
   apache/kafka:3.9.0
   /opt/kafka/bin/kafka-storage.sh format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
