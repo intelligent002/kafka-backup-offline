@@ -187,17 +187,39 @@ connections.max.reauth.ms=86400000
 #############################################################################################
 # Authentication and Authorization
 
-# Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
+# Enable SASL mechanisms for authentication, allowing clients to use SCRAM-SHA-256.
+# Default: None (SASL is disabled by default).
+# Options: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos), OAUTHBEARER.
 sasl.enabled.mechanisms=SCRAM-SHA-256
 
-# Configures the SASL mechanism used for inter-broker communication
-sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
-sasl.mechanism=PLAIN
-sasl.kerberos.service.name=kafka
+# Specify the SASL mechanism used for controller-to-controller communication.
+# Default: None (No SASL authentication for controllers by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
+sasl.mechanism.controller.protocol=SCRAM-SHA-256
 
-# Defines the authorizer class to enable ACL-based authorization
+# Specify the SASL mechanism used for inter-broker communication.
+# Default: None (No SASL authentication for inter-broker communication by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+
+# Specify the default SASL mechanism for client authentication if not explicitly set.
+# Default: None (No SASL authentication for clients by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN, GSSAPI, OAUTHBEARER.
+sasl.mechanism=SCRAM-SHA-256
+
+# Enable the StandardAuthorizer for ACL-based access control.
+# Default: None (Authorization is disabled by default).
+# Options:
+#   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
+#   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
 authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
-allow.everyone.if.no.acl.found=false
+
+# Specify whether to allow access to resources when no ACLs are defined.
+# Default: true (Allow access when no ACLs are found).
+# Options:
+#   - true: Access is allowed when no matching ACLs are found.
+#   - false: Access is denied when no matching ACLs are found (Recommended for secure environments).
+allow.everyone.if.no.acl.found=true
 
 # Specifies superusers who bypass ACL checks
 super.users=User:admin
