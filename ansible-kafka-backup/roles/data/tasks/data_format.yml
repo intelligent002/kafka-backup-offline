@@ -4,7 +4,7 @@
     - data_format
   include_tasks: ../../docker/tasks/containers_validation.yml
 
-- name: Remove Cluster Data folders on nodes
+- name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
   file:
@@ -15,7 +15,7 @@
     - "{{ node_meta_path }}"
     - "{{ node_logs_path }}"
 
-- name: Create Cluster Data folders on nodes
+- name: Create Cluster Data Folders on nodes
   tags:
     - data_format
   file:
@@ -29,7 +29,7 @@
     - "{{ node_meta_path }}"
     - "{{ node_logs_path }}"
 
-- name: Format cluster data folder on nodes
+- name: Format Data on nodes
   tags:
     - data_format
   shell: "{{ docker_command_data_format }}"
