@@ -1,5 +1,7 @@
 cd /data/KBO/kafka-backup-offline/ansible-kafka-backup/
 alias ansible-playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook"
+alias ansible_playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook"
+
 alias ansible-playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /data:/data -v /backup:/backup -w /apps ansible-with-archivators ansible-playbook"
 
 ansible-playbook -i inventories/kafka-6-vms/inventory playbooks/playbook.yml --tags "config_backup"
