@@ -48,6 +48,7 @@ docker_command_containers_run: >
   -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
   -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
   -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+  -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="-Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote 
   -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
