@@ -1,10 +1,10 @@
-# Node ID
+# Node ID (int)
 node.id={{ node_id }}
 
-# Define the roles for this node (controller and broker)
+# Define the roles for this node (controller/broker)
 process.roles=broker,controller
 
-# Unique cluster ID that must match across all nodes (controller and broker)
+# Unique cluster ID that must match across all nodes - controller and broker (string)
 cluster.id={{ cluster_id }}
 
 #############################################################################################
@@ -43,6 +43,7 @@ ssl.truststore.password={{ certificate_password }}
 
 ssl.truststore.type=JKS
 
+# The endpoint identification algorithm to validate server hostname using server certificate. Default - https
 ssl.endpoint.identification.algorithm=https
 
 # Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
@@ -50,7 +51,10 @@ ssl.enabled.protocols=TLSv1.3
 
 {% if use_credentials %}
 # Optional: Require client certificates for authentication.
-# ssl.client.auth=required
+ssl.client.auth=none
+
+ssl.secure.random.implementation=SHA1PRNG
+ssl.cipher.suites=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
 {% endif %}
 {% endif %}
 
@@ -62,7 +66,7 @@ listeners=CONTROLLER://:{{ port_controller_ext }},BROKER://:{{ port_broker_ext }
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:SSL,BROKER:SASL_SSL
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SASL_SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
 {% elif not use_certificate and use_credentials %}
@@ -74,14 +78,22 @@ listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 # Specify the name of the listener used for controller communication
 controller.listener.names=CONTROLLER
 
-# Specify the name of the listener used for broker communication
+# Listeners to publish to ZooKeeper for clients to use, if different than the listeners config property.
+# In IaaS environments, this may need to be different from the interface to which the broker binds.
+# If this is not set, the value for listeners will be used. Unlike listeners, it is not valid to advertise the 0.0.0.0 meta-address.
 advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
 
-# Define the security protocol for inter-broker communication
+# Name of listener used for communication between brokers.
+# If this is unset, the listener name is defined by security.inter.broker.protocol
+# It is an error to set this and security.inter.broker.protocol properties at the same time.
+# values - listener name
 inter.broker.listener.name=BROKER
 
-# protocol to use for communication between clients and brokers or between brokers.
-security.protocol=BROKER
+# deprecated outdated do not use
+# security.inter.broker.protocol=SASL_SSL
+
+# Protocol used to communicate with brokers. (PLAINTEXT/SSL/SASL_PLAINTEXT/SASL_SSL)
+security.protocol=SASL_SSL
 
 # Define the security protocol for controller-to-controller communication (SASL is not supported)
 {% if use_certificate %}
@@ -180,8 +192,6 @@ auto.leader.rebalance.enable=true
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
 
-# deprecated outdated do not use
-# security.inter.broker.protocol=SASL_SSL
 
 {% if use_credentials %}
 #############################################################################################
@@ -190,7 +200,7 @@ connections.max.reauth.ms=86400000
 # Enable SASL mechanisms for authentication, allowing clients to use SCRAM-SHA-256.
 # Default: None (SASL is disabled by default).
 # Options: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos), OAUTHBEARER.
-sasl.enabled.mechanisms=SCRAM-SHA-256
+sasl.enabled.mechanisms=PLAIN
 
 # Specify the SASL mechanism used for controller-to-controller communication.
 # Default: None (No SASL authentication for controllers by default).
@@ -200,7 +210,7 @@ sasl.mechanism.controller.protocol=SCRAM-SHA-256
 # Specify the SASL mechanism used for inter-broker communication.
 # Default: None (No SASL authentication for inter-broker communication by default).
 # Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
-sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+sasl.mechanism.inter.broker.protocol=PLAIN
 
 # Specify the default SASL mechanism for client authentication if not explicitly set.
 # Default: None (No SASL authentication for clients by default).
@@ -214,7 +224,7 @@ listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.se
 # Options:
 #   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
 #   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
-#authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 
 # Specify whether to allow access to resources when no ACLs are defined.
 # Default: true (Allow access when no ACLs are found).
