@@ -24,10 +24,10 @@ certbot_docker_image: "certbot/dns-cloudflare"
 # === Certificate parameters ===========================================================================================
 
 # Alias for certificate in keystore
-keystore_alias_name: "kafka"
+keystore_alias_name: "intel.r7g.org"
 
 # Alias for certificate in truststore
-truststore_ca_name: "kafka"
+truststore_ca_name: "intel.r7g.org"
 
 # Password for all certificate stores (truststore, keystore, private key in keystore)
 certificate_password: "insecure"
