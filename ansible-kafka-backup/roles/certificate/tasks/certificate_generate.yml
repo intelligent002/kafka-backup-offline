@@ -25,7 +25,7 @@
 
 - name: Run Certbot to renew certificate
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
@@ -51,7 +51,7 @@
 
 - name: Display Certbot output
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   debug:
@@ -59,19 +59,19 @@
 
 - name: Verify certificate files exist on central
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   stat:
     path: "{{ item }}"
   with_items:
-    - "{{ certificate_file_fullchain }}"
-    - "{{ certificate_file_key }}"
+    - "{{ cert_file_server_fullchain }}"
+    - "{{ cert_file_server_key }}"
   register: cert_stats
 
 - name: Fail if any certificate file is missing
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   fail:
@@ -82,11 +82,11 @@
 
 - name: Extract certificate expiration details
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   shell: |
-    cert_date=$(openssl x509 -enddate -noout -in {{ certificate_file_fullchain }} | sed 's/^notAfter=//')
+    cert_date=$(openssl x509 -enddate -noout -in {{ cert_file_server_fullchain }} | sed 's/^notAfter=//')
     cert_epoch=$(date -d "$cert_date" +%s)
     current_epoch=$(date +%s)
     cert_days_remaining=$(( (cert_epoch - current_epoch) / 86400 ))
@@ -96,7 +96,7 @@
 
 - name: Parse certificate expiration details
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   set_fact:
@@ -105,7 +105,7 @@
 
 - name: Debug certificate expiration details
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   debug:
@@ -115,44 +115,44 @@
 
 - name: Fail if certificate is expired or expires soon
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   fail:
     msg: >
       {% if certificate_expire_in_days | float == 0 %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} expires today!
+      The specified certificate fullchain {{ cert_file_server_fullchain }} expires today!
       {% elif certificate_expire_in_days | float < 0 %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
+      The specified certificate fullchain {{ cert_file_server_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
       {% else %}
-      The specified certificate fullchain {{ certificate_file_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
+      The specified certificate fullchain {{ cert_file_server_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
       {% endif %}
   when: certificate_expire_in_days | float < certificate_expiration_threshold
 
 - name: Generate PKCS#12 KeyStore from full chain and private key
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
     openssl pkcs12 -export
-    -in {{ certificate_file_fullchain }}
-    -inkey {{ certificate_file_key }}
-    -out {{ certificate_file_p12 }}
+    -in {{ cert_file_server_fullchain }}
+    -inkey {{ cert_file_server_key }}
+    -out {{ cert_file_server_p12 }}
     -name {{ keystore_alias_name }}
     -password pass:{{ certificate_password }}
 
 - name: Convert PKCS#12 KeyStore to JKS KeyStore
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: |
     keytool -importkeystore \ 
       -deststorepass {{ certificate_password }} \ 
       -destkeypass {{ certificate_password }} \
-      -destkeystore {{ certificate_file_keystore }} \ 
-      -srckeystore {{ certificate_file_p12 }} \
+      -destkeystore {{ cert_file_server_keystore }} \ 
+      -srckeystore {{ cert_file_server_p12 }} \
       -srcstoretype PKCS12 \
       -srcstorepass {{ certificate_password }} \ 
       -alias {{ keystore_alias_name }} \
@@ -160,39 +160,39 @@
 
 - name: Cleanup JKS TrustStore
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ certificate_file_truststore }}"
+    path: "{{ cert_file_server_truststore }}"
     state: absent
 
 - name: Import CA certificate into JKS TrustStore
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: |
     yes | keytool -import \ 
       -trustcacerts \
-      -file {{ certificate_file_fullchain }} \
+      -file {{ cert_file_server_fullchain }} \
       -alias {{ truststore_ca_name }} \
-      -keystore {{ certificate_file_truststore }} \
+      -keystore {{ cert_file_server_truststore }} \
       -storepass {{ certificate_password }} \
       -noprompt
 
 - name: Verify Keystore file
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_keystore }} -storepass {{ certificate_password }}
+    keytool -list -keystore {{ cert_file_server_keystore }} -storepass {{ certificate_password }}
   register: keystore_check
 
 - name: Display Keystore Details
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   debug:
@@ -200,16 +200,16 @@
 
 - name: Verify TrustStore file
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    keytool -list -keystore {{ certificate_file_truststore }} -storepass {{ certificate_password }}
+    keytool -list -keystore {{ cert_file_server_truststore }} -storepass {{ certificate_password }}
   register: truststore_check
 
 - name: Display TrustStore Details
   tags:
-    - certificate_generate
+    - certificate_generate_off
   delegate_to: node-0
   run_once: true
   debug:
@@ -230,14 +230,15 @@
     - certificate_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ item.src }}"
+    src: "{{ item }}"
     dest: "{{ node_certificate_path }}/"
     mode: push
     rsync_opts:
       - "--checksum"
   loop:
-    - { src: "{{ certificate_file_keystore }}" }
-    - { src: "{{ certificate_file_truststore }}" }
+    - "{{ cert_file_server_keystore }}"
+    - "{{ cert_file_server_truststore }}"
+    - "{{ cert_file_client_truststore }}"
 
 - name: Set ownership and permissions of the certificate folder recursively
   tags:
