@@ -190,7 +190,7 @@ connections.max.reauth.ms=86400000
 # Enable SASL mechanisms for authentication, allowing clients to use SCRAM-SHA-256.
 # Default: None (SASL is disabled by default).
 # Options: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos), OAUTHBEARER.
-sasl.enabled.mechanisms=PLAIN
+sasl.enabled.mechanisms=SCRAM-SHA-256
 
 # Specify the SASL mechanism used for controller-to-controller communication.
 # Default: None (No SASL authentication for controllers by default).
@@ -200,7 +200,7 @@ sasl.mechanism.controller.protocol=SCRAM-SHA-256
 # Specify the SASL mechanism used for inter-broker communication.
 # Default: None (No SASL authentication for inter-broker communication by default).
 # Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
-sasl.mechanism.inter.broker.protocol=PLAIN
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
 
 # Specify the default SASL mechanism for client authentication if not explicitly set.
 # Default: None (No SASL authentication for clients by default).
