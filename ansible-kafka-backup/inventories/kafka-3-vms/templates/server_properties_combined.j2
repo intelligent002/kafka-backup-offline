@@ -208,8 +208,8 @@ sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
 sasl.mechanism=SCRAM-SHA-256
 
 listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
-listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
-listener.name.broker.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
+listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
+listener.name.broker.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
 
 # Enable the StandardAuthorizer for ACL-based access control.
 # Default: None (Authorization is disabled by default).
