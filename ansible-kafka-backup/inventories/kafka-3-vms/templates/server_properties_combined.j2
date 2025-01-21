@@ -63,11 +63,11 @@ listeners=CONTROLLER://:{{ port_controller_ext }},BROKER://:{{ port_broker_ext }
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SASL_SSL
+listener.security.protocol.map=CONTROLLER:SASL_SSL,BROKER:SASL_SSL
 {% elif use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
 {% elif not use_certificate and use_credentials %}
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SASL_PLAINTEXT
+listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT,BROKER:SASL_PLAINTEXT
 {% elif not use_certificate and not use_credentials %}
 listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
@@ -91,13 +91,6 @@ inter.broker.listener.name=BROKER
 
 # Protocol used to communicate with brokers. (PLAINTEXT/SSL/SASL_PLAINTEXT/SASL_SSL)
 security.protocol=SASL_SSL
-
-# Define the security protocol for controller-to-controller communication (SASL is not supported)
-{% if use_certificate %}
-security.controller.protocol=SSL
-{% else %}
-security.controller.protocol=PLAINTEXT
-{% endif %}
 
 #############################################################################################
 # Data and Metadata Storage
@@ -221,7 +214,7 @@ listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.se
 # Options:
 #   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
 #   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
-authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+# authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 
 # Specify whether to allow access to resources when no ACLs are defined.
 # Default: true (Allow access when no ACLs are found).
