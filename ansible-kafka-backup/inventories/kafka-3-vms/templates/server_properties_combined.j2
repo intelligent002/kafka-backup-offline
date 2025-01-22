@@ -55,7 +55,7 @@ controller.listener.names=CONTROLLER
 advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
 
 # Define the listeners for a combined node
-listeners=BROKER://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
+listeners=BROKER://:{{ port_broker_ext }},CONTROLLER://:{{ port_controller_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
