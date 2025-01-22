@@ -91,6 +91,7 @@ docker_command_data_format: >
   -v {{ node_certificate_path }}/:/etc/kafka/secrets
   apache/kafka:3.9.0
   /opt/kafka/bin/kafka-storage.sh format
-  --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
   --cluster-id {{ cluster_id }}
   --config /mnt/shared/config/server.properties
+
+#--add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]'
