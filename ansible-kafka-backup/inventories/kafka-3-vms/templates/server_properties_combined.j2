@@ -1,10 +1,10 @@
-# Node ID (int)
+# Node ID
 node.id={{ node_id }}
 
-# Define the roles for this node (controller/broker)
+# Define the roles for this node (controller and broker)
 process.roles=broker,controller
 
-# Unique cluster ID that must match across all nodes - controller and broker (string)
+# Unique cluster ID that must match across all nodes (controller and broker)
 cluster.id={{ cluster_id }}
 
 #############################################################################################
@@ -18,16 +18,14 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 controller.quorum.election.timeout.ms=10000
 
 #############################################################################################
-# Certificates
+# Listeners and communication
 
 {% if use_certificate %}
 # Path to the keystore file (JKS format) containing the private key and certificate.
-ssl.keystore.location=/etc/kafka/secrets/kafka.server.keystore.jks
+ssl.keystore.location=/etc/kafka/ssl/keystore.jks
 
 # Password to unlock the keystore file. Same password is used for the private key.
 ssl.keystore.password={{ certificate_password }}
-
-ssl.keystore.type=JKS
 
 # Password to unlock the private key in the keystore. Same password is used as the keystore password.
 ssl.key.password={{ certificate_password }}
@@ -36,30 +34,28 @@ ssl.key.password={{ certificate_password }}
 ssl.keystore.alias={{ keystore_alias_name }}
 
 # Path to the truststore file (JKS format) containing trusted CA certificates.
-ssl.truststore.location=/etc/kafka/secrets/kafka.server.truststore.jks
+ssl.truststore.location=/etc/kafka/ssl/truststore.jks
 
 # Password to unlock the truststore file.
 ssl.truststore.password={{ certificate_password }}
-
-ssl.truststore.type=JKS
-
-# The endpoint identification algorithm to validate server hostname using server certificate. Default - https
-ssl.endpoint.identification.algorithm=https
 
 # Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
 ssl.enabled.protocols=TLSv1.3
 
 {% if use_credentials %}
 # Optional: Require client certificates for authentication.
-ssl.client.auth=none
+ssl.client.auth=required
 {% endif %}
 {% endif %}
 
-#############################################################################################
-# Listeners and communication
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
+# Define the advertised listeners for a combined node
+advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
 
 # Define the listeners for a combined node
-listeners=CONTROLLER://:{{ port_controller_ext }},BROKER://:{{ port_broker_ext }}
+listeners=BROKER://0.0.0.0:{{ port_broker_ext }},CONTROLLER://0.0.0.0:{{ port_controller_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
@@ -72,34 +68,25 @@ listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT,BROKER:SASL_PLAINTEXT
 listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
 {% endif %}
 
-# Specify the name of the listener used for controller communication
-controller.listener.names=CONTROLLER
-
-# Listeners to publish to ZooKeeper for clients to use, if different than the listeners config property.
-# In IaaS environments, this may need to be different from the interface to which the broker binds.
-# If this is not set, the value for listeners will be used. Unlike listeners, it is not valid to advertise the 0.0.0.0 meta-address.
-advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
-
-# Name of listener used for communication between brokers.
-# If this is unset, the listener name is defined by security.inter.broker.protocol
-# It is an error to set this and security.inter.broker.protocol properties at the same time.
-# values - listener name
+# Define the security protocol for inter-broker communication
 inter.broker.listener.name=BROKER
 
-# deprecated outdated do not use
-# security.inter.broker.protocol=SASL_SSL
-
-# Protocol used to communicate with brokers. (PLAINTEXT/SSL/SASL_PLAINTEXT/SASL_SSL)
-security.protocol=SASL_SSL
+# Define the security protocol for controller-to-controller communication
+{% if use_certificate and use_credentials %}
+security.controller.protocol=SASL_SSL
+{% elif use_certificate and not use_credentials %}
+security.controller.protocol=SSL
+{% elif not use_certificate and use_credentials %}
+security.controller.protocol=SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+security.controller.protocol=PLAINTEXT
+{% endif %}
 
 #############################################################################################
 # Data and Metadata Storage
 
-# Directory where the broker data are stored
+# Directory where the controller's metadata logs and broker data are stored
 log.dirs=/var/lib/kafka/data
-
-# Directory where the controller metadata are stored
-metadata.log.dir=/var/lib/kafka/meta
 
 #############################################################################################
 # Internal Topics Configuration
@@ -149,10 +136,6 @@ num.io.threads=8
 # Number of threads for log recovery during broker startup or failure recovery
 num.recovery.threads.per.data.dir=2
 
-socket.send.buffer.bytes=102400
-socket.receive.buffer.bytes=102400
-socket.request.max.bytes=1048576000
-
 #############################################################################################
 # Log Flush Policy
 
@@ -176,58 +159,22 @@ log.flush.interval.ms=1000
 
 # Enable/Disable automatic topic creation (recommended to disable for production)
 auto.create.topics.enable=true
-delete.topic.enable=true
-auto.leader.rebalance.enable=true
 
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
-
 
 {% if use_credentials %}
 #############################################################################################
 # Authentication and Authorization
 
-# Enable SASL mechanisms for authentication, allowing clients to use SCRAM-SHA-256.
-# Default: None (SASL is disabled by default).
-# Options: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos), OAUTHBEARER.
-sasl.enabled.mechanisms=SCRAM-SHA-256
+# Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
+sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
-# Specify the SASL mechanism used for controller-to-controller communication.
-# Default: None (No SASL authentication for controllers by default).
-# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
-sasl.mechanism.controller.protocol=SCRAM-SHA-256
+# Configures the SASL mechanism used for inter-broker communication
+sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
 
-# Specify the SASL mechanism used for inter-broker communication.
-# Default: None (No SASL authentication for inter-broker communication by default).
-# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
-sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
-
-# Specify the default SASL mechanism for client authentication if not explicitly set.
-# Default: None (No SASL authentication for clients by default).
-# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN, GSSAPI, OAUTHBEARER.
-sasl.mechanism=SCRAM-SHA-256
-
-listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
-listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
-listener.name.broker.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
-
-log4j.logger.org.apache.kafka.common.network=DEBUG
-log4j.logger.org.apache.kafka.common.security.authenticator=DEBUG
-log4j.logger.org.apache.kafka.common.security.scram=DEBUG
-
-# Enable the StandardAuthorizer for ACL-based access control.
-# Default: None (Authorization is disabled by default).
-# Options:
-#   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
-#   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
-# authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
-
-# Specify whether to allow access to resources when no ACLs are defined.
-# Default: true (Allow access when no ACLs are found).
-# Options:
-#   - true: Access is allowed when no matching ACLs are found.
-#   - false: Access is denied when no matching ACLs are found (Recommended for secure environments).
-allow.everyone.if.no.acl.found=true
+# Defines the authorizer class to enable ACL-based authorization
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 
 # Specifies superusers who bypass ACL checks
 super.users=User:admin
