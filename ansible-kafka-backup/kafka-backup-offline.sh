@@ -283,104 +283,18 @@ function containers_run()
     return 0
 }
 
-# ===== Kafka Container Run =====
-# Starts a Kafka container on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_run()
-{
-    local role ip port_jmx port_kafka
-
-    role=$1
-    ip=${nodes[$role]}
-    port_jmx=9999
-
-    case "$role" in
-        kafka-controller-*)
-            port_kafka=9093
-            ;;
-        kafka-broker-*)
-            port_kafka=9092
-            ;;
-        *)
-            log "DEBUG" "Unknown role: $role"
-            return 1
-            ;;
-    esac
-
-    log "DEBUG" "Container run $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker run -d --name=$role -h $role --restart=always \
-        -p $port_kafka:$port_kafka \
-        -p $port_jmx:$port_jmx \
-        -e KAFKA_HEAP_OPTS='-Xmx2G -Xms2G' \
-        -e KAFKA_JMX_OPTS='-Dcom.sun.management.jmxremote \
-        -Dcom.sun.management.jmxremote.port=$port_jmx \
-        -Dcom.sun.management.jmxremote.rmi.port=$port_jmx \
-        -Dcom.sun.management.jmxremote.authenticate=false \
-        -Dcom.sun.management.jmxremote.ssl=false \
-        -Djava.rmi.server.hostname=$ip' \
-        -v $NODE_CONFIG:/mnt/shared/config \
-        -v $NODE_DATA:/var/lib/kafka/data \
-        -v $NODE_META:/var/lib/kafka/meta \
-        -v $NODE_CERT:/etc/kafka/secrets \
-        -v $NODE_CRED:/etc/kafka/credentials \
-        -v $NODE_LOGS:/opt/kafka/logs \
-        $IMAGE /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties" || {
-        log "ERROR" "Container run $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Container run $role at $ip - OK"
-    return 0
-}
-
 # ===== Kafka Containers Start =====
 # Starts all Kafka containers in the defined startup order
 function containers_start()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
     log "INFO" "Routine - Kafka Containers Start on all nodes - started"
 
-    # Launch container_start for each role one by one according to best practice
-    for role in "${order_startup[@]}"; do
-        container_start "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_start" || {
         log "ERROR" "Routine - Kafka Containers Start on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Start on all nodes - OK"
-    return 0
-}
-
-# ===== Kafka Container Start =====
-# Starts a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_start()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container start $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker start $role" || {
-        log "ERROR" "Container start $role at $ip - failed"
         return 1
     }
 
-    log "DEBUG" "Container start $role at $ip - OK"
+    log "INFO" "Routine - Kafka Containers Start on all nodes - OK"
     return 0
 }
 
@@ -388,47 +302,14 @@ function container_start()
 # Stops all Kafka containers in the defined shutdown order
 function containers_stop()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
     log "INFO" "Routine - Kafka Containers Stop on all nodes - started"
 
-    # Launch container_stop for each role one by one according to best practice
-    for role in "${order_shutdown[@]}"; do
-        container_stop "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_stop" || {
         log "ERROR" "Routine - Kafka Containers Stop on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Stop on all nodes - OK"
-    return 0
-}
-
-# Stops a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_stop()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container stop $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker stop $role" || {
-        log "DEBUG" "Container stop $role at $ip - stop failed"
         return 1
     }
 
-    log "DEBUG" "Container stop $role at $ip - OK"
+    log "INFO" "Routine - Kafka Containers Stop on all nodes - OK"
     return 0
 }
 
@@ -444,47 +325,14 @@ function containers_restart()
 # Removes all Kafka containers in the defined shutdown order
 function containers_remove()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
     log "INFO" "Routine - Kafka Containers Remove on all nodes - started"
 
-    # Launch container_remove for each role one by one according to best practice
-    for role in "${order_shutdown[@]}"; do
-        container_remove "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_remove" || {
         log "ERROR" "Routine - Kafka Containers Remove on all nodes - failed"
         return 1
-    fi
+    }
 
     log "INFO" "Routine - Kafka Containers Remove on all nodes - OK"
-    return 0
-}
-
-# Removes a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_remove()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container remove $role at $ip - started"
-
-    if ! ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker rm -f $role"; then
-        log "ERROR" "Container remove $role at $ip - failed"
-        return 1
-    fi
-
-    log "DEBUG" "Container remove $role at $ip - OK"
     return 0
 }
 
