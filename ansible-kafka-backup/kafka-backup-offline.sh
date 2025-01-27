@@ -683,9 +683,9 @@ function credentials_menu() {
 function main_menu() {
     local choice
     while true; do
-        choice=$(dialog --title "Main Menu" \
-            --menu "Select an option:" 20 60 10 \
-            "c(o)ntainers" "Containers Management" \
+        choice=$(dialog --title "Kafka Offline Backup" \
+            --menu "" 20 60 10 \
+            "containers" "Containers Management" \
             "certificates" "Certificates Management" \
             "data" "Data Management" \
             "config" "Config Management" \
