@@ -38,7 +38,7 @@ node_client_conf_file: "{{ node_credentials_path }}/client.conf"
 # cluster node's config files.
 node_config_path: "/data/cluster/config"
 # cluster node's config files.
-node_config_file: "{{ node_config_path }}/server.properties"
+node_config_file: "{{ node_config_path }}/kraft.properties"
 
 # cluster node's data files.
 node_data_path: "/data/cluster/data/logs"
