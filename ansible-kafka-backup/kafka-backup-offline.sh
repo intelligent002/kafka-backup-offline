@@ -237,11 +237,6 @@ function run_ansible_routine()
     return 0
 }
 
-
-
-
-
-
 # ===== Menu Function =====
 function menu()
 {
@@ -301,29 +296,6 @@ function menu()
             17) cluster_wide_credentials_backup ;;
             18) cluster_wide_credentials_restore_menu ;;
             *) echo "Invalid choice. Please try again." ;;
-        esac
-    done
-}
-
-
-
-# ===== Credentials Submenu =====
-function credentials_menu() {
-    while true; do
-        choice=$(whiptail --title "Credentials Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
-            "1" "Generate Credentials" \
-            "2" "Backup Credentials" \
-            "3" "Restore Credentials" \
-            3>&1 1>&2 2>&3)
-
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
-
-        case $choice in
-            1) cluster_wide_credentials_generate ;;
-            2) cluster_wide_credentials_backup ;;
-            3) cluster_wide_credentials_restore_menu ;;
         esac
     done
 }
@@ -445,9 +417,6 @@ function config_menu() {
 }
 
 # ===== Kafka Cluster Wide Config Restore Menu =====
-# Presents a menu to the user to select and restore a Kafka configuration backup.
-# Displays available backups from the `STORAGE_COLD/config/` directories and validates user input.
-# Invokes the `cluster_wide_config_restore` function to restore the selected backup.
 function cluster_wide_config_restore_menu()
 {
     local storage_config config_backup_files choice selected_backup
@@ -619,6 +588,27 @@ function containers_remove()
     return $?
 }
 
+# ===== Credentials Submenu =====
+function credentials_menu() {
+    while true; do
+        choice=$(whiptail --title "Credentials Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Credentials" \
+            "2" "Backup Credentials" \
+            "3" "Restore Credentials" \
+            3>&1 1>&2 2>&3)
+
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
+
+        case $choice in
+            1) cluster_wide_credentials_generate ;;
+            2) cluster_wide_credentials_backup ;;
+            3) cluster_wide_credentials_restore_menu ;;
+        esac
+    done
+}
+
 # ===== Data Submenu =====
 function data_menu() {
     while true; do
@@ -657,22 +647,6 @@ function data_menu() {
         esac
     done
 }
-
-# ===== Kafka Cluster Wide Data Format =====
-# Formats data on all cluster nodes
-function cluster_wide_data_format()
-{
-    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Data Backup =====
-function cluster_wide_data_backup()
-{
-    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
-    return $?
-}
-
 
 # ===== Kafka Cluster Wide Data Restore Menu =====
 function cluster_wide_data_restore_menu() {
@@ -722,6 +696,24 @@ function cluster_wide_data_restore_menu() {
         show_failure_message "Data restoration failed.\nPlease review the logs and verify the backup integrity."
     fi
 }
+
+# ===== Kafka Cluster Wide Data Format =====
+# Formats data on all cluster nodes
+function cluster_wide_data_format()
+{
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Data Backup =====
+function cluster_wide_data_backup()
+{
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
+
+
+
 
 
 # ===== Kafka Cluster Wide Data Restore =====
