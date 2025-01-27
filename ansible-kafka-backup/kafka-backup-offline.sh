@@ -680,7 +680,6 @@ function credentials_menu() {
 }
 
 # ===== Main Menu Function =====
-# ===== Main Menu Function =====
 function main_menu() {
     while true; do
         choice=$(dialog --title "Kafka-Backup-Offline Utility" \
@@ -724,7 +723,7 @@ create_pid_file
 if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
     disclaimer
-    main_menu2
+    main_menu
     disclaimer
 else
     # Parameter provided, assume it's a function name
