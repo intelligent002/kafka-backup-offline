@@ -513,25 +513,32 @@ function menu()
 
     while true; do
         echo "Available routines:"
+        echo "---------------------------------------------"
         echo "0) Exit"
         echo "1) Setup SSH Keys (ssh-copy-id)"
+        echo "---------------------------------------------"
         echo "2) Containers Run"
         echo "3) Containers Start"
         echo "4) Containers Stop"
         echo "5) Containers Restart"
         echo "6) Containers Remove"
+        echo "---------------------------------------------"
         echo "7) Data Format"
         echo "8) Data Backup"
         echo "9) Data Restore"
+        echo "---------------------------------------------"
         echo "10) Config Generate"
         echo "11) Config Backup"
         echo "12) Config Restore"
+        echo "---------------------------------------------"
         echo "13) Certificates Generate"
         echo "14) Certificates Backup"
         echo "15) Certificates Restore"
+        echo "---------------------------------------------"
         echo "16) Credentials Generate"
         echo "17) Credentials Backup"
         echo "18) Credentials Restore"
+        echo "---------------------------------------------"
         read -rp "Choose an option [0-11]: " choice
 
         case $choice in
