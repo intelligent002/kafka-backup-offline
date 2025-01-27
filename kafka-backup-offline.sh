@@ -93,8 +93,8 @@ function disclaimer()
     echo "  This solution is **NOT SUITABLE FOR PRODUCTION USE** as it requires taking the Kafka Cluster offline             "
     echo "  for backup and restore operations. It is specifically designed for development and testing environments.         "
     echo
-    echo "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
-    echo
+#    echo "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
+#    echo
     echo "==================================================================================================================="
 }
 
