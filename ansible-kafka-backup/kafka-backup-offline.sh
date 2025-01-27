@@ -42,6 +42,13 @@ function load_configuration()
     LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level above which the errors will be shown in console, log will contain all
     INVENTORY="${ini_data[general.INVENTORY]}" # inventory folder
 
+    # Load storage configuration variables for temporary and cold backup storage paths.
+    parse_ini_file "$config_file" "storage"
+    STORAGE_TEMP="${ini_data[storage.STORAGE_TEMP]}"                         # Temporary storage directory on the GUI server
+    STORAGE_COLD="${ini_data[storage.STORAGE_COLD]}"                         # Permanent cold storage directory for backups
+    STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}"                 # Percentage of free space, below which we will show a warning
+
+
     log "INFO" "Configuration loaded from '$config_file'"
 }
 
