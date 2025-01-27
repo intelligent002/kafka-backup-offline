@@ -274,7 +274,7 @@ function containers_run()
 {
     log "INFO" "Routine - Kafka Containers Run on all nodes - started"
 
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "containers_run" || {
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_run" || {
         log "ERROR" "Routine - Kafka Containers Run on all nodes - failed"
         return 1
     }
