@@ -574,7 +574,7 @@ function menu()
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
-            --menu "Select a category:\nESC - for exit" 15 50 6 \
+            --menu "ESC - for exit" 15 50 6 \
             "1" "Containers" \
             "2" "Data" \
             "3" "Config" \
@@ -586,7 +586,7 @@ function main_menu() {
         [[ $? -ne 0 ]] && break
 
         case $choice in
-            1) containers_menu ;;
+                1) containers_menu ;;
             2) data_menu ;;
             3) config_menu ;;
             4) certificates_menu ;;
