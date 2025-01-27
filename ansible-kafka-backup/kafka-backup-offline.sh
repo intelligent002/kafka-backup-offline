@@ -682,8 +682,8 @@ function credentials_menu() {
 # ===== Main Menu =====
 function main_menu() {
     while true; do
-        choice=$(whiptail --title "Certificates Menu" \
-            --menu "" 15 50 6 \
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Choose section:" 15 50 6 \
             "1" "Certificates" \
             "2" "Configs" \
             "3" "Credentials" \
