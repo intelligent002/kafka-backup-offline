@@ -486,31 +486,6 @@ function menu()
 }
 
 
-# ===== Containers Submenu =====
-function containers_menu() {
-    while true; do
-        choice=$(whiptail --title "Containers Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 6 \
-            "1" "Run Containers" \
-            "2" "Start Containers" \
-            "3" "Stop Containers" \
-            "4" "Restart Containers" \
-            "5" "Remove Containers" \
-            3>&1 1>&2 2>&3)
-
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
-
-        case $choice in
-            1) containers_run ;;
-            2) containers_start ;;
-            3) containers_stop ;;
-            4) containers_restart ;;
-            5) containers_remove ;;
-        esac
-    done
-}
-
 # ===== Data Submenu =====
 function data_menu() {
     while true; do
@@ -573,8 +548,9 @@ function main_menu() {
             "1" "Quit" \
             "2" "Certificates" \
             "3" "Configs" \
-            "4" "Credentials" \
-            "5" "Data" \
+            "4" "Containers" \
+            "5" "Credentials" \
+            "6" "Data" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -590,8 +566,9 @@ function main_menu() {
             1) break ;; # Exit
             2) certificates_menu ;;
             3) config_menu ;;
-            4) credentials_menu ;;
-            5) data_menu ;;
+            4) containers_menu ;;
+            5) credentials_menu ;;
+            6) data_menu ;;
         esac
     done
 }
@@ -602,7 +579,7 @@ function certificates_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates section > Choose action:" 15 50 6 \
+            --menu "Certificates > Choose action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Certificates" \
             "3" "Backup Certificates" \
@@ -631,7 +608,7 @@ function config_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Config section > Choose action:" 15 50 6 \
+            --menu "Config > Choose action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Config" \
             "3" "Backup Config" \
@@ -698,7 +675,7 @@ function cluster_wide_config_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Restore Config" \
         --cancel-button "Back" \
-        --menu "Config section > Restore Config action > Select a backup file to restore:" 20 100 10 \
+        --menu "Config > Restore Config > Select a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     local exit_status=$?
@@ -731,12 +708,6 @@ function cluster_wide_config_generate()
 
 # ===== Kafka Cluster Wide Config Backup =====
 # Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
-# Actions:
-# - Rotates existing backups based on retention policy (default: 30 days).
-# - Collects configuration files from each node using `rsync`.
-# - Compresses the collected configuration files into a timestamped archive.
-# - Cleans up temporary files after backup.
-# Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.xz`.
 function cluster_wide_config_backup()
 {
     run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
@@ -745,8 +716,6 @@ function cluster_wide_config_backup()
 
 # ===== Kafka Cluster Wide Config Restore =====
 # Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-# Parameters:
-#   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.xz).
 function cluster_wide_config_restore()
 {
     local archive=$1
@@ -754,6 +723,63 @@ function cluster_wide_config_restore()
     return $?
 }
 
+# ===== Containers Submenu =====
+function containers_menu() {
+    while true; do
+        choice=$(whiptail --title "Containers Menu" \
+            --menu "Containers > Choose action" 15 50 6 \
+            "1" "Main menu" \
+            "2" "Run" \
+            "3" "Start" \
+            "4" "Stop" \
+            "5" "Restart" \
+            "6" "Remove" \
+            3>&1 1>&2 2>&3)
+
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
+
+        case $choice in
+            1) return 0 ;;
+            2) containers_run
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully started! All services are now running."
+               else
+                   show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
+               fi
+               ;;
+            3) containers_start
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully resumed! Previously stopped services are now active."
+               else
+                   show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
+               fi
+               ;;
+            4) containers_stop
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully stopped! All services are now inactive."
+               else
+                   show_failure_message "Unable to stop the containers.\nPlease verify permissions or configurations and check the logs."
+               fi
+               ;;
+            5)
+               containers_restart
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully restarted! All services have been refreshed."
+               else
+                   show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
+               fi
+               ;;
+            6) containers_remove
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully removed! Resources have been freed."
+               else
+                   show_failure_message "Failed to remove the containers.\nCheck if the containers are running and review the logs for details."
+               fi
+               ;;
+        esac
+    done
+}
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
