@@ -679,40 +679,34 @@ function credentials_menu() {
     done
 }
 
-
-
 # ===== Main Menu Function =====
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
-            --menu "ESC - for exit" 15 50 6 \
-            "1" "Containers" \
-            "2" "Data" \
-            "3" "Config" \
-            "4" "Certificates" \
-            "5" "Credentials" \
+            --menu "Use arrow keys to navigate and Enter to select. ESC to exit." 15 50 6 \
+            "Containers" "Manage container-related tasks" \
+            "Data" "Backup and restore data" \
+            "Config" "Generate and manage configurations" \
+            "Certificates" "Manage certificates" \
+            "Credentials" "Manage credentials" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
         exit_status=$?
 
-        # Debugging output to understand behavior
-        echo "Exit status: $exit_status"
-        echo "Choice: $choice"
-
-        # Handle ESC (exit_status 255) or Cancel (exit_status 1)
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            echo "Exiting due to ESC or cancel..."
+        # Handle ESC or Cancel
+        if [[ $exit_status -ne 0 ]]; then
+            echo "Exiting..."
             break
         fi
 
-        # Handle valid menu choices
+        # Handle text-based choices
         case $choice in
-            1) containers_menu ;;
-            2) data_menu ;;
-            3) config_menu ;;
-            4) certificates_menu ;;
-            5) credentials_menu ;;
+            "Containers") containers_menu ;;
+            "Data") data_menu ;;
+            "Config") config_menu ;;
+            "Certificates") certificates_menu ;;
+            "Credentials") credentials_menu ;;
             *) whiptail --msgbox "Invalid choice. Please try again." 10 40 ;;
         esac
     done
