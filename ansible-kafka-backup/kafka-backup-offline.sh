@@ -694,11 +694,6 @@ function config_menu() {
                fi
                ;;
             4) cluster_wide_config_restore_menu
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Configuration was restored successfully!"
-               else
-                    show_failure_message "Failed to restore configuration!\nExit the tool and review the logs."
-               fi
                ;;
         esac
     done
@@ -739,8 +734,8 @@ function cluster_wide_config_restore_menu()
 
     local exit_status=$?
 
-    # Exit on cancel or ESC
-    if [[ $exit_status -ne 0 || $choice == "back" ]]; then
+    # Exit on cancel or ESC or back
+    if [[ $exit_status -ne 0 || $exit_status -eq 255 || $choice == "back" ]]; then
         return 0
     fi
 
