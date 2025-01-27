@@ -379,11 +379,11 @@ function config_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Config > Choose an action:" 15 50 6 \
+            --menu "Configs > Choose an action:" 15 50 6 \
             "1" "Main menu" \
-            "2" "Generate Config" \
-            "3" "Backup Config" \
-            "4" "Restore Config" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -446,11 +446,12 @@ function cluster_wide_config_restore_menu()
         --menu "Config > Restore > Choose a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
+    # Capture the exit status of whiptail
     local exit_status=$?
 
-    # Exit on cancel or ESC or back
-    if [[ $exit_status -ne 0 || $exit_status -eq 255 || $choice == "back" ]]; then
-        return 0
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice="back" ]]; then
+        break
     fi
 
     # Get the selected backup file path
@@ -504,8 +505,13 @@ function containers_menu() {
             "6" "Remove" \
             3>&1 1>&2 2>&3)
 
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
         # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
 
         case $choice in
             1) return 0 ;;
@@ -592,19 +598,26 @@ function containers_remove()
 function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Credentials Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
-            "1" "Generate Credentials" \
-            "2" "Backup Credentials" \
-            "3" "Restore Credentials" \
+            --menu "Credentials > Choose an action" 15 50 4 \
+            "1" "Main menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
             3>&1 1>&2 2>&3)
 
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
         # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
 
         case $choice in
-            1) cluster_wide_credentials_generate ;;
-            2) cluster_wide_credentials_backup ;;
-            3) cluster_wide_credentials_restore_menu ;;
+            1) return 0 ;;
+            2) cluster_wide_credentials_generate ;;
+            3) cluster_wide_credentials_backup ;;
+            4) cluster_wide_credentials_restore_menu ;;
         esac
     done
 }
@@ -620,8 +633,13 @@ function data_menu() {
             "4" "Restore" \
             3>&1 1>&2 2>&3)
 
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
         # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
 
         case $choice in
             1)
@@ -677,11 +695,12 @@ function cluster_wide_data_restore_menu() {
         --menu "Data > Restore > Select a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
+    # Capture the exit status of whiptail
     local exit_status=$?
 
-    # Exit on cancel or ESC
-    if [[ $exit_status -ne 0 || $exit_status -eq 255 || $choice == "back" ]]; then
-        return 0
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        break
     fi
 
     # Get the selected backup file path
