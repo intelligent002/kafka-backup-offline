@@ -661,6 +661,27 @@ function certificates_menu() {
 # ===== Credentials Submenu =====
 function credentials_menu() {
     while true; do
+        choice=$(whiptail --title "Credentials Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Credentials" \
+            "2" "Backup Credentials" \
+            "3" "Restore Credentials" \
+            3>&1 1>&2 2>&3)
+
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
+
+        case $choice in
+            1) cluster_wide_credentials_generate ;;
+            2) cluster_wide_credentials_backup ;;
+            3) cluster_wide_credentials_restore_menu ;;
+        esac
+    done
+}
+
+# ===== Main Menu Function =====
+function main_menu() {
+    while true; do
         choice=$(dialog --title "Kafka-Backup-Offline Utility" \
             --cancel-label "Quit" \
             --no-ok \
@@ -676,7 +697,7 @@ function credentials_menu() {
         exit_status=$?
 
         # Handle Quit (Cancel)
-        if [[ $exit_status -eq 1 ]]; then
+        if [[ $exit_status -eq 0 ]]; then
             echo "Exiting..."
             break
         fi
@@ -692,42 +713,6 @@ function credentials_menu() {
         esac
     done
 }
-
-# ===== Main Menu Function =====
-function main_menu() {
-    while true; do
-        choice=$(dialog --title "Kafka-Backup-Offline Utility" \
-            --ok-label "Back" \
-            --cancel-label "Quit" \
-            --menu "ESC - for exit" 15 50 6 \
-            1 "Containers" \
-            2 "Data" \
-            3 "Config" \
-            4 "Certificates" \
-            5 "Credentials" \
-            3>&1 1>&2 2>&3)
-
-        # Capture the exit status of dialog
-        exit_status=$?
-
-        # Handle Quit (Cancel) or Back (OK)
-        if [[ $exit_status -eq 1 ]]; then
-            echo "Exiting..."
-            break
-        fi
-
-        # Handle valid menu choices
-        case $choice in
-            1) containers_menu ;;
-            2) data_menu ;;
-            3) config_menu ;;
-            4) certificates_menu ;;
-            5) credentials_menu ;;
-            *) dialog --msgbox "Invalid choice. Please try again." 10 40 ;;
-        esac
-    done
-}
-
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
