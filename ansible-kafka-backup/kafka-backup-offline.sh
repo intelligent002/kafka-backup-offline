@@ -712,10 +712,6 @@ function cluster_wide_data_backup()
     return $?
 }
 
-
-
-
-
 # ===== Kafka Cluster Wide Data Restore =====
 function cluster_wide_data_restore()
 {
@@ -723,7 +719,6 @@ function cluster_wide_data_restore()
     run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
     return $?
 }
-
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
