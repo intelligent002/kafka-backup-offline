@@ -616,26 +616,7 @@ function data_menu() {
     done
 }
 
-# ===== Config Submenu =====
-function config_menu() {
-    while true; do
-        choice=$(whiptail --title "Config Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
-            "1" "Generate Config" \
-            "2" "Backup Config" \
-            "3" "Restore Config" \
-            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
-
-        case $choice in
-            1) cluster_wide_config_generate ;;
-            2) cluster_wide_config_backup ;;
-            3) cluster_wide_config_restore_menu ;;
-        esac
-    done
-}
 
 
 # ===== Credentials Submenu =====
@@ -672,7 +653,8 @@ function main_menu() {
             "5" "Quit" \
             3>&1 1>&2 2>&3)
 
-        local exit_status=$? # Capture the exit status of whiptail
+        # Capture the exit status of whiptail
+        local exit_status=$?
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
@@ -703,14 +685,48 @@ function certificates_menu() {
             "4" "Restore Certificates" \
             3>&1 1>&2 2>&3)
 
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
         # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
 
         case $choice in
             1) return 0 ;;
             2) cluster_wide_certificates_generate ;;
             3) cluster_wide_certificates_backup ;;
             4) cluster_wide_certificates_restore_menu ;;
+        esac
+    done
+}
+
+# ===== Config Submenu =====
+function config_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Config section\nChoose action:" 15 50 6 \
+            "1" "Main menu" \
+            "2" "Generate Config" \
+            "3" "Backup Config" \
+            "4" "Restore Config" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
+
+        case $choice in
+            1) return 0 ;;
+            2) cluster_wide_config_generate ;;
+            3) cluster_wide_config_backup ;;
+            4) cluster_wide_config_restore_menu ;;
         esac
     done
 }
