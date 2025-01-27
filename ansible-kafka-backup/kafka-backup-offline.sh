@@ -263,7 +263,7 @@ function ansible_playbook()
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
         -w /apps alpine/ansible ansible-playbook "$@" || {
-        log "ERROR" "Ansible Playbook failed $@"
+        log "ERROR" "Ansible Playbook failed $*"
         return 1
     }
     return 0
