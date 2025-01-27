@@ -682,7 +682,7 @@ function credentials_menu() {
 # ===== Main Menu Function =====
 function main_menu() {
     while true; do
-        choice=$(dialog --title "Kafka-Backup-Offline Utility" \
+        choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
             --cancel-label "Quit" \
             --no-ok \
             --menu "ESC - for exit" 15 50 6 \
