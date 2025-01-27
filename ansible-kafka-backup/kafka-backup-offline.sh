@@ -680,18 +680,19 @@ function credentials_menu() {
 }
 
 # ===== Main Menu Function =====
+# ===== Main Menu Function =====
 function main_menu() {
     while true; do
-        choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
-            --menu "Use arrow keys to navigate and Enter to select. ESC to exit." 15 50 6 \
-            "Manage container-related tasks" \
-            "Backup and restore data" \
-            "Generate and manage configurations" \
-            "Manage certificates" \
-            "Manage credentials" \
+        choice=$(dialog --title "Kafka-Backup-Offline Utility" \
+            --menu "ESC - for exit" 15 50 6 \
+            1 "Containers" \
+            2 "Data" \
+            3 "Config" \
+            4 "Certificates" \
+            5 "Credentials" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
+        # Capture the exit status of dialog
         exit_status=$?
 
         # Handle ESC or Cancel
@@ -700,49 +701,18 @@ function main_menu() {
             break
         fi
 
-        # Handle text-based choices
+        # Handle valid menu choices
         case $choice in
-            "Containers") containers_menu ;;
-            "Data") data_menu ;;
-            "Config") config_menu ;;
-            "Certificates") certificates_menu ;;
-            "Credentials") credentials_menu ;;
-            *) whiptail --msgbox "Invalid choice. Please try again." 10 40 ;;
+            1) containers_menu ;;
+            2) data_menu ;;
+            3) config_menu ;;
+            4) certificates_menu ;;
+            5) credentials_menu ;;
+            *) dialog --msgbox "Invalid choice. Please try again." 10 40 ;;
         esac
     done
 }
 
-function main_menu2(){
-    while :; do
-        MENU=$(dialog --clear --title "Calibre" \
-            --backtitle "Add Books" \
-            --menu "What to do ?" \
-            0 0 0 "C" "Choose a book or a folder" "M" "Enter metadata infos" "L" "Add selected Book(s)" "D" "Change default Directory for books" "E" "Exit" \
-            2>&1 >/dev/tty)
-        case "$MENU" in
-        C)
-            select=$(file_selector $mnt) ;;
-        M)
-            form_data ;;
-        L)
-            if [ -d "$select" ];then
-                add_folder "$select"
-            elif [ -f "$select" ];then
-                if [[ "$select" == *.cbz || "$select" == *.pdf ]]; then
-                    add_book "$select"
-                else
-                    error "Books should have extension .cbz or .pdf"
-                fi
-            else
-                error "No file or folder selected"
-            fi ;;
-        D)
-            NEWDIR=$(file_selector $mnt) ;;
-        E)
-            exit ;;
-        esac
-    done
-}
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
