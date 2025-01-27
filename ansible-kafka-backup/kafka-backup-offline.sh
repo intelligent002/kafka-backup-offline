@@ -684,7 +684,7 @@ function main_menu() {
     local choice
     while true; do
         choice=$(whiptail --title "Kafka Offline Backup" \
-            --menu 20 60 10 \
+            --menu "Select an option:" 20 60 10 \
             "Certificates" "Certificates Management" \
             "Config" "Config Management" \
             "Containers" "Containers Management" \
