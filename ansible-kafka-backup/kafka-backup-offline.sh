@@ -584,9 +584,13 @@ function main_menu() {
         # Capture the exit status of whiptail
         exit_status=$?
 
-        # Handle ESC or Cancel
+        # Debugging output to understand behavior
+        echo "Exit status: $exit_status"
+        echo "Choice: $choice"
+
+        # Handle ESC (exit_status 255) or Cancel (exit_status 1)
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            echo "Exiting..."
+            echo "Exiting due to ESC or cancel..."
             break
         fi
 
@@ -601,6 +605,7 @@ function main_menu() {
         esac
     done
 }
+
 
 # ===== Containers Submenu =====
 function containers_menu() {
@@ -710,26 +715,6 @@ function credentials_menu() {
         esac
     done
 }
-
-# ===== Main Execution =====
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
-CONFIG_FILE="$SCRIPT_DIR/config.ini"
-load_configuration "$CONFIG_FILE"
-create_pid_file
-
-if [[ $# -eq 0 ]]; then
-    disclaimer
-    main_menu
-else
-    if declare -f "$1" >/dev/null; then
-        "$1"
-    else
-        log "ERROR" "Error: Function '$1' not found."
-        help
-        exit 1
-    fi
-fi
-
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
