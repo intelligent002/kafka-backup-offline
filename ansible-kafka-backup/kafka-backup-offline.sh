@@ -683,7 +683,7 @@ function credentials_menu() {
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Certificates Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            --menu "" 10 50 8 \
             "1" "Certificates" \
             "2" "Configs" \
             "3" "Credentials" \
