@@ -238,79 +238,6 @@ function run_ansible_routine()
 }
 
 
-# ===== Kafka Cluster Wide Data Restore Menu =====
-# Presents a menu to the user to select and restore a Kafka data backup.
-# Displays available backups from the `STORAGE_COLD/data` directory and validates user input.
-# Pinned folder is not being rotated.
-# Rotated folder is being rotated, according to retention policy of keep days
-function cluster_wide_data_restore_menu()
-{
-    local storage_data i choice backup_files num_files selected_backup
-
-    storage_data="$STORAGE_COLD/data"
-
-    # Find all available backup files with their sizes
-    backup_files=()
-    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
-    num_files=${#backup_files[@]}
-
-    if [ "$num_files" -eq 0 ]; then
-        log "WARN" "No backup files found in $storage_data."
-        return 1
-    fi
-
-    # Display available backup files with sizes
-    echo "Available backup files (size):"
-    echo
-    echo "0) Exit restore menu"
-    for i in "${!backup_files[@]}"; do
-        echo "$((i + 1))) ${backup_files[$i]}"
-    done
-    echo
-
-    # Prompt the user for input
-    choice=""
-    while true; do
-        read -rp "Enter the number corresponding to the backup file you want to restore (or 0 to exit): " choice
-
-        # Handle exit option
-        if [[ $choice == "0" ]]; then
-            echo "Exiting restore menu."
-            return 1
-        fi
-
-        # Validate choice
-        if [[ $choice =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "$num_files" ]; then
-            # Extract the file path (first field of the entry)
-            selected_backup=$(echo "${backup_files[$((choice - 1))]}" | awk '{print $1}')
-            log "DEBUG" "Selected backup file: $selected_backup"
-            break
-        else
-            echo "Invalid choice. Please select a valid number between 0 and $num_files."
-        fi
-    done
-
-    # Call recovery with the selected backup file
-    cluster_wide_data_restore "$selected_backup"
-}
-
-# ===== Kafka Cluster Wide Data Restore =====
-# Restores a Kafka cluster's data from a specified backup archive.
-# Parameters:
-#   $1 - Path to the cluster-wide data backup archive (e.g., /backup/cold/data/rotated/YYYY/MM/DD/backup.tar.gz).
-# Actions:
-# - Ensures that all containers are stopped before proceeding.
-# - Extracts the cluster-wide archive to a temporary storage directory.
-# - Distributes per-node archives to their respective nodes.
-# - Deletes existing data and restores from the archives.
-# - Does not restart the containers after restoration.
-function cluster_wide_data_restore()
-{
-    local archive=$1
-    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
-    return $?
-}
-
 
 
 
@@ -545,7 +472,7 @@ function cluster_wide_config_restore_menu()
     done
 
     # Display the menu using whiptail
-    choice=$(whiptail --title "Restore Config" \
+    choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
         --menu "Config > Restore Config > Select a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
@@ -598,7 +525,7 @@ function cluster_wide_config_restore()
 # ===== Containers Submenu =====
 function containers_menu() {
     while true; do
-        choice=$(whiptail --title "Containers Menu" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Containers > Choose action" 15 50 6 \
             "1" "Main menu" \
             "2" "Run" \
@@ -695,7 +622,7 @@ function containers_remove()
 # ===== Data Submenu =====
 function data_menu() {
     while true; do
-        choice=$(whiptail --title "Data Menu" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Data > Choose an action:" 15 50 5 \
             "1" "Main menu" \
             "2" "Format" \
@@ -712,17 +639,17 @@ function data_menu() {
             2)
                cluster_wide_data_format
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The data was successfully formatted, you can spin a fresh cluster now."
+                   show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
                else
-                   show_failure_message "Unable to format the data, quit the tool, check the logs."
+                   show_failure_message "Data formatting failed.\nPlease exit the tool, review the logs, and verify the storage setup."
                fi
                ;;
             3)
                cluster_wide_data_backup
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The data was successfully backed up, you can resume the cluster now."
+                   show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
                else
-                   show_failure_message "Unable to backup the data, quit the tool, check the logs."
+                   show_failure_message "Data backup failed.\nPlease exit the tool, review the logs, and ensure sufficient storage space is available."
                fi
                ;;
             4)
@@ -740,10 +667,68 @@ function cluster_wide_data_format()
 }
 
 # ===== Kafka Cluster Wide Data Backup =====
-# Performs a full data backup of the Kafka cluster across all nodes.
 function cluster_wide_data_backup()
 {
     run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
+
+
+# ===== Kafka Cluster Wide Data Restore Menu =====
+function cluster_wide_data_restore_menu() {
+    local storage_data backup_files choice selected_backup
+
+    storage_data="$STORAGE_COLD/data"
+
+    # Find all available backup files with their sizes
+    backup_files=()
+    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no backup files are available
+    if [[ ${#backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_data."
+        whiptail --title "Data Restore" --msgbox "No backup files found in $storage_data." 10 50
+        return 1
+    fi
+
+    # Prepare options for the menu
+    local menu_options=("back" "Return to Data Menu") # Add a back option first
+    for i in "${!backup_files[@]}"; do
+        menu_options+=("$i" "${backup_files[$i]}") # Append each backup file as a menu option
+    done
+
+    # Display the menu and capture the user's choice
+    choice=$(whiptail --title "Data Restore" \
+        --cancel-button "Back" \
+        --menu "Data > Restore > Select a backup file to restore:" 20 100 10 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    local exit_status=$?
+
+    # Exit on cancel or ESC
+    if [[ $exit_status -ne 0 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_wide_data_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Data restoration completed successfully!\nThe cluster has been restored to the selected backup state."
+    else
+        show_failure_message "Data restoration failed.\nPlease review the logs and verify the backup integrity."
+    fi
+}
+
+
+# ===== Kafka Cluster Wide Data Restore =====
+function cluster_wide_data_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
     return $?
 }
 
