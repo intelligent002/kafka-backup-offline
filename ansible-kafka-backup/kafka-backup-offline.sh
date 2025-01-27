@@ -575,11 +575,11 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
             --menu "ESC - for exit" 15 50 6 \
-            "1" "Containers" \
-            "2" "Data" \
-            "3" "Config" \
-            "4" "Certificates" \
-            "5" "Credentials" \
+            "Containers" \
+            "Data" \
+            "Config" \
+            "Certificates" \
+            "Credentials" \
             3>&1 1>&2 2>&3)
 
         # Exit on ESC or cancel
