@@ -656,11 +656,11 @@ function main_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
             --menu "Choose section:" 15 50 6 \
-            "1" "Certificates" \
-            "2" "Configs" \
-            "3" "Credentials" \
-            "4" "Data" \
-            "5" "Quit" \
+            "1" "Quit" \
+            "2" "Certificates" \
+            "3" "Configs" \
+            "4" "Credentials" \
+            "5" "Data" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -673,11 +673,11 @@ function main_menu() {
 
         # Handle user choices
         case $choice in
-            1) certificates_menu ;;
-            2) config_menu ;;
-            3) credentials_menu ;;
-            4) data_menu ;;
-            5) break ;; # Return to Main Menu
+            1) break ;; # Exit
+            2) certificates_menu ;;
+            3) config_menu ;;
+            4) credentials_menu ;;
+            5) data_menu ;;
         esac
     done
 }
