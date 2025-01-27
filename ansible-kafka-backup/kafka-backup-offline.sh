@@ -642,12 +642,12 @@ function credentials_menu() {
 
 # Function to display a failure message
 function show_failure_message() {
-    whiptail --title "Failure" --msgbox "$1" 10 50
+    whiptail --title "Failure" --msgbox "$1" 6 50
 }
 
 # Function to display a success message
 function show_success_message() {
-    whiptail --title "Success" --msgbox "$1" 10 50
+    whiptail --title "Success" --msgbox "$1" 6 50
 }
 
 # ===== Main Menu =====
