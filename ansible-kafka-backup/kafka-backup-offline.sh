@@ -336,135 +336,19 @@ function containers_remove()
     return 0
 }
 
-# ===== Kafka Cluster Wide Data Delete =====
-# Deletes all data on all nodes
-function cluster_wide_data_delete()
-{
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
-
-    log "INFO" "Routine - Kafka Cluster Data Delete on all nodes - started"
-
-    # Launch cluster_node_data_delete for each role in the background
-    for role in "${order_shutdown[@]}"; do
-        cluster_node_data_delete "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Delete on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Cluster Data Delete on all nodes - OK"
-    return 0
-}
-
-# ===== Kafka Cluster Node Data Delete =====
-# Deletes data on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function cluster_node_data_delete()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Kafka Cluster Data Delete of $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "\
-         rm -rf $NODE_DATA && \
-         mkdir -p $NODE_DATA && \
-         chown -R 1000:1000 $NODE_DATA && \
-         chmod -R 0750 $NODE_DATA" || {
-        log "ERROR" "Kafka Cluster Data Delete of $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Kafka Cluster Data Delete of $role at $ip - OK"
-}
-
 # ===== Kafka Cluster Wide Data Format =====
-# Formats data on all nodes
+# Formats data on all cluster nodes
 function cluster_wide_data_format()
 {
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
+    log "INFO" "Routine - Data Format on all nodes - started"
 
-    log "INFO" "Routine - Kafka Cluster Data Format on all nodes - started"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_format" || {
+        log "ERROR" "Routine - Data Format on all nodes - failed"
         return 1
     }
 
-    # Launch cluster_node_data_delete && cluster_node_data_format for each role in the background
-    for role in "${order_shutdown[@]}"; do
-        cluster_node_data_delete "$role" && cluster_node_data_format "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Format on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Cluster Data Format on all nodes - OK"
+    log "INFO" "Routine - Data Format on all nodes - OK"
     return 0
-}
-
-# ===== Kafka Cluster Node Data Format =====
-# Formats data on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function cluster_node_data_format()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Format Kafka node data of $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "\
-         docker run --rm \
-            -v $NODE_CONFIG:/mnt/shared/config \
-            -v $NODE_DATA:/var/lib/kafka/data \
-            -v $NODE_META:/var/lib/kafka/meta \
-            -v $NODE_LOGS:/opt/kafka/logs \
-            -v $NODE_CRED:/etc/kafka/credentials \
-            -v $NODE_CERT:/etc/kafka/secrets \
-            $IMAGE \
-            /opt/kafka/bin/kafka-storage.sh format -t $CLUSTER_ID -c /mnt/shared/config/kraft.properties" || {
-        log "ERROR" "Format Kafka node data of $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Format Kafka node data of $role at $ip - OK"
 }
 
 # ===== Kafka Cluster Wide Data Backup =====
