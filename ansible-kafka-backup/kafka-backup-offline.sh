@@ -343,21 +343,6 @@ function containers_remove()
     return 0
 }
 
-
-# ===== Kafka Config Generate =====
-# Generates and deploy config files to all cluster nodes
-function cluster_wide_config_generate()
-{
-    log "INFO" "Routine - Kafka Config Deploy on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_deploy" || {
-        log "ERROR" "Routine - Kafka Config Deploy on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Config Deploy on all nodes - OK"
-    return 0
-}
 # ===== Kafka Cluster Wide Data Format =====
 # Formats data on all cluster nodes
 function cluster_wide_data_format()
@@ -467,6 +452,22 @@ function cluster_wide_data_restore()
     return 0
 }
 
+
+# ===== Kafka Config Generate =====
+# Generates and deploy config files to all cluster nodes
+function cluster_wide_config_generate()
+{
+    log "INFO" "Routine - Kafka Config Deploy on all nodes - started"
+
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_deploy" || {
+        log "ERROR" "Routine - Kafka Config Deploy on all nodes - failed"
+        return 1
+    }
+
+    log "INFO" "Routine - Kafka Config Deploy on all nodes - OK"
+    return 0
+}
+
 # ===== Kafka Cluster Wide Config Backup =====
 # Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
 # Actions:
@@ -477,59 +478,15 @@ function cluster_wide_data_restore()
 # Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.gz`.
 function cluster_wide_config_backup()
 {
-    local backup_date backup_path backup_archive backup_temp ip role
-    declare -A pids         # Associative array to track background task process IDs
-    declare -a failed_roles # Array to track failed roles
+    log "INFO" "Routine - Kafka Config Backup on all nodes - started"
 
-    log "INFO" "Routine - Kafka Cluster Config Backup - started"
-
-    # Rotating backups according to retention policy
-    rotate_backups
-
-    # Local variables
-    backup_date=$(date '+%Y-%m-%d---%H-%M-%S')
-    backup_path="$STORAGE_COLD/config/rotated/$(date '+%Y/%m/%d')"
-    backup_archive="$backup_path/$backup_date---config.tar.gz"
-    backup_temp="$STORAGE_TEMP/config"
-
-    # Ensure central temp directory exists
-    mkdir -p "$backup_temp"
-
-    # Collect configuration files from nodes
-    log "DEBUG" "Collecting Kafka configuration files from all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        log "DEBUG" "Collecting config of $role at $ip - started" &&
-            rsync -aqz -e "ssh -i $SSH_KEY_PRI" "$SSH_USER"@"$ip":"$NODE_CONFIG/" "$backup_temp/$role/" &&
-            log "DEBUG" "Collecting config of $role at $ip - OK" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for archiving tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Config Backup - failed"
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_backup" || {
+        log "ERROR" "Routine - Kafka Config Backup on all nodes - failed"
         return 1
-    fi
+    }
 
-    # Compress the collected configurations
-    log "DEBUG" "Archiving collected configurations - started"
-    mkdir -p "$backup_path"
-    (cd "$backup_temp" && tar -czf "$backup_archive" .)
-    log "DEBUG" "Archiving collected configurations - OK"
-
-    clear_temp_central
-
-    log "INFO" "Kafka Cluster Config Backup stored at: $backup_archive"
-    log "INFO" "Routine - Kafka Cluster Config Backup - OK"
+    log "INFO" "Routine - Kafka Config Backup on all nodes - OK"
+    return 0
 }
 
 # ===== Kafka Cluster Wide Config Restore Menu =====
@@ -592,52 +549,15 @@ function cluster_wide_config_restore_menu()
 #   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.gz).
 function cluster_wide_config_restore()
 {
-    local config_archive ip role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
+    log "INFO" "Routine - Config Restore on all nodes - started"
 
-    config_archive=$1
-
-    log "INFO" "Routine - Kafka Cluster Config Restore - started"
-
-    # Extract the archive to the central temp folder
-    log "DEBUG" "Extracting configuration archive to $STORAGE_TEMP - started"
-    mkdir -p "$STORAGE_TEMP"
-    tar -xzf "$config_archive" -C "$STORAGE_TEMP" || {
-        log "DEBUG" "Failed to extract configuration archive: $config_archive"
+    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_restore" --extra-vars "restore_archive=$1" || {
+        log "ERROR" "Routine - Config Restore on all nodes - failed"
         return 1
     }
 
-    # Distribute configuration files to nodes
-    log "DEBUG" "Distributing configuration files to all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        log "DEBUG" "Distributing configuration file for $role at $ip - started" &&
-            rsync -aqz "$STORAGE_TEMP/$role/" "$SSH_USER"@"$ip":"$NODE_CONFIG/" &&
-            log "DEBUG" "Distributing configuration file for $role at $ip - OK" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for transfer tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Log failures for transfers and abort if any failed
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed for roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Config Restore - failed"
-        return 1
-    fi
-
-    log "DEBUG" "Distributing configuration files to all nodes - OK"
-
-    clear_temp_central
-
-    log "INFO" "Routine - Kafka Cluster Config Restore - OK"
+    log "INFO" "Routine - Config Restore on all nodes - OK"
+    return 0
 }
 
 # ===== Menu Function =====
