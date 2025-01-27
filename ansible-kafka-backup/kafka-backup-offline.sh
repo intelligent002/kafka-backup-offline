@@ -343,7 +343,7 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose section:" 15 50 6 \
+            --menu "Choose a section:" 15 50 6 \
             "1" "Quit" \
             "2" "Certificates" \
             "3" "Configs" \
@@ -378,7 +378,7 @@ function certificates_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates > Choose action:" 15 50 6 \
+            --menu "Certificates > Choose an action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Certificates" \
             "3" "Backup Certificates" \
@@ -407,7 +407,7 @@ function config_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Config > Choose action:" 15 50 6 \
+            --menu "Config > Choose an action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Config" \
             "3" "Backup Config" \
@@ -474,7 +474,7 @@ function cluster_wide_config_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Config > Restore Config > Select a backup file to restore:" 20 100 10 \
+        --menu "Config > Restore > Choose a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     local exit_status=$?
@@ -526,7 +526,7 @@ function cluster_wide_config_restore()
 function containers_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Containers > Choose action" 15 50 6 \
+            --menu "Containers > Choose an action" 15 50 6 \
             "1" "Main menu" \
             "2" "Run" \
             "3" "Start" \
