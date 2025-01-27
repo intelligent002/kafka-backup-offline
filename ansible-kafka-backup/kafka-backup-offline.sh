@@ -692,6 +692,7 @@ function main_menu() {
             "quit" "Quit" 3>&1 1>&2 2>&3)
 
         exit_status=$? # Capture the exit status of dialog
+        echo "exit status: $exit_status"
 
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             # Exit on Escape or Cancel
