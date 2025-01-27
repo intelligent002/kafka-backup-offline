@@ -741,7 +741,7 @@ function cluster_wide_config_restore_menu()
 
     # Exit on cancel or ESC
     if [[ $exit_status -ne 0 || $choice == "back" ]]; then
-        return 1
+        return 0
     fi
 
     # Get the selected backup file path
