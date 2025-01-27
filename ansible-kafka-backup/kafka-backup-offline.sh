@@ -685,6 +685,7 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Main Menu" \
             --backtitle "blabla" \
+            --fb \
             --menu "Select an option:" 20 60 10 \
             "containers" "Containers Management" \
             "certificates" "Certificates Management" \
