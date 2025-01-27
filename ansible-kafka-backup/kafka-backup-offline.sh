@@ -708,7 +708,8 @@ function config_menu() {
 # Presents a menu to the user to select and restore a Kafka configuration backup.
 # Displays available backups from the `STORAGE_COLD/config/` directories and validates user input.
 # Invokes the `cluster_wide_config_restore` function to restore the selected backup.
-function cluster_wide_config_restore_menu() {
+function cluster_wide_config_restore_menu()
+{
     local storage_config config_backup_files choice selected_backup
 
     storage_config="$STORAGE_COLD/config"
@@ -719,18 +720,16 @@ function cluster_wide_config_restore_menu() {
 
     # Check if no files are available
     if [[ ${#config_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No configuration backup files found in $storage_config."
         whiptail --title "Restore Config" --msgbox "No configuration backup files found in $storage_config." 10 50
         return 1
     fi
 
     # Prepare the options for whiptail menu
-    local menu_options=()
+    local menu_options=("back" "Return to Config Menu") # Add "Back" option first
     for i in "${!config_backup_files[@]}"; do
         menu_options+=("$i" "${config_backup_files[$i]}")
     done
-
-    # Add a "Back" option
-    menu_options+=("back" "Return to Config Menu")
 
     # Display the menu using whiptail
     choice=$(whiptail --title "Restore Config" \
