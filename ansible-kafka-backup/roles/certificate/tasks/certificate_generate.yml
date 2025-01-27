@@ -25,7 +25,7 @@
 
 - name: Run Certbot to renew certificate
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
@@ -51,7 +51,7 @@
 
 - name: Display Certbot output
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   debug:
@@ -59,7 +59,7 @@
 
 - name: Verify certificate files exist on central
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   stat:
@@ -71,7 +71,7 @@
 
 - name: Fail if any certificate file is missing
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   fail:
@@ -82,7 +82,7 @@
 
 - name: Extract certificate expiration details
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   shell: |
@@ -96,7 +96,7 @@
 
 - name: Parse certificate expiration details
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   set_fact:
@@ -105,7 +105,7 @@
 
 - name: Debug certificate expiration details
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   debug:
@@ -115,7 +115,7 @@
 
 - name: Fail if certificate is expired or expires soon
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   fail:
@@ -131,7 +131,7 @@
 
 - name: Generate PKCS#12 KeyStore from full chain and private key
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
@@ -144,7 +144,7 @@
 
 - name: Convert PKCS#12 KeyStore to JKS KeyStore
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: |
@@ -160,7 +160,7 @@
 
 - name: Cleanup JKS TrustStore
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   file:
@@ -169,7 +169,7 @@
 
 - name: Import CA certificate into JKS TrustStore
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: |
@@ -183,7 +183,7 @@
 
 - name: Verify Keystore file
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
@@ -192,7 +192,7 @@
 
 - name: Display Keystore Details
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   debug:
@@ -200,7 +200,7 @@
 
 - name: Verify TrustStore file
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
@@ -209,7 +209,7 @@
 
 - name: Display TrustStore Details
   tags:
-    - certificate_generate_off
+    - certificate_generate
   delegate_to: node-0
   run_once: true
   debug:

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+11#!/usr/bin/env bash
 
 # ===== Load Configuration from .ini File =====
 function parse_ini_file()
