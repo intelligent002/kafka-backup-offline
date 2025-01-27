@@ -61,13 +61,13 @@ advertised.listeners=PLAINTEXT://{{ hostname }}:{{ port_service_ext }}
 
 # Define the listeners for a broker-only node
 {% if use_certificate and use_credentials %}
-listeners=SASL_SSL://0.0.0.0:{{ port_service_ext }}
+listeners=SASL_SSL://:{{ port_service_ext }}
 {% elif use_certificate and not use_credentials %}
-listeners=SSL://0.0.0.0:{{ port_service_ext }}
+listeners=SSL://:{{ port_service_ext }}
 {% elif not use_certificate and use_credentials %}
-listeners=SASL_PLAINTEXT://0.0.0.0:{{ port_service_ext }}
+listeners=SASL_PLAINTEXT://:{{ port_service_ext }}
 {% elif not use_certificate and not use_credentials %}
-listeners=PLAINTEXT://0.0.0.0:{{ port_service_ext }}
+listeners=PLAINTEXT://:{{ port_service_ext }}
 {% endif %}
 
 # Map listeners to their respective security protocols

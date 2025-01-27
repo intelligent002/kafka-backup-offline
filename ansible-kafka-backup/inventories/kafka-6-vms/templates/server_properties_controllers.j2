@@ -49,7 +49,7 @@ ssl.enabled.protocols=TLSv1.3
 controller.listener.names=CONTROLLER
 
 # Define the listeners for a controller-only node
-listeners=CONTROLLER://0.0.0.0:{{ port_service_ext }}
+listeners=CONTROLLER://:{{ port_service_ext }}
 
 # Map listeners to their respective security protocols
 {% if use_certificate and use_credentials %}
