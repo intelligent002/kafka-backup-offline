@@ -46,8 +46,8 @@ docker_command_containers_run_confluent: >
 
 docker_command_containers_run: >
   docker run -d --name={{ item }} -h {{ item }}
-  -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
   -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
+  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="-Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote 
