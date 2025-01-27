@@ -683,7 +683,7 @@ function credentials_menu() {
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Certificates Menu" \
-            --menu "" 8 50 10 \
+            --menu "" 15 50 6 \
             "1" "Certificates" \
             "2" "Configs" \
             "3" "Credentials" \
