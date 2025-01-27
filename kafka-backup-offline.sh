@@ -60,6 +60,10 @@ function load_configuration()
     CLUSTER_ID="${ini_data[cluster.CLUSTER_ID]}"   # Kafka cluster identifier
     NODE_CONFIG="${ini_data[cluster.NODE_CONFIG]}" # Path to node config directory on nodes
     NODE_DATA="${ini_data[cluster.NODE_DATA]}"     # Path to node data directory on nodes
+    NODE_META="${ini_data[cluster.NODE_META]}"     # Path to node meta directory on nodes
+    NODE_LOGS="${ini_data[cluster.NODE_LOGS]}"     # Path to node logs directory on nodes
+    NODE_CERT="${ini_data[cluster.NODE_CERT]}"     # Path to node cert directory on nodes
+    NODE_CRED="${ini_data[cluster.NODE_CRED]}"     # Path to node cred directory on nodes
     NODE_TEMP="${ini_data[cluster.NODE_TEMP]}"     # Path to node temp directory on nodes
 
     # Load nodes configuration from the .ini file and store them in an associative array for easy lookup.
@@ -388,16 +392,22 @@ function container_run()
     log "DEBUG" "Container run $role at $ip - started"
 
     ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker run -d --name=$role -h $role --restart=always \
-        -p $port_kafka:$port_kafka -p $port_jmx:$port_jmx \
+        -p $port_kafka:$port_kafka \
+        -p $port_jmx:$port_jmx \
+        -e KAFKA_HEAP_OPTS='-Xmx2G -Xms2G' \
         -e KAFKA_JMX_OPTS='-Dcom.sun.management.jmxremote \
         -Dcom.sun.management.jmxremote.port=$port_jmx \
         -Dcom.sun.management.jmxremote.rmi.port=$port_jmx \
         -Dcom.sun.management.jmxremote.authenticate=false \
         -Dcom.sun.management.jmxremote.ssl=false \
         -Djava.rmi.server.hostname=$ip' \
-        -v $NODE_CONFIG/kraft.properties:/etc/kafka/kraft.properties \
+        -v $NODE_CONFIG:/mnt/shared/config \
         -v $NODE_DATA:/var/lib/kafka/data \
-        $IMAGE /usr/bin/kafka-server-start /etc/kafka/kraft.properties" || {
+        -v $NODE_MATA:/var/lib/kafka/meta \
+        -v $NODE_CERT:/etc/kafka/secrets \
+        -v $NODE_CRED:/etc/kafka/credentials \
+        -v $NODE_LOGS:/opt/kafka/logs \
+        $IMAGE /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties" || {
         log "ERROR" "Container run $role at $ip - failed"
         return 1
     }
@@ -675,10 +685,13 @@ function cluster_node_data_format()
 
     ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "\
          docker run --rm \
-            -v $NODE_CONFIG/kraft.properties:/etc/kafka/kraft.properties \
+            -v $NODE_CONFIG:/mnt/shared/config \
             -v $NODE_DATA:/var/lib/kafka/data \
+            -v $NODE_META:/var/lib/kafka/meta \
+            -v $NODE_LOGS:/opt/kafka/logs \
+            -v $NODE_CERT:/etc/kafka/secrets \
             $IMAGE \
-            /usr/bin/kafka-storage format -t $CLUSTER_ID -c /etc/kafka/kraft.properties" || {
+            /opt/kafka/bin/kafka-storage.sh format -t $CLUSTER_ID -c /mnt/shared/config/kraft.properties" || {
         log "ERROR" "Format Kafka node data of $role at $ip - failed"
         return 1
     }

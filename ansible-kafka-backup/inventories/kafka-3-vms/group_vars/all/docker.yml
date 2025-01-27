@@ -84,7 +84,7 @@ docker_command_data_format_confluent: >
 # Empty folder should be prepared for usage
 docker_command_data_format: >
   docker run --rm
-  -v {{ node_config_path }}/:/mnt/shared/config/
+  -v {{ node_config_path }}/:/mnt/shared/config
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_meta_path }}:/var/lib/kafka/meta
   -v {{ node_logs_path }}:/opt/kafka/logs
