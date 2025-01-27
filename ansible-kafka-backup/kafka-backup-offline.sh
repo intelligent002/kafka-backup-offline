@@ -191,59 +191,6 @@ function setup_ssh()
     }
 }
 
-# ===== Kafka Cluster Safe Mode =====
-# Ensures that all Kafka containers are stopped before certain operations
-function ensure_containers_stopped()
-{
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
-
-    log "DEBUG" "Test - Ensure Kafka Containers on all nodes are stopped - started"
-
-    # Launch container_start for each role in the background
-    for role in "${order_startup[@]}"; do
-        ensure_container_stopped "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Test - Ensure Kafka Containers on all nodes are stopped - Stop containers on all nodes"
-        return 1
-    fi
-
-    log "DEBUG" "Test - Ensure Kafka Containers on all nodes are stopped - OK"
-    return 0
-}
-
-# Ensures that all Kafka containers are stopped before certain operations
-function ensure_container_stopped()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    status=$(ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker inspect -f '{{.State.Running}}' $role" 2>/dev/null)
-
-    if [[ "$status" == "true" ]]; then
-        log "DEBUG" "Error: Container $role at $ip is still running. Please stop all containers before proceeding."
-        return 1
-    fi
-
-    return 0
-}
-
 # Ensures that there is enough space for stable operation
 function ensure_free_space()
 {
@@ -290,60 +237,6 @@ function run_ansible_routine()
     return 0
 }
 
-# Starts all Kafka containers in the pre-defined order
-function containers_run()
-{
-    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
-    return $?
-}
-
-# ===== Kafka Containers Start =====
-# Starts all Kafka containers in the defined startup order
-function containers_start()
-{
-    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
-    return $?
-}
-
-# ===== Kafka Containers Stop =====
-# Stops all Kafka containers in the defined shutdown order
-function containers_stop()
-{
-    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
-    return $?
-}
-
-# ===== Kafka Containers Restart =====
-# Restarts all Kafka containers in the defined shutdown and startup orders
-function containers_restart()
-{
-    containers_stop
-    containers_start
-}
-
-# ===== Kafka Containers Remove =====
-# Removes all Kafka containers in the defined shutdown order
-function containers_remove()
-{
-    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Data Format =====
-# Formats data on all cluster nodes
-function cluster_wide_data_format()
-{
-    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Data Backup =====
-# Performs a full data backup of the Kafka cluster across all nodes.
-function cluster_wide_data_backup()
-{
-    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
-    return $?
-}
 
 # ===== Kafka Cluster Wide Data Restore Menu =====
 # Presents a menu to the user to select and restore a Kafka data backup.
@@ -485,27 +378,6 @@ function menu()
     done
 }
 
-
-# ===== Data Submenu =====
-function data_menu() {
-    while true; do
-        choice=$(whiptail --title "Data Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 5 \
-            "1" "Format Data" \
-            "2" "Backup Data" \
-            "3" "Restore Data" \
-            3>&1 1>&2 2>&3)
-
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
-
-        case $choice in
-            1) cluster_wide_data_format ;;
-            2) cluster_wide_data_backup ;;
-            3) cluster_wide_data_restore_menu ;;
-        esac
-    done
-}
 
 
 # ===== Credentials Submenu =====
@@ -780,6 +652,101 @@ function containers_menu() {
         esac
     done
 }
+
+# Starts all Kafka containers in the pre-defined order
+function containers_run()
+{
+    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    return $?
+}
+
+# ===== Kafka Containers Start =====
+# Starts all Kafka containers in the defined startup order
+function containers_start()
+{
+    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
+    return $?
+}
+
+# ===== Kafka Containers Stop =====
+# Stops all Kafka containers in the defined shutdown order
+function containers_stop()
+{
+    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
+    return $?
+}
+
+# ===== Kafka Containers Restart =====
+# Restarts all Kafka containers in the defined shutdown and startup orders
+function containers_restart()
+{
+    containers_stop
+    containers_start
+}
+
+# ===== Kafka Containers Remove =====
+# Removes all Kafka containers in the defined shutdown order
+function containers_remove()
+{
+    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    return $?
+}
+
+# ===== Data Submenu =====
+function data_menu() {
+    while true; do
+        choice=$(whiptail --title "Data Menu" \
+            --menu "Data > Choose an action:" 15 50 5 \
+            "1" "Main menu" \
+            "2" "Format" \
+            "3" "Backup" \
+            "4" "Restore" \
+            3>&1 1>&2 2>&3)
+
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
+
+        case $choice in
+            1)
+               return 0 ;;
+            2)
+               cluster_wide_data_format
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The data was successfully formatted, you can spin a fresh cluster now."
+               else
+                   show_failure_message "Unable to format the data, quit the tool, check the logs."
+               fi
+               ;;
+            3)
+               cluster_wide_data_backup
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The data was successfully backed up, you can resume the cluster now."
+               else
+                   show_failure_message "Unable to backup the data, quit the tool, check the logs."
+               fi
+               ;;
+            4)
+               cluster_wide_data_restore_menu ;;
+        esac
+    done
+}
+
+# ===== Kafka Cluster Wide Data Format =====
+# Formats data on all cluster nodes
+function cluster_wide_data_format()
+{
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Data Backup =====
+# Performs a full data backup of the Kafka cluster across all nodes.
+function cluster_wide_data_backup()
+{
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
+
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
