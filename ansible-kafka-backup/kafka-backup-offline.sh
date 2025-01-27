@@ -277,7 +277,7 @@ function run_ansible_routine() {
         -w /apps alpine/ansible ansible-playbook \
         -i inventories/$INVENTORY/hosts.yml playbooks/$playbook.yml \
         --tags "$tag" $extra_vars || {
-            log "ERROR" "Routine - ${routine^} - failed"
+            log "ERROR" "Playbook failed! Exact command: $*"
             return 1
     }
 
