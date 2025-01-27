@@ -443,7 +443,7 @@ function cluster_wide_config_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Config > Restore > Choose a backup file to restore:" 20 100 10 \
+        --menu "Config > Restore > Choose a backup file to restore:" 45 100 40 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
