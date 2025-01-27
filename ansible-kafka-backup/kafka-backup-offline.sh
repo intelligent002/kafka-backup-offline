@@ -735,7 +735,7 @@ function cluster_wide_config_restore_menu() {
     # Display the menu using whiptail
     choice=$(whiptail --title "Restore Config" \
         --cancel-button "Back" \
-        --menu "Select a configuration backup file to restore:" 20 100 10 \
+        --menu "Config section\nRestore Config action\nSelect a backup file to restore:" 20 100 10 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     local exit_status=$?
