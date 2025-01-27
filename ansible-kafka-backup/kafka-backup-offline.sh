@@ -262,32 +262,33 @@ function ensure_free_space()
 }
 
 # ===== Kafka Containers Run =====
-# Define the ansible_playbook function
-function ansible_playbook()
-{
+function run_ansible_routine() {
+    local routine=$1
+    local playbook=$2
+    local tag=$3
+    local extra_vars=${4:-} # Optional extra variables
+
+    log "INFO" "Routine - ${routine^} - started"
+
     docker run -ti --rm \
         -v ~/.ssh:/root/.ssh \
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
-        -w /apps alpine/ansible ansible-playbook "$@" || {
-        log "ERROR" "Ansible Playbook failed. Exact failed command: docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook $*"
-        return 1
+        -w /apps alpine/ansible ansible-playbook \
+        -i inventories/$INVENTORY/hosts.yml playbooks/$playbook.yml \
+        --tags "$tag" $extra_vars || {
+            log "ERROR" "Routine - ${routine^} - failed"
+            return 1
     }
+
+    log "INFO" "Routine - ${routine^} - OK"
     return 0
 }
 
 # Starts all Kafka containers in the pre-defined order
 function containers_run()
 {
-    log "INFO" "Routine - Kafka Containers Run on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_run" || {
-        log "ERROR" "Routine - Kafka Containers Run on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Containers Run on all nodes - OK"
-    return 0
+    return run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
 }
 
 # ===== Kafka Containers Start =====
