@@ -569,61 +569,163 @@ function menu()
     done
 }
 
-# ===== Menu Function (nmtui-like) =====
-function menu2()
+# ===== Main Menu Function =====
+function main_menu()
 {
     local choice
     while true; do
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Main Menu" \
-            --menu "Choose an option:" 20 70 10 \
-            1 "Setup SSH Keys (ssh-copy-id)" \
-            2 "Containers Run" \
-            3 "Containers Start" \
-            4 "Containers Stop" \
-            5 "Containers Restart" \
-            6 "Containers Remove" \
-            7 "Data Format" \
-            8 "Data Backup" \
-            9 "Data Restore" \
-            10 "Config Generate" \
-            11 "Config Backup" \
-            12 "Config Restore" \
-            13 "Certificates Generate" \
-            14 "Certificates Backup" \
-            15 "Certificates Restore" \
-            16 "Credentials Generate" \
-            17 "Credentials Backup" \
-            18 "Credentials Restore" \
+            --menu "Select a category:" 15 50 6 \
+            1 "Containers" \
+            2 "Data" \
+            3 "Config" \
+            4 "Certificates" \
+            5 "Credentials" \
             0 "Exit" 2>&1 >/dev/tty)
 
         clear
         case $choice in
-            0) log "INFO" "Have a nice day!"; break ;;
-            1) setup_sshs ;;
-            2) containers_run ;;
-            3) containers_start ;;
-            4) containers_stop ;;
-            5) containers_restart ;;
-            6) containers_remove ;;
-            7) cluster_wide_data_format ;;
-            8) cluster_wide_data_backup ;;
-            9) cluster_wide_data_restore_menu ;;
-            10) cluster_wide_config_generate ;;
-            11) cluster_wide_config_backup ;;
-            12) cluster_wide_config_restore_menu ;;
-            13) cluster_wide_certificates_generate ;;
-            14) cluster_wide_certificates_backup ;;
-            15) cluster_wide_certificates_restore_menu ;;
-            16) cluster_wide_credentials_generate ;;
-            17) cluster_wide_credentials_backup ;;
-            18) cluster_wide_credentials_restore_menu ;;
+            0) log "INFO" "Exiting..."; break ;;
+            1) containers_menu ;;
+            2) data_menu ;;
+            3) config_menu ;;
+            4) certificates_menu ;;
+            5) credentials_menu ;;
             *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
+# ===== Containers Submenu =====
+function containers_menu()
+{
+    local choice
+    while true; do
+        choice=$(dialog --clear \
+            --backtitle "Kafka-Backup-Offline Utility" \
+            --title "Containers Menu" \
+            --menu "Choose an action:" 15 50 6 \
+            1 "Run Containers" \
+            2 "Start Containers" \
+            3 "Stop Containers" \
+            4 "Restart Containers" \
+            5 "Remove Containers" \
+            0 "Back to Main Menu" 2>&1 >/dev/tty)
+
+        clear
+        case $choice in
+            0) break ;;
+            1) containers_run ;;
+            2) containers_start ;;
+            3) containers_stop ;;
+            4) containers_restart ;;
+            5) containers_remove ;;
+            *) log "ERROR" "Invalid choice. Please try again."; ;;
+        esac
+    done
+}
+
+# ===== Data Submenu =====
+function data_menu()
+{
+    local choice
+    while true; do
+        choice=$(dialog --clear \
+            --backtitle "Kafka-Backup-Offline Utility" \
+            --title "Data Menu" \
+            --menu "Choose an action:" 15 50 5 \
+            1 "Format Data" \
+            2 "Backup Data" \
+            3 "Restore Data" \
+            0 "Back to Main Menu" 2>&1 >/dev/tty)
+
+        clear
+        case $choice in
+            0) break ;;
+            1) cluster_wide_data_format ;;
+            2) cluster_wide_data_backup ;;
+            3) cluster_wide_data_restore_menu ;;
+            *) log "ERROR" "Invalid choice. Please try again."; ;;
+        esac
+    done
+}
+
+# ===== Config Submenu =====
+function config_menu()
+{
+    local choice
+    while true; do
+        choice=$(dialog --clear \
+            --backtitle "Kafka-Backup-Offline Utility" \
+            --title "Config Menu" \
+            --menu "Choose an action:" 15 50 4 \
+            1 "Generate Config" \
+            2 "Backup Config" \
+            3 "Restore Config" \
+            0 "Back to Main Menu" 2>&1 >/dev/tty)
+
+        clear
+        case $choice in
+            0) break ;;
+            1) cluster_wide_config_generate ;;
+            2) cluster_wide_config_backup ;;
+            3) cluster_wide_config_restore_menu ;;
+            *) log "ERROR" "Invalid choice. Please try again."; ;;
+        esac
+    done
+}
+
+# ===== Certificates Submenu =====
+function certificates_menu()
+{
+    local choice
+    while true; do
+        choice=$(dialog --clear \
+            --backtitle "Kafka-Backup-Offline Utility" \
+            --title "Certificates Menu" \
+            --menu "Choose an action:" 15 50 4 \
+            1 "Generate Certificates" \
+            2 "Backup Certificates" \
+            3 "Restore Certificates" \
+            0 "Back to Main Menu" 2>&1 >/dev/tty)
+
+        clear
+        case $choice in
+            0) break ;;
+            1) cluster_wide_certificates_generate ;;
+            2) cluster_wide_certificates_backup ;;
+            3) cluster_wide_certificates_restore_menu ;;
+            *) log "ERROR" "Invalid choice. Please try again."; ;;
+        esac
+    done
+}
+
+# ===== Credentials Submenu =====
+function credentials_menu()
+{
+    local choice
+    while true; do
+        choice=$(dialog --clear \
+            --backtitle "Kafka-Backup-Offline Utility" \
+            --title "Credentials Menu" \
+            --menu "Choose an action:" 15 50 4 \
+            1 "Generate Credentials" \
+            2 "Backup Credentials" \
+            3 "Restore Credentials" \
+            0 "Back to Main Menu" 2>&1 >/dev/tty)
+
+        clear
+        case $choice in
+            0) break ;;
+            1) cluster_wide_credentials_generate ;;
+            2) cluster_wide_credentials_backup ;;
+            3) cluster_wide_credentials_restore_menu ;;
+            *) log "ERROR" "Invalid choice. Please try again."; ;;
+        esac
+    done
+}
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
@@ -635,7 +737,7 @@ create_pid_file
 if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
     disclaimer
-    menu2
+    main_menu
     disclaimer
 else
     # Parameter provided, assume it's a function name
