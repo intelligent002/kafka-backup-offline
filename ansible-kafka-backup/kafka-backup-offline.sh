@@ -262,7 +262,8 @@ function ensure_free_space()
 }
 
 # ===== Kafka Containers Run =====
-function run_ansible_routine() {
+function run_ansible_routine()
+{
     local routine=$1
     local playbook=$2
     local tag=$3
@@ -270,15 +271,19 @@ function run_ansible_routine() {
 
     log "INFO" "Routine - ${routine^} - started"
 
-    docker run -ti --rm \
+    # Prepare the Docker command as a variable
+    local docker_command="docker run -ti --rm \
         -v ~/.ssh:/root/.ssh \
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
         -w /apps alpine/ansible ansible-playbook \
         -i inventories/$INVENTORY/hosts.yml playbooks/$playbook.yml \
-        --tags "$tag" $extra_vars || {
-            log "ERROR" "Playbook failed! Exact command: $*"
-            return 1
+        --tags \"$tag\" $extra_vars"
+
+    # Execute the command
+    eval $docker_command || {
+        log "ERROR" "Playbook failed! Exact command: $docker_command"
+        return 1
     }
 
     log "INFO" "Routine - ${routine^} - OK"
