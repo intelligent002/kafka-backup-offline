@@ -679,23 +679,32 @@ function credentials_menu() {
     done
 }
 
-# ===== Certificates Submenu =====
-function main_menu() {
+# ===== Main Menu =====
+function certificates_menu() {
     while true; do
         choice=$(whiptail --title "Certificates Menu" \
             --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
-            "1" "Generate Certificates" \
-            "2" "Backup Certificates" \
-            "3" "Restore Certificates" \
+            "1" "Certificates" \
+            "2" "Configs" \
+            "3" "Credentials" \
+            "4" "Data" \
+            "5" "Quit" \
             3>&1 1>&2 2>&3)
 
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        local exit_status=$? # Capture the exit status of whiptail
 
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            break
+        fi
+
+        # Handle user choices
         case $choice in
-            1) cluster_wide_certificates_generate ;;
-            2) cluster_wide_certificates_backup ;;
-            3) cluster_wide_certificates_restore_menu ;;
+            1) certificates_menu ;;
+            2) config_menu ;;
+            3) credentials_menu ;;
+            4) data_menu ;;
+            5) break ;; # Return to Main Menu
         esac
     done
 }
