@@ -403,7 +403,7 @@ function container_run()
         -Djava.rmi.server.hostname=$ip' \
         -v $NODE_CONFIG:/mnt/shared/config \
         -v $NODE_DATA:/var/lib/kafka/data \
-        -v $NODE_MATA:/var/lib/kafka/meta \
+        -v $NODE_META:/var/lib/kafka/meta \
         -v $NODE_CERT:/etc/kafka/secrets \
         -v $NODE_CRED:/etc/kafka/credentials \
         -v $NODE_LOGS:/opt/kafka/logs \

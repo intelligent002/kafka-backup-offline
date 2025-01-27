@@ -1,4 +1,4 @@
-cd /data/KBO/kafka-backup-offline/ansible-kafka-backup/
+cd /data/KBO/ansible-kafka-backup/
 alias ansible-playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook"
 alias ansible_playbook="docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook"
 
