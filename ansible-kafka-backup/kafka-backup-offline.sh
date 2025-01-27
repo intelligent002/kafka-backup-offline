@@ -679,37 +679,29 @@ function credentials_menu() {
     done
 }
 
-# ===== Main Menu Function =====
+# Main menu function
 function main_menu() {
+    local choice
     while true; do
-        choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
-            --cancel-label "Quit" \
-            --no-ok \
-            --menu "ESC - for exit" 15 50 6 \
-            1 "Containers" \
-            2 "Data" \
-            3 "Config" \
-            4 "Certificates" \
-            5 "Credentials" \
-            3>&1 1>&2 2>&3)
+        choice=$(whiptail --title "Main Menu" \
+            --menu "Select an option:" 20 60 10 \
+            "containers" "Containers Management" \
+            "certificates" "Certificates Management" \
+            "data" "Data Management" \
+            "config" "Config Management" \
+            "quit" "Quit" 3>&1 1>&2 2>&3)
 
-        # Capture the exit status of dialog
-        exit_status=$?
-
-        # Handle Quit (Cancel)
-        if [[ $exit_status -eq 0 ]]; then
-            echo "Exiting..."
-            break
-        fi
-
-        # Handle valid menu choices
-        case $choice in
-            1) containers_menu ;;
-            2) data_menu ;;
-            3) config_menu ;;
-            4) certificates_menu ;;
-            5) credentials_menu ;;
-            *) dialog --msgbox "Invalid choice. Please try again." 10 40 ;;
+        case $? in
+            1) return 0 ;; # Escape key pressed
+            0)
+                case $choice in
+                    containers) containers_menu ;;
+                    certificates) certificates_menu ;;
+                    data) data_management_menu ;;
+                    config) config_management_menu ;;
+                    quit) quit_tool ;;
+                esac
+                ;;
         esac
     done
 }
