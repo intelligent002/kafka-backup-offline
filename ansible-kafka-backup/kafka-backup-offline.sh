@@ -707,7 +707,7 @@ function main_menu() {
             certificates) certificates_menu ;;
             data) data_management_menu ;;
             config) config_management_menu ;;
-            quit) log "INFO" "Have a nice day" ;;
+            quit) log "INFO" "Have a nice day";  return 0 ;;
             *) return 0 ;; # Default case for safety
         esac
     done
