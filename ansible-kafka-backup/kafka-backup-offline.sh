@@ -684,7 +684,7 @@ function main_menu() {
     local choice
     while true; do
         choice=$(dialog --title "Kafka Offline Backup" \
-            --menu "" 20 60 10 \
+            --menu "" 20 60 5 \
             "containers" "Containers Management" \
             "certificates" "Certificates Management" \
             "data" "Data Management" \
