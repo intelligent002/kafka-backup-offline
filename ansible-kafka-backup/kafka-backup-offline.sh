@@ -684,7 +684,7 @@ function main_menu() {
     local choice
     while true; do
         choice=$(dialog --title "Kafka Offline Backup" \
-            --menu "" 20 60 5 \
+            --menu "" 10 60 10 \
             "containers" "Containers Management" \
             "certificates" "Certificates Management" \
             "data" "Data Management" \
@@ -697,7 +697,7 @@ function main_menu() {
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             # Exit on Escape or Cancel
             echo "Have a nice day!"
-            exit 0
+            quit_tool
         fi
 
         # Handle user selection
@@ -708,13 +708,21 @@ function main_menu() {
             config) echo "Config Management selected" ;;
             quit)
                 echo "Goodbye!"
-                exit 0
+                quit_tool
                 ;;
             *)
                 echo "Invalid option!"
                 ;;
         esac
     done
+}
+
+# Quit the script gracefully and restore the terminal
+function quit_tool() {
+    dialog --clear
+    tput cnorm # Restore the normal cursor
+    clear       # Clear the dialog artifacts from the terminal
+    exit 0      # Exit the script
 }
 
 # ===== Main Execution =====
