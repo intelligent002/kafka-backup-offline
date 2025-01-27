@@ -386,7 +386,7 @@ function cluster_wide_data_restore_menu()
 
     # Find all available backup files with their sizes
     backup_files=()
-    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.gz" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
     num_files=${#backup_files[@]}
 
     if [ "$num_files" -eq 0 ]; then
