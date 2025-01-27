@@ -419,39 +419,8 @@ function cluster_wide_data_restore()
 }
 
 
-# ===== Kafka Config Generate =====
-# Generates and deploy config files to all cluster nodes
-function cluster_wide_config_generate()
-{
-    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Config Backup =====
-# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
-# Actions:
-# - Rotates existing backups based on retention policy (default: 30 days).
-# - Collects configuration files from each node using `rsync`.
-# - Compresses the collected configuration files into a timestamped archive.
-# - Cleans up temporary files after backup.
-# Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.gz`.
-function cluster_wide_config_backup()
-{
-    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
-    return $?
-}
 
 
-# ===== Kafka Cluster Wide Config Restore =====
-# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-# Parameters:
-#   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.gz).
-function cluster_wide_config_restore()
-{
-    local archive=$1
-    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
-    return $?
-}
 
 # ===== Menu Function =====
 function menu()
@@ -633,7 +602,7 @@ function certificates_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates section\nChoose action:" 15 50 6 \
+            --menu "Certificates section > Choose action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Certificates" \
             "3" "Backup Certificates" \
@@ -662,7 +631,7 @@ function config_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Config section\nChoose action:" 15 50 6 \
+            --menu "Config section > Choose action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Generate Config" \
             "3" "Backup Config" \
@@ -750,6 +719,39 @@ function cluster_wide_config_restore_menu()
     else
         show_failure_message "Failed to restore configuration."
     fi
+}
+
+# ===== Kafka Config Generate =====
+# Generates and deploy config files to all cluster nodes
+function cluster_wide_config_generate()
+{
+    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Config Backup =====
+# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
+# Actions:
+# - Rotates existing backups based on retention policy (default: 30 days).
+# - Collects configuration files from each node using `rsync`.
+# - Compresses the collected configuration files into a timestamped archive.
+# - Cleans up temporary files after backup.
+# Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.xz`.
+function cluster_wide_config_backup()
+{
+    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Config Restore =====
+# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
+# Parameters:
+#   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.xz).
+function cluster_wide_config_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
 }
 
 
