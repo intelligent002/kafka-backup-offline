@@ -581,11 +581,16 @@ function main_menu() {
             "5" "Credentials" \
             3>&1 1>&2 2>&3)
 
-        # Exit if ESC or Cancel is pressed
-        if [[ $? -ne 0 || -z "$choice" ]]; then
+        # Capture the exit status of whiptail
+        exit_status=$?
+
+        # Handle ESC or Cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            echo "Exiting..."
             break
         fi
 
+        # Handle valid menu choices
         case $choice in
             1) containers_menu ;;
             2) data_menu ;;
@@ -596,6 +601,7 @@ function main_menu() {
         esac
     done
 }
+
 # ===== Containers Submenu =====
 function containers_menu() {
     while true; do
