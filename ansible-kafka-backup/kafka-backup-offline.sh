@@ -695,8 +695,7 @@ function main_menu() {
 
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             # Exit on Escape or Cancel
-            clear
-            echo "Goodbye!"
+            echo "Have a nice day!"
             exit 0
         fi
 
@@ -707,7 +706,6 @@ function main_menu() {
             data) echo "Data Management selected" ;;
             config) echo "Config Management selected" ;;
             quit)
-                clear
                 echo "Goodbye!"
                 exit 0
                 ;;
