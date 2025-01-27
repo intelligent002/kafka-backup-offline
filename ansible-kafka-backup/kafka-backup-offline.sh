@@ -263,7 +263,7 @@ function ansible_playbook()
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
         -w /apps alpine/ansible ansible-playbook "$@" || {
-        log "ERROR" "Ansible Playbook failed $*"
+        log "ERROR" "Ansible Playbook failed. Exact failed command: docker run -ti --rm -v ~/.ssh:/root/.ssh -v $(pwd):/apps -v /var/log/ansible:/var/log/ansible -w /apps alpine/ansible ansible-playbook $*"
         return 1
     }
     return 0
