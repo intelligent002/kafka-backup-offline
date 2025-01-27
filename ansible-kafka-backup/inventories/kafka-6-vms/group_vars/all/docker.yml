@@ -36,13 +36,13 @@ docker_command_containers_run_confluent: >
   -e KAFKA_OPTS="
   -Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf
   "
-  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/server.properties
+  -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
   -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
-  /usr/bin/kafka-server-start /etc/kafka/server.properties
+  /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
 docker_command_containers_run: >
   docker run -d --name={{ item }} -h {{ item }}
@@ -63,12 +63,12 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
   apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/server.properties
+  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 # Empty folder should be prepared for usage
 docker_command_data_format_concluent: >
   docker run --rm
-  -v {{ node_config_file }}:/etc/kafka/server.properties
+  -v {{ node_config_file }}:/etc/kafka/kraft.properties
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
   -v {{ node_certificate_path }}:/etc/kafka/ssl
@@ -76,7 +76,7 @@ docker_command_data_format_concluent: >
   /usr/bin/kafka-storage format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]' 
   --cluster-id {{ cluster_id }} 
-  --config /etc/kafka/server.properties
+  --config /etc/kafka/kraft.properties
 
 docker_command_data_format: >
   docker run --rm
@@ -88,4 +88,4 @@ docker_command_data_format: >
   apache/kafka:3.9.0
   /opt/kafka/bin/kafka-storage.sh format
   --cluster-id {{ cluster_id }}
-  --config /mnt/shared/config/server.properties
+  --config /mnt/shared/config/kraft.properties
