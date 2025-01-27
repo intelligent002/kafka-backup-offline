@@ -1,0 +1,49 @@
+#############################################################################################
+# Kafka Cluster connection
+
+# Define the quorum of controllers with their respective node IDs and addresses
+controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_service_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+#############################################################################################
+# Group ID for the Connect cluster
+
+group.id=connect-cluster
+
+# Internal topics for Kafka Connect
+config.storage.topic=connect-configs
+offset.storage.topic=connect-offsets
+status.storage.topic=connect-status
+
+# Number of partitions and replication factor for internal topics
+config.storage.replication.factor=3
+offset.storage.replication.factor=3
+status.storage.replication.factor=3
+
+# Converters for key and value
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+
+# Optional: Enable schemas in JSON
+key.converter.schemas.enable=true
+value.converter.schemas.enable=true
+
+# Plugin path for connectors
+plugin.path=/usr/share/java
+
+# Maximum number of tasks a connector can create
+tasks.max=10
+
+# Offset flush interval (milliseconds)
+offset.flush.interval.ms=10000
+
+# Logging configurations
+rest.advertised.host.name={{ hostname }}
+rest.port=8083
+log4j.logger.org.apache.kafka.connect.runtime.WorkerSourceTask=DEBUG
+log4j.logger.org.apache.kafka.connect.runtime.WorkerSinkTask=DEBUG
+log4j.logger.org.apache.kafka.connect.runtime.distributed.DistributedHerder=DEBUG
+
+# Heartbeat and session configurations
+heartbeat.interval.ms=3000
+session.timeout.ms=10000
