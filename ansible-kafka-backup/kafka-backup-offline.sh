@@ -736,7 +736,7 @@ function config_menu() {
             1) return 0 ;;
             2) cluster_wide_config_generate
               if [[ $? -eq 0 ]]; then
-                    show_success_message "Configuration generated successfully!"
+                    show_success_message "Configuration was generated successfully!"
                 else
                     show_failure_message "Failed to generate configuration."
                 fi
