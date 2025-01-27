@@ -2,7 +2,7 @@
 
 # false - all communication in cluster will be - Plaintext
 # true - all communication in cluster will be - mTLS with single certificate
-use_certificate: yes
+use_certificate: false
 
 # === LetsEncrypt parameters ===========================================================================================
 
