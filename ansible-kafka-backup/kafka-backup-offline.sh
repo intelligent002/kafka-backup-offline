@@ -691,17 +691,21 @@ function main_menu() {
             "config" "Config Management" \
             "quit" "Quit" 3>&1 1>&2 2>&3)
 
-        case $? in
-            1) return 0 ;; # Escape key pressed
-            0)
-                case $choice in
-                    containers) containers_menu ;;
-                    certificates) certificates_menu ;;
-                    data) data_management_menu ;;
-                    config) config_management_menu ;;
-                    quit) quit_tool ;;
-                esac
-                ;;
+        exit_status=$? # Capture the exit status of whiptail
+
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            # Exit on Escape or Cancel (whiptail returns 255 when closed)
+            return 0
+        fi
+
+        # Handle user selection
+        case $choice in
+            containers) containers_menu ;;
+            certificates) certificates_menu ;;
+            data) data_management_menu ;;
+            config) config_management_menu ;;
+            quit) quit_tool ;;
+            *) return 0 ;; # Default case for safety
         esac
     done
 }
