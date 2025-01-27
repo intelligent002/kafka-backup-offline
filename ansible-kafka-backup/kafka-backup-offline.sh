@@ -355,67 +355,15 @@ function cluster_wide_data_format()
 # Performs a full data backup of the Kafka cluster across all nodes.
 function cluster_wide_data_backup()
 {
-    local role ip backup_date backup_path backup_archive
-    declare -A pids         # Associative array to track background task process IDs
-    declare -a failed_roles # Array to track failed roles
+    log "INFO" "Routine - Data Backup on all nodes - started"
 
-    log "INFO" "Routine - Kafka Cluster Data Backup - started"
-
-    # Rotating backups according to retention policy
-    rotate_backups
-
-    backup_date=$(date '+%Y-%m-%d---%H-%M-%S')
-    backup_path="$STORAGE_COLD/data/rotated/$(date '+%Y/%m/%d')"
-    backup_archive="$backup_path/$backup_date---data.tar.gz"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
+    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_backup" || {
+        log "ERROR" "Routine - Data Backup on all nodes - failed"
         return 1
     }
 
-    # Archive all nodes data on the nodes - simultaneously
-    log "DEBUG" "Archiving Kafka data locally on all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        clear_temp_node "$role" &&
-            log "DEBUG" "Archiving Kafka Cluster Data locally as $role.tar.gz on $role at $ip - started" &&
-            ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "tar -czf $NODE_TEMP/$role.tar.gz -C $NODE_DATA ./" &&
-            log "DEBUG" "Archiving Kafka Cluster Data locally as $role.tar.gz on $role at $ip - OK" &&
-            log "DEBUG" "Collecting Kafka Cluster Data archive as $role.tar.gz from $role at $ip - started" &&
-            rsync -aqz -e "ssh -i $SSH_KEY_PRI" "$SSH_USER@$ip:$NODE_TEMP/$role.tar.gz" "$STORAGE_TEMP/$role.tar.gz" &&
-            log "DEBUG" "Collecting Kafka Cluster Data archive as $role.tar.gz from $role at $ip - OK" &&
-            clear_temp_node "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for archiving tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Backup - failed"
-        return 1
-    fi
-
-    # Create the cluster zip of zips in cold storage
-    log "DEBUG" "Creating a cluster-wide backup archive (zip of zips) - started"
-    mkdir -p "$backup_path"
-    (cd "$STORAGE_TEMP" && tar -czf "$backup_archive" ./*.tar.gz)
-    log "DEBUG" "Creating a cluster-wide backup archive (zip of zips) - OK"
-
-    ensure_free_space "$STORAGE_TEMP"
-    ensure_free_space "$STORAGE_COLD"
-    clear_temp_central
-
-    log "INFO" "Kafka Cluster Data Archive stored at: $backup_archive"
-    log "INFO" "Routine - Kafka Cluster Data Backup - OK"
+    log "INFO" "Routine - Data Backup on all nodes - OK"
+    return 0
 }
 
 # ===== Kafka Cluster Wide Data Restore Menu =====
@@ -486,67 +434,14 @@ function cluster_wide_data_restore_menu()
 # - Does not restart the containers after restoration.
 function cluster_wide_data_restore()
 {
-    local cluster_archive role ip
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
+    log "INFO" "Routine - Data Restore on all nodes - started"
 
-    cluster_archive=$1
-
-    log "INFO" "Routine - Kafka Cluster Data Restore - started"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
+    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_restore" --extra-vars "restore_archive=$1" || {
+        log "ERROR" "Routine - Data Restore on all nodes - failed"
         return 1
     }
 
-    # Extract the cluster zip on the central server
-    log "DEBUG" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - started"
-    mkdir -p "$STORAGE_TEMP"
-    tar -xzf "$cluster_archive" -C "$STORAGE_TEMP" || {
-        log "ERROR" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - failed"
-        return 1
-    }
-    log "DEBUG" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - OK"
-
-    # Stop containers on all nodes (optional, uncomment if needed)
-    # containers_stop
-
-    # Transfer node archives to respective nodes - simultaneously
-    log "DEBUG" "Restoring Kafka Cluster Nodes Data - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        clear_temp_node "$role" &&
-            log "DEBUG" "Distributing Kafka Cluster Data archive $role.tar.gz to $role at $ip - started" &&
-            rsync -aqz --partial "$STORAGE_TEMP/$role.tar.gz" "$SSH_USER"@"$ip":"$NODE_TEMP"/ &&
-            log "DEBUG" "Distributing Kafka Cluster Data archive $role.tar.gz to $role at $ip - OK" &&
-            cluster_node_data_delete "$role" &&
-            log "DEBUG" "Extracting Kafka Cluster Data from archive $role.tar.gz on $role at $ip - started" &&
-            ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "tar -xzf $NODE_TEMP/$role.tar.gz -C $NODE_DATA" &&
-            log "DEBUG" "Extracting Kafka Cluster Data from archive $role.tar.gz on $role at $ip - OK" &&
-            clear_temp_node "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for transfer tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Log failures for transfers and abort if any failed
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed for roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Restore - failed"
-        return 1
-    fi
-    log "DEBUG" "Restoring Kafka Cluster Nodes Data - OK"
-
-    clear_temp_central
-
-    log "INFO" "Routine - Kafka Cluster Data Restore - OK"
+    log "INFO" "Routine - Data Restore on all nodes - OK"
     return 0
 }
 
