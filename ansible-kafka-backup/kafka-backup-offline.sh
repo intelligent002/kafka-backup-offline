@@ -683,6 +683,8 @@ function credentials_menu() {
 function main_menu() {
     while true; do
         choice=$(dialog --title "Kafka-Backup-Offline Utility" \
+            --ok-label "Back" \
+            --cancel-label "Quit" \
             --menu "ESC - for exit" 15 50 6 \
             1 "Containers" \
             2 "Data" \
@@ -694,8 +696,8 @@ function main_menu() {
         # Capture the exit status of dialog
         exit_status=$?
 
-        # Handle ESC or Cancel
-        if [[ $exit_status -ne 0 ]]; then
+        # Handle Quit (Cancel) or Back (OK)
+        if [[ $exit_status -eq 1 ]]; then
             echo "Exiting..."
             break
         fi
