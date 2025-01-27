@@ -692,7 +692,7 @@ function cluster_wide_data_restore_menu() {
     # Display the menu and capture the user's choice
     choice=$(whiptail --title "Data Restore" \
         --cancel-button "Back" \
-        --menu "Data > Restore > Select a backup file to restore:" 20 100 10 \
+        --menu "Data > Restore > Select a backup file to restore:" 30 150 15 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
