@@ -684,11 +684,11 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
             --menu "Use arrow keys to navigate and Enter to select. ESC to exit." 15 50 6 \
-            "Containers" "Manage container-related tasks" \
-            "Data" "Backup and restore data" \
-            "Config" "Generate and manage configurations" \
-            "Certificates" "Manage certificates" \
-            "Credentials" "Manage credentials" \
+            "Manage container-related tasks" \
+            "Backup and restore data" \
+            "Generate and manage configurations" \
+            "Manage certificates" \
+            "Manage credentials" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -712,6 +712,37 @@ function main_menu() {
     done
 }
 
+function main_menu2(){
+    while :; do
+        MENU=$(dialog --clear --title "Calibre" \
+            --backtitle "Add Books" \
+            --menu "What to do ?" \
+            0 0 0 "C" "Choose a book or a folder" "M" "Enter metadata infos" "L" "Add selected Book(s)" "D" "Change default Directory for books" "E" "Exit" \
+            2>&1 >/dev/tty)
+        case "$MENU" in
+        C)
+            select=$(file_selector $mnt) ;;
+        M)
+            form_data ;;
+        L)
+            if [ -d "$select" ];then
+                add_folder "$select"
+            elif [ -f "$select" ];then
+                if [[ "$select" == *.cbz || "$select" == *.pdf ]]; then
+                    add_book "$select"
+                else
+                    error "Books should have extension .cbz or .pdf"
+                fi
+            else
+                error "No file or folder selected"
+            fi ;;
+        D)
+            NEWDIR=$(file_selector $mnt) ;;
+        E)
+            exit ;;
+        esac
+    done
+}
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
@@ -723,7 +754,7 @@ create_pid_file
 if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
     disclaimer
-    main_menu
+    main_menu2
     disclaimer
 else
     # Parameter provided, assume it's a function name
