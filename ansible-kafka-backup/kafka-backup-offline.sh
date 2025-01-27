@@ -568,7 +568,6 @@ function menu()
         esac
     done
 }
-
 # ===== Main Menu Function =====
 function main_menu()
 {
@@ -577,17 +576,19 @@ function main_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Main Menu" \
-            --menu "Select a category:" 15 50 6 \
+            --menu "Select a category:\n\nESC - for exit" 15 50 6 \
             1 "Containers" \
             2 "Data" \
             3 "Config" \
             4 "Certificates" \
             5 "Credentials" \
-            0 "Exit" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) log "INFO" "Exiting..."; break ;;
             1) containers_menu ;;
             2) data_menu ;;
             3) config_menu ;;
@@ -606,17 +607,19 @@ function containers_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Containers Menu" \
-            --menu "Choose an action:" 15 50 6 \
+            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 6 \
             1 "Run Containers" \
             2 "Start Containers" \
             3 "Stop Containers" \
             4 "Restart Containers" \
             5 "Remove Containers" \
-            0 "Back to Main Menu" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) break ;;
             1) containers_run ;;
             2) containers_start ;;
             3) containers_stop ;;
@@ -635,15 +638,17 @@ function data_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Data Menu" \
-            --menu "Choose an action:" 15 50 5 \
+            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 5 \
             1 "Format Data" \
             2 "Backup Data" \
             3 "Restore Data" \
-            0 "Back to Main Menu" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) break ;;
             1) cluster_wide_data_format ;;
             2) cluster_wide_data_backup ;;
             3) cluster_wide_data_restore_menu ;;
@@ -660,15 +665,17 @@ function config_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Config Menu" \
-            --menu "Choose an action:" 15 50 4 \
+            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
             1 "Generate Config" \
             2 "Backup Config" \
             3 "Restore Config" \
-            0 "Back to Main Menu" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) break ;;
             1) cluster_wide_config_generate ;;
             2) cluster_wide_config_backup ;;
             3) cluster_wide_config_restore_menu ;;
@@ -685,15 +692,17 @@ function certificates_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Certificates Menu" \
-            --menu "Choose an action:" 15 50 4 \
+            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
             1 "Generate Certificates" \
             2 "Backup Certificates" \
             3 "Restore Certificates" \
-            0 "Back to Main Menu" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) break ;;
             1) cluster_wide_certificates_generate ;;
             2) cluster_wide_certificates_backup ;;
             3) cluster_wide_certificates_restore_menu ;;
@@ -710,15 +719,17 @@ function credentials_menu()
         choice=$(dialog --clear \
             --backtitle "Kafka-Backup-Offline Utility" \
             --title "Credentials Menu" \
-            --menu "Choose an action:" 15 50 4 \
+            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
             1 "Generate Credentials" \
             2 "Backup Credentials" \
             3 "Restore Credentials" \
-            0 "Back to Main Menu" 2>&1 >/dev/tty)
+            2>&1 >/dev/tty)
+
+        # Exit on ESC or no input
+        [[ -z "$choice" ]] && break
 
         clear
         case $choice in
-            0) break ;;
             1) cluster_wide_credentials_generate ;;
             2) cluster_wide_credentials_backup ;;
             3) cluster_wide_credentials_restore_menu ;;
@@ -726,6 +737,26 @@ function credentials_menu()
         esac
     done
 }
+
+# ===== Main Execution =====
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+CONFIG_FILE="$SCRIPT_DIR/config.ini"
+load_configuration "$CONFIG_FILE"
+create_pid_file
+
+if [[ $# -eq 0 ]]; then
+    disclaimer
+    main_menu
+else
+    if declare -f "$1" >/dev/null; then
+        "$1"
+    else
+        log "ERROR" "Error: Function '$1' not found."
+        help
+        exit 1
+    fi
+fi
+
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
