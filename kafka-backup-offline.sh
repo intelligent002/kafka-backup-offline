@@ -689,6 +689,7 @@ function cluster_node_data_format()
             -v $NODE_DATA:/var/lib/kafka/data \
             -v $NODE_META:/var/lib/kafka/meta \
             -v $NODE_LOGS:/opt/kafka/logs \
+            -v $NODE_CRED:/etc/kafka/credentials \
             -v $NODE_CERT:/etc/kafka/secrets \
             $IMAGE \
             /opt/kafka/bin/kafka-storage.sh format -t $CLUSTER_ID -c /mnt/shared/config/kraft.properties" || {
