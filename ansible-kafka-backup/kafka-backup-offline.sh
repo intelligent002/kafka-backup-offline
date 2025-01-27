@@ -735,14 +735,26 @@ function config_menu() {
         case $choice in
             1) return 0 ;;
             2) cluster_wide_config_generate
-              if [[ $? -eq 0 ]]; then
+               if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
-                else
-                    show_failure_message "Failed to generate configuration."
-                fi
-                ;;
-            3) cluster_wide_config_backup ;;
-            4) cluster_wide_config_restore_menu ;;
+               else
+                    show_failure_message "Failed to generate configuration!\nExit the tool and review the logs."
+               fi
+               ;;
+            3) cluster_wide_config_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration was backed up successfully!"
+               else
+                    show_failure_message "Failed to backup configuration!\nExit the tool and review the logs."
+               fi
+               ;;
+            4) cluster_wide_config_restore_menu
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration was restored successfully!"
+               else
+                    show_failure_message "Failed to restore configuration!\nExit the tool and review the logs."
+               fi
+               ;;
         esac
     done
 }
