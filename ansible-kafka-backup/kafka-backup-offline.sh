@@ -441,59 +441,6 @@ function cluster_wide_config_backup()
     return $?
 }
 
-# ===== Kafka Cluster Wide Config Restore Menu =====
-# Presents a menu to the user to select and restore a Kafka configuration backup.
-# Displays available backups from the `STORAGE_COLD/config` directory and validates user input.
-# Invokes the `cluster_wide_config_restore` function to restore the selected backup.
-function cluster_wide_config_restore_menu()
-{
-    local storage_config i config_backup_files num_files choice selected_backup
-
-    storage_config="$STORAGE_COLD/config"
-
-    # Find all available configuration backup files with their sizes
-    config_backup_files=()
-    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
-    num_files=${#config_backup_files[@]}
-
-    if [ "$num_files" -eq 0 ]; then
-        log "WARN" "No configuration backup files found in $storage_config."
-        return 1
-    fi
-
-    # Display available configuration backup files with sizes
-    echo "Available configuration backup files (size):"
-    echo
-    echo "0) Exit restore menu"
-    for i in "${!config_backup_files[@]}"; do
-        echo "$((i + 1))) ${config_backup_files[$i]}"
-    done
-    echo
-
-    choice=""
-    while true; do
-        read -rp "Enter the number corresponding to the configuration backup you want to restore (or 0 to exit): " choice
-
-        # Handle exit option
-        if [[ $choice == "0" ]]; then
-            echo "Exiting restore menu."
-            return 1
-        fi
-
-        # Validate choice
-        if [[ $choice =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "$num_files" ]; then
-            # Extract the file path (first field of the entry)
-            selected_backup=$(echo "${config_backup_files[$((choice - 1))]}" | awk '{print $1}')
-            log "DEBUG" "Selected configuration backup file: $selected_backup"
-            break
-        else
-            echo "Invalid choice. Please select a valid number between 0 and $num_files."
-        fi
-    done
-
-    # Call restore with the selected backup file
-    cluster_wide_config_restore "$selected_backup"
-}
 
 # ===== Kafka Cluster Wide Config Restore =====
 # Restores Kafka cluster configuration files to all nodes from a specified backup archive.
@@ -615,8 +562,6 @@ function data_menu() {
         esac
     done
 }
-
-
 
 
 # ===== Credentials Submenu =====
@@ -758,6 +703,61 @@ function config_menu() {
         esac
     done
 }
+
+# ===== Kafka Cluster Wide Config Restore Menu =====
+# Presents a menu to the user to select and restore a Kafka configuration backup.
+# Displays available backups from the `STORAGE_COLD/config/` directories and validates user input.
+# Invokes the `cluster_wide_config_restore` function to restore the selected backup.
+function cluster_wide_config_restore_menu() {
+    local storage_config config_backup_files choice selected_backup
+
+    storage_config="$STORAGE_COLD/config"
+
+    # Find all available configuration backup files with their sizes
+    config_backup_files=()
+    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#config_backup_files[@]} -eq 0 ]]; then
+        whiptail --title "Restore Config" --msgbox "No configuration backup files found in $storage_config." 10 50
+        return 1
+    fi
+
+    # Prepare the options for whiptail menu
+    local menu_options=()
+    for i in "${!config_backup_files[@]}"; do
+        menu_options+=("$i" "${config_backup_files[$i]}")
+    done
+
+    # Add a "Back" option
+    menu_options+=("back" "Return to Config Menu")
+
+    # Display the menu using whiptail
+    choice=$(whiptail --title "Restore Config" \
+        --cancel-button "Back" \
+        --menu "Select a configuration backup file to restore:" 20 70 10 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    local exit_status=$?
+
+    # Exit on cancel or ESC
+    if [[ $exit_status -ne 0 || $choice == "back" ]]; then
+        return 1
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${config_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected configuration backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_wide_config_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Configuration restored successfully!"
+    else
+        show_failure_message "Failed to restore configuration."
+    fi
+}
+
 
 # ===== Main Execution =====
 # Call the configuration loader function with the path to your .ini file
