@@ -679,49 +679,25 @@ function credentials_menu() {
     done
 }
 
-# Main menu function
+# ===== Certificates Submenu =====
 function main_menu() {
-    local choice
     while true; do
-        choice=$(dialog --title "Kafka Offline Backup" \
-            --menu "" 10 60 10 \
-            "containers" "Containers Management" \
-            "certificates" "Certificates Management" \
-            "data" "Data Management" \
-            "config" "Config Management" \
-            "quit" "Quit" 3>&1 1>&2 2>&3)
+        choice=$(whiptail --title "Certificates Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Certificates" \
+            "2" "Backup Certificates" \
+            "3" "Restore Certificates" \
+            3>&1 1>&2 2>&3)
 
-        exit_status=$? # Capture the exit status of dialog
-        echo "exit status: $exit_status"
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            # Exit on Escape or Cancel
-            echo "Have a nice day!"
-            quit_tool
-        fi
-
-        # Handle user selection
         case $choice in
-            containers) echo "Containers Management selected" ;;
-            certificates) echo "Certificates Management selected" ;;
-            data) echo "Data Management selected" ;;
-            config) echo "Config Management selected" ;;
-            quit)
-                echo "Goodbye!"
-                quit_tool
-                ;;
-            *)
-                echo "Invalid option!"
-                ;;
+            1) cluster_wide_certificates_generate ;;
+            2) cluster_wide_certificates_backup ;;
+            3) cluster_wide_certificates_restore_menu ;;
         esac
     done
-}
-
-# Quit the script gracefully and restore the terminal
-function quit_tool() {
-    dialog --clear
-    tput cnorm # Restore the normal cursor
-    exit 0      # Exit the script
 }
 
 # ===== Main Execution =====
