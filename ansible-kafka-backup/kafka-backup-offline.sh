@@ -329,12 +329,12 @@ function main_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            exit 0
         fi
 
         # Handle user choices
         case $choice in
-            1) break ;; # Exit
+            1) exit 0 ;; # Exit
             2) certificates_menu ;;
             3) config_menu ;;
             4) containers_menu ;;
@@ -362,7 +362,7 @@ function certificates_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            return 0
         fi
 
         case $choice in
@@ -391,7 +391,7 @@ function config_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            return 0
         fi
 
         case $choice in
@@ -451,7 +451,7 @@ function cluster_wide_config_restore_menu()
 
     # Exit on ESC or cancel
     if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice="back" ]]; then
-        break
+        return 0
     fi
 
     # Get the selected backup file path
@@ -510,7 +510,7 @@ function containers_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            return 0
         fi
 
         case $choice in
@@ -610,7 +610,7 @@ function credentials_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            return 0
         fi
 
         case $choice in
@@ -638,7 +638,7 @@ function data_menu() {
 
         # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            break
+            return 0
         fi
 
         case $choice in
@@ -700,7 +700,7 @@ function cluster_wide_data_restore_menu() {
 
     # Exit on ESC or cancel
     if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
-        break
+        return 0
     fi
 
     # Get the selected backup file path
