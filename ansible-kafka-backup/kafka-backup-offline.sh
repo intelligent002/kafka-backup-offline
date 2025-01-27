@@ -683,30 +683,37 @@ function credentials_menu() {
 function main_menu() {
     local choice
     while true; do
-        choice=$(whiptail --title "Kafka Offline Backup" \
+        choice=$(dialog --title "Main Menu" \
             --menu "Select an option:" 20 60 10 \
-            "Certificates" "Certificates Management" \
-            "Config" "Config Management" \
-            "Containers" "Containers Management" \
-            "Data" "Data Management" \
-            "Quit" "Quit" 3>&1 1>&2 2>&3)
+            "containers" "Containers Management" \
+            "certificates" "Certificates Management" \
+            "data" "Data Management" \
+            "config" "Config Management" \
+            "quit" "Quit" 3>&1 1>&2 2>&3)
 
-        exit_status=$? # Capture the exit status of whiptail
+        exit_status=$? # Capture the exit status of dialog
 
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            # Exit on Escape or Cancel (whiptail returns 255 when closed)
-            log "INFO" "Have a nice day!"
-            return 0
+            # Exit on Escape or Cancel
+            clear
+            echo "Goodbye!"
+            exit 0
         fi
 
         # Handle user selection
         case $choice in
-            Certificates) certificates_menu ;;
-            Config) config_management_menu ;;
-            Containers) containers_menu ;;
-            Data) data_management_menu ;;
-            Quit) return 0 ;;
-            *) return 0 ;; # Default case for safety
+            containers) echo "Containers Management selected" ;;
+            certificates) echo "Certificates Management selected" ;;
+            data) echo "Data Management selected" ;;
+            config) echo "Config Management selected" ;;
+            quit)
+                clear
+                echo "Goodbye!"
+                exit 0
+                ;;
+            *)
+                echo "Invalid option!"
+                ;;
         esac
     done
 }
