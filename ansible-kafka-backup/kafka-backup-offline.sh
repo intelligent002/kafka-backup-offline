@@ -357,9 +357,10 @@ function certificates_menu() {
             --cancel-button "Back" \
             --menu "Certificates > Choose an action:" 15 50 6 \
             "1" "Main menu" \
-            "2" "Generate" \
-            "3" "Backup" \
-            "4" "Restore" \
+            "2" "Install (ssh-copy-id)" \
+            "3" "Generate" \
+            "4" "Backup" \
+            "5" "Restore" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -372,9 +373,10 @@ function certificates_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_wide_certificates_generate ;;
-            3) cluster_wide_certificates_backup ;;
-            4) cluster_wide_certificates_restore_menu ;;
+            2) setup_ssh ;;
+            3) cluster_wide_certificates_generate ;;
+            4) cluster_wide_certificates_backup ;;
+            5) cluster_wide_certificates_restore_menu ;;
         esac
     done
 }
