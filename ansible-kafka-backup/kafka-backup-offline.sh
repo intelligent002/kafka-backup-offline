@@ -637,26 +637,6 @@ function config_menu() {
     done
 }
 
-# ===== Certificates Submenu =====
-function certificates_menu() {
-    while true; do
-        choice=$(whiptail --title "Certificates Menu" \
-            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
-            "1" "Generate Certificates" \
-            "2" "Backup Certificates" \
-            "3" "Restore Certificates" \
-            3>&1 1>&2 2>&3)
-
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
-
-        case $choice in
-            1) cluster_wide_certificates_generate ;;
-            2) cluster_wide_certificates_backup ;;
-            3) cluster_wide_certificates_restore_menu ;;
-        esac
-    done
-}
 
 # ===== Credentials Submenu =====
 function credentials_menu() {
@@ -706,6 +686,31 @@ function main_menu() {
             3) credentials_menu ;;
             4) data_menu ;;
             5) break ;; # Return to Main Menu
+        esac
+    done
+}
+
+
+# ===== Certificates Submenu =====
+function certificates_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Certificates section\nChoose action:" 15 50 6 \
+            "1" "Main menu"
+            "2" "Generate Certificates" \
+            "3" "Backup Certificates" \
+            "4" "Restore Certificates" \
+            3>&1 1>&2 2>&3)
+
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
+
+        case $choice in
+            1) return 0 ;;
+            2) cluster_wide_certificates_generate ;;
+            3) cluster_wide_certificates_backup ;;
+            4) cluster_wide_certificates_restore_menu ;;
         esac
     done
 }
