@@ -296,30 +296,16 @@ function containers_run()
 # Starts all Kafka containers in the defined startup order
 function containers_start()
 {
-    log "INFO" "Routine - Kafka Containers Start on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_start" || {
-        log "ERROR" "Routine - Kafka Containers Start on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Containers Start on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
+    return $?
 }
 
 # ===== Kafka Containers Stop =====
 # Stops all Kafka containers in the defined shutdown order
 function containers_stop()
 {
-    log "INFO" "Routine - Kafka Containers Stop on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_stop" || {
-        log "ERROR" "Routine - Kafka Containers Stop on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Containers Stop on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
+    return $?
 }
 
 # ===== Kafka Containers Restart =====
@@ -334,45 +320,24 @@ function containers_restart()
 # Removes all Kafka containers in the defined shutdown order
 function containers_remove()
 {
-    log "INFO" "Routine - Kafka Containers Remove on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/serial.yml --tags "containers_remove" || {
-        log "ERROR" "Routine - Kafka Containers Remove on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Containers Remove on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Data Format =====
 # Formats data on all cluster nodes
 function cluster_wide_data_format()
 {
-    log "INFO" "Routine - Data Format on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_format" || {
-        log "ERROR" "Routine - Data Format on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Data Format on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Data Backup =====
 # Performs a full data backup of the Kafka cluster across all nodes.
 function cluster_wide_data_backup()
 {
-    log "INFO" "Routine - Data Backup on all nodes - started"
-
-    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_backup" || {
-        log "ERROR" "Routine - Data Backup on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Data Backup on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Data Restore Menu =====
@@ -443,15 +408,9 @@ function cluster_wide_data_restore_menu()
 # - Does not restart the containers after restoration.
 function cluster_wide_data_restore()
 {
-    log "INFO" "Routine - Data Restore on all nodes - started"
-
-    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_restore" --extra-vars "restore_archive=$1" || {
-        log "ERROR" "Routine - Data Restore on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Data Restore on all nodes - OK"
-    return 0
+    local archive=$1
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
 }
 
 
@@ -459,15 +418,8 @@ function cluster_wide_data_restore()
 # Generates and deploy config files to all cluster nodes
 function cluster_wide_config_generate()
 {
-    log "INFO" "Routine - Kafka Config Deploy on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_deploy" || {
-        log "ERROR" "Routine - Kafka Config Deploy on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Config Deploy on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Config Backup =====
@@ -480,15 +432,8 @@ function cluster_wide_config_generate()
 # Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.gz`.
 function cluster_wide_config_backup()
 {
-    log "INFO" "Routine - Kafka Config Backup on all nodes - started"
-
-    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_backup" || {
-        log "ERROR" "Routine - Kafka Config Backup on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Kafka Config Backup on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Config Restore Menu =====
@@ -551,15 +496,9 @@ function cluster_wide_config_restore_menu()
 #   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.gz).
 function cluster_wide_config_restore()
 {
-    log "INFO" "Routine - Config Restore on all nodes - started"
-
-    ansible-playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_restore" --extra-vars "restore_archive=$1" || {
-        log "ERROR" "Routine - Config Restore on all nodes - failed"
-        return 1
-    }
-
-    log "INFO" "Routine - Config Restore on all nodes - OK"
-    return 0
+    local archive=$1
+    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
 }
 
 # ===== Menu Function =====
