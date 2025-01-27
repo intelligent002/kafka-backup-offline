@@ -32,6 +32,8 @@ node_certificate_path: "/data/cluster/certificate"
 node_credentials_path: "/data/cluster/credentials"
 # cluster node's credentials file.
 node_credentials_file: "{{ node_credentials_path }}/kafka_server_jaas.conf"
+# cluster node's credentials file.
+node_client_conf_file: "{{ node_credentials_path }}/client.conf"
 
 # cluster node's config files.
 node_config_path: "/data/cluster/config"
@@ -39,7 +41,10 @@ node_config_path: "/data/cluster/config"
 node_config_file: "{{ node_config_path }}/server.properties"
 
 # cluster node's data files.
-node_data_path: "/data/cluster/data"
+node_data_path: "/data/cluster/data/logs"
+
+# cluster node's meta files.
+node_meta_path: "/data/cluster/data/meta"
 
 # cluster node's logs files.
 node_logs_path: "/data/cluster/logs"
