@@ -85,8 +85,11 @@ security.controller.protocol=PLAINTEXT
 #############################################################################################
 # Data and Metadata Storage
 
-# Directory where the controller's metadata logs and broker data are stored
+# Directory where the broker data are stored
 log.dirs=/var/lib/kafka/data
+
+# Directory where the controller metadata are stored
+metadata.log.dir=/var/lib/kafka/meta
 
 #############################################################################################
 # Internal Topics Configuration
