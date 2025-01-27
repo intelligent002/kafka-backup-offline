@@ -501,7 +501,7 @@ function cluster_wide_config_restore_menu()
 
     # Find all available configuration backup files with their sizes
     config_backup_files=()
-    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.gz" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
     num_files=${#config_backup_files[@]}
 
     if [ "$num_files" -eq 0 ]; then
