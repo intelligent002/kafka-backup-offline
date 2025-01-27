@@ -343,6 +343,21 @@ function containers_remove()
     return 0
 }
 
+
+# ===== Kafka Config Generate =====
+# Generates and deploy config files to all cluster nodes
+function cluster_wide_config_generate()
+{
+    log "INFO" "Routine - Kafka Config Deploy on all nodes - started"
+
+    ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "config_deploy" || {
+        log "ERROR" "Routine - Kafka Config Deploy on all nodes - failed"
+        return 1
+    }
+
+    log "INFO" "Routine - Kafka Config Deploy on all nodes - OK"
+    return 0
+}
 # ===== Kafka Cluster Wide Data Format =====
 # Formats data on all cluster nodes
 function cluster_wide_data_format()
