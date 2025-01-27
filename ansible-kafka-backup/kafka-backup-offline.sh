@@ -640,6 +640,16 @@ function credentials_menu() {
     done
 }
 
+# Function to display a failure message
+function show_failure_message() {
+    whiptail --title "Failure" --msgbox "$1" 10 50
+}
+
+# Function to display a success message
+function show_success_message() {
+    whiptail --title "Success" --msgbox "$1" 10 50
+}
+
 # ===== Main Menu =====
 function main_menu() {
     while true; do
@@ -724,7 +734,13 @@ function config_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_wide_config_generate ;;
+            2) cluster_wide_config_generate
+              if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration generated successfully!"
+                else
+                    show_failure_message "Failed to generate configuration."
+                fi
+                ;;
             3) cluster_wide_config_backup ;;
             4) cluster_wide_config_restore_menu ;;
         esac
