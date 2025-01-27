@@ -310,6 +310,11 @@ function show_success_message() {
     whiptail --title "Success" --msgbox "$1" 10 60
 }
 
+# Function to display a success message
+function show_info_message() {
+    whiptail --title "Info" --msgbox "$1" 10 60
+}
+
 # ===== Main Menu =====
 function main_menu() {
     while true; do
@@ -429,8 +434,8 @@ function cluster_wide_config_restore_menu()
 
     # Check if no files are available
     if [[ ${#config_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No configuration backup files found in $storage_config."
-        whiptail --title "Restore Config" --msgbox "No configuration backup files found in $storage_config." 10 50
+        log "DEBUG" "No backup files found in $storage_config."
+        show_info_message "No backup files found in $storage_config."
         return 1
     fi
 
@@ -443,7 +448,7 @@ function cluster_wide_config_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Config > Restore > Choose a backup file to restore:" 40 130 32 \
+        --menu "Configs > Restore > Choose a backup file to restore:" 40 130 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
@@ -597,7 +602,7 @@ function containers_remove()
 # ===== Credentials Submenu =====
 function credentials_menu() {
     while true; do
-        choice=$(whiptail --title "Credentials Menu" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Credentials > Choose an action" 15 50 4 \
             "1" "Main menu" \
             "2" "Generate" \
@@ -679,7 +684,7 @@ function cluster_wide_data_restore_menu() {
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
         log "DEBUG" "No backup files found in $storage_data."
-        whiptail --title "Data Restore" --msgbox "No backup files found in $storage_data." 10 50
+        show_info_message "No backup files found in $storage_data."
         return 1
     fi
 
@@ -690,7 +695,7 @@ function cluster_wide_data_restore_menu() {
     done
 
     # Display the menu and capture the user's choice
-    choice=$(whiptail --title "Data Restore" \
+    choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
         --menu "Data > Restore > Choose a backup file to restore:" 40 130 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
