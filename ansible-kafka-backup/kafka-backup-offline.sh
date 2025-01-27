@@ -568,172 +568,138 @@ function menu()
         esac
     done
 }
+
+
 # ===== Main Menu Function =====
-function main_menu()
-{
-    local choice
+function main_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Main Menu" \
-            --menu "Select a category:\n\nESC - for exit" 15 50 6 \
-            1 "Containers" \
-            2 "Data" \
-            3 "Config" \
-            4 "Certificates" \
-            5 "Credentials" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Kafka-Backup-Offline Utility" \
+            --menu "Select a category:\nESC - for exit" 15 50 6 \
+            "1" "Containers" \
+            "2" "Data" \
+            "3" "Config" \
+            "4" "Certificates" \
+            "5" "Credentials" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) containers_menu ;;
             2) data_menu ;;
             3) config_menu ;;
             4) certificates_menu ;;
             5) credentials_menu ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
 # ===== Containers Submenu =====
-function containers_menu()
-{
-    local choice
+function containers_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Containers Menu" \
-            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 6 \
-            1 "Run Containers" \
-            2 "Start Containers" \
-            3 "Stop Containers" \
-            4 "Restart Containers" \
-            5 "Remove Containers" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Containers Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 6 \
+            "1" "Run Containers" \
+            "2" "Start Containers" \
+            "3" "Stop Containers" \
+            "4" "Restart Containers" \
+            "5" "Remove Containers" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) containers_run ;;
             2) containers_start ;;
             3) containers_stop ;;
             4) containers_restart ;;
             5) containers_remove ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
 # ===== Data Submenu =====
-function data_menu()
-{
-    local choice
+function data_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Data Menu" \
-            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 5 \
-            1 "Format Data" \
-            2 "Backup Data" \
-            3 "Restore Data" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Data Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 5 \
+            "1" "Format Data" \
+            "2" "Backup Data" \
+            "3" "Restore Data" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) cluster_wide_data_format ;;
             2) cluster_wide_data_backup ;;
             3) cluster_wide_data_restore_menu ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
 # ===== Config Submenu =====
-function config_menu()
-{
-    local choice
+function config_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Config Menu" \
-            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
-            1 "Generate Config" \
-            2 "Backup Config" \
-            3 "Restore Config" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Config Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Config" \
+            "2" "Backup Config" \
+            "3" "Restore Config" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) cluster_wide_config_generate ;;
             2) cluster_wide_config_backup ;;
             3) cluster_wide_config_restore_menu ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
 # ===== Certificates Submenu =====
-function certificates_menu()
-{
-    local choice
+function certificates_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Certificates Menu" \
-            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
-            1 "Generate Certificates" \
-            2 "Backup Certificates" \
-            3 "Restore Certificates" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Certificates Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Certificates" \
+            "2" "Backup Certificates" \
+            "3" "Restore Certificates" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) cluster_wide_certificates_generate ;;
             2) cluster_wide_certificates_backup ;;
             3) cluster_wide_certificates_restore_menu ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
 
 # ===== Credentials Submenu =====
-function credentials_menu()
-{
-    local choice
+function credentials_menu() {
     while true; do
-        choice=$(dialog --clear \
-            --backtitle "Kafka-Backup-Offline Utility" \
-            --title "Credentials Menu" \
-            --menu "Choose an action:\n\nESC - to return to the previous menu" 15 50 4 \
-            1 "Generate Credentials" \
-            2 "Backup Credentials" \
-            3 "Restore Credentials" \
-            2>&1 >/dev/tty)
+        choice=$(whiptail --title "Credentials Menu" \
+            --menu "Choose an action:\nESC - to return to the main menu" 15 50 4 \
+            "1" "Generate Credentials" \
+            "2" "Backup Credentials" \
+            "3" "Restore Credentials" \
+            3>&1 1>&2 2>&3)
 
-        # Exit on ESC or no input
-        [[ -z "$choice" ]] && break
+        # Exit on ESC or cancel
+        [[ $? -ne 0 ]] && break
 
-        clear
         case $choice in
             1) cluster_wide_credentials_generate ;;
             2) cluster_wide_credentials_backup ;;
             3) cluster_wide_credentials_restore_menu ;;
-            *) log "ERROR" "Invalid choice. Please try again."; ;;
         esac
     done
 }
