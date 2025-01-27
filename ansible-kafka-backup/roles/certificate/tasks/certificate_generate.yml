@@ -238,7 +238,8 @@
   loop:
     - "{{ cert_file_server_keystore }}"
     - "{{ cert_file_server_truststore }}"
-    - "{{ cert_file_client_truststore }}"
+
+#    - "{{ cert_file_client_truststore }}"
 
 - name: Set ownership and permissions of the certificate folder recursively
   tags:
