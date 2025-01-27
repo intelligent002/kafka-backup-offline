@@ -581,8 +581,10 @@ function main_menu() {
             "5" "Credentials" \
             3>&1 1>&2 2>&3)
 
-        # Exit on ESC or cancel
-        [[ $? -ne 0 ]] && break
+        # Exit if ESC or Cancel is pressed
+        if [[ $? -ne 0 || -z "$choice" ]]; then
+            break
+        fi
 
         case $choice in
             1) containers_menu ;;
@@ -590,10 +592,10 @@ function main_menu() {
             3) config_menu ;;
             4) certificates_menu ;;
             5) credentials_menu ;;
+            *) whiptail --msgbox "Invalid choice. Please try again." 10 40 ;;
         esac
     done
 }
-
 # ===== Containers Submenu =====
 function containers_menu() {
     while true; do
