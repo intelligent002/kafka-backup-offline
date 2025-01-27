@@ -685,7 +685,7 @@ function main_menu() {
     while true; do
         choice=$(dialog --title "Main Menu" \
             --menu "Select an option:" 20 60 10 \
-            "containers" "Containers Management" \
+            "c(o)ntainers" "Containers Management" \
             "certificates" "Certificates Management" \
             "data" "Data Management" \
             "config" "Config Management" \
