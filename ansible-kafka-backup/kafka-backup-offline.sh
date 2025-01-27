@@ -288,7 +288,8 @@ function run_ansible_routine() {
 # Starts all Kafka containers in the pre-defined order
 function containers_run()
 {
-    return run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    return $?
 }
 
 # ===== Kafka Containers Start =====
