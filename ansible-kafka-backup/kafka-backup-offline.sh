@@ -697,6 +697,7 @@ function main_menu() {
 
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             # Exit on Escape or Cancel (whiptail returns 255 when closed)
+            log "INFO" "Have a nice day!"
             return 0
         fi
 
@@ -706,7 +707,7 @@ function main_menu() {
             certificates) certificates_menu ;;
             data) data_management_menu ;;
             config) config_management_menu ;;
-            quit) quit_tool ;;
+            quit) log "INFO" "Have a nice day" ;;
             *) return 0 ;; # Default case for safety
         esac
     done
