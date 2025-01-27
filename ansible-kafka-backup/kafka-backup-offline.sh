@@ -721,7 +721,6 @@ function main_menu() {
 function quit_tool() {
     dialog --clear
     tput cnorm # Restore the normal cursor
-    clear       # Clear the dialog artifacts from the terminal
     exit 0      # Exit the script
 }
 
