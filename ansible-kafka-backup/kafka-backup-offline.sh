@@ -697,7 +697,7 @@ function certificates_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Certificates section\nChoose action:" 15 50 6 \
-            "1" "Main menu"
+            "1" "Main menu" \
             "2" "Generate Certificates" \
             "3" "Backup Certificates" \
             "4" "Restore Certificates" \
