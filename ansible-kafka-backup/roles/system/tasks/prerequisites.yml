@@ -1,84 +1,84 @@
 ---
-- name: Check if GNU tar is installed
-  ansible.builtin.command: tar --version
-  register: tar_check
-  failed_when: tar_check.rc != 0
+- name: Check if xz is installed
+  tags: prerequisites
+  ansible.builtin.command: xz --version
+  register: xz_check
+  failed_when: xz_check.rc != 0
   changed_when: false
   ignore_errors: true
-  tags: prerequisites
 
-- name: Ensure GNU tar is installed
+- name: Ensure xz is installed
+  tags: prerequisites
   ansible.builtin.package:
-    name: tar
+    name: xz-utils
     state: present
-  when: tar_check is failed
-  tags: prerequisites
+  when: xz_check is failed
 
-- name: Validate GNU tar installation
-  ansible.builtin.command: tar --version
-  failed_when: tar_check.rc != 0
+- name: Validate xz installation
+  tags: prerequisites
+  ansible.builtin.command: xz --version
+  failed_when: xz_check.rc != 0
   changed_when: false
-  tags: prerequisites
 
-- name: Check if gzip is installed
-  ansible.builtin.command: gzip --version
-  register: gzip_check
-  failed_when: gzip_check.rc != 0
+- name: Check if Java is installed
+  tags: prerequisites
+  ansible.builtin.command: java -version
+  register: java_check
+  failed_when: java_check.rc != 0
   changed_when: false
   ignore_errors: true
-  tags: prerequisites
 
-- name: Ensure gzip is installed
+- name: Ensure Java is installed
+  tags: prerequisites
   ansible.builtin.package:
-    name: gzip
+    name: default-jre
     state: present
-  when: gzip_check is failed
-  tags: prerequisites
+  when: java_check is failed
 
-- name: Validate gzip installation
-  ansible.builtin.command: gzip --version
-  failed_when: gzip_check.rc != 0
+- name: Validate Java installation
+  tags: prerequisites
+  ansible.builtin.command: java -version
+  failed_when: java_check.rc != 0
   changed_when: false
-  tags: prerequisites
-
-- name: Check if unzip is installed
-  ansible.builtin.command: unzip -v
-  register: unzip_check
-  failed_when: unzip_check.rc != 0
-  changed_when: false
-  ignore_errors: true
-  tags: prerequisites
-
-- name: Ensure unzip is installed
-  ansible.builtin.package:
-    name: unzip
-    state: present
-  when: unzip_check is failed
-  tags: prerequisites
-
-- name: Validate unzip installation
-  ansible.builtin.command: unzip -v
-  failed_when: unzip_check.rc != 0
-  changed_when: false
-  tags: prerequisites
 
 - name: Check if Docker is installed
+  tags: prerequisites
   ansible.builtin.command: docker --version
   register: docker_check
   failed_when: docker_check.rc != 0
   changed_when: false
   ignore_errors: true
-  tags: prerequisites
 
 - name: Install Docker
+  tags: prerequisites
   ansible.builtin.package:
     name: docker
     state: present
   when: docker_check is failed
-  tags: prerequisites
 
 - name: Validate Docker installation
+  tags: prerequisites
   ansible.builtin.command: docker --version
   failed_when: docker_check.rc != 0
   changed_when: false
+
+- name: Check if rsync is installed
   tags: prerequisites
+  ansible.builtin.command: rsync --version
+  register: rsync_check
+  failed_when: rsync_check.rc != 0
+  changed_when: false
+  ignore_errors: true
+
+- name: Ensure rsync is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: rsync
+    state: present
+  when: rsync_check is failed
+
+- name: Validate rsync installation
+  tags: prerequisites
+  ansible.builtin.command: rsync --version
+  failed_when: rsync_check.rc != 0
+  changed_when: false

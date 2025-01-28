@@ -213,7 +213,15 @@ function run_ansible_routine()
 # Copies SSH keys to all nodes for password-less access
 function cluster_ssh_keys()
 {
-    run_ansible_routine "Kafka Data Format" "parallel" "ssh_keys" "--ask-pass"
+    run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass"
+    return $?
+}
+
+# ===== Coziness Functions =====
+# deploy prerequisites
+function cluster_ssh_keys()
+{
+    run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
     return $?
 }
 
@@ -363,7 +371,7 @@ function accessories_menu() {
             --menu "Accessories > Choose an action:" 15 50 6 \
             "1" "Main menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
-            "3" "Deploy prerequisites - (docker, java, etc)" \
+            "3" "Deploy prerequisites - (docker etc)" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -383,7 +391,7 @@ function accessories_menu() {
                     show_failure_message "Failed to deploy ssh public key!\nExit the tool and review the logs."
                fi
                ;;
-            3) cluster_wide_certificates_generate ;;
+            3) cluster_prerequisites ;;
             4) cluster_wide_certificates_backup ;;
             5) cluster_wide_certificates_restore_menu ;;
         esac
