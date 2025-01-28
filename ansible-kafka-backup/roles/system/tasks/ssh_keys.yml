@@ -1,4 +1,10 @@
 ---
+- name: Add host to known_hosts
+  ansible.builtin.known_hosts:
+    path: ~/.ssh/known_hosts
+    name: "{{ ansible_host }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -H ' + ansible_host) }}"
+
 - name: Ensure SSH directory exists on the remote host
   tags: ssh_keys
   ansible.builtin.file:
