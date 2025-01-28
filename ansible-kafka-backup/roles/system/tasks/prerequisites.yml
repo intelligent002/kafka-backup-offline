@@ -1,4 +1,26 @@
 ---
+- name: Validate if /data is mounted
+  tags: prerequisites
+  ansible.builtin.shell: mount | grep -w '/data'
+  register: data_mount_check
+  failed_when: data_mount_check.rc != 0
+  changed_when: false
+
+- name: Check free space on /data
+  tags: prerequisites
+  ansible.builtin.shell: df --output=avail -BG /data | tail -1 | awk '{print $1}' | sed 's/G//'
+  register: data_disk_size
+  failed_when: data_mount_check.rc == 0 and (data_disk_size.stdout | int < 40)
+  changed_when: false
+  when: data_mount_check.rc == 0
+
+- name: Notify if /data does not meet requirements
+  tags: prerequisites
+  ansible.builtin.fail:
+    msg: >
+      Either /data is not mounted, or it does not have sufficient space (at least 40 GB required).
+  when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 40)
+
 - name: Check if XZ is installed
   tags: prerequisites
   ansible.builtin.shell: command -v xz
