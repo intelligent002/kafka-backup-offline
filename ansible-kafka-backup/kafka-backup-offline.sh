@@ -116,6 +116,7 @@ function cluster_backup()
 {
     cluster_containers_stop
     cluster_configs_backup
+    cluster_certificates_backup
     cluster_data_backup
     cluster_containers_start
 }
@@ -241,30 +242,6 @@ function cluster_certificates_restore()
     return $?
 }
 
-
-# ===== Kafka Cluster Data Format =====
-# Formats data on all cluster nodes
-function cluster_data_format()
-{
-    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
-    return $?
-}
-
-# ===== Kafka Cluster Data Backup =====
-function cluster_data_backup()
-{
-    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
-    return $?
-}
-
-# ===== Kafka Cluster Data Restore =====
-function cluster_data_restore()
-{
-    local archive=$1
-    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
-    return $?
-}
-
 # ===== Kafka Config Generate =====
 # Generates and deploy config files to all cluster nodes
 function cluster_configs_generate()
@@ -326,6 +303,29 @@ function cluster_containers_restart()
 function cluster_containers_remove()
 {
     run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    return $?
+}
+
+# ===== Kafka Cluster Data Format =====
+# Formats data on all cluster nodes
+function cluster_data_format()
+{
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
+}
+
+# ===== Kafka Cluster Data Backup =====
+function cluster_data_backup()
+{
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
+
+# ===== Kafka Cluster Data Restore =====
+function cluster_data_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
     return $?
 }
 
