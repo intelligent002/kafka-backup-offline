@@ -130,9 +130,9 @@
   vars:
     docker_package: >-
       {% if ansible_os_family == 'RedHat' %}
-        docker
+        docker-ce
       {% elif ansible_os_family == 'Debian' %}
-        docker.io
+        docker-ce
       {% else %}
         docker
       {% endif %}
@@ -144,20 +144,6 @@
     name: docker
     state: started
     enabled: true
-
-- name: Verify Docker installation
-  tags: prerequisites
-  ansible.builtin.command: docker --version
-  register: docker_version_check
-  changed_when: false
-  failed_when: docker_check.rc != 0 and false
-
-- name: Display installed Docker version
-  tags: prerequisites
-  ansible.builtin.debug:
-    msg: |
-      Docker version on {{ inventory_hostname }}:
-      {{ docker_version_check.stdout_lines | default([]) }}
 
 - name: Check if rsync is installed
   tags: prerequisites
