@@ -513,8 +513,12 @@ echo 4
 echo "exit status = $exit_status"
     # Exit on ESC or cancel
     if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice="back" ]]; then
-        if [[ $exit_status -eq 1 ]] then echo "one" fi
-        if [[ $exit_status -eq 255 ]] then echo "twofivefive" fi
+        if [[ $exit_status -eq 1 ]] then
+            echo "one"
+        fi
+        if [[ $exit_status -eq 255 ]] then
+            echo "twofivefive"
+        fi
 
         echo "exiting, $choice"
         return 0
