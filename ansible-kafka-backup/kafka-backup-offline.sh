@@ -306,6 +306,23 @@ function cluster_containers_remove()
     return $?
 }
 
+# ===== Kafka Cluster Config Backup =====
+# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
+function cluster_credentials_backup()
+{
+    run_ansible_routine "Kafka Credentials Backup" "parallel" "credentials_backup"
+    return $?
+}
+
+# ===== Kafka Cluster Config Restore =====
+# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
+function cluster_credentials_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
+
 # ===== Kafka Cluster Data Format =====
 # Formats data on all cluster nodes
 function cluster_data_format()
