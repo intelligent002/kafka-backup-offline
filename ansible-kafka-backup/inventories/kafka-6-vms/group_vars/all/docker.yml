@@ -76,7 +76,10 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
   apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
+  ping 127.0.0.1
+  
+
+#/opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 # Empty folder should be prepared for usage
 docker_command_data_format_concluent: >
