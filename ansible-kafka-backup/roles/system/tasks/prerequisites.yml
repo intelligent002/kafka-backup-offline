@@ -135,7 +135,7 @@
       - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - portainer_data_ce:/data
     env:
       ADMIN_USERNAME: admin
       ADMIN_PASSWORD: kafka
