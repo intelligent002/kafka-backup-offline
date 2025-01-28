@@ -219,7 +219,7 @@ function cluster_ssh_keys()
 
 # ===== Coziness Functions =====
 # deploy prerequisites
-function cluster_ssh_keys()
+function cluster_prerequisites()
 {
     run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
     return $?
