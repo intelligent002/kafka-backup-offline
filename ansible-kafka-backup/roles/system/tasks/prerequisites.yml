@@ -138,7 +138,7 @@
       - portainer_data_ce:/data
     env:
       ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: kafka
+      ADMIN_PASSWORD: kafkakafkakafka
 
 - name: Check if XZ is installed
   tags: prerequisites
