@@ -1,8 +1,7 @@
 #############################################################################################
 # Kafka Cluster connection
 
-# Define the quorum of controllers with their respective node IDs and addresses
-controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_service_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 #############################################################################################
