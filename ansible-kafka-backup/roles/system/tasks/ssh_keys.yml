@@ -1,5 +1,6 @@
 ---
 - name: Add host to known_hosts
+  tags: ssh_keys
   ansible.builtin.known_hosts:
     path: ~/.ssh/known_hosts
     name: "{{ ansible_host }}"
@@ -28,5 +29,5 @@
 - name: Test passwordless SSH access
   tags: ssh_keys
   ansible.builtin.shell: |
-    ssh -o PasswordAuthentication=no {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
+    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
   ignore_errors: true
