@@ -19,7 +19,7 @@
   ansible.builtin.fail:
     msg: >
       Either /data is not mounted, or it does not have sufficient space (at least 40 GB required).
-  when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 40)
+  when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 400)
 
 - name: Check if XZ is installed
   tags: prerequisites
