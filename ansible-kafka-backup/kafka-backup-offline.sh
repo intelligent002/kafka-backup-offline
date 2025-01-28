@@ -84,11 +84,11 @@ function help()
     echo
     echo "    Containers section:                                                                                            "
     echo
-    echo "      containers_run     'docker run' the Kafka Cluster containers in the defined startup order                    "
-    echo "      containers_start   'docker start' the Kafka Cluster containers in the defined startup order                  "
-    echo "      containers_stop    'docker stop' the Kafka Cluster containers in the defined shutdown order                  "
-    echo "      containers_restart 'docker restart' the Kafka Cluster containers in the defined shutdown & startup order     "
-    echo "      containers_remove  'docker rm' the Kafka Cluster containers in the defined shutdown order                    "
+    echo "      cluster_containers_run     'docker run' the Kafka Cluster containers in the defined startup order                    "
+    echo "      cluster_containers_start   'docker start' the Kafka Cluster containers in the defined startup order                  "
+    echo "      cluster_containers_stop    'docker stop' the Kafka Cluster containers in the defined shutdown order                  "
+    echo "      cluster_containers_restart 'docker restart' the Kafka Cluster containers in the defined shutdown & startup order     "
+    echo "      cluster_containers_remove  'docker rm' the Kafka Cluster containers in the defined shutdown order                    "
     echo
     echo "    Backup section:                                                                                                "
     echo
@@ -114,10 +114,10 @@ function help()
 
 function cluster_backup()
 {
-    containers_stop
+    cluster_containers_stop
     cluster_config_backup
     cluster_data_backup
-    containers_start
+    cluster_containers_start
 }
 
 # Creates a PID file to ensure only one instance of the script runs at a time
@@ -214,7 +214,7 @@ function run_ansible_routine()
     local routine=$1
     local playbook=$2
     local tag=$3
-    local extra_vars=${4:-} # Optional extra variables
+    local extra_vars=${4:-}
 
     log "INFO" "Routine - ${routine^} - started"
 
@@ -278,7 +278,7 @@ function cluster_config_backup()
 
 # ===== Kafka Cluster Wide Config Restore =====
 # Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-function cluster_wide_config_restore()
+function cluster_config_restore()
 {
     local archive=$1
     run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
@@ -286,7 +286,7 @@ function cluster_wide_config_restore()
 }
 
 # Starts all Kafka containers in the pre-defined order
-function containers_run()
+function cluster_containers_run()
 {
     run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
     return $?
@@ -294,7 +294,7 @@ function containers_run()
 
 # ===== Kafka Containers Start =====
 # Starts all Kafka containers in the defined startup order
-function containers_start()
+function cluster_containers_start()
 {
     run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
     return $?
@@ -302,7 +302,7 @@ function containers_start()
 
 # ===== Kafka Containers Stop =====
 # Stops all Kafka containers in the defined shutdown order
-function containers_stop()
+function cluster_containers_stop()
 {
     run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
     return $?
@@ -310,15 +310,15 @@ function containers_stop()
 
 # ===== Kafka Containers Restart =====
 # Restarts all Kafka containers in the defined shutdown and startup orders
-function containers_restart()
+function cluster_containers_restart()
 {
-    containers_stop
-    containers_start
+    cluster_containers_stop
+    cluster_containers_start
 }
 
 # ===== Kafka Containers Remove =====
 # Removes all Kafka containers in the defined shutdown order
-function containers_remove()
+function cluster_containers_remove()
 {
     run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
     return $?
@@ -469,14 +469,14 @@ function config_menu() {
                     show_failure_message "Failed to backup configuration!\nExit the tool and review the logs."
                fi
                ;;
-            4) cluster_wide_config_restore_menu
+            4) cluster_config_restore_menu
                ;;
         esac
     done
 }
 
 # ===== Kafka Cluster Wide Config Restore Menu =====
-function cluster_wide_config_restore_menu()
+function cluster_config_restore_menu()
 {
     local storage_config config_backup_files choice selected_backup
 
@@ -518,7 +518,7 @@ function cluster_wide_config_restore_menu()
     log "DEBUG" "Selected configuration backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_wide_config_restore "$selected_backup"
+    cluster_config_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Configuration restored successfully!"
     else
@@ -550,21 +550,21 @@ function containers_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) containers_run
+            2) cluster_containers_run
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully started! All services are now running."
                else
                    show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
                fi
                ;;
-            3) containers_start
+            3) cluster_containers_start
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully resumed! Previously stopped services are now active."
                else
                    show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
                fi
                ;;
-            4) containers_stop
+            4) cluster_containers_stop
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully stopped! All services are now inactive."
                else
@@ -572,14 +572,14 @@ function containers_menu() {
                fi
                ;;
             5)
-               containers_restart
+               cluster_containers_restart
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully restarted! All services have been refreshed."
                else
                    show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
                fi
                ;;
-            6) containers_remove
+            6) cluster_containers_remove
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully removed! Resources have been freed."
                else
