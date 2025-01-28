@@ -46,6 +46,43 @@
   ansible.builtin.debug:
     msg: "The Docker directory symlink points to: {{ docker_symlink_check.stdout }}"
 
+- name: Check if Docker is installed
+  tags: prerequisites
+  ansible.builtin.shell: command -v docker
+  register: docker_check
+  failed_when: docker_check.rc != 0 and false
+  changed_when: false
+  ignore_errors: true
+
+- name: Notify if Docker is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "Docker is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: docker_check.rc != 0
+
+- name: Ensure Docker is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: "{{ docker_package }}"
+    state: present
+  vars:
+    docker_package: >-
+      {% if ansible_os_family == 'RedHat' %}
+        docker-ce
+      {% elif ansible_os_family == 'Debian' %}
+        docker-ce
+      {% else %}
+        docker
+      {% endif %}
+  when: docker_check.rc != 0
+
+- name: Ensure Docker service is enabled and started
+  tags: prerequisites
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
 - name: Check if XZ is installed
   tags: prerequisites
   ansible.builtin.shell: command -v xz
@@ -154,43 +191,6 @@
       {{ java_default_check.stdout_lines | default([]) }}
   delegate_to: node-0
   run_once: true
-
-- name: Check if Docker is installed
-  tags: prerequisites
-  ansible.builtin.shell: command -v docker
-  register: docker_check
-  failed_when: docker_check.rc != 0 and false
-  changed_when: false
-  ignore_errors: true
-
-- name: Notify if Docker is missing
-  tags: prerequisites
-  ansible.builtin.debug:
-    msg: "Docker is missing on {{ inventory_hostname }}. It will be installed in a moment."
-  when: docker_check.rc != 0
-
-- name: Ensure Docker is installed
-  tags: prerequisites
-  ansible.builtin.package:
-    name: "{{ docker_package }}"
-    state: present
-  vars:
-    docker_package: >-
-      {% if ansible_os_family == 'RedHat' %}
-        docker-ce
-      {% elif ansible_os_family == 'Debian' %}
-        docker-ce
-      {% else %}
-        docker
-      {% endif %}
-  when: docker_check.rc != 0
-
-- name: Ensure Docker service is enabled and started
-  tags: prerequisites
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: true
 
 - name: Check if rsync is installed
   tags: prerequisites
