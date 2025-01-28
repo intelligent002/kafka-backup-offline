@@ -1,5 +1,5 @@
 ---
-- name: Check if xz is installed
+- name: Check if XZ is installed
   tags: prerequisites
   ansible.builtin.command: xz --version
   register: xz_check
@@ -7,12 +7,12 @@
   changed_when: false
   ignore_errors: true
 
-- name: Ensure xz is installed
+- name: Ensure XZ is installed
   tags: prerequisites
   ansible.builtin.package:
-    name: xz-utils
+    name: "{{ 'xz-utils' if ansible_os_family == 'Debian' else 'xz' }}"
     state: present
-  when: xz_check is failed
+  when: xz_check.rc != 0
 
 - name: Validate xz installation
   tags: prerequisites
