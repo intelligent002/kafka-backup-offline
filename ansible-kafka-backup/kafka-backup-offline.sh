@@ -344,7 +344,7 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose a section:" 15 50 6 \
+            --menu "Choose a section:" 15 50 8 \
             "1" "Quit" \
             "2" "Accessories" \
             "3" "Certificates" \
