@@ -442,6 +442,58 @@ function certificates_menu() {
     done
 }
 
+
+# ===== Kafka Cluster Certificates Restore Menu =====
+function cluster_certificates_restore_menu()
+{
+    local storage_certificate certificates_backup_files choice selected_backup
+
+    storage_certificate="$STORAGE_COLD/certificate"
+
+    # Find all available certificates backup files with their sizes
+    certificates_backup_files=()
+    mapfile -t certificates_backup_files < <(find "$storage_certificate" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#certificates_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_certificate."
+        show_warning_message "No backup files found in $storage_certificate."
+        return 1
+    fi
+
+    # Prepare the options for whiptail menu
+    local menu_options=("back" "Return to certificate Menu") # Add "Back" option first
+    for i in "${!certificates_backup_files[@]}"; do
+        menu_options+=("$i" "${certificates_backup_files[$i]}")
+    done
+
+    # Display the menu using whiptail
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Certificates > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    # Capture the exit status of whiptail
+    local exit_status=$?
+
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${certificates_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected certificates backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_certificates_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "certificates restored successfully!"
+    else
+        show_failure_message "Failed to restore certificates."
+    fi
+}
+
 # ===== Configs Submenu =====
 function configs_menu() {
     while true; do
