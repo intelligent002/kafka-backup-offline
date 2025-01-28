@@ -383,17 +383,24 @@ function accessories_menu() {
         fi
 
         case $choice in
-            1) return 0 ;;
-            2) cluster_ssh_keys
+            1)
+               return 0 ;;
+            2)
+               cluster_ssh_keys
                if [[ $? -eq 0 ]]; then
                     show_success_message "SSH public key was deployed on all nodes successfully!"
                else
                     show_failure_message "Failed to deploy ssh public key!\nExit the tool and review the logs."
                fi
                ;;
-            3) cluster_prerequisites ;;
-            4) cluster_wide_certificates_backup ;;
-            5) cluster_wide_certificates_restore_menu ;;
+            3)
+               cluster_prerequisites
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Prerequisites was deployed on all nodes successfully!"
+               else
+                    show_failure_message "Failed to deploy prerequisites!\nExit the tool and review the logs."
+               fi
+               ;;
         esac
     done
 }
