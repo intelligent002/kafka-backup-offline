@@ -21,30 +21,55 @@
       Either /data is not mounted, or it does not have sufficient space (at least 40 GB required).
   when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 40)
 
-- name: Remove existing /var/lib/docker if not a symlink
+- name: Ensure /data/docker directory exists
+  tags: prerequisites
+  ansible.builtin.file:
+    path: /data/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Check if /var/lib/docker exists
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
+
+- name: Remove /var/lib/docker if it is a directory
   tags: prerequisites
   ansible.builtin.file:
     path: /var/lib/docker
     state: absent
+  when: docker_path_check.stat.exists and not docker_path_check.stat.islnk
 
-- name: Create symlink for Docker directory
+- name: Create symlink for Docker directory if it does not exist
   tags: prerequisites
   ansible.builtin.file:
     src: /data/docker
     dest: /var/lib/docker
     state: link
-  when: data_mount_check.rc == 0 and (data_disk_size.stdout | int >= 40)
+  when: not docker_path_check.stat.exists
 
-- name: Verify symlink for Docker directory
+- name: Verify existing symlink for Docker directory
   tags: prerequisites
   ansible.builtin.command: readlink -f /var/lib/docker
   register: docker_symlink_check
-  changed_when: false
+  when: docker_path_check.stat.islnk
 
-- name: Display symlink target for Docker directory
+- name: Fail if symlink points to the wrong target
+  tags: prerequisites
+  ansible.builtin.fail:
+    msg: >
+      The existing symlink at /var/lib/docker points to {{ docker_symlink_check.stdout }},
+      but it should point to /data/docker.
+  when: docker_path_check.stat.islnk and docker_symlink_check.stdout != '/data/docker'
+
+- name: Notify about correct symlink
   tags: prerequisites
   ansible.builtin.debug:
-    msg: "The Docker directory symlink points to: {{ docker_symlink_check.stdout }}"
+    msg: "The existing symlink at /var/lib/docker correctly points to /data/docker."
+  when: docker_path_check.stat.islnk and docker_symlink_check.stdout == '/data/docker'
 
 - name: Check if Docker is installed
   tags: prerequisites
