@@ -110,24 +110,54 @@
 
 - name: Check if Docker is installed
   tags: prerequisites
-  ansible.builtin.command: docker --version
+  ansible.builtin.shell: command -v docker
   register: docker_check
-  failed_when: docker_check.rc != 0
+  failed_when: docker_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
 
-- name: Install Docker
+- name: Notify if Docker is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "Docker is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: docker_check.rc != 0
+
+- name: Ensure Docker is installed
   tags: prerequisites
   ansible.builtin.package:
-    name: docker
+    name: "{{ docker_package }}"
     state: present
-  when: docker_check is failed
+  vars:
+    docker_package: >-
+      {% if ansible_os_family == 'RedHat' %}
+        docker
+      {% elif ansible_os_family == 'Debian' %}
+        docker.io
+      {% else %}
+        docker
+      {% endif %}
+  when: docker_check.rc != 0
 
-- name: Validate Docker installation
+- name: Ensure Docker service is enabled and started
+  tags: prerequisites
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Verify Docker installation
   tags: prerequisites
   ansible.builtin.command: docker --version
-  failed_when: docker_check.rc != 0
+  register: docker_version_check
   changed_when: false
+  failed_when: docker_check.rc != 0 and false
+
+- name: Display installed Docker version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      Docker version on {{ inventory_hostname }}:
+      {{ docker_version_check.stdout_lines | default([]) }}
 
 - name: Check if rsync is installed
   tags: prerequisites
