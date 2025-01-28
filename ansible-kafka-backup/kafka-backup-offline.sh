@@ -115,7 +115,7 @@ function help()
 function cluster_backup()
 {
     cluster_containers_stop
-    cluster_config_backup
+    cluster_configs_backup
     cluster_data_backup
     cluster_containers_start
 }
@@ -250,7 +250,7 @@ function cluster_data_restore()
 
 # ===== Kafka Config Generate =====
 # Generates and deploy config files to all cluster nodes
-function cluster_config_generate()
+function cluster_configs_generate()
 {
     run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
     return $?
@@ -258,7 +258,7 @@ function cluster_config_generate()
 
 # ===== Kafka Cluster Wide Config Backup =====
 # Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
-function cluster_config_backup()
+function cluster_configs_backup()
 {
     run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
     return $?
@@ -266,7 +266,7 @@ function cluster_config_backup()
 
 # ===== Kafka Cluster Wide Config Restore =====
 # Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-function cluster_config_restore()
+function cluster_configs_restore()
 {
     local archive=$1
     run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
@@ -355,7 +355,7 @@ function main_menu() {
             1) exit 0 ;; # Exit
             2) accessories_menu ;;
             3) certificates_menu ;;
-            4) config_menu ;;
+            4) configs_menu ;;
             5) containers_menu ;;
             6) credentials_menu ;;
             7) data_menu ;;
@@ -434,8 +434,8 @@ function certificates_menu() {
     done
 }
 
-# ===== Config Submenu =====
-function config_menu() {
+# ===== Configs Submenu =====
+function configs_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
@@ -456,28 +456,28 @@ function config_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_config_generate
+            2) cluster_configs_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
                     show_failure_message "Failed to generate configuration!\nExit the tool and review the logs."
                fi
                ;;
-            3) cluster_config_backup
+            3) cluster_configs_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was backed up successfully!"
                else
                     show_failure_message "Failed to backup configuration!\nExit the tool and review the logs."
                fi
                ;;
-            4) cluster_config_restore_menu
+            4) cluster_configs_restore_menu
                ;;
         esac
     done
 }
 
 # ===== Kafka Cluster Wide Config Restore Menu =====
-function cluster_config_restore_menu()
+function cluster_configs_restore_menu()
 {
     local storage_config config_backup_files choice selected_backup
 
@@ -519,7 +519,7 @@ function cluster_config_restore_menu()
     log "DEBUG" "Selected configuration backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_config_restore "$selected_backup"
+    cluster_configs_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Configuration restored successfully!"
     else
