@@ -54,6 +54,7 @@ docker_command_containers_run: >
   -p 9093:9093
   -p 9094:9094
   -p 9095:9095
+  -p 29092:29092
   -p 29093:29093
   -p 29094:29094
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
