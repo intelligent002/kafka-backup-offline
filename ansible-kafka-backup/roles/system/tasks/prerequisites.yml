@@ -119,6 +119,27 @@
     state: started
     enabled: true
 
+- name: Pull the Portainer Docker image
+  tags: portainer
+  ansible.builtin.command:
+    cmd: docker pull portainer/portainer-ce:latest
+
+- name: Deploy the Portainer container
+  tags: portainer
+  ansible.builtin.docker_container:
+    name: portainer
+    image: portainer/portainer-ce:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    env:
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: kafka
+
 - name: Check if XZ is installed
   tags: prerequisites
   ansible.builtin.shell: command -v xz
