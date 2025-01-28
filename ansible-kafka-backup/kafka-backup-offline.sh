@@ -493,31 +493,32 @@ function cluster_configs_restore_menu()
         show_warning_message "No backup files found in $storage_config."
         return 1
     fi
-
+echo 1
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to Config Menu") # Add "Back" option first
     for i in "${!config_backup_files[@]}"; do
         menu_options+=("$i" "${config_backup_files[$i]}")
     done
 
+echo 2
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
         --menu "Configs > Restore > Choose a backup file to restore:" 40 130 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
-
+echo 3
     # Capture the exit status of whiptail
     local exit_status=$?
-
+echo 4
     # Exit on ESC or cancel
     if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice="back" ]]; then
         return 0
     fi
-
+echo 5
     # Get the selected backup file path
     selected_backup=$(echo "${config_backup_files[$choice]}" | awk '{print $1}')
     log "DEBUG" "Selected configuration backup file: $selected_backup"
-
+echo 6
     # Call the restore function with the selected backup file
     cluster_configs_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
