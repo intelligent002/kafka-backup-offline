@@ -43,13 +43,25 @@
     state: absent
   when: docker_path_check.stat.exists and not docker_path_check.stat.islnk
 
-- name: Create symlink for Docker directory if it does not exist OR was just deleted for being a folder
+- name: Check if /var/lib/docker exists after deletion
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
+
+- name: Create symlink for Docker directory if it does not exist
   tags: prerequisites
   ansible.builtin.file:
     src: /data/docker
     dest: /var/lib/docker
     state: link
-  when: not docker_path_check.stat.exists or not docker_path_check.stat.islnk
+  when: not docker_path_check.stat.exists
+
+- name: Check if /var/lib/docker exists after creation
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
 
 - name: Verify existing symlink for Docker directory
   tags: prerequisites
