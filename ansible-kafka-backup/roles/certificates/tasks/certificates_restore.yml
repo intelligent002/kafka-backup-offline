@@ -1,7 +1,7 @@
 ---
 - name: Verify archive exists
   tags:
-    - certificate_restore
+    - certificates_restore
   delegate_to: node-0
   run_once: true
   stat:
@@ -10,14 +10,14 @@
 
 - name: Fail if archive does not exist
   tags:
-    - certificate_restore
+    - certificates_restore
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
 - name: Extract certificate archive to temp on central
   tags:
-    - certificate_restore
+    - certificates_restore
   delegate_to: node-0
   run_once: true
   unarchive:
@@ -27,7 +27,7 @@
 
 - name: Push node archives from central into nodes
   tags:
-    - certificate_restore
+    - certificates_restore
   delegate_to: node-0
   synchronize:
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
@@ -36,14 +36,14 @@
 
 - name: Remove cluster certificate folder on nodes
   tags:
-    - certificate_restore
+    - certificates_restore
   file:
     path: "{{ node_certificate_path }}"
     state: absent
 
 - name: Create cluster certificate folder on nodes
   tags:
-    - certificate_restore
+    - certificates_restore
   file:
     path: "{{ node_certificate_path }}"
     state: directory
@@ -51,7 +51,7 @@
 
 - name: Restore cluster certificate on nodes
   tags:
-    - certificate_restore
+    - certificates_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
     dest: "{{ node_certificate_path }}"

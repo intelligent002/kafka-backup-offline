@@ -1,7 +1,7 @@
 ---
 - name: Verify archive exists
   tags:
-    - config_restore
+    - configs_restore
   delegate_to: node-0
   run_once: true
   stat:
@@ -10,14 +10,14 @@
 
 - name: Fail if archive does not exist
   tags:
-    - config_restore
+    - configs_restore
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
 - name: Extract config archive to temp on central
   tags:
-    - config_restore
+    - configs_restore
   delegate_to: node-0
   run_once: true
   unarchive:
@@ -27,7 +27,7 @@
 
 - name: Push node archives from central into nodes
   tags:
-    - config_restore
+    - configs_restore
   delegate_to: node-0
   synchronize:
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
@@ -36,14 +36,14 @@
 
 - name: Remove cluster config folder on nodes
   tags:
-    - config_restore
+    - configs_restore
   file:
     path: "{{ node_config_path }}"
     state: absent
 
 - name: Create cluster config folder on nodes
   tags:
-    - config_restore
+    - configs_restore
   file:
     path: "{{ node_config_path }}"
     state: directory
@@ -51,7 +51,7 @@
 
 - name: Restore cluster config on nodes
   tags:
-    - config_restore
+    - configs_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_config_path }}"

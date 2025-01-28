@@ -1,7 +1,7 @@
 ---
 - name: Rotate old certificate backups
   tags:
-    - certificate_rotate
+    - certificates_rotate
   delegate_to: node-0
   run_once: true
   find:
@@ -9,20 +9,20 @@
     age: "{{ retention_policy_certificate }}d"
     recurse: yes
     patterns: "*certificate.tar.*"
-  register: old_certificate_backups
+  register: old_certificates_backups
 
 - name: Remove old certificate backups
   tags:
-    - certificate_rotate
+    - certificates_rotate
   delegate_to: node-0
   run_once: true
   file:
     path: "{{ item.path }}"
     state: absent
-  with_items: "{{ old_certificate_backups.files }}"
+  with_items: "{{ old_certificates_backups.files }}"
 
 - name: Remove empty directories in data storage
-  tags: certificate_rotate
+  tags: certificates_rotate
   delegate_to: node-0
   run_once: true
   shell: >

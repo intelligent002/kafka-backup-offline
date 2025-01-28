@@ -1,7 +1,7 @@
 ---
 - name: Rotate old config backups
   tags:
-    - config_rotate
+    - configs_rotate
   delegate_to: node-0
   run_once: true
   find:
@@ -9,20 +9,20 @@
     age: "{{ retention_policy_config }}d"
     recurse: yes
     patterns: "*config.tar.*"
-  register: old_config_backups
+  register: old_configs_backups
 
 - name: Remove old config backups
   tags:
-    - config_rotate
+    - configs_rotate
   delegate_to: node-0
   run_once: true
   file:
     path: "{{ item.path }}"
     state: absent
-  with_items: "{{ old_config_backups.files }}"
+  with_items: "{{ old_configs_backups.files }}"
 
 - name: Remove empty directories in data storage
-  tags: config_rotate
+  tags: configs_rotate
   delegate_to: node-0
   run_once: true
   shell: >

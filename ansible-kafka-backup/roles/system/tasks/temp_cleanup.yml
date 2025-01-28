@@ -1,10 +1,10 @@
 ---
 - name: Remove temporal folder on central
   tags:
-    - certificate_backup
-    - certificate_restore
-    - config_backup
-    - config_restore
+    - certificates_backup
+    - certificates_restore
+    - configs_backup
+    - configs_restore
     - data_backup
     - data_restore
     - temp_cleanup
@@ -16,10 +16,10 @@
 
 - name: Create temporal folder on central
   tags:
-    - certificate_backup
-    - certificate_restore
-    - config_backup
-    - config_restore
+    - certificates_backup
+    - certificates_restore
+    - configs_backup
+    - configs_restore
     - data_backup
     - data_restore
     - temp_cleanup
@@ -32,10 +32,10 @@
 
 - name: Remove temporal folder on nodes
   tags:
-    - certificate_backup
-    - certificate_restore
-    - config_backup
-    - config_restore
+    - certificates_backup
+    - certificates_restore
+    - configs_backup
+    - configs_restore
     - data_backup
     - data_restore
     - temp_cleanup
@@ -45,10 +45,10 @@
 
 - name: Create temporal folder on nodes
   tags:
-    - certificate_backup
-    - certificate_restore
-    - config_backup
-    - config_restore
+    - certificates_backup
+    - certificates_restore
+    - configs_backup
+    - configs_restore
     - data_backup
     - data_restore
     - temp_cleanup

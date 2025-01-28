@@ -225,6 +225,14 @@ function cluster_prerequisites()
     return $?
 }
 
+# ===== Kafka Cluster Wide Data Backup =====
+function cluster_certificates_backup()
+{
+    run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
+    return $?
+}
+
+
 # ===== Kafka Cluster Wide Data Format =====
 # Formats data on all cluster nodes
 function cluster_data_format()
@@ -252,7 +260,7 @@ function cluster_data_restore()
 # Generates and deploy config files to all cluster nodes
 function cluster_configs_generate()
 {
-    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
+    run_ansible_routine "Kafka Configs Deploy" "parallel" "configs_deploy"
     return $?
 }
 
@@ -260,7 +268,7 @@ function cluster_configs_generate()
 # Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
 function cluster_configs_backup()
 {
-    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
+    run_ansible_routine "Kafka Configs Backup" "parallel" "configs_backup"
     return $?
 }
 
@@ -269,7 +277,7 @@ function cluster_configs_backup()
 function cluster_configs_restore()
 {
     local archive=$1
-    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
+    run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "--extra-vars \"restore_archive=$archive\""
     return $?
 }
 
@@ -427,9 +435,9 @@ function certificates_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_wide_certificates_generate ;;
-            3) cluster_wide_certificates_backup ;;
-            4) cluster_wide_certificates_restore_menu ;;
+            2) cluster_certificates_generate ;;
+            3) cluster_certificates_backup ;;
+            4) cluster_certificates_restore_menu ;;
         esac
     done
 }
@@ -479,16 +487,16 @@ function configs_menu() {
 # ===== Kafka Cluster Wide Config Restore Menu =====
 function cluster_configs_restore_menu()
 {
-    local storage_config config_backup_files choice selected_backup
+    local storage_config configs_backup_files choice selected_backup
 
     storage_config="$STORAGE_COLD/config"
 
     # Find all available configuration backup files with their sizes
-    config_backup_files=()
-    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    configs_backup_files=()
+    mapfile -t configs_backup_files < <(find "$storage_config" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
 
     # Check if no files are available
-    if [[ ${#config_backup_files[@]} -eq 0 ]]; then
+    if [[ ${#configs_backup_files[@]} -eq 0 ]]; then
         log "DEBUG" "No backup files found in $storage_config."
         show_warning_message "No backup files found in $storage_config."
         return 1
@@ -496,8 +504,8 @@ function cluster_configs_restore_menu()
 
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to Config Menu") # Add "Back" option first
-    for i in "${!config_backup_files[@]}"; do
-        menu_options+=("$i" "${config_backup_files[$i]}")
+    for i in "${!configs_backup_files[@]}"; do
+        menu_options+=("$i" "${configs_backup_files[$i]}")
     done
 
     # Display the menu using whiptail
@@ -515,7 +523,7 @@ function cluster_configs_restore_menu()
     fi
 
     # Get the selected backup file path
-    selected_backup=$(echo "${config_backup_files[$choice]}" | awk '{print $1}')
+    selected_backup=$(echo "${configs_backup_files[$choice]}" | awk '{print $1}')
     log "DEBUG" "Selected configuration backup file: $selected_backup"
 
     # Call the restore function with the selected backup file

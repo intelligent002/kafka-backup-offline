@@ -10,8 +10,10 @@
 
 - include_tasks: temp_cleanup.yml
   tags:
-    - config_backup
-    - config_restore
+    - certificates_backup
+    - certificates_restore
+    - configs_backup
+    - configs_restore
     - data_backup
     - data_restore
     - temp_cleanup
