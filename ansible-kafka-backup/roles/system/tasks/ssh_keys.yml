@@ -5,6 +5,8 @@
     path: ~/.ssh/known_hosts
     name: "{{ ansible_host }}"
     key: "{{ lookup('pipe', 'ssh-keyscan -H ' + ansible_host) }}"
+  delegate_to: localhost
+  run_once: true
 
 - name: Ensure SSH directory exists on the remote host
   tags: ssh_keys
@@ -30,5 +32,6 @@
 - name: Test passwordless SSH access
   tags: ssh_keys
   ansible.builtin.shell: |
-    ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
+    ssh {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
+  delegate_to: localhost
   ignore_errors: true
