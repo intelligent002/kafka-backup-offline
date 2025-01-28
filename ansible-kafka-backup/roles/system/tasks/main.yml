@@ -2,8 +2,8 @@
 - include_tasks: cert_deploy.yml
   tags: cert_deploy
 
-- include_tasks: ssh_setup.yml
-  tags: ssh_setup
+- include_tasks: ssh_keys.yml
+  tags: ssh_keys
 
 - include_tasks: temp_cleanup.yml
   tags:

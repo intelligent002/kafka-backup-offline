@@ -32,6 +32,8 @@
 
 - name: Remove temporal folder on nodes
   tags:
+    - certificate_backup
+    - certificate_restore
     - config_backup
     - config_restore
     - data_backup
@@ -43,6 +45,8 @@
 
 - name: Create temporal folder on nodes
   tags:
+    - certificate_backup
+    - certificate_restore
     - config_backup
     - config_restore
     - data_backup

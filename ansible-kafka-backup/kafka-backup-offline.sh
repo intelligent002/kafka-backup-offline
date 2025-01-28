@@ -163,34 +163,6 @@ function log()
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >>"$LOG_FILE"
 }
 
-# ===== Coziness Functions =====
-# Copies SSH keys to all nodes for password-less access
-function setup_sshs()
-{
-    local role
-
-    log "INFO" "Routine - Setup up SSH Keys on all nodes - started"
-    for role in "${order_startup[@]}"; do setup_ssh "$role"; done
-    log "INFO" "Routine - Setup up SSH Keys on all nodes - OK"
-}
-
-# Copies SSH key to a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function setup_ssh()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Setup SSH key to $role at $ip"
-    ssh-copy-id -i "$SSH_KEY_PUB" "$SSH_USER"@"$ip" || {
-        log "WARN" "Failed to copy SSH key to $role at $ip. Password-less access might not work."
-        return 1
-    }
-}
-
 # Ensures that there is enough space for stable operation
 function ensure_free_space()
 {
@@ -235,6 +207,14 @@ function run_ansible_routine()
 
     log "INFO" "Routine - ${routine^} - OK"
     return 0
+}
+
+# ===== Coziness Functions =====
+# Copies SSH keys to all nodes for password-less access
+function cluster_ssh_keys()
+{
+    run_ansible_routine "Kafka Data Format" "parallel" "ssh_keys"
+    return $?
 }
 
 # ===== Kafka Cluster Wide Data Format =====
@@ -396,7 +376,7 @@ function accessories_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) setup_sshs ;;
+            2) cluster_ssh_keys ;;
             3) cluster_wide_certificates_generate ;;
             4) cluster_wide_certificates_backup ;;
             5) cluster_wide_certificates_restore_menu ;;
