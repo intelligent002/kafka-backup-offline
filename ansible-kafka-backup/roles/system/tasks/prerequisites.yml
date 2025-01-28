@@ -49,7 +49,7 @@
     src: /data/docker
     dest: /var/lib/docker
     state: link
-  when: not docker_path_check.stat.exists
+  when: not docker_path_check.stat.exists or not docker_path_check.stat.islnk
 
 - name: Verify existing symlink for Docker directory
   tags: prerequisites
