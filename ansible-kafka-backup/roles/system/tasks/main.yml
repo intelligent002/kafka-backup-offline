@@ -5,6 +5,9 @@
 - include_tasks: ssh_keys.yml
   tags: ssh_keys
 
+- include_tasks: prerequisites.yml
+  tags: prerequisites
+
 - include_tasks: temp_cleanup.yml
   tags:
     - config_backup
