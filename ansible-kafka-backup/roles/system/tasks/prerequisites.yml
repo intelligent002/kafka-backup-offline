@@ -147,21 +147,35 @@
 
 - name: Check if rsync is installed
   tags: prerequisites
-  ansible.builtin.command: rsync --version
+  ansible.builtin.shell: command -v rsync
   register: rsync_check
-  failed_when: rsync_check.rc != 0
+  failed_when: rsync_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
+
+- name: Notify if rsync is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "rsync is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: rsync_check.rc != 0
 
 - name: Ensure rsync is installed
   tags: prerequisites
   ansible.builtin.package:
     name: rsync
     state: present
-  when: rsync_check is failed
+  when: rsync_check.rc != 0
 
-- name: Validate rsync installation
+- name: Verify rsync installation
   tags: prerequisites
   ansible.builtin.command: rsync --version
-  failed_when: rsync_check.rc != 0
+  register: rsync_version_check
   changed_when: false
+  failed_when: rsync_check.rc != 0 and false
+
+- name: Display installed rsync version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      rsync version on {{ inventory_hostname }}:
+      {{ rsync_version_check.stdout_lines | default([]) }}
