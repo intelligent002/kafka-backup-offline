@@ -46,8 +46,6 @@ docker_command_containers_run_confluent: >
 
 docker_command_containers_run: >
   docker run -d --name={{ item }} -h {{ item }}
-  -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
-  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
   -p 9090:9090
   -p 9091:9091
   -p 9092:9092
@@ -88,6 +86,8 @@ docker_command_containers_run: >
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 #ping 127.0.0.1
+#  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+#  -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
 # openssl s_client -connect node-4.intel.r7g.org:9093 -showcerts
 
 
