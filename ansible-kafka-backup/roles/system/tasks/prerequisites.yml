@@ -1,11 +1,17 @@
 ---
 - name: Check if XZ is installed
-  tags: prerequisites
-  ansible.builtin.command: xz --version
+  ansible.builtin.shell: command -v xz
   register: xz_check
-  failed_when: xz_check.rc != 0
+  failed_when: false
   changed_when: false
   ignore_errors: true
+  tags: prerequisites
+
+- name: Notify if XZ is missing
+  ansible.builtin.debug:
+    msg: "XZ is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: xz_check.rc != 0
+  tags: prerequisites
 
 - name: Ensure XZ is installed
   tags: prerequisites
