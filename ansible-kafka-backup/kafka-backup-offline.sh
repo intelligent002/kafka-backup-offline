@@ -213,7 +213,7 @@ function run_ansible_routine()
 # Copies SSH keys to all nodes for password-less access
 function cluster_ssh_keys()
 {
-    run_ansible_routine "Kafka Data Format" "parallel" "ssh_keys"
+    run_ansible_routine "Kafka Data Format" "parallel" "ssh_keys" "--ask-pass"
     return $?
 }
 
