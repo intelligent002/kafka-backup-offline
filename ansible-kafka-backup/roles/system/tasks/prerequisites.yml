@@ -120,12 +120,12 @@
     enabled: true
 
 - name: Pull the Portainer Docker image
-  tags: portainer
+  tags: prerequisites
   ansible.builtin.command:
     cmd: docker pull portainer/portainer-ce:latest
 
 - name: Deploy the Portainer container
-  tags: portainer
+  tags: prerequisites
   ansible.builtin.docker_container:
     name: portainer
     image: portainer/portainer-ce:latest
