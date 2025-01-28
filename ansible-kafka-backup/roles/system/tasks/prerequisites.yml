@@ -33,12 +33,16 @@
   failed_when: java_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
+  delegate_to: localhost
+  run_once: true
 
 - name: Notify if Java is missing
   tags: prerequisites
   ansible.builtin.debug:
     msg: "Java is missing on {{ inventory_hostname }}. It will be installed in a moment."
   when: java_check.rc != 0
+  delegate_to: localhost
+  run_once: true
 
 - name: Ensure Java is installed
   tags: prerequisites
@@ -55,6 +59,8 @@
         java
       {% endif %}
   when: java_check.rc != 0
+  delegate_to: localhost
+  run_once: true
 
 - name: Verify Java version
   tags: prerequisites
@@ -62,6 +68,8 @@
   register: java_version_check
   changed_when: false
   failed_when: java_check.rc != 0 and false
+  delegate_to: localhost
+  run_once: true
 
 - name: Display installed Java version
   tags: prerequisites
@@ -70,6 +78,8 @@
       Java version on {{ inventory_hostname }}:
       {{ java_version_check.stdout_lines | default([]) }}
   when: java_check.rc == 0
+  delegate_to: localhost
+  run_once: true
 
 - name: Set default Java version (Red Hat-based systems)
   tags: prerequisites
@@ -77,6 +87,8 @@
   when:
     - ansible_os_family == 'RedHat'
     - java_check.rc != 0
+  delegate_to: localhost
+  run_once: true
 
 - name: Confirm default Java version
   tags: prerequisites
@@ -84,6 +96,8 @@
   register: java_default_check
   changed_when: false
   failed_when: java_check.rc != 0 and false
+  delegate_to: localhost
+  run_once: true
 
 - name: Display default Java version
   tags: prerequisites
@@ -91,6 +105,8 @@
     msg: |
       Default Java version on {{ inventory_hostname }}:
       {{ java_default_check.stdout_lines | default([]) }}
+  delegate_to: localhost
+  run_once: true
 
 - name: Check if Docker is installed
   tags: prerequisites
