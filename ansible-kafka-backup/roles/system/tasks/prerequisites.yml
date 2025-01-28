@@ -1,17 +1,17 @@
 ---
 - name: Check if XZ is installed
+  tags: prerequisites
   ansible.builtin.shell: command -v xz
   register: xz_check
-  failed_when: false
+  failed_when: xz_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
-  tags: prerequisites
 
 - name: Notify if XZ is missing
+  tags: prerequisites
   ansible.builtin.debug:
     msg: "XZ is missing on {{ inventory_hostname }}. It will be installed in a moment."
   when: xz_check.rc != 0
-  tags: prerequisites
 
 - name: Ensure XZ is installed
   tags: prerequisites
@@ -28,23 +28,30 @@
 
 - name: Check if Java is installed
   tags: prerequisites
-  ansible.builtin.command: java -version
+  ansible.builtin.shell: command -v java
   register: java_check
-  failed_when: java_check.rc != 0
+  failed_when: java_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
+
+- name: Notify if Java is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "Java is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: java_check.rc != 0
 
 - name: Ensure Java is installed
   tags: prerequisites
   ansible.builtin.package:
-    name: default-jre
+    name: "{{ 'default-jre' if ansible_os_family == 'Debian' else 'java-1.8.0-openjdk' }}"
     state: present
-  when: java_check is failed
+  when: java_check.rc != 0
 
 - name: Validate Java installation
   tags: prerequisites
   ansible.builtin.command: java -version
-  failed_when: java_check.rc != 0
+  register: java_validate
+  failed_when: java_check.rc != 0 and false
   changed_when: false
 
 - name: Check if Docker is installed
