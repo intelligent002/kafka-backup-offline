@@ -43,7 +43,7 @@
     state: absent
   when: docker_path_check.stat.exists and not docker_path_check.stat.islnk
 
-- name: Create symlink for Docker directory if it does not exist
+- name: Create symlink for Docker directory if it does not exist OR was just deleted for being a folder
   tags: prerequisites
   ansible.builtin.file:
     src: /data/docker
@@ -55,7 +55,6 @@
   tags: prerequisites
   ansible.builtin.command: readlink -f /var/lib/docker
   register: docker_symlink_check
-  when: docker_path_check.stat.islnk
 
 - name: Fail if symlink points to the wrong target
   tags: prerequisites
