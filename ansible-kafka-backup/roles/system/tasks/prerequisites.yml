@@ -127,7 +127,7 @@
 - name: Deploy the Portainer container
   tags: prerequisites
   ansible.builtin.docker_container:
-    name: portainer
+    name: portainer-ce
     image: portainer/portainer-ce:latest
     state: started
     restart_policy: always
