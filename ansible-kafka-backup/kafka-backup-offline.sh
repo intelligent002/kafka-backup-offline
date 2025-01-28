@@ -706,11 +706,76 @@ function credentials_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_credentials_generate ;;
-            3) cluster_credentials_backup ;;
+            2)
+               cluster_credentials_generate
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Credentials was generated successfully!"
+               else
+                    show_failure_message "Failed to generate credentials!\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               cluster_credentials_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Credentials was backed up successfully!"
+               else
+                    show_failure_message "Failed to backup credentials!\nExit the tool and review the logs."
+               fi
+               ;;
             4) cluster_credentials_restore_menu ;;
         esac
     done
+}
+
+# ===== Kafka Cluster Credentials Restore Menu =====
+function cluster_credentials_restore_menu()
+{
+    local storage_credentials credentials_backup_files choice selected_backup
+
+    storage_credentials="$STORAGE_COLD/credentials"
+
+    # Find all available credentials backup files with their sizes
+    credentials_backup_files=()
+    mapfile -t credentials_backup_files < <(find "$storage_credentials" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#credentials_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_credentials."
+        show_warning_message "No backup files found in $storage_credentials."
+        return 1
+    fi
+
+    # Prepare the options for whiptail menu
+    local menu_options=("back" "Return to credentials Menu") # Add "Back" option first
+    for i in "${!credentials_backup_files[@]}"; do
+        menu_options+=("$i" "${credentials_backup_files[$i]}")
+    done
+
+    # Display the menu using whiptail
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Credentials > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    # Capture the exit status of whiptail
+    local exit_status=$?
+
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${credentials_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected credentials backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_credentials_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Credentials restored successfully!"
+    else
+        show_failure_message "Failed to restore credentials."
+    fi
 }
 
 # ===== Data Submenu =====
