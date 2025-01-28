@@ -21,22 +21,30 @@
       Either /data is not mounted, or it does not have sufficient space (at least 40 GB required).
   when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 40)
 
-- name: Ensure permissions on /data/docker
+- name: Remove existing /var/lib/docker if not a symlink
   tags: prerequisites
   ansible.builtin.file:
-    path: /data/docker
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-  when: data_mount_check.rc == 0 and (data_disk_size.stdout | int >= 40)
+    path: /var/lib/docker
+    state: absent
 
 - name: Create symlink for Docker directory
   tags: prerequisites
-  ansible.builtin.command: ln -sfn /data/docker /var/lib/docker
-  args:
-    removes: /var/lib/docker
+  ansible.builtin.file:
+    src: /data/docker
+    dest: /var/lib/docker
+    state: link
   when: data_mount_check.rc == 0 and (data_disk_size.stdout | int >= 40)
+
+- name: Verify symlink for Docker directory
+  tags: prerequisites
+  ansible.builtin.command: readlink -f /var/lib/docker
+  register: docker_symlink_check
+  changed_when: false
+
+- name: Display symlink target for Docker directory
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "The Docker directory symlink points to: {{ docker_symlink_check.stdout }}"
 
 - name: Check if XZ is installed
   tags: prerequisites
