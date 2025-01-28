@@ -115,8 +115,8 @@ function help()
 function cluster_backup()
 {
     containers_stop
-    cluster_wide_config_backup
-    cluster_wide_data_backup
+    cluster_config_backup
+    cluster_data_backup
     containers_start
 }
 
@@ -237,67 +237,91 @@ function run_ansible_routine()
     return 0
 }
 
-# ===== Menu Function =====
-function menu()
+# ===== Kafka Cluster Wide Data Format =====
+# Formats data on all cluster nodes
+function cluster_data_format()
 {
-    local choice
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
+}
 
-    while true; do
-        echo "Available routines:"
-        echo "---------------------------------------------"
-        echo "0) Exit"
-        echo "1) Setup SSH Keys (ssh-copy-id)"
-        echo "---------------------------------------------"
-        echo "2) Containers Run"
-        echo "3) Containers Start"
-        echo "4) Containers Stop"
-        echo "5) Containers Restart"
-        echo "6) Containers Remove"
-        echo "---------------------------------------------"
-        echo "7) Data Format"
-        echo "8) Data Backup"
-        echo "9) Data Restore"
-        echo "---------------------------------------------"
-        echo "10) Config Generate"
-        echo "11) Config Backup"
-        echo "12) Config Restore"
-        echo "---------------------------------------------"
-        echo "13) Certificates Generate"
-        echo "14) Certificates Backup"
-        echo "15) Certificates Restore"
-        echo "---------------------------------------------"
-        echo "16) Credentials Generate"
-        echo "17) Credentials Backup"
-        echo "18) Credentials Restore"
-        echo "---------------------------------------------"
-        read -rp "Choose an option [0-11]: " choice
+# ===== Kafka Cluster Wide Data Backup =====
+function cluster_data_backup()
+{
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
 
-        case $choice in
-            0)
-                log "INFO" "Have a nice day!"
-                break
-                ;;
-            1) setup_sshs ;;
-            2) containers_run ;;
-            3) containers_start ;;
-            4) containers_stop ;;
-            5) containers_restart ;;
-            6) containers_remove ;;
-            7) cluster_wide_data_format ;;
-            8) cluster_wide_data_backup ;;
-            9) cluster_wide_data_restore_menu ;;
-            10) cluster_wide_config_generate ;;
-            11) cluster_wide_config_backup ;;
-            12) cluster_wide_config_restore_menu ;;
-            13) cluster_wide_certificates_generate ;;
-            14) cluster_wide_certificates_backup ;;
-            15) cluster_wide_certificates_restore_menu ;;
-            16) cluster_wide_credentials_generate ;;
-            17) cluster_wide_credentials_backup ;;
-            18) cluster_wide_credentials_restore_menu ;;
-            *) echo "Invalid choice. Please try again." ;;
-        esac
-    done
+# ===== Kafka Cluster Wide Data Restore =====
+function cluster_data_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
+
+# ===== Kafka Config Generate =====
+# Generates and deploy config files to all cluster nodes
+function cluster_config_generate()
+{
+    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Config Backup =====
+# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
+function cluster_config_backup()
+{
+    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
+    return $?
+}
+
+# ===== Kafka Cluster Wide Config Restore =====
+# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
+function cluster_wide_config_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
+
+# Starts all Kafka containers in the pre-defined order
+function containers_run()
+{
+    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    return $?
+}
+
+# ===== Kafka Containers Start =====
+# Starts all Kafka containers in the defined startup order
+function containers_start()
+{
+    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
+    return $?
+}
+
+# ===== Kafka Containers Stop =====
+# Stops all Kafka containers in the defined shutdown order
+function containers_stop()
+{
+    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
+    return $?
+}
+
+# ===== Kafka Containers Restart =====
+# Restarts all Kafka containers in the defined shutdown and startup orders
+function containers_restart()
+{
+    containers_stop
+    containers_start
+}
+
+# ===== Kafka Containers Remove =====
+# Removes all Kafka containers in the defined shutdown order
+function containers_remove()
+{
+    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    return $?
 }
 
 # Function to display a failure message
@@ -310,9 +334,9 @@ function show_success_message() {
     whiptail --title "Success" --msgbox "$1" 10 60
 }
 
-# Function to display a success message
-function show_info_message() {
-    whiptail --title "Info" --msgbox "$1" 10 60
+# Function to display a warning message
+function show_warning_message() {
+    whiptail --title "Warning" --msgbox "$1" 10 60
 }
 
 # ===== Main Menu =====
@@ -322,11 +346,12 @@ function main_menu() {
             --cancel-button "Quit" \
             --menu "Choose a section:" 15 50 6 \
             "1" "Quit" \
-            "2" "Certificates" \
-            "3" "Configs" \
-            "4" "Containers" \
-            "5" "Credentials" \
-            "6" "Data" \
+            "2" "Accessories" \
+            "3" "Certificates" \
+            "4" "Configs" \
+            "5" "Containers" \
+            "6" "Credentials" \
+            "7" "Data" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -340,27 +365,25 @@ function main_menu() {
         # Handle user choices
         case $choice in
             1) exit 0 ;; # Exit
-            2) certificates_menu ;;
-            3) config_menu ;;
-            4) containers_menu ;;
-            5) credentials_menu ;;
-            6) data_menu ;;
+            2) accessories_menu ;;
+            3) certificates_menu ;;
+            4) config_menu ;;
+            5) containers_menu ;;
+            6) credentials_menu ;;
+            7) data_menu ;;
         esac
     done
 }
 
-
-# ===== Certificates Submenu =====
-function certificates_menu() {
+# ===== Accessories Submenu =====
+function accessories_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates > Choose an action:" 15 50 6 \
+            --menu "Accessories > Choose an action:" 15 50 6 \
             "1" "Main menu" \
-            "2" "Install (ssh-copy-id)" \
-            "3" "Generate" \
-            "4" "Backup" \
-            "5" "Restore" \
+            "2" "Deploy SSH certificate - (ssh-copy-id)" \
+            "3" "Deploy prerequisites - (docker, java, etc)" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -373,10 +396,39 @@ function certificates_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) setup_ssh ;;
+            2) setup_sshs ;;
             3) cluster_wide_certificates_generate ;;
             4) cluster_wide_certificates_backup ;;
             5) cluster_wide_certificates_restore_menu ;;
+        esac
+    done
+}
+
+# ===== Certificates Submenu =====
+function certificates_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Certificates > Choose an action:" 15 50 6 \
+            "1" "Main menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1) return 0 ;;
+            2) cluster_wide_certificates_generate ;;
+            3) cluster_wide_certificates_backup ;;
+            4) cluster_wide_certificates_restore_menu ;;
         esac
     done
 }
@@ -403,14 +455,14 @@ function config_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_wide_config_generate
+            2) cluster_config_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
                     show_failure_message "Failed to generate configuration!\nExit the tool and review the logs."
                fi
                ;;
-            3) cluster_wide_config_backup
+            3) cluster_config_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was backed up successfully!"
                else
@@ -437,7 +489,7 @@ function cluster_wide_config_restore_menu()
     # Check if no files are available
     if [[ ${#config_backup_files[@]} -eq 0 ]]; then
         log "DEBUG" "No backup files found in $storage_config."
-        show_info_message "No backup files found in $storage_config."
+        show_warning_message "No backup files found in $storage_config."
         return 1
     fi
 
@@ -474,30 +526,6 @@ function cluster_wide_config_restore_menu()
     fi
 }
 
-# ===== Kafka Config Generate =====
-# Generates and deploy config files to all cluster nodes
-function cluster_wide_config_generate()
-{
-    run_ansible_routine "Kafka Config Deploy" "parallel" "config_deploy"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Config Backup =====
-# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
-function cluster_wide_config_backup()
-{
-    run_ansible_routine "Kafka Config Backup" "parallel" "config_backup"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Config Restore =====
-# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-function cluster_wide_config_restore()
-{
-    local archive=$1
-    run_ansible_routine "Kafka Config Restore" "parallel" "config_restore" "--extra-vars \"restore_archive=$archive\""
-    return $?
-}
 
 # ===== Containers Submenu =====
 function containers_menu() {
@@ -562,44 +590,6 @@ function containers_menu() {
     done
 }
 
-# Starts all Kafka containers in the pre-defined order
-function containers_run()
-{
-    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
-    return $?
-}
-
-# ===== Kafka Containers Start =====
-# Starts all Kafka containers in the defined startup order
-function containers_start()
-{
-    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
-    return $?
-}
-
-# ===== Kafka Containers Stop =====
-# Stops all Kafka containers in the defined shutdown order
-function containers_stop()
-{
-    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
-    return $?
-}
-
-# ===== Kafka Containers Restart =====
-# Restarts all Kafka containers in the defined shutdown and startup orders
-function containers_restart()
-{
-    containers_stop
-    containers_start
-}
-
-# ===== Kafka Containers Remove =====
-# Removes all Kafka containers in the defined shutdown order
-function containers_remove()
-{
-    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
-    return $?
-}
 
 # ===== Credentials Submenu =====
 function credentials_menu() {
@@ -652,7 +642,7 @@ function data_menu() {
             1)
                return 0 ;;
             2)
-               cluster_wide_data_format
+               cluster_data_format
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
                else
@@ -660,7 +650,7 @@ function data_menu() {
                fi
                ;;
             3)
-               cluster_wide_data_backup
+               cluster_data_backup
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
                else
@@ -668,13 +658,13 @@ function data_menu() {
                fi
                ;;
             4)
-               cluster_wide_data_restore_menu ;;
+               cluster_data_restore_menu ;;
         esac
     done
 }
 
 # ===== Kafka Cluster Wide Data Restore Menu =====
-function cluster_wide_data_restore_menu() {
+function cluster_data_restore_menu() {
     local storage_data backup_files choice selected_backup
 
     storage_data="$STORAGE_COLD/data"
@@ -686,7 +676,7 @@ function cluster_wide_data_restore_menu() {
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
         log "DEBUG" "No backup files found in $storage_data."
-        show_info_message "No backup files found in $storage_data."
+        show_warning_message "No backup files found in $storage_data."
         return 1
     fi
 
@@ -715,35 +705,12 @@ function cluster_wide_data_restore_menu() {
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_wide_data_restore "$selected_backup"
+    cluster_data_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Data restoration completed successfully!\nThe cluster has been restored to the selected backup state."
     else
         show_failure_message "Data restoration failed.\nPlease review the logs and verify the backup integrity."
     fi
-}
-
-# ===== Kafka Cluster Wide Data Format =====
-# Formats data on all cluster nodes
-function cluster_wide_data_format()
-{
-    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Data Backup =====
-function cluster_wide_data_backup()
-{
-    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
-    return $?
-}
-
-# ===== Kafka Cluster Wide Data Restore =====
-function cluster_wide_data_restore()
-{
-    local archive=$1
-    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
-    return $?
 }
 
 # ===== Main Execution =====
