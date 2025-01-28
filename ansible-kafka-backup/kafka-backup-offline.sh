@@ -436,7 +436,14 @@ function certificates_menu() {
         case $choice in
             1) return 0 ;;
             2) cluster_certificates_generate ;;
-            3) cluster_certificates_backup ;;
+            3)
+               cluster_certificates_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Certificates was backed up successfully!"
+               else
+                    show_failure_message "Failed to backup certificates!\nExit the tool and review the logs."
+               fi
+               ;;
             4) cluster_certificates_restore_menu ;;
         esac
     done
@@ -488,7 +495,7 @@ function cluster_certificates_restore_menu()
     # Call the restore function with the selected backup file
     cluster_certificates_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
-        show_success_message "certificates restored successfully!"
+        show_success_message "Certificates restored successfully!"
     else
         show_failure_message "Failed to restore certificates."
     fi
