@@ -43,16 +43,54 @@
 - name: Ensure Java is installed
   tags: prerequisites
   ansible.builtin.package:
-    name: "{{ 'default-jre' if ansible_os_family == 'Debian' else 'java-1.8.0-openjdk' }}"
+    name: "{{ java_package }}"
     state: present
+  vars:
+    java_package: >-
+      {% if ansible_os_family == 'RedHat' %}
+        java-21-openjdk
+      {% elif ansible_os_family == 'Debian' %}
+        default-jre
+      {% else %}
+        java
+      {% endif %}
   when: java_check.rc != 0
 
-- name: Validate Java installation
+- name: Verify Java version
+  tags: prerequisites
+  ansible.builtin.shell: java -version
+  register: java_version_check
+  changed_when: false
+  failed_when: java_check.rc != 0 and false
+
+- name: Display installed Java version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      Java version on {{ inventory_hostname }}:
+      {{ java_version_check.stdout_lines | default([]) }}
+  when: java_check.rc == 0
+
+- name: Set default Java version (Red Hat-based systems)
+  tags: prerequisites
+  ansible.builtin.command: alternatives --set java /usr/lib/jvm/java-21-openjdk/bin/java
+  when:
+    - ansible_os_family == 'RedHat'
+    - java_check.rc != 0
+
+- name: Confirm default Java version
   tags: prerequisites
   ansible.builtin.command: java -version
-  register: java_validate
-  failed_when: java_check.rc != 0 and false
+  register: java_default_check
   changed_when: false
+  failed_when: java_check.rc != 0 and false
+
+- name: Display default Java version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      Default Java version on {{ inventory_hostname }}:
+      {{ java_default_check.stdout_lines | default([]) }}
 
 - name: Check if Docker is installed
   tags: prerequisites
