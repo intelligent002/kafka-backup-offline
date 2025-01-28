@@ -117,6 +117,7 @@ function cluster_backup()
     cluster_containers_stop
     cluster_configs_backup
     cluster_certificates_backup
+    cluster_credentials_backup
     cluster_data_backup
     cluster_containers_start
 }
