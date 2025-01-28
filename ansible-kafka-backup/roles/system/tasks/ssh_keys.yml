@@ -16,6 +16,7 @@
 - name: Copy public key to the remote server
   tags: ssh_keys
   ansible.builtin.shell: |
+    grep -q "$(cat ~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys || \
     echo "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" >> ~/.ssh/authorized_keys
   args:
     executable: /bin/bash
@@ -29,5 +30,5 @@
 - name: Test passwordless SSH access
   tags: ssh_keys
   ansible.builtin.shell: |
-    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
+    ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
   ignore_errors: true
