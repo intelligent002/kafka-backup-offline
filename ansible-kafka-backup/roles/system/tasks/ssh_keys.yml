@@ -5,6 +5,7 @@
     path: ~/.ssh/known_hosts
     name: "{{ ansible_host }}"
     key: "{{ lookup('pipe', 'ssh-keyscan -q ' + ansible_host) }}"
+    state: present
   delegate_to: localhost
   run_once: true
 
