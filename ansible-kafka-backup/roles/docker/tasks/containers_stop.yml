@@ -3,7 +3,7 @@
   tags:
     - containers_stop
     - containers_restart
-  shell: docker stop {{ item }}
+  shell: docker stop {{ hostvars[item]['hostname'] }}
   delegate_to: "{{ item }}"
   with_items: "{{ shutdown_order }}"
   run_once: true  # Ensure task runs only once on localhost
