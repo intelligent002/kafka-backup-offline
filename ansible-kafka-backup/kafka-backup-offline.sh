@@ -510,6 +510,7 @@ echo 3
     # Capture the exit status of whiptail
     local exit_status=$?
 echo 4
+echo "exit status = $exit_status"
     # Exit on ESC or cancel
     if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice="back" ]]; then
         return 0
