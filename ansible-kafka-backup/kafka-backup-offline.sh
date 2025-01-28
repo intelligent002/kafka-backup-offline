@@ -225,15 +225,24 @@ function cluster_prerequisites()
     return $?
 }
 
-# ===== Kafka Cluster Wide Data Backup =====
+# ===== Kafka Cluster Data Backup =====
 function cluster_certificates_backup()
 {
     run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
     return $?
 }
 
+# ===== Kafka Cluster Config Restore =====
+# Restores Kafka cluster certificates files to all nodes from a specified backup archive.
+function cluster_certificates_restore()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
 
-# ===== Kafka Cluster Wide Data Format =====
+
+# ===== Kafka Cluster Data Format =====
 # Formats data on all cluster nodes
 function cluster_data_format()
 {
@@ -241,14 +250,14 @@ function cluster_data_format()
     return $?
 }
 
-# ===== Kafka Cluster Wide Data Backup =====
+# ===== Kafka Cluster Data Backup =====
 function cluster_data_backup()
 {
     run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
     return $?
 }
 
-# ===== Kafka Cluster Wide Data Restore =====
+# ===== Kafka Cluster Data Restore =====
 function cluster_data_restore()
 {
     local archive=$1
@@ -264,7 +273,7 @@ function cluster_configs_generate()
     return $?
 }
 
-# ===== Kafka Cluster Wide Config Backup =====
+# ===== Kafka Cluster Config Backup =====
 # Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
 function cluster_configs_backup()
 {
@@ -272,7 +281,7 @@ function cluster_configs_backup()
     return $?
 }
 
-# ===== Kafka Cluster Wide Config Restore =====
+# ===== Kafka Cluster Config Restore =====
 # Restores Kafka cluster configuration files to all nodes from a specified backup archive.
 function cluster_configs_restore()
 {
@@ -543,7 +552,7 @@ function configs_menu() {
     done
 }
 
-# ===== Kafka Cluster Wide Config Restore Menu =====
+# ===== Kafka Cluster Config Restore Menu =====
 function cluster_configs_restore_menu()
 {
     local storage_config configs_backup_files choice selected_backup
@@ -680,9 +689,9 @@ function credentials_menu() {
 
         case $choice in
             1) return 0 ;;
-            2) cluster_wide_credentials_generate ;;
-            3) cluster_wide_credentials_backup ;;
-            4) cluster_wide_credentials_restore_menu ;;
+            2) cluster_credentials_generate ;;
+            3) cluster_credentials_backup ;;
+            4) cluster_credentials_restore_menu ;;
         esac
     done
 }
@@ -731,7 +740,7 @@ function data_menu() {
     done
 }
 
-# ===== Kafka Cluster Wide Data Restore Menu =====
+# ===== Kafka Cluster Data Restore Menu =====
 function cluster_data_restore_menu() {
     local storage_data backup_files choice selected_backup
 
