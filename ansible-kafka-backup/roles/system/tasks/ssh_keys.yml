@@ -34,4 +34,13 @@
   ansible.builtin.shell: |
     ssh {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
   delegate_to: localhost
-  ignore_errors: true
+  register: ssh_test_output
+  failed_when: ssh_test_output.rc != 0
+
+- name: Display SSH test output
+  tags: ssh_keys
+  ansible.builtin.debug:
+    msg: |
+      Host: {{ ansible_host }}
+      stdout: {{ ssh_test_output.stdout }}
+      stderr: {{ ssh_test_output.stderr }}
