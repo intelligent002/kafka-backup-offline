@@ -14,10 +14,10 @@
     state: present
   when: xz_check.rc != 0
 
-- name: Validate xz installation
+- name: Validate XZ installation
   tags: prerequisites
   ansible.builtin.command: xz --version
-  failed_when: xz_check.rc != 0
+  register: xz_validate
   changed_when: false
 
 - name: Check if Java is installed
