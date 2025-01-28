@@ -32,7 +32,7 @@
 - name: Test passwordless SSH access
   tags: ssh_keys
   ansible.builtin.shell: |
-    ssh {{ ansible_host }} "echo 'Passwordless SSH setup complete'"
+    ssh {{ ansible_host }} "hostname && uname -a"
   delegate_to: localhost
   register: ssh_test_output
   failed_when: ssh_test_output.rc != 0
