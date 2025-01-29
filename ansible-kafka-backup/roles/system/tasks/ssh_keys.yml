@@ -30,7 +30,7 @@
     path: ~/.ssh/authorized_keys
     mode: '0600'
 
-- name: Test passwordless SSH access
+- name: Test password-less SSH access
   tags: ssh_keys
   ansible.builtin.shell: |
     ssh {{ ansible_host }} "hostname && uname -a"

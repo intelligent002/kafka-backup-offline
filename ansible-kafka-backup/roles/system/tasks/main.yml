@@ -1,4 +1,23 @@
 ---
-- include_tasks: ssh_keys.yml
-- include_tasks: prerequisites.yml
-- include_tasks: temp_cleanup.yml
+- name: Deploy SSH public keys on all cluster nodes
+  include_tasks: ssh_keys.yml
+  tags:
+    - ssh_keys
+
+- name: Install prerequisites on all cluster nodes
+  include_tasks: prerequisites.yml
+  tags:
+    - prerequisites
+
+- name: Cleanup TEMP folders on all cluster nodes
+  include_tasks: temp_cleanup.yml
+  tags:
+    - certificates_backup
+    - certificates_restore
+    - credentials_backup
+    - credentials_restore
+    - configs_backup
+    - configs_restore
+    - data_backup
+    - data_restore
+    - temp_cleanup
