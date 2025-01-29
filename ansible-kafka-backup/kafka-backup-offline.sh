@@ -271,8 +271,7 @@ function cluster_configs_restore()
 # Starts all Kafka containers in the pre-defined order
 function cluster_containers_run()
 {
-    #run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
-    run_ansible_routine "Kafka Containers Run" "parallel" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
     return $?
 }
 
@@ -280,8 +279,7 @@ function cluster_containers_run()
 # Starts all Kafka containers in the defined startup order
 function cluster_containers_start()
 {
-    #run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
-    run_ansible_routine "Kafka Containers Start" "parallel" "containers_start"
+    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
     return $?
 }
 
@@ -289,8 +287,7 @@ function cluster_containers_start()
 # Stops all Kafka containers in the defined shutdown order
 function cluster_containers_stop()
 {
-    #run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
-    run_ansible_routine "Kafka Containers Stop" "parallel" "containers_stop"
+    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
     return $?
 }
 
@@ -306,8 +303,7 @@ function cluster_containers_restart()
 # Removes all Kafka containers in the defined shutdown order
 function cluster_containers_remove()
 {
-    #run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
-    run_ansible_routine "Kafka Containers Remove" "parallel" "containers_remove"
+    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
     return $?
 }
 
