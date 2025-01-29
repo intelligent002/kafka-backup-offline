@@ -517,6 +517,7 @@ function cluster_certificates_restore_menu()
 {
     local storage_certificate certificates_backup_files choice selected_backup
 
+    # Define the path to certificate backup storage
     storage_certificate="$STORAGE_COLD/certificate"
 
     # Find all available certificates backup files with their sizes
@@ -533,10 +534,11 @@ function cluster_certificates_restore_menu()
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to certificate Menu") # Add "Back" option first
     for i in "${!certificates_backup_files[@]}"; do
+        # Add each backup file with its details to the menu options
         menu_options+=("$i" "${certificates_backup_files[$i]}")
     done
 
-    # Display the menu using whiptail
+    # Display the menu using whiptail for user selection
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
         --menu "Certificates > Restore > Choose a backup file to restore:" 40 130 32 \
@@ -557,8 +559,10 @@ function cluster_certificates_restore_menu()
     # Call the restore function with the selected backup file
     cluster_certificates_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
+        # Show success message if restoration is successful
         show_success_message "Certificates restored successfully!"
     else
+        # Show failure message if restoration fails
         show_failure_message "Failed to restore certificates."
     fi
 }
