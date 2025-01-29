@@ -3,6 +3,8 @@
   tags:
     - certificates_backup
     - certificates_restore
+    - credentials_backup
+    - credentials_restore
     - configs_backup
     - configs_restore
     - data_backup
@@ -18,6 +20,8 @@
   tags:
     - certificates_backup
     - certificates_restore
+    - credentials_backup
+    - credentials_restore
     - configs_backup
     - configs_restore
     - data_backup
@@ -34,6 +38,8 @@
   tags:
     - certificates_backup
     - certificates_restore
+    - credentials_backup
+    - credentials_restore
     - configs_backup
     - configs_restore
     - data_backup
@@ -47,6 +53,8 @@
   tags:
     - certificates_backup
     - certificates_restore
+    - credentials_backup
+    - credentials_restore
     - configs_backup
     - configs_restore
     - data_backup
