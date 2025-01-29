@@ -82,7 +82,7 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  docker.artifactory.intel.r7g.org/apache/kafka:3.8.0
+  apache/kafka:3.8.0
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 #ping 127.0.0.1
