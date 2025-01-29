@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-# ===== Load Configuration from .ini File =====
+# Parses a specific section of an INI file and stores key-value pairs in an associative array.
+# Skips comments and empty lines while trimming whitespace from keys and values.
+# Stores results in the global associative array "ini_data" using "section.key" as the index.
 function parse_ini_file()
 {
     local ini_file=$1
@@ -17,7 +19,10 @@ function parse_ini_file()
     done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
 }
 
-# This function loads configuration variables from an .ini file and populates global variables.
+# Loads configuration settings from an INI file and stores them in global variables.
+# Validates if the configuration file exists before parsing.
+# Uses `parse_ini_file` to extract values from the "general" and "storage" sections.
+# Sets logging levels, file paths, and storage-related parameters.
 function load_configuration()
 {
     local config_file=$1 # Accept the config file path as an argument
@@ -52,7 +57,9 @@ function load_configuration()
     log "INFO" "Configuration loaded from '$config_file'"
 }
 
-# Help function to display available options
+# Displays a disclaimer message for the Kafka-Backup-Offline Utility.
+# Warns that the solution is not suitable for production as it requires taking Kafka offline.
+# Provides author contact details and version information.
 function disclaimer()
 {
     echo "==================================================================================================================="
@@ -70,6 +77,10 @@ function disclaimer()
     echo "==================================================================================================================="
 }
 
+# Displays a help message detailing available functions in the Kafka-Backup-Offline Utility.
+# Categorizes routines into Coziness, Containers, and Backup sections.
+# Provides usage instructions and descriptions for each function.
+# Warns that without a specified function name, an interactive menu will be shown.
 function help()
 {
     disclaimer
@@ -112,6 +123,10 @@ function help()
     echo
 }
 
+# Cron-oriented function for automated Kafka cluster backups.
+# 1. Stops all Kafka containers to ensure data consistency.
+# 2. Backs up configurations, certificates, credentials & data. storing everything in cold storage.
+# 3. Starts all Kafka containers after the backup process completes.
 function cluster_backup()
 {
     #cluster_containers_stop
@@ -122,7 +137,8 @@ function cluster_backup()
     #cluster_containers_start
 }
 
-# Creates a PID file to ensure only one instance of the script runs at a time
+# Creates a PID file to prevent multiple script instances from running.
+# Exits if the PID file exists, otherwise writes the current PID and sets a trap to remove the file on exit.
 function create_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
@@ -135,16 +151,16 @@ function create_pid_file()
     log "DEBUG" "PID file created with PID: $$"
 }
 
-# Removes the PID file on script exit.
+# Removes the PID file to allow future script executions.
+# Logs the removal of the PID file for debugging purposes.
 function remove_pid_file()
 {
     rm -f "$PID_FILE"
     log "DEBUG" "PID file removed"
 }
 
-# Logs messages to the console and the specified log file
-# Parameters:
-#   $1 - The message to log.
+# Logs messages with a specified log level to both the console and log file.
+# Compares the log level with the configured threshold to decide whether to print the message to the console.
 function log()
 {
     local level=$1
@@ -165,7 +181,8 @@ function log()
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >>"$LOG_FILE"
 }
 
-# Ensures that there is enough space for stable operation
+# Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
+# Logs a warning message if the available space is below 20% (or the configured `STORAGE_WARN_LOW` value).
 function ensure_free_space()
 {
     local mount free_storage free_percent
@@ -182,7 +199,8 @@ function ensure_free_space()
     fi
 }
 
-# ===== Kafka Containers Run =====
+# Runs an Ansible playbook inside a Docker container with specified routines and tags.
+# Logs the start and end of the routine, and handles errors by logging the failed command.
 function run_ansible_routine()
 {
     local routine=$1
@@ -211,31 +229,35 @@ function run_ansible_routine()
     return 0
 }
 
-# ===== Coziness Functions =====
-# Copies SSH keys to all nodes for password-less access
+# Deploys SSH public keys to all cluster nodes **in parallel** using Ansible.
+# If SSH keys are not set up, will use the password supplied using `--ask-pass` for all nodes.
 function cluster_ssh_keys()
 {
     run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass"
     return $?
 }
 
-# ===== Coziness Functions =====
-# deploy prerequisites
+# Deploys prerequisites to all cluster nodes **in parallel** using Ansible.
+# Validates if /data is mounted and has at least 40GB free space.
+# Ensures /var/lib/docker is symlinked to /data/docker.
+# Installs and verifies: Docker, XZ, Java, and rsync.
+# Ensures Docker service is enabled and running.
 function cluster_prerequisites()
 {
     run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
     return $?
 }
 
-# ===== Kafka Cluster Data Backup =====
+# Backs up Kafka certificates on all cluster nodes **in parallel** using Ansible.
+# Ensures certificate files are preserved for recovery or migration.
 function cluster_certificates_backup()
 {
     run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
     return $?
 }
 
-# ===== Kafka Cluster Config Restore =====
-# Restores Kafka cluster certificates files to all nodes from a specified backup archive.
+# Restores Kafka certificates on all cluster nodes **in parallel** using Ansible.
+# Uses the specified archive file to restore certificate files.
 function cluster_certificates_restore()
 {
     local archive=$1
@@ -243,24 +265,24 @@ function cluster_certificates_restore()
     return $?
 }
 
-# ===== Kafka Config Generate =====
-# Generates and deploy config files to all cluster nodes
+# Deploys Kafka configuration files to all cluster nodes **in parallel** using Ansible.
+# Ensures all nodes have the latest configuration settings from inventory template.
 function cluster_configs_generate()
 {
     run_ansible_routine "Kafka Configs Deploy" "parallel" "configs_deploy"
     return $?
 }
 
-# ===== Kafka Cluster Config Backup =====
-# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
+# Backs up Kafka configuration files from all cluster nodes **in parallel** using Ansible.
+# Ensures configuration settings are preserved for recovery or migration.
 function cluster_configs_backup()
 {
     run_ansible_routine "Kafka Configs Backup" "parallel" "configs_backup"
     return $?
 }
 
-# ===== Kafka Cluster Config Restore =====
-# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
+# Restores Kafka configuration files on all cluster nodes **in parallel** using Ansible.
+# Uses the specified archive file to restore configuration settings.
 function cluster_configs_restore()
 {
     local archive=$1
@@ -268,55 +290,56 @@ function cluster_configs_restore()
     return $?
 }
 
-# Starts all Kafka containers in the pre-defined order
+# Starts Kafka containers on all cluster nodes **in serial** using Ansible.
+# Ensures proper startup order and avoids simultaneous resource contention.
 function cluster_containers_run()
 {
     run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
     return $?
 }
 
-# ===== Kafka Containers Start =====
-# Starts all Kafka containers in the defined startup order
+# Resumes existing Kafka containers on all cluster nodes **in serial** using Ansible.
+# Ensures a controlled startup sequence to prevent conflicts.
 function cluster_containers_start()
 {
     run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
     return $?
 }
 
-# ===== Kafka Containers Stop =====
-# Stops all Kafka containers in the defined shutdown order
+# Stops Kafka containers on all cluster nodes **in serial** using Ansible.
+# Ensures a controlled shutdown to prevent data corruption or inconsistencies.
 function cluster_containers_stop()
 {
     run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
     return $?
 }
 
-# ===== Kafka Containers Restart =====
-# Restarts all Kafka containers in the defined shutdown and startup orders
+# Restarts Kafka containers on all cluster nodes **in serial**.
+# Stops containers first, then starts them again in a controlled order.
 function cluster_containers_restart()
 {
     cluster_containers_stop
     cluster_containers_start
 }
 
-# ===== Kafka Containers Remove =====
-# Removes all Kafka containers in the defined shutdown order
+# Removes Kafka containers on all cluster nodes **in serial** using Ansible.
+# Ensures a controlled removal sequence to prevent dependency issues.
 function cluster_containers_remove()
 {
     run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
     return $?
 }
 
-# ===== Kafka Cluster Config Backup =====
-# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
+# Backs up Kafka credentials on all cluster nodes **in parallel** using Ansible.
+# Ensures authentication data is preserved for recovery or migration.
 function cluster_credentials_backup()
 {
     run_ansible_routine "Kafka Credentials Backup" "parallel" "credentials_backup"
     return $?
 }
 
-# ===== Kafka Cluster Config Restore =====
-# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
+# Restores Kafka credentials on all cluster nodes **in parallel** using Ansible.
+# Uses the specified archive file to restore authentication data.
 function cluster_credentials_restore()
 {
     local archive=$1
@@ -324,22 +347,24 @@ function cluster_credentials_restore()
     return $?
 }
 
-# ===== Kafka Cluster Data Format =====
-# Formats data on all cluster nodes
+# Formats Kafka data on all cluster nodes **in parallel** using Ansible.
+# Prepares storage for new data by ensuring a clean state.
 function cluster_data_format()
 {
     run_ansible_routine "Kafka Data Format" "parallel" "data_format"
     return $?
 }
 
-# ===== Kafka Cluster Data Backup =====
+# Backs up Kafka data on all cluster nodes **in parallel** using Ansible.
+# Ensures data is preserved for recovery or migration.
 function cluster_data_backup()
 {
     run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
     return $?
 }
 
-# ===== Kafka Cluster Data Restore =====
+# Restores Kafka data on all cluster nodes **in parallel** using Ansible.
+# Uses the specified archive file to recover data.
 function cluster_data_restore()
 {
     local archive=$1
@@ -347,22 +372,26 @@ function cluster_data_restore()
     return $?
 }
 
-# Function to display a failure message
+# Displays a failure message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
     whiptail --title "Failure" --msgbox "$1" 10 60
 }
 
-# Function to display a success message
+# Displays a success message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
 function show_success_message() {
     whiptail --title "Success" --msgbox "$1" 10 60
 }
 
-# Function to display a warning message
+# Displays a warning message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
 function show_warning_message() {
     whiptail --title "Warning" --msgbox "$1" 10 60
 }
 
-# ===== Main Menu =====
+# Displays the main menu using Whiptail for managing Kafka backup and restore.
+# Allows navigation to submenus, Exits when the user selects "Quit" or presses ESC/cancel.
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -398,7 +427,9 @@ function main_menu() {
     done
 }
 
-# ===== Accessories Submenu =====
+# Displays the Accessories menu using Whiptail for managing auxiliary tasks.
+# Provides options to deploy SSH keys and prerequisites across all nodes.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function accessories_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -440,7 +471,9 @@ function accessories_menu() {
     done
 }
 
-# ===== Certificates Submenu =====
+# Displays the Certificates menu using Whiptail for managing Kafka certificates.
+# Provides options to generate, backup, or restore certificates.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function certificates_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -476,8 +509,10 @@ function certificates_menu() {
     done
 }
 
-
-# ===== Kafka Cluster Certificates Restore Menu =====
+# Displays a Whiptail menu for restoring Kafka certificates from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_certificates_restore` with the selected backup file.
 function cluster_certificates_restore_menu()
 {
     local storage_certificate certificates_backup_files choice selected_backup
@@ -528,7 +563,9 @@ function cluster_certificates_restore_menu()
     fi
 }
 
-# ===== Configs Submenu =====
+# Displays the Configs menu using Whiptail for managing Kafka configurations.
+# Provides options to generate, backup, or restore configuration files.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function configs_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -570,7 +607,10 @@ function configs_menu() {
     done
 }
 
-# ===== Kafka Cluster Config Restore Menu =====
+# Displays a Whiptail menu for restoring Kafka configuration backups.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_configs_restore` with the selected backup file.
 function cluster_configs_restore_menu()
 {
     local storage_config configs_backup_files choice selected_backup
@@ -621,8 +661,9 @@ function cluster_configs_restore_menu()
     fi
 }
 
-
-# ===== Containers Submenu =====
+# Displays the Containers menu using Whiptail for managing Kafka containers.
+# Provides options to run, start, stop, restart, or remove containers.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function containers_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -685,8 +726,9 @@ function containers_menu() {
     done
 }
 
-
-# ===== Credentials Submenu =====
+# Displays the Credentials menu using Whiptail for managing Kafka credentials.
+# Provides options to generate, backup, or restore credentials.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -728,7 +770,10 @@ function credentials_menu() {
     done
 }
 
-# ===== Kafka Cluster Credentials Restore Menu =====
+# Displays a Whiptail menu for restoring Kafka credentials from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_credentials_restore` with the selected backup file.
 function cluster_credentials_restore_menu()
 {
     local storage_credentials credentials_backup_files choice selected_backup
@@ -779,7 +824,9 @@ function cluster_credentials_restore_menu()
     fi
 }
 
-# ===== Data Submenu =====
+# Displays the Data menu using Whiptail for managing Kafka data.
+# Provides options to format, backup, or restore data.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function data_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -823,7 +870,10 @@ function data_menu() {
     done
 }
 
-# ===== Kafka Cluster Data Restore Menu =====
+# Displays a Whiptail menu for restoring Kafka data from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_data_restore` with the selected backup file.
 function cluster_data_restore_menu() {
     local storage_data backup_files choice selected_backup
 
