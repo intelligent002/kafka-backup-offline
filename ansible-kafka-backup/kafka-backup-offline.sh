@@ -432,6 +432,7 @@ function main_menu() {
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function accessories_menu() {
     while true; do
+        # Display Whiptail menu for choosing an accessory-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Accessories > Choose an action:" 15 50 6 \
@@ -443,27 +444,35 @@ function accessories_menu() {
         # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
+        # Exit the function if ESC or cancel is pressed
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
+        # Handle the user's menu choice
         case $choice in
+            # Return to the main menu if "Main menu" is selected
             1)
                return 0 ;;
+            # Deploy SSH certificate (ssh-copy-id) to all nodes
             2)
                cluster_ssh_keys
                if [[ $? -eq 0 ]]; then
+                    # Show success message if SSH key deployment is successful
                     show_success_message "SSH public key was deployed on all nodes successfully!"
                else
+                    # Show failure message if SSH key deployment fails
                     show_failure_message "Failed to deploy ssh public key!\nExit the tool and review the logs."
                fi
                ;;
+            # Deploy prerequisites (like Docker) to all nodes
             3)
                cluster_prerequisites
                if [[ $? -eq 0 ]]; then
-                    show_success_message "Prerequisites was deployed on all nodes successfully!"
+                    # Show success message if prerequisites are deployed successfully
+                    show_success_message "Prerequisites were deployed on all nodes successfully!"
                else
+                    # Show failure message if prerequisites deployment fails
                     show_failure_message "Failed to deploy prerequisites!\nExit the tool and review the logs."
                fi
                ;;
