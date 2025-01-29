@@ -5,16 +5,6 @@
   pre_tasks:
     - name: Cleanup temp folders before execution
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
-      tags:
-        - certificates_backup
-        - certificates_restore
-        - credentials_backup
-        - credentials_restore
-        - configs_backup
-        - configs_restore
-        - data_backup
-        - data_restore
-        - temp_cleanup
 
   roles:
     - role: ../roles/system        # Include stuff like Prerequisites, temp folder cleanup etc.
