@@ -8,3 +8,5 @@
   include_tasks: prerequisites.yml
   tags:
     - prerequisites
+
+# do not include temp_cleanup here as it is included in playbook level as post/pre steps
