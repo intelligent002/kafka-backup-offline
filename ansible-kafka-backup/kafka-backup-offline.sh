@@ -476,6 +476,7 @@ function accessories_menu() {
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function certificates_menu() {
     while true; do
+        # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Certificates > Choose an action:" 15 50 6 \
@@ -485,26 +486,36 @@ function certificates_menu() {
             "4" "Restore" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
+        # Capture the exit status of the Whiptail menu
         local exit_status=$?
 
-        # Exit on ESC or cancel
+        # Exit the function if ESC or cancel is pressed
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
+        # Handle the user's menu choice
         case $choice in
-            1) return 0 ;;
-            2) cluster_certificates_generate ;;
+            # Return to the main menu if "Main menu" is selected
+            1)
+               return 0 ;;
+            # Trigger the certificate generation process if "Generate" is selected
+            2)
+               cluster_certificates_generate ;;
+            # Backup certificates and handle the result if "Backup" is selected
             3)
                cluster_certificates_backup
                if [[ $? -eq 0 ]]; then
-                    show_success_message "Certificates was backed up successfully!"
+                    # Show success message if the backup is successful
+                    show_success_message "Certificates were backed up successfully!"
                else
+                    # Show failure message if the backup fails
                     show_failure_message "Failed to backup certificates!\nExit the tool and review the logs."
                fi
                ;;
-            4) cluster_certificates_restore_menu ;;
+            # Trigger the menu for restoring certificates if "Restore" is selected
+            4)
+               cluster_certificates_restore_menu ;;
         esac
     done
 }
