@@ -211,7 +211,7 @@ function run_ansible_routine()
     log "INFO" "Routine - ${routine^} - started"
 
     # Prepare the Docker command as a variable
-    local docker_command="docker run -ti --rm \
+    local docker_command="docker run --rm \
         -v ~/.ssh:/root/.ssh \
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
