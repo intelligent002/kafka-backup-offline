@@ -114,12 +114,12 @@ function help()
 
 function cluster_backup()
 {
-    cluster_containers_stop
+    #cluster_containers_stop
     cluster_configs_backup
     cluster_certificates_backup
     cluster_credentials_backup
-    cluster_data_backup
-    cluster_containers_start
+    #cluster_data_backup
+    #cluster_containers_start
 }
 
 # Creates a PID file to ensure only one instance of the script runs at a time
