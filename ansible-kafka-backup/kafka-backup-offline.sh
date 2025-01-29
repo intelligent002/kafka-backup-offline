@@ -29,7 +29,7 @@ function load_configuration()
 
     # Check if the configuration file exists
     if [[ ! -f "$config_file" ]]; then
-        echo "Error: Configuration file '$config_file' not found!"
+        echo "Error: The configuration file '$config_file' was not found!"
         exit 1
     fi
 
@@ -117,7 +117,7 @@ function help()
     echo "                         4. Backup cluster data, archive to cold storage                                           "
     echo "                         5. Start up the cluster by 'docker start' all containers in defined startup order         "
     echo
-    echo "  If no routine name is specified, an interactive menu will be displayed.                                          "
+    echo "  If no routine name is provided, an interactive menu will be displayed.                                           "
     echo
     echo "==================================================================================================================="
     echo
@@ -142,7 +142,7 @@ function cluster_backup()
 function create_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
-        log "INFO" "Script is already running (PID: $(cat "$PID_FILE")). Exiting."
+        log "INFO" "The script is already running (PID: $(cat "$PID_FILE")). Exiting."
         exit 1
     fi
 
@@ -168,7 +168,7 @@ function log()
 
     # Check if the $level exists in the LOG_LEVELS
     if [[ -z "${LOG_LEVELS[$level]}" ]]; then
-        echo "specified log level [$level] is not defined"
+        echo "The specified log level [$level] is not defined."
         exit 1
     fi
 
@@ -178,7 +178,7 @@ function log()
     fi
 
     # In any case - log the message
-    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >>"$LOG_FILE"
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >> "$LOG_FILE"
 }
 
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
@@ -195,7 +195,7 @@ function ensure_free_space()
 
     # Check if the free percentage is less than 20%
     if ((free_percent < STORAGE_WARN_LOW)); then
-        log "WARN" "Low disk space in $mount. Available: ${free_storage}KB (${free_percent}% of total)."
+        log "WARN" "Low disk space on $mount. Available: ${free_storage} KB (${free_percent}% of total)."
     fi
 }
 
@@ -459,10 +459,10 @@ function accessories_menu() {
                cluster_ssh_keys
                if [[ $? -eq 0 ]]; then
                     # Show success message if SSH key deployment is successful
-                    show_success_message "SSH public key was deployed on all nodes successfully!"
+                    show_success_message "SSH public key deployed successfully on all nodes!"
                else
                     # Show failure message if SSH key deployment fails
-                    show_failure_message "Failed to deploy ssh public key!\nExit the tool and review the logs."
+                    show_failure_message "Failed to deploy SSH public key.\nPlease exit the tool and review the logs for details."
                fi
                ;;
             # Deploy prerequisites (like Docker) to all nodes
