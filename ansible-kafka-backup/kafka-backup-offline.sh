@@ -405,10 +405,10 @@ function main_menu() {
             --cancel-button "Quit" \
             --menu "Choose a section:" 15 50 8 \
             "1" "Quit" \
-            "5" "Containers" \
             "2" "Accessories" \
             "3" "Certificates" \
             "4" "Configs" \
+            "5" "Containers" \
             "6" "Credentials" \
             "7" "Data" \
             3>&1 1>&2 2>&3)
