@@ -38,6 +38,9 @@
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
 
 - name: Remove cluster data folder on nodes
   tags:

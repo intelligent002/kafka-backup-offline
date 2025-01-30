@@ -234,6 +234,7 @@
     dest: "{{ node_certificate_path }}/"
     mode: push
     rsync_opts:
+      - "--timeout=60"
       - "--checksum"
   loop:
     - "{{ cert_file_server_keystore }}"

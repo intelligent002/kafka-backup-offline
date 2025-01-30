@@ -20,6 +20,9 @@
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     mode: pull
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
   delegate_to: node-0
 
 # Create directory path for zip-of-zips archive (/backup/cold/data/2025/01/01/)
