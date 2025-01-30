@@ -5,7 +5,7 @@
     - data_backup
     - data_format
     - data_restore
-  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ inventory_hostname  }}"
+  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ hostvars[item]['hostname'] }}"
   register: container_status
   ignore_errors: yes
 
@@ -18,9 +18,9 @@
   debug:
     msg: >
       {% if container_status.stdout == "true" %}
-        Error: Container {{ inventory_hostname }} on {{ ansible_host }} is still running. Please stop all containers before proceeding.
+        Error: Container {{ hostvars[item]['hostname'] }} on {{ hostvars[item]['hostname'] }} is still running. Please stop all containers before proceeding.
       {% else %}
-        Success: Container {{ inventory_hostname }} on {{ ansible_host }} is not running.
+        Success: Container {{ hostvars[item]['hostname'] }} on {{ hostvars[item]['hostname'] }} is not running.
       {% endif %}
   failed_when: container_status.stdout == "true"
   any_errors_fatal: true
