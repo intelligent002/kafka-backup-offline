@@ -207,11 +207,16 @@ function run_ansible_routine()
     local playbook=$2
     local tag=$3
     local extra_vars=${4:-}
+    local interactive_mode=${5:-false}  # Default to false if not provided
 
     log "INFO" "Routine - ${routine^} - started"
 
+    # Determine if -it should be included
+    local docker_options="--rm"
+    [[ "$interactive_mode" == "true" ]] && docker_options="-it --rm"
+
     # Prepare the Docker command as a variable
-    local docker_command="docker run --rm \
+    local docker_command="docker run $docker_options \
         -v ~/.ssh:/root/.ssh \
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
@@ -230,11 +235,12 @@ function run_ansible_routine()
     return 0
 }
 
+
 # Deploys SSH public keys to all cluster nodes **in parallel** using Ansible.
 # If SSH keys are not set up, will use the password supplied using `--ask-pass` for all nodes.
 function cluster_ssh_keys()
 {
-    run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass"
+    run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass" "true"
     return $?
 }
 
