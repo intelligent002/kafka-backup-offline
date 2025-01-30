@@ -17,6 +17,6 @@
     - data_format
     - data_restore
   fail:
-    msg: "🚨 Failure: Container {{ hostvars[inventory_hostname]['hostname'] }} on {{ ansible_host }} is still running. Please stop all containers before proceeding."
+    msg: "Container {{ hostvars[inventory_hostname]['hostname'] }} on {{ inventory_hostname }} is still running. Please stop all containers before proceeding."
   when: container_status.stdout | trim | lower == "true"
   any_errors_fatal: true
