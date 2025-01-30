@@ -10,20 +10,6 @@
   failed_when: false  # Avoid marking the task as failed
   changed_when: false # Do not mark it as a change
 
-- name: Containers status output
-  tags:
-    - containers_validation
-    - data_backup
-    - data_format
-    - data_restore
-  debug:
-    msg: >
-      {% if container_status.stdout == "true" %}
-        Error: Container {{ hostvars[inventory_hostname]['hostname'] }} on {{ ansible_host }} is still running. Please stop all containers before proceeding.
-      {% else %}
-        Success: Container {{ hostvars[inventory_hostname]['hostname'] }} on {{ ansible_host }} is not running.
-      {% endif %}
-
 - name: Fail if containers are still running
   tags:
     - containers_validation
