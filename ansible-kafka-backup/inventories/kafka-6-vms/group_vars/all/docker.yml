@@ -45,7 +45,7 @@ docker_command_containers_run_confluent: >
   /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
 docker_command_containers_run: >
-  docker run -d --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
+  docker run -u root -d --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p 9090:9090
   -p 9091:9091
   -p 9092:9092
