@@ -90,7 +90,7 @@ docker_command_containers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  apache/kafka:3.9.0
+  quay.io/strimzi/kafka:0.45.0-kafka-3.9.0
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 #ping 127.0.0.1
@@ -119,7 +119,8 @@ docker_command_data_format: >
   -v {{ node_meta_path }}:/var/lib/kafka/meta
   -v {{ node_logs_path }}:/opt/kafka/logs
   -v {{ node_certificate_path }}/:/etc/kafka/secrets
-  apache/kafka:3.9.0
+  quay.io/strimzi/kafka:0.45.0-kafka-3.9.0
   /opt/kafka/bin/kafka-storage.sh format
   --cluster-id {{ cluster_id }}
+  --add-scram 'SCRAM-SHA-512=[name=admin,password=changeme]
   --config /mnt/shared/config/kraft.properties
