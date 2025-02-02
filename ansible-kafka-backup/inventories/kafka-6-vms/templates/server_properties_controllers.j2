@@ -6,7 +6,7 @@ node.id={{ node_id }}
 ##########
 # Define the roles for this node (controller and broker)
 process.roles=controller
-controller.listener.names=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
+controller.listener.names=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
 controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
@@ -29,8 +29,8 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_e
 ##########
 # Common listener configuration
 ##########
-listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:SSL
-listeners=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}://:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
+listener.security.protocol.map=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:SSL
+listeners=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}://:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
 sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 
