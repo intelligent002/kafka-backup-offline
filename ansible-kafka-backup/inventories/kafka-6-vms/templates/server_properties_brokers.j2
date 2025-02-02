@@ -63,7 +63,7 @@ advertised.listeners=replication-{{ hostvars[inventory_hostname]['port_replicati
 inter.broker.listener.name=replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}
 listener.security.protocol.map=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
 listeners=replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
-sasl.enabled.mechanisms=
+#sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 
 ##########
