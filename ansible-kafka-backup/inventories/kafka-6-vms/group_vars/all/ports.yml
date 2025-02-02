@@ -1,6 +1,15 @@
-port_control_plane_int: 9090
-port_control_plane_ext: 9090
 port_jmx_monitoring_int: 9999
 port_jmx_monitoring_ext: 9999
+
+port_control_plane_int: 9090
+port_control_plane_ext: 9090
+
 port_replication_int: 9091
 port_replication_ext: 9091
+
+port_consumer_mtls_int: 9091
+port_consumer_mtls_ext: 9091
+
+port_consumer_sasl_int: 9091
+port_consumer_sasl_ext: 9091
+
