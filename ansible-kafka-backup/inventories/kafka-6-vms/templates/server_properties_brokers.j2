@@ -61,41 +61,11 @@ listener.name.kafkaext-9095.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars
 listener.name.kafkaext-9095.ssl.keystore.password=changeme
 listener.name.kafkaext-9095.ssl.keystore.type=PKCS12
 
-
-##########
-# Listener configuration: PLAIN-29092
-##########
-
-##########
-# Listener configuration: TLS-29093
-##########
-listener.name.tls-29093.ssl.client.auth=required
-listener.name.tls-29093.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.tls-29093.ssl.truststore.password=changeme
-listener.name.tls-29093.ssl.truststore.type=PKCS12
-
-listener.name.tls-29093.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.tls-29093.ssl.keystore.password=changeme
-listener.name.tls-29093.ssl.keystore.type=PKCS12
-
-
-##########
-# Listener configuration: SCRAM-29094
-##########
-listener.name.scram-29094.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
-listener.name.scram-29094.sasl.enabled.mechanisms=SCRAM-SHA-512
-
-listener.name.scram-29094.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.scram-29094.ssl.keystore.password=changeme
-listener.name.scram-29094.ssl.keystore.type=PKCS12
-
-
-
 ##########
 # Common listener configuration
 ##########
 listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:SSL,REPLICATION-9091:SSL,KAFKA-9093:SSL,KAFKAEXT-9095:SASL_SSL
-listeners=REPLICATION-9091://:9091,KAFKA-9093://:9093,KAFKAEXT-9095://:9095,PLAIN-29092://:29092,TLS-29093://:29093,SCRAM-29094://:29094
+listeners=REPLICATION-9091://:9091,KAFKA-9093://:9093,KAFKAEXT-9095://:9095
 advertised.listeners=REPLICATION-9091://{{ hostvars[inventory_hostname]['hostname'] }}:9091,KAFKA-9093://{{ hostvars[inventory_hostname]['hostname'] }}:9093,KAFKAEXT-9095://{{ hostvars[inventory_hostname]['hostname'] }}:9093
 inter.broker.listener.name=REPLICATION-9091
 sasl.enabled.mechanisms=
