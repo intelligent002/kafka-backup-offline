@@ -3,9 +3,9 @@ node.id={{ node_id }}
 
 # Define the roles for this node (controller and broker)
 process.roles=broker
-controller.listener.names=CONTROLPLANE-{{ hostvars[host]['port_control_plane_ext'] }}
+controller.listener.names=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
 controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
-{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_control_plane_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # Unique cluster ID that must match across all nodes (controller and broker)
 cluster.id=AkU3OEVBNTcwNTJENDM2Qk
@@ -19,13 +19,13 @@ process.roles=broker
 ##########
 # Control Plane listener
 ##########
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.password=changeme
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.type=PKCS12
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.truststore.password=changeme
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.truststore.type=PKCS12
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.client.auth=required
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.keystore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.keystore.type=PKCS12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.truststore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.truststore.type=PKCS12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.client.auth=required
 
 ##########
 # Replication listener
@@ -94,7 +94,7 @@ listener.name.scram-29094.ssl.keystore.type=PKCS12
 ##########
 # Common listener configuration
 ##########
-listener.security.protocol.map=CONTROLPLANE-{{ hostvars[host]['port_control_plane_ext'] }}:SSL,REPLICATION-9091:SSL,KAFKA-9093:SSL,KAFKAEXT-9095:SASL_SSL
+listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:SSL,REPLICATION-9091:SSL,KAFKA-9093:SSL,KAFKAEXT-9095:SASL_SSL
 listeners=REPLICATION-9091://:9091,KAFKA-9093://:9093,KAFKAEXT-9095://:9095,PLAIN-29092://:29092,TLS-29093://:29093,SCRAM-29094://:29094
 advertised.listeners=REPLICATION-9091://{{ hostvars[inventory_hostname]['hostname'] }}:9091,KAFKA-9093://{{ hostvars[inventory_hostname]['hostname'] }}:9093,KAFKAEXT-9095://{{ hostvars[inventory_hostname]['hostname'] }}:9093
 inter.broker.listener.name=REPLICATION-9091
