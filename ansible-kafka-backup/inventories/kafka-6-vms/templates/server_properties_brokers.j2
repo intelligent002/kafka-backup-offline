@@ -59,11 +59,11 @@ listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl
 ##########
 # Common listener configuration
 ##########
-advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}
+advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
 inter.broker.listener.name=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}
 listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
 listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
-sasl.enabled.mechanisms=SCRAM-SHA-512
+sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 
 ##########
