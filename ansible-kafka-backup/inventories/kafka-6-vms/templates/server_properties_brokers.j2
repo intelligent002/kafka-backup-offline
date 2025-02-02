@@ -35,34 +35,34 @@ listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'
 ##########
 # Listener - Consumers (client-broker via mTLS)
 ##########
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.client.auth=required
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.password=changeme
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.type=PKCS12
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.password=changeme
-listener.name.MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.type=PKCS12
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.client.auth=required
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.password=changeme
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.type=PKCS12
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.password=changeme
+listener.name.mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.type=PKCS12
 
 
 ##########
 # Listener - Consumers (client-broker via SASL_SSL)
 ##########
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.password=changeme
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.type=PKCS12
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.password=changeme
-listener.name.SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.type=PKCS12
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.password=changeme
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.type=PKCS12
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.password=changeme
+listener.name.sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.type=PKCS12
 
 ##########
 # Common listener configuration
 ##########
-advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}
+advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}
 inter.broker.listener.name=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}
-listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
-listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
+listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
+listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
 sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 
