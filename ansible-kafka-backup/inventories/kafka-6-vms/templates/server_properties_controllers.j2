@@ -16,7 +16,7 @@ cluster.id=AkU3OEVBNTcwNTJENDM2Qk
 ##########
 # Control Plane listener
 ##########
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.sasl.enabled.mechanisms=PLAIN
+#listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.sasl.enabled.mechanisms=PLAIN
 #listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="controller-admin" password="controller";
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}.ssl.keystore.password=changeme
@@ -31,7 +31,7 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_e
 ##########
 listener.security.protocol.map=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:SSL
 listeners=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}://:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
-sasl.enabled.mechanisms=
+# sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 
 ##########
