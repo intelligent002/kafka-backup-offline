@@ -3,7 +3,7 @@ node.id={{ node_id }}
 
 # Define the roles for this node (controller and broker)
 process.roles=broker
-controller.listener.names=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}
+controller.listener.names=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}
 controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
@@ -59,10 +59,10 @@ listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl
 ##########
 # Common listener configuration
 ##########
-advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
-inter.broker.listener.name=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}
-listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
-listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
+advertised.listeners=replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
+inter.broker.listener.name=replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}
+listener.security.protocol.map=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
+listeners=replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
 sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
 

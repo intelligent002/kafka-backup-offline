@@ -9,7 +9,6 @@ process.roles=controller
 controller.listener.names=controlplane-{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}
 controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
-
 controller.quorum.election.timeout.ms=30000
 cluster.id=AkU3OEVBNTcwNTJENDM2Qk
 
