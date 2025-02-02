@@ -1,0 +1,109 @@
+# Node ID
+node.id={{ node_id }}
+
+# Define the roles for this node (controller and broker)
+process.roles=controller
+
+# Unique cluster ID that must match across all nodes (controller and broker)
+cluster.id={{ cluster_id }}
+
+#############################################################################################
+# Controller Quorum Configuration
+
+# Define the quorum of controllers with their respective node IDs and addresses
+controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_service_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+
+# Timeout for controller quorum elections (in milliseconds)
+controller.quorum.election.timeout.ms=10000
+
+#############################################################################################
+# Listeners and communication
+
+{% if use_certificate %}
+# Path to the keystore file (JKS format) containing the private key and certificate.
+ssl.keystore.location=/etc/kafka/ssl/keystore.jks
+
+# Password to unlock the keystore file. Same password is used for the private key.
+ssl.keystore.password={{ certificate_password }}
+
+# Password to unlock the private key in the keystore. Same password is used as the keystore password.
+ssl.key.password={{ certificate_password }}
+
+# Alias of the certificate in the keystore to use
+ssl.keystore.alias={{ keystore_alias_name }}
+
+# Path to the truststore file (JKS format) containing trusted CA certificates.
+ssl.truststore.location=/etc/kafka/ssl/truststore.jks
+
+# Password to unlock the truststore file.
+ssl.truststore.password={{ certificate_password }}
+
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+{% endif %}
+
+
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
+# Define the listeners for a controller-only node
+listeners=CONTROLLER://:{{ port_service_ext }}
+
+# Map listeners to their respective security protocols
+{% if use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SASL_SSL
+{% elif use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL
+{% elif not use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT
+{% endif %}
+
+# Define the security protocol for controller-to-controller communication
+{% if use_certificate and use_credentials %}
+security.controller.protocol=SASL_SSL
+{% elif use_certificate and not use_credentials %}
+security.controller.protocol=SSL
+{% elif not use_certificate and use_credentials %}
+security.controller.protocol=SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+security.controller.protocol=PLAINTEXT
+{% endif %}
+
+#############################################################################################
+# Data and Metadata Storage
+
+# Directory where the broker data are stored
+log.dirs=/var/lib/kafka/data
+
+# Directory where the controller metadata are stored
+metadata.log.dir=/var/lib/kafka/meta
+
+{% if use_credentials %}
+#############################################################################################
+# Authentication and Authorization
+
+# Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
+{% if use_certificate %}
+sasl.enabled.mechanisms=SCRAM-SHA-256
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+{% else %}
+sasl.enabled.mechanisms=PLAIN
+sasl.mechanism.inter.broker.protocol=PLAIN
+{% endif %}
+
+
+
+# Specify the JAAS configuration for the CONTROLLER listener
+listener.name.controller.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
+
+
+# Defines the authorizer class to enable ACL-based authorization
+authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+
+# Specifies superusers who bypass ACL checks
+super.users=User:admin
+{% endif %}

@@ -1,0 +1,57 @@
+cat strimzi-connect.properties
+# Bootstrap servers
+bootstrap.servers=kafka-cluster-kafka-bootstrap:29094
+# REST Listeners
+rest.advertised.host.name=connect-cluster-connect-0.connect-cluster-connect.<namespace>.svc
+rest.advertised.port=8083
+# Plugins
+plugin.path=/opt/kafka/plugins
+# Provided configuration
+offset.storage.topic=connect-offsets
+value.converter=io.confluent.connect.avro.AvroConverter
+config.storage.topic=connect-configs
+key.converter=io.confluent.connect.avro.AvroConverter
+group.id=connect-cluster
+status.storage.topic=connect-status
+config.providers=secrets,configmaps
+config.providers.configmaps.class=io.strimzi.kafka.KubernetesConfigMapConfigProvider
+config.providers.secrets.class=io.strimzi.kafka.KubernetesSecretConfigProvider
+config.storage.replication.factor=1
+key.converter.schema.registry.url=http://apicurio-registry-service:8080/apis/ccompat/v7
+offset.storage.replication.factor=1
+status.storage.replication.factor=1
+value.converter.schema.registry.url=http://apicurio-registry-service:8080/apis/ccompat/v7
+
+
+security.protocol=SASL_SSL
+producer.security.protocol=SASL_SSL
+consumer.security.protocol=SASL_SSL
+admin.security.protocol=SASL_SSL
+# TLS / SSL
+ssl.truststore.location=/tmp/kafka/cluster.truststore.p12
+ssl.truststore.password=cq9-d7Q9lffseQ9IsfP5G_X12AT0r_5o
+ssl.truststore.type=PKCS12
+
+producer.ssl.truststore.location=/tmp/kafka/cluster.truststore.p12
+producer.ssl.truststore.password=cq9-d7Q9lffseQ9IsfP5G_X12AT0r_5o
+
+consumer.ssl.truststore.location=/tmp/kafka/cluster.truststore.p12
+consumer.ssl.truststore.password=cq9-d7Q9lffseQ9IsfP5G_X12AT0r_5o
+
+admin.ssl.truststore.location=/tmp/kafka/cluster.truststore.p12
+admin.ssl.truststore.password=cq9-d7Q9lffseQ9IsfP5G_X12AT0r_5o
+
+sasl.mechanism=SCRAM-SHA-512
+sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="connect-cluster" password="iKc8dertCBbFy6rj6Q5FogDAY1jYWqANm";
+
+producer.sasl.mechanism=SCRAM-SHA-512
+producer.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="connect-cluster" password="iKc8dertCBbFy6rj6Q5FogDAY1jYWqANm";
+
+consumer.sasl.mechanism=SCRAM-SHA-512
+consumer.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="connect-cluster" password="iKc8dertCBbFy6rj6Q5FogDAY1jYWqANm";
+
+admin.sasl.mechanism=SCRAM-SHA-512
+admin.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="connect-cluster" password="iKc8dertCBbFy6rj6Q5FogDAY1jYWqANm";
+
+# Additional configuration
+consumer.client.rack=
