@@ -19,7 +19,7 @@ process.roles=broker
 ##########
 # Control Plane listener
 ##########
-listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.password=changeme
 listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.keystore.type=PKCS12
 listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -30,7 +30,7 @@ listener.name.controlplane-{{ hostvars[host]['port_control_plane_ext'] }}.ssl.cl
 ##########
 # Replication listener
 ##########
-listener.name.replication-9091.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.replication-9091.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.replication-9091.ssl.keystore.password=changeme
 listener.name.replication-9091.ssl.keystore.type=PKCS12
 listener.name.replication-9091.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -46,7 +46,7 @@ listener.name.kafka-9093.ssl.truststore.location=/etc/kafka/secrets/shared.trust
 listener.name.kafka-9093.ssl.truststore.password=changeme
 listener.name.kafka-9093.ssl.truststore.type=PKCS12
 
-listener.name.kafka-9093.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.kafka-9093.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.kafka-9093.ssl.keystore.password=changeme
 listener.name.kafka-9093.ssl.keystore.type=PKCS12
 
@@ -57,7 +57,7 @@ listener.name.kafka-9093.ssl.keystore.type=PKCS12
 listener.name.kafkaext-9095.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
 listener.name.kafkaext-9095.sasl.enabled.mechanisms=SCRAM-SHA-512
 
-listener.name.kafkaext-9095.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.kafkaext-9095.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.kafkaext-9095.ssl.keystore.password=changeme
 listener.name.kafkaext-9095.ssl.keystore.type=PKCS12
 
@@ -74,7 +74,7 @@ listener.name.tls-29093.ssl.truststore.location=/etc/kafka/secrets/shared.trusts
 listener.name.tls-29093.ssl.truststore.password=changeme
 listener.name.tls-29093.ssl.truststore.type=PKCS12
 
-listener.name.tls-29093.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.tls-29093.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.tls-29093.ssl.keystore.password=changeme
 listener.name.tls-29093.ssl.keystore.type=PKCS12
 
@@ -85,7 +85,7 @@ listener.name.tls-29093.ssl.keystore.type=PKCS12
 listener.name.scram-29094.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
 listener.name.scram-29094.sasl.enabled.mechanisms=SCRAM-SHA-512
 
-listener.name.scram-29094.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[item]['hostname'] }}.keystore.p12
+listener.name.scram-29094.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.scram-29094.ssl.keystore.password=changeme
 listener.name.scram-29094.ssl.keystore.type=PKCS12
 
@@ -96,7 +96,7 @@ listener.name.scram-29094.ssl.keystore.type=PKCS12
 ##########
 listener.security.protocol.map=CONTROLPLANE-{{ hostvars[host]['port_control_plane_ext'] }}:SSL,REPLICATION-9091:SSL,KAFKA-9093:SSL,KAFKAEXT-9095:SASL_SSL
 listeners=REPLICATION-9091://:9091,KAFKA-9093://:9093,KAFKAEXT-9095://:9095,PLAIN-29092://:29092,TLS-29093://:29093,SCRAM-29094://:29094
-advertised.listeners=REPLICATION-9091://{{ hostvars[item]['hostname'] }}:9091,KAFKA-9093://{{ hostvars[item]['hostname'] }}:9093,KAFKAEXT-9095://{{ hostvars[item]['hostname'] }}:9093
+advertised.listeners=REPLICATION-9091://{{ hostvars[inventory_hostname]['hostname'] }}:9091,KAFKA-9093://{{ hostvars[inventory_hostname]['hostname'] }}:9093,KAFKAEXT-9095://{{ hostvars[inventory_hostname]['hostname'] }}:9093
 inter.broker.listener.name=REPLICATION-9091
 sasl.enabled.mechanisms=
 ssl.endpoint.identification.algorithm=HTTPS
