@@ -66,7 +66,7 @@ docker_command_containers_run: >
   "
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/etc/kafka/credentials
+  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
