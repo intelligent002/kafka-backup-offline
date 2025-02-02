@@ -1,0 +1,6 @@
+port_control_plane_int: 9090
+port_control_plane_ext: 9090
+port_jmx_monitoring_int: 9999
+port_jmx_monitoring_ext: 9999
+port_replication_int: 9091
+port_replication_ext: 9091

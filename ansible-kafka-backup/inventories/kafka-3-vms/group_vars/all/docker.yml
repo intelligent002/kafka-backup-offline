@@ -19,13 +19,13 @@ docker_command_containers_run_confluent: >
   docker run -d --name={{ item }} -h {{ item }}
   -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
   -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
-  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false
   "
@@ -47,12 +47,12 @@ docker_command_containers_run: >
   docker run -d --name={{ item }} -h {{ item }}
   -p {{ hostvars[item]['port_broker_ext'] }}:{{ hostvars[item]['port_broker_int'] }}
   -p {{ hostvars[item]['port_controller_ext'] }}:{{ hostvars[item]['port_controller_int'] }}
-  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="-Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false"
   -e KAFKA_OPTS="-Djava.security.auth.login.config=/etc/kafka/credentials/kafka_server_jaas.conf"

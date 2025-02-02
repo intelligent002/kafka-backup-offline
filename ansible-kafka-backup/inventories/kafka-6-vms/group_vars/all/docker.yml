@@ -24,13 +24,13 @@ shutdown_order:
 docker_command_containers_run_confluent: >
   docker run -d --restart=always --name={{ item }} -h {{ item }}
   -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
-  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
   -Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
   "
   -e KAFKA_OPTS="
@@ -56,8 +56,8 @@ docker_command_containers_run: >
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote 
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false
   "
@@ -71,7 +71,7 @@ docker_command_containers_run: >
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 #ping 127.0.0.1
-#  -p {{ hostvars[item]['port_monitoring_ext'] }}:{{ hostvars[item]['port_monitoring_int'] }}
+#  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
 #  -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
 # openssl s_client -connect node-4.intel.r7g.org:9093 -showcerts
 
