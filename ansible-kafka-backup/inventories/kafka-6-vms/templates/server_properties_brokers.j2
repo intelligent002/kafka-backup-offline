@@ -23,7 +23,7 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_i
 
 ##########
 # Listener - Replication (broker-broker via mTLS)
-##########
+# Ensure `sasl.mechanism.inter.broker.protocol` is NOT set, since it's not needed for mTLS
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.client.auth=required
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.password=changeme
@@ -63,7 +63,7 @@ advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replicati
 inter.broker.listener.name=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}
 listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}:SSL,REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}:SSL,consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}:SSL,consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}:SASL_SSL
 listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}
-sasl.enabled.mechanisms=
+sasl.enabled.mechanisms=SCRAM-SHA-512
 ssl.endpoint.identification.algorithm=HTTPS
 
 ##########
