@@ -16,15 +16,15 @@ cluster.id=AkU3OEVBNTcwNTJENDM2Qk
 ##########
 # Control Plane listener
 ##########
-#listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.sasl.enabled.mechanisms=PLAIN
-#listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="controller-admin" password="controller";
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password=changeme
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=PKCS12
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password=changeme
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.type=PKCS12
-listener.name.CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
+#listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.sasl.enabled.mechanisms=PLAIN
+#listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="controller-admin" password="controller";
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=PKCS12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.type=PKCS12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
 
 ##########
 # Common listener configuration
@@ -39,7 +39,6 @@ ssl.endpoint.identification.algorithm=HTTPS
 ##########
 authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 super.users=User:CN=node-1.intel.r7g.org;User:CN=node-2.intel.r7g.org;User:CN=node-3.intel.r7g.org;User:CN=node-4.intel.r7g.org;User:CN=node-5.intel.r7g.org;User:CN=node-6.intel.r7g.org;User:node-1.intel.r7g.org;User:node-2.intel.r7g.org;User:node-3.intel.r7g.org;User:node-4.intel.r7g.org;User:node-5.intel.r7g.org;User:node-6.intel.r7g.org;User:CN=admin;User:admin;
-
 
 ##########
 # User provided configuration
