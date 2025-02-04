@@ -45,13 +45,13 @@ docker_command_containers_run_confluent: >
   /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
 docker_command_containers_run: >
-  docker run -u root -d --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p 9090:9090
-  -p 9091:9091
-  -p 9092:9092
-  -p 9093:9093
-  -p 9094:9094
-  -p 9095:9095
+  docker run -d --restart=always
+  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
+  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
+  -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
+  -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
+  -p {{ hostvars[item]['port_consumer_sasl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
