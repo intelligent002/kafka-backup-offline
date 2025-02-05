@@ -8,9 +8,15 @@ startup_order:
   - node-4
   - node-5
   - node-6
+  - node-7
+  - node-8
+  - node-9
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
+  - node-9
+  - node-8
+  - node-7
   - node-6
   - node-5
   - node-4
