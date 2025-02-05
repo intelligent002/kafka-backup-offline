@@ -12,3 +12,6 @@ port_consumer_mtls_ext: 9093
 
 port_consumer_sasl_int: 9095
 port_consumer_sasl_ext: 9095
+
+port_connect_rest_int: 8080
+port_connect_rest_ext: 8080

@@ -1,6 +1,6 @@
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
-{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
 group.id=connect-cluster-first
@@ -32,7 +32,7 @@ status.storage.partitions=5
 offset.flush.interval.ms=60000
 
 # List of comma-separated URIs the REST API will listen on. The supported protocols are HTTP and HTTPS.
-listeners=http://node-7.intel.r7g.org:8080
+listeners=http://{{ hostvars[hostname]['hostname'] }}:{{ hostvars[hostname]['port_connect_rest_ext'] }}
 #,https://node-7.intel.r7g.org:8443
 
 # The Hostname & Port that will be given out to other workers to connect to i.e. URLs that are routable from other servers.
