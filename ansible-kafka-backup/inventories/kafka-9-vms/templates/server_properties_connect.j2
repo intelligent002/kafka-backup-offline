@@ -2,6 +2,7 @@
 bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
 {{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
+
 # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
 group.id=connect-cluster-first
 

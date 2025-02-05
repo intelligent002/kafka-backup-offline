@@ -1,5 +1,7 @@
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-bootstrap.servers=node-4.intel.r7g.org:9093,node-5.intel.r7g.org:9093,node-6.intel.r7g.org:9093
+bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
 
 # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
 group.id=connect-cluster-first
