@@ -32,7 +32,7 @@ status.storage.partitions=5
 offset.flush.interval.ms=60000
 
 # List of comma-separated URIs the REST API will listen on. The supported protocols are HTTP and HTTPS.
-listeners=http://{{ hostvars[hostname]['hostname'] }}:{{ hostvars[hostname]['port_connect_rest_ext'] }}
+listeners=http://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
 #,https://node-7.intel.r7g.org:8443
 
 # The Hostname & Port that will be given out to other workers to connect to i.e. URLs that are routable from other servers.
