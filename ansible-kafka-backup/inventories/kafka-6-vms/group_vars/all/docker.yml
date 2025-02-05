@@ -75,6 +75,27 @@ docker_command_containers_run: >
 #  -p {{ hostvars[item]['port_service_ext'] }}:{{ hostvars[item]['port_service_int'] }}
 # openssl s_client -connect node-4.intel.r7g.org:9093 -showcerts
 
+docker_command_containers_connect_run: >
+  docker run -d --restart=always
+  --name=node-7.intel.r7g.org -h node-7.intel.r7g.org
+  -p 9999:9999
+  -p 8080:8080
+  -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
+  -e KAFKA_JMX_OPTS="
+  -Djava.rmi.server.hostname=node-7.intel.r7g.org
+  -Dcom.sun.management.jmxremote 
+  -Dcom.sun.management.jmxremote.port=9999
+  -Dcom.sun.management.jmxremote.rmi.port=9999
+  -Dcom.sun.management.jmxremote.authenticate=false
+  -Dcom.sun.management.jmxremote.ssl=false
+  "
+  -v /data/cluster/config:/mnt/shared/config
+  -v /data/cluster/certificate:/etc/kafka/secrets
+  -v /data/cluster/credentials:/credentials
+  -v /data/cluster/logs:/opt/kafka/logs
+  -v /data/cluster/connector-plugins:/usr/share/java
+  apache/kafka:3.9.0
+  /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/connect-worker.properties
 
 # Empty folder should be prepared for usage
 docker_command_data_format_concluent: >

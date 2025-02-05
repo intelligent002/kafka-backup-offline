@@ -1,6 +1,5 @@
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
-bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
-{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+bootstrap.servers=node-4.intel.r7g.org:9093,node-5.intel.r7g.org:9093,node-6.intel.r7g.org:9093
 
 # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
 group.id=connect-cluster-first
@@ -11,8 +10,8 @@ key.converter=org.apache.kafka.connect.json.JsonConverter
 value.converter=org.apache.kafka.connect.json.JsonConverter
 
 # Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply it to
-key.converter.schemas.enable=true
-value.converter.schemas.enable=true
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false
 
 # Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
 offset.storage.topic=_connectors-offsets-custom-topic

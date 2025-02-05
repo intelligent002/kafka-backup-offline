@@ -1,4 +1,0 @@
-port_service_int: 9092
-port_service_ext: 9092
-port_jmx_monitoring_int: 9999
-port_jmx_monitoring_ext: 9999
