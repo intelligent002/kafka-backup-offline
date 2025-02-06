@@ -38,9 +38,9 @@ listeners=http://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inve
 
 # The Hostname & Port that will be given out to other workers to connect to i.e. URLs that are routable from other servers.
 # If not set, it uses the value for "listeners" if configured.
-#rest.advertised.host.name=
-#rest.advertised.port=
-#rest.advertised.listener=
+#rest.advertised.host.name={{ hostvars[inventory_hostname]['hostname'] }}
+#rest.advertised.port={{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
+#rest.advertised.listener=http://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
 
 # HTTPS configuration
 #listeners.https.ssl.client.auth=
