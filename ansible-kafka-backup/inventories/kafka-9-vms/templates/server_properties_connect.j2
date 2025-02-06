@@ -62,15 +62,15 @@ connector.client.config.override.policy=All
 # SSL Configuration
 security.protocol=SSL
 ssl.endpoint.identification.algorithm=
-ssl.key.password=changeme
-ssl.keystore.location=/etc/kafka/secrets/node-7.intel.r7g.org.keystore.p12
-ssl.keystore.password=changeme
+ssl.key.password={{ certificate_password }}
+ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}.keystore.p12
+ssl.keystore.password={{ certificate_password }}
 ssl.keystore.type=PKCS12
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-ssl.truststore.password=changeme
+ssl.truststore.password={{ certificate_password }}
 ssl.truststore.type=JKS
 
-# SASL COnfiguration
+# SASL Configuration
 # uncomment for SASL_SSL , comment for mTLS
 # sasl.mechanism=SCRAM-SHA-512
 # sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
