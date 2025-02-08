@@ -25,10 +25,31 @@ shutdown_order:
   - node-1
 
 shmoker_h:
-  smoker: |
-    bla 
-    blo 
-    ble
+  controllers: |
+    docker run -d --restart=always \
+    --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }} \
+    -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+    -p {{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }} \
+    -p {{ hostvars[inventory_hostname]['port_replication_ext'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }} \
+    -p {{ hostvars[inventory_hostname]['port_consumer_mtls_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }} \
+    -p {{ hostvars[inventory_hostname]['port_consumer_sasl_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }} \
+    -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G" \
+    -e KAFKA_JMX_OPTS=" \
+    -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }} \
+    -Dcom.sun.management.jmxremote \
+    -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+    -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+    -Dcom.sun.management.jmxremote.authenticate=false \
+    -Dcom.sun.management.jmxremote.ssl=false \
+    " \
+    -v {{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config \
+    -v {{ hostvars[inventory_hostname]['node_certificate_path'] }}:/etc/kafka/secrets \
+    -v {{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials \
+    -v {{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data \
+    -v {{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta \
+    -v {{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs \
+    apache/kafka:3.9.0 \
+    /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
   huyoker: ble
   blo: bli
