@@ -106,29 +106,78 @@
 #    -alias {{ hostvars[item].hostname }} -noprompt
 #  loop: "{{ groups['cluster'] }}"
 
-- name: Generate certificates for users
+- name: Create user directories for certificates
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.file:
+    path: "{{ storage_certificate_path }}/users/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Generate private keys for users
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
-    mkdir -p {{ storage_certificate_path }}/users/{{ item }} && \
     openssl genpkey -algorithm RSA -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
-    -pass pass:{{ certificate_password }} && \
+    -pass pass:{{ certificate_password }}
+
+- name: Generate CSRs for users
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.shell: >
     openssl req -new -key {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
     -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr \
-    -subj "/CN={{ item }}" && \
+    -subj "/CN={{ item }}"
+
+- name: Sign CSRs to create user certificates
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr \
     -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
-    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt -days 3650 && \
+    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt -days 3650
+
+- name: Create PKCS#12 keystores for users
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt \
     -inkey {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
     -certfile {{ storage_certificate_path }}/ca.crt -name {{ item }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
-    -out {{ storage_certificate_path }}/{{ item }}.keystore.p12 && \
-    rm {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr
+    -out {{ storage_certificate_path }}/{{ item }}.keystore.p12
+
+- name: Convert PKCS#12 keystores to JKS format for users
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.shell: >
+    keytool -importkeystore \
+    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
+    -destkeystore {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.jks \
+    -srckeystore {{ storage_certificate_path }}/{{ item }}.keystore.p12 \
+    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
+    -alias {{ item }} -noprompt
 
 - name: Generate a shared JKS truststore with the CA certificate
   tags:
