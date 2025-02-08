@@ -22,4 +22,4 @@ basicConstraints=CA:true
 
 [ alt_names ]
 DNS.1 = {{ hostvars[item].hostname }}
-IP.1  = {{ ansible_host }}
+IP.1  = {{ hostvars[item].ansible_host }}
