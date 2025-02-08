@@ -14,6 +14,22 @@
     var: group_names_all
   run_once: true
 
+- name: Run Docker containers in startup order based on group
+  tags:
+    - containers_run
+  shell: "{{ docker_run_role[host_group] }}"
+  delegate_to: "{{ item }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+  vars:
+    host_group: >-
+      {{
+        (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first)
+        if (group_names_all[item] | default([]) | difference(['all', 'cluster']) | length > 0
+        else 'undefined_group'
+      }}
+  when: host_group in docker_run_role
+
 
 - name: Debug resolved group and command
   tags:
