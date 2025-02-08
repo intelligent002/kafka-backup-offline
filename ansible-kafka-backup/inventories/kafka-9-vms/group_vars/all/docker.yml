@@ -25,9 +25,7 @@ shutdown_order:
   - node-1
 
 shmoker:
-  controllers: |
-    docker run -d --restart=always 
-    --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
+  controllers: docker run -d --restart=always
   huyoker: ble
   blo: bli
 
