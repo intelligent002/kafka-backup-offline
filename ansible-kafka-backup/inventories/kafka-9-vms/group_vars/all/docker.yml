@@ -27,7 +27,7 @@ shutdown_order:
 # === Docker commands ==================================================================================================
 
 # Run the kafka roles
-docker_run_role:
+docker_run_roles:
   controllers: "{{ docker_command_controllers}}"
   brokers: "{{ docker_command_brokers }}"
   connect: "{{ docker_command_connect }}"

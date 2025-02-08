@@ -10,7 +10,7 @@
   tags:
     - containers_run
   debug:
-    var: docker_run_role
+    var: docker_run_roles
   run_once: true
 
 - name: Precompile all Docker commands into a dictionary
