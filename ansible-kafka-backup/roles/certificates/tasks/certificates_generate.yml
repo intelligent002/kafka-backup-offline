@@ -91,7 +91,7 @@
     -pass pass:{{ certificate_password }}
   loop: "{{ groups['all'] }}"
 
-- name: Generate node CSRs
+- name: Generate node SAN CSRs
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -104,7 +104,7 @@
     -config {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['all'] }}"
 
-- name: Sign node CSRs using the Self-Signed CA
+- name: Sign node SAN CSRs using the Self-Signed CA
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -119,7 +119,7 @@
     -extfile {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['all'] }}"
 
-- name: Generate PKCS#12 keystores
+- name: Generate PKCS#12 node keystores
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -132,7 +132,7 @@
     -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12
   loop: "{{ groups['all'] }}"
 
-- name: Convert PKCS#12 keystores to JKS format
+- name: Convert PKCS#12 node keystores to JKS format
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -192,7 +192,7 @@
     -passin pass:{{ certificate_password }} -CAcreateserial \
     -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt -days 3650
 
-- name: Generate PKCS#12 keystores for users
+- name: Generate PKCS#12 user keystores
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -205,7 +205,7 @@
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
     -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.p12
 
-- name: Convert PKCS#12 keystores to JKS format for users
+- name: Convert PKCS#12 user keystores to JKS format
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -219,7 +219,7 @@
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ item }} -noprompt
 
-- name: Distribute node-specific keystore files to respective nodes
+- name: Distribute keystores to respective nodes
   tags:
     - certificates_generate
   delegate_to: node-0
