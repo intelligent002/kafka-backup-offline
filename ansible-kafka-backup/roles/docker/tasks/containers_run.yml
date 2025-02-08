@@ -10,7 +10,7 @@
   tags:
     - containers_run
   debug:
-    var: shmoker
+    var: shmoker_h
   run_once: true
 
 - name: Debug available docker_run_role mappings

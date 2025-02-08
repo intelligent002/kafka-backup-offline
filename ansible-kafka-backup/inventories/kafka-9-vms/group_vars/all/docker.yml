@@ -24,8 +24,11 @@ shutdown_order:
   - node-2
   - node-1
 
-shmoker:
-  smoker: bla
+shmoker_h:
+  smoker: |
+    bla \
+    blo \
+    ble
   huyoker: ble
   blo: bli
 
