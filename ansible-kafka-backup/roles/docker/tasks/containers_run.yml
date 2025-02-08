@@ -1,34 +1,15 @@
 ---
-- name: Get a reference host from the cluster
-  tags: containers_run
-  set_fact:
-    reference_host: "{{ groups['cluster'][0] }}"
-  when: groups['cluster'] | length > 0
-
-- name: Determine relevant group for the reference host
-  tags: containers_run
-  set_fact:
-    relevant_group: "{{ (hostvars[reference_host]['group_names'] | difference(['all', 'cluster', 'central']))[0] | default('undefined_group') }}"
-  when: reference_host is defined
-
-- name: Debug selected relevant group (Before Use)
-  tags: containers_run
+- name: Run Docker containers in startup order based on group
+  tags:
+    - containers_run
+  shell: "{{ docker_run_role[host_group] }}"
   delegate_to: "{{ item }}"
-  debug:
-    msg: "Relevant Group: {{ relevant_group | default('NOT SET') }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+  vars:
+    host_group: "{{ (group_names_all[item] | difference(['all', 'cluster', 'central']))[0] | default('undefined_group') }}"
+  when: host_group in docker_run_role
 
-- name: Select the Docker command dynamically based on the group
-  tags: containers_run
-  delegate_to: "{{ item }}"
-  set_fact:
-    selected_docker_command: "{{ docker_run_role[relevant_group] | string | ansible.builtin.template }}"
-  when: relevant_group in docker_run_role
-
-- name: Run Docker containers for the assigned role
-  tags: containers_run
-  shell: "{{ selected_docker_command }}"
-  delegate_to: "{{ item }}"
-  when: selected_docker_command is defined
 
 #- name: Run docker containers in startup order
 #  tags:
