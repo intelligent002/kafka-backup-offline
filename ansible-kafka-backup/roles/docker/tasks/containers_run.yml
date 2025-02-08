@@ -14,6 +14,14 @@
     var: group_names_all
   run_once: true
 
+- name: Debug resolved group and command
+  tags:
+    - containers_run
+  debug:
+    msg: "Node: {{ item }}, Groups: {{ group_names_all[item] | default([]) }}, Selected Group: {{ host_group }}, Command: {{ docker_run_role[host_group] | default('NOT FOUND') }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
 - name: Run Docker containers in startup order based on group
   tags:
     - containers_run
@@ -30,25 +38,6 @@
       }}
   when: host_group in docker_run_role
 
-
-- name: Debug resolved group and command
-  tags:
-    - containers_run
-  debug:
-    msg: "Node: {{ item }}, Group: {{ host_group }}, Command: {{ docker_run_role[host_group] | default('NOT FOUND') }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
-- name: Run Docker containers in startup order based on group
-  tags:
-    - containers_run
-  shell: "{{ docker_run_role[host_group] }}"
-  delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-  vars:
-    host_group: "{{ (group_names_all[item] | difference(['all', 'cluster', 'central']))[0] | default('undefined_group') }}"
-  when: host_group in docker_run_role
 
 
 #- name: Run docker containers in startup order
