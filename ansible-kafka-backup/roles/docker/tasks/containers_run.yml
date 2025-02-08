@@ -18,7 +18,7 @@
 - name: Select the Docker command dynamically based on the group
   tags: containers_run
   set_fact:
-    selected_docker_command: "{{ docker_run_role[relevant_group] }}"
+    selected_docker_command: "{{ docker_run_role[relevant_group] | regex_replace('\\s+', ' ') }}"
   when: relevant_group in docker_run_role
 
 - name: Run Docker containers for the assigned role
