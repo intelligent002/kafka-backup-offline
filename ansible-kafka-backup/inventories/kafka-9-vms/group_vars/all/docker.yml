@@ -24,6 +24,11 @@ shutdown_order:
   - node-2
   - node-1
 
+shmoker:
+  smoker: bla
+  huyoker: ble
+  blo: bli
+
 # === Docker commands ==================================================================================================
 
 # Run the kafka roles
