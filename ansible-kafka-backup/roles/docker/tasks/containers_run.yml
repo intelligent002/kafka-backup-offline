@@ -16,6 +16,7 @@
   run_once: false
 
 - name: Debug selected relevant_group
+  tags: containers_run
   debug:
     msg: "{{ relevant_group }}"
 
