@@ -29,7 +29,7 @@ shutdown_order:
 # Run the kafka roles
 docker_run_role:
   # The controllers role
-  controllers: >
+  controllers: |
     docker run -d --restart=always
     --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
     -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
@@ -56,7 +56,7 @@ docker_run_role:
     /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
   # The brokers role
-  brokers: >
+  brokers: |
     docker run -d --restart=always
     --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
     -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
@@ -83,7 +83,7 @@ docker_run_role:
     /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
   # The brokers role
-  connect: >
+  connect: |
     docker run -d --restart=always
     --name=node-7.intel.r7g.org -h node-7.intel.r7g.org
     -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
