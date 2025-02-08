@@ -17,7 +17,7 @@
 - name: Debug selected relevant group
   tags: containers_run
   debug:
-    msg: "{{ relevant_group }}"
+    msg: "Relevant Group: {{ relevant_group | default('NOT SET') }}"
 
 - name: Select the Docker command dynamically based on the group
   tags: containers_run
