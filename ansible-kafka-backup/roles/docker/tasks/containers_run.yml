@@ -13,8 +13,9 @@
     relevant_group: "{{ item }}"
   with_items: "{{ group_names }}"
   when: item not in ['all', 'cluster', 'central']
+  run_once: false
 
-- name: Debug selected relevant group
+- name: Debug selected relevant group (Before Use)
   tags: containers_run
   debug:
     msg: "Relevant Group: {{ relevant_group | default('NOT SET') }}"
