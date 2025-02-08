@@ -113,18 +113,16 @@
     -keystore {{ storage_certificate_path }}/shared.truststore.jks \
     -storepass {{ certificate_password }}
 
-- name: Distribute certificates to nodes
+- name: Distribute node-specific certificates
   tags:
     - certificates_generate
-  delegate_to: node-0
   synchronize:
-    src: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.jks"
-    dest: "{{ node_certificate_path }}/{{ hostvars[item].hostname }}.jks"
+    src: "{{ storage_certificate_path }}/{{ inventory_hostname }}.jks"
+    dest: "{{ node_certificate_path }}/{{ inventory_hostname }}.jks"
     mode: push
     rsync_opts:
       - "--timeout=60"
       - "--checksum"
-  loop: "{{ groups['cluster'] }}"
 
 - name: Distribute shared truststore to nodes
   tags:
