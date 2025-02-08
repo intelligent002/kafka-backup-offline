@@ -15,6 +15,10 @@
   when: item not in ['all', 'cluster', 'central']
   run_once: false
 
+- name: Debug selected relevant_group
+  debug:
+    msg: "{{ relevant_group }}"
+
 - name: Select the Docker command dynamically based on the group
   tags: containers_run
   set_fact:
