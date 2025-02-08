@@ -1,6 +1,7 @@
 ---
 - name: Determine the group for the host dynamically
   tags: containers_run
+  delegate_to: "{{ item }}"
   set_fact:
     relevant_group: "{{ item }}"
   with_items: "{{ group_names }}"
@@ -9,11 +10,13 @@
 
 - name: Debug selected relevant group (Before Use)
   tags: containers_run
+  delegate_to: "{{ item }}"
   debug:
     msg: "Relevant Group: {{ relevant_group | default('NOT SET') }}"
 
 - name: Select the Docker command dynamically based on the group
   tags: containers_run
+  delegate_to: "{{ item }}"
   set_fact:
     selected_docker_command: "{{ docker_run_role[relevant_group] | string | ansible.builtin.template }}"
   when: relevant_group in docker_run_role
@@ -21,7 +24,7 @@
 - name: Run Docker containers for the assigned role
   tags: containers_run
   shell: "{{ selected_docker_command }}"
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ item }}"
   when: selected_docker_command is defined
 
 #- name: Run docker containers in startup order
