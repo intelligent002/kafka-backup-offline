@@ -1,4 +1,11 @@
 ---
+- name: Debug all loaded group_vars
+  tags:
+    - containers_run
+  debug:
+    var: hostvars[inventory_hostname]
+  run_once: true
+
 - name: Debug available docker_run_role mappings
   tags:
     - containers_run
