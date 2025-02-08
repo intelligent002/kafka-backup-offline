@@ -20,7 +20,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificate }}"
 
-- name: Create certificate folders on node-0
+- name: Create folders for CA/users/nodes on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -35,6 +35,32 @@
     - "{{ storage_certificate_path }}/CA"
     - "{{ storage_certificate_path }}/nodes"
     - "{{ storage_certificate_path }}/users"
+
+- name: Create user directories for certificates
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.file:
+    path: "{{ storage_certificate_path }}/users/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create node directories for certificates
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ groups['all'] }}"
+  ansible.builtin.file:
+    path: "{{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
 
 - name: Generate a new CA certificate
   tags:
