@@ -1,5 +1,11 @@
 # === Nodes startup and shutdown order =================================================================================
 
+docker_run_roles:
+  controllers: "{{ docker_command_controllers}}"
+  brokers: "{{ docker_command_brokers }}"
+  connect: "{{ docker_command_connect }}"
+
+
 # Defines the order of starting cluster nodes.
 startup_order:
   - node-1
@@ -23,12 +29,4 @@ shutdown_order:
   - node-3
   - node-2
   - node-1
-
-# === Docker commands ==================================================================================================
-
-# Run the kafka roles
-docker_run_roles:
-  controllers: "{{ docker_command_controllers}}"
-  brokers: "{{ docker_command_brokers }}"
-  connect: "{{ docker_command_connect }}"
 
