@@ -20,16 +20,6 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificate }}"
 
-- name: Generate OpenSSL configuration files
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.template:
-    src: openssl.cnf.j2
-    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
-  loop: "{{ groups['cluster'] }}"
-
 - name: Generate CA certificate
   tags:
     - certificates_generate
@@ -40,18 +30,50 @@
     -out {{ storage_certificate_path }}/ca.crt -days 3650 \
     -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
-- name: Generate certificates for nodes
+- name: Generate OpenSSL configuration files for SAN certificates per nodes
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.template:
+    src: openssl.cnf.j2
+    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
+  loop: "{{ groups['cluster'] }}"
+
+- name: Generate private key for nodes
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl req -new -nodes -keyout {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
-    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr -subj "/CN={{ hostvars[item].hostname }}" && \
+    openssl genpkey -algorithm RSA -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
+    -pass pass:{{ certificate_password }}
+  loop: "{{ groups['cluster'] }}"
+
+- name: Generate CSR using the per-node OpenSSL config
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    openssl req -new \
+    -subj   "/CN={{ hostvars[item].hostname }}" \ 
+    -key    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \ 
+    -out    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
+    -config {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
+  loop: "{{ groups['cluster'] }}"
+
+- name: Sign CSRs using the custom config
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
     -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
-    -passin pass:{{ certificate_password }} \
-    -CAcreateserial -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt -days 3650
+    -passin pass:{{ certificate_password }} -CAcreateserial \
+    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
+    -days 3650 -extensions v3_req -extfile {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['cluster'] }}"
 
 - name: Generate PKCS#12 Keystore for nodes
