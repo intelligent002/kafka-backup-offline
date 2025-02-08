@@ -1,110 +1,134 @@
 ---
-- name: Delete the certificate storage directory on node-0
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.file:
-    path: "{{ storage_certificate_path }}"
-    state: absent
+#- name: Delete the certificate storage directory on node-0
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.file:
+#    path: "{{ storage_certificate_path }}"
+#    state: absent
+#
+#- name: Create the certificate storage directory on node-0
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.file:
+#    path: "{{ storage_certificate_path }}"
+#    state: directory
+#    owner: "{{ owner_user_data }}"
+#    group: "{{ owner_group_data }}"
+#    mode: "{{ chmod_certificate }}"
+#
+#- name: Generate a new CA certificate
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl req -new -x509 -keyout {{ storage_certificate_path }}/ca.key \
+#    -out {{ storage_certificate_path }}/ca.crt -days 3650 \
+#    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
+#
+#- name: Generate OpenSSL configuration files for each node
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.template:
+#    src: openssl.cnf.j2
+#    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
+#  loop: "{{ groups['cluster'] }}"
+#
+#- name: Generate private keys for each node
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl genpkey -algorithm RSA \
+#    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
+#    -pass pass:{{ certificate_password }}
+#  loop: "{{ groups['cluster'] }}"
+#
+#- name: Create Certificate Signing Requests (CSR) for each node
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl req -new \
+#    -subj   "/CN={{ hostvars[item].hostname }}" \
+#    -key    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
+#    -out    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
+#    -config {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
+#  loop: "{{ groups['cluster'] }}"
+#
+#- name: Sign node CSRs using the CA certificate
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl x509 -req -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
+#    -CA {{ storage_certificate_path }}/ca.crt \
+#    -CAkey {{ storage_certificate_path }}/ca.key \
+#    -passin pass:{{ certificate_password }} -CAcreateserial \
+#    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
+#    -days 3650 -extensions v3_req \
+#    -extfile {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
+#  loop: "{{ groups['cluster'] }}"
+#
+#- name: Generate PKCS#12 keystores for each node
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl pkcs12 -export -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
+#    -inkey {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
+#    -certfile {{ storage_certificate_path }}/ca.crt -name {{ hostvars[item].hostname }} \
+#    -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
+#    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12
+#  loop: "{{ groups['cluster'] }}"
+#
+#- name: Convert PKCS#12 keystores to JKS format
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    keytool -importkeystore \
+#    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
+#    -destkeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.jks \
+#    -srckeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12 \
+#    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
+#    -alias {{ hostvars[item].hostname }} -noprompt
+#  loop: "{{ groups['cluster'] }}"
 
-- name: Create the certificate storage directory on node-0
+- name: Generate certificates for users
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  ansible.builtin.file:
-    path: "{{ storage_certificate_path }}"
-    state: directory
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificate }}"
-
-- name: Generate a new CA certificate
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
-    openssl req -new -x509 -keyout {{ storage_certificate_path }}/ca.key \
-    -out {{ storage_certificate_path }}/ca.crt -days 3650 \
-    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
-
-- name: Generate OpenSSL configuration files for each node
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.template:
-    src: openssl.cnf.j2
-    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
-  loop: "{{ groups['cluster'] }}"
-
-- name: Generate private keys for each node
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    openssl genpkey -algorithm RSA \
-    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
-    -pass pass:{{ certificate_password }}
-  loop: "{{ groups['cluster'] }}"
-
-- name: Create Certificate Signing Requests (CSR) for each node
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    openssl req -new \
-    -subj   "/CN={{ hostvars[item].hostname }}" \
-    -key    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
-    -out    {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
-    -config {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
-  loop: "{{ groups['cluster'] }}"
-
-- name: Sign node CSRs using the CA certificate
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    openssl x509 -req -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
-    -CA {{ storage_certificate_path }}/ca.crt \
-    -CAkey {{ storage_certificate_path }}/ca.key \
+    mkdir -p {{ storage_certificate_path }}/users/{{ item }} && \
+    openssl genpkey -algorithm RSA -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
+    -pass pass:{{ certificate_password }} && \
+    openssl req -new -key {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
+    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr \
+    -subj "/CN={{ item }}" && \
+    openssl x509 -req -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr \
+    -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
-    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
-    -days 3650 -extensions v3_req \
-    -extfile {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
-  loop: "{{ groups['cluster'] }}"
-
-- name: Generate PKCS#12 keystores for each node
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    openssl pkcs12 -export -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
-    -inkey {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
-    -certfile {{ storage_certificate_path }}/ca.crt -name {{ hostvars[item].hostname }} \
+    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt -days 3650 && \
+    openssl pkcs12 -export -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt \
+    -inkey {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
+    -certfile {{ storage_certificate_path }}/ca.crt -name {{ item }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
-    -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12
-  loop: "{{ groups['cluster'] }}"
-
-- name: Convert PKCS#12 keystores to JKS format
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    keytool -importkeystore \
-    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
-    -destkeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.jks \
-    -srckeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12 \
-    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
-    -alias {{ hostvars[item].hostname }} -noprompt
-  loop: "{{ groups['cluster'] }}"
+    -out {{ storage_certificate_path }}/{{ item }}.keystore.p12 && \
+    rm {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr
 
 - name: Generate a shared JKS truststore with the CA certificate
   tags:
