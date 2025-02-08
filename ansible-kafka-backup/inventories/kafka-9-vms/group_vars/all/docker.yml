@@ -28,7 +28,6 @@ shutdown_order:
 
 # Run the kafka roles
 docker_run_role:
-  # The controllers role
   controllers: |
     docker run -d --restart=always
     --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
@@ -55,7 +54,6 @@ docker_run_role:
     apache/kafka:3.9.0
     /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
-  # The brokers role
   brokers: |
     docker run -d --restart=always
     --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
@@ -82,7 +80,6 @@ docker_run_role:
     apache/kafka:3.9.0
     /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
-  # The brokers role
   connect: |
     docker run -d --restart=always
     --name=node-7.intel.r7g.org -h node-7.intel.r7g.org
@@ -105,7 +102,8 @@ docker_run_role:
     apache/kafka:3.9.0
     /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/connect-worker.properties
 
-docker_run_data_format: >
+
+docker_run_data_format: |
   docker run --rm -u root
   -v {{ node_config_path }}/:/mnt/shared/config
   -v {{ node_data_path }}:/var/lib/kafka/data
