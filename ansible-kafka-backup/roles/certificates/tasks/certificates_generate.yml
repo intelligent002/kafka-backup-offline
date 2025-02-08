@@ -20,14 +20,30 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificate }}"
 
+- name: Create certificate folders on node-0
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "{{ chmod_certificate }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+  loop:
+    - "{{ storage_certificate_path }}/CA"
+    - "{{ storage_certificate_path }}/nodes"
+    - "{{ storage_certificate_path }}/users"
+
 - name: Generate a new CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl req -new -x509 -keyout {{ storage_certificate_path }}/ca.key \
-    -out {{ storage_certificate_path }}/ca.crt -days 3650 \
+    openssl req -new -x509 -keyout {{ storage_certificate_path }}/CA/ca.key \
+    -out {{ storage_certificate_path }}/CA/ca.crt -days 3650 \
     -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
 - name: Generate OpenSSL configuration files for each node
@@ -37,7 +53,7 @@
   run_once: true
   ansible.builtin.template:
     src: openssl.cnf.j2
-    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
+    dest: "{{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf"
   loop: "{{ groups['cluster'] }}"
 
 - name: Generate private keys for each node
@@ -71,8 +87,8 @@
   run_once: true
   ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.csr \
-    -CA {{ storage_certificate_path }}/ca.crt \
-    -CAkey {{ storage_certificate_path }}/ca.key \
+    -CA {{ storage_certificate_path }}/CA/ca.crt \
+    -CAkey {{ storage_certificate_path }}/CA/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
     -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
     -days 3650 -extensions v3_req \
@@ -87,7 +103,7 @@
   ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
     -inkey {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
-    -certfile {{ storage_certificate_path }}/ca.crt -name {{ hostvars[item].hostname }} \
+    -certfile {{ storage_certificate_path }}/CA/ca.crt -name {{ hostvars[item].hostname }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
     -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12
   loop: "{{ groups['cluster'] }}"
@@ -148,7 +164,7 @@
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.csr \
-    -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
+    -CA {{ storage_certificate_path }}/CA/ca.crt -CAkey {{ storage_certificate_path }}/CA/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
     -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt -days 3650
 
@@ -161,7 +177,7 @@
   ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.crt \
     -inkey {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
-    -certfile {{ storage_certificate_path }}/ca.crt -name {{ item }} \
+    -certfile {{ storage_certificate_path }}/CA/ca.crt -name {{ item }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
     -out {{ storage_certificate_path }}/{{ item }}.keystore.p12
 
@@ -186,7 +202,7 @@
   run_once: true
   ansible.builtin.shell: >
     keytool -import -trustcacerts -noprompt -alias ca \
-    -file {{ storage_certificate_path }}/ca.crt \
+    -file {{ storage_certificate_path }}/CA/ca.crt \
     -keystore {{ storage_certificate_path }}/shared.truststore.jks \
     -storepass {{ certificate_password }}
 
