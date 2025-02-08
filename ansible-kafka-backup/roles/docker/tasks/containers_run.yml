@@ -8,6 +8,8 @@
   run_once: true
 
 - name: Debug resolved group and command
+  tags:
+    - containers_run
   debug:
     msg: "Node: {{ item }}, Group: {{ host_group }}, Command: {{ docker_run_role[host_group] | default('NOT FOUND') }}"
   with_items: "{{ startup_order }}"
