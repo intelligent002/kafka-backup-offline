@@ -99,13 +99,13 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl x509 -req -in {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.csr \
+    openssl x509 -req -in {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.csr \
     -CA {{ storage_certificate_path }}/CA/ca.crt \
     -CAkey {{ storage_certificate_path }}/CA/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
-    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.crt \
+    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
     -days 3650 -extensions v3_req \
-    -extfile {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.cnf
+    -extfile {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['cluster'] }}"
 
 - name: Generate PKCS#12 keystores for each node
@@ -114,11 +114,11 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl pkcs12 -export -in {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.crt \
-    -inkey {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.key \
+    openssl pkcs12 -export -in {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
+    -inkey {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
     -certfile {{ storage_certificate_path }}/CA/ca.crt -name {{ hostvars[item].hostname }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
-    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.p12
+    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12
   loop: "{{ groups['cluster'] }}"
 
 - name: Convert PKCS#12 keystores to JKS format
@@ -129,8 +129,8 @@
   ansible.builtin.shell: >
     keytool -importkeystore \
     -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
-    -destkeystore {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.jks \
-    -srckeystore {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.p12 \
+    -destkeystore {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks \
+    -srckeystore {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12 \
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ hostvars[item].hostname }} -noprompt
   loop: "{{ groups['cluster'] }}"
