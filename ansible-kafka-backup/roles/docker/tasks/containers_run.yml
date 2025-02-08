@@ -1,12 +1,15 @@
 ---
-- name: Determine the group for the host dynamically
+- name: Get a reference host from the cluster
   tags: containers_run
-  delegate_to: "{{ item }}"
   set_fact:
-    relevant_group: "{{ item }}"
-  with_items: "{{ group_names }}"
-  when: item not in ['all', 'cluster', 'central']
-  run_once: false
+    reference_host: "{{ groups['cluster'][0] }}"
+  when: groups['cluster'] | length > 0
+
+- name: Determine relevant group for the reference host
+  tags: containers_run
+  set_fact:
+    relevant_group: "{{ (hostvars[reference_host]['group_names'] | difference(['all', 'cluster', 'central']))[0] | default('undefined_group') }}"
+  when: reference_host is defined
 
 - name: Debug selected relevant group (Before Use)
   tags: containers_run
