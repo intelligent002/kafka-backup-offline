@@ -127,7 +127,6 @@
 - name: Distribute shared truststore to nodes
   tags:
     - certificates_generate
-  delegate_to: node-0
   synchronize:
     src: "{{ storage_certificate_path }}/shared.truststore.jks"
     dest: "{{ node_certificate_path }}/shared.truststore.jks"
