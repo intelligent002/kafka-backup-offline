@@ -8,7 +8,7 @@ prompt             = no
 encrypt_key        = no
 
 [ req_distinguished_name ]
-CN = {{ hostname }}
+CN = {{ hostvars[item].hostname }}
 
 [ v3_req ]
 subjectAltName = @alt_names
@@ -21,5 +21,5 @@ authorityKeyIdentifier=keyid:always,issuer
 basicConstraints=CA:true
 
 [ alt_names ]
-DNS.1 = {{ hostname }}
+DNS.1 = {{ hostvars[item].hostname }}
 IP.1  = {{ ansible_host }}
