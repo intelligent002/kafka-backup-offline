@@ -25,9 +25,22 @@ shutdown_order:
   - node-1
 
 shmoker:
-  controllers: docker run -d --restart=always
-  huyoker: ble
-  blo: bli
+  controllers: |
+    docker run -d --restart=always \
+    --name=my-container \
+    -p 9092:9092 \
+    -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G" \
+    -v /data/kafka:/var/lib/kafka/data \
+    apache/kafka:3.9.0
+
+  huyoker: |
+    ble ble ble ble ble \
+    more ble ble ble
+
+  blo: |
+    bli bli bli bli bli \
+    extra bli
+
 
 # === Docker commands ==================================================================================================
 
