@@ -20,7 +20,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificate }}"
 
-- name: Create folders for CA/users/nodes on node-0
+- name: Create directories for certificates on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -36,18 +36,15 @@
     - "{{ storage_certificate_path }}/nodes"
     - "{{ storage_certificate_path }}/users"
 
-- name: Create user directories for certificates
+- name: Generate a new CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  loop: "{{ credentials | map(attribute='username') | list }}"
-  ansible.builtin.file:
-    path: "{{ storage_certificate_path }}/users/{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0700'
+  ansible.builtin.shell: >
+    openssl req -new -x509 -keyout {{ storage_certificate_path }}/CA/ca.key \
+    -out {{ storage_certificate_path }}/CA/ca.crt -days 3650 \
+    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
 - name: Create node directories for certificates
   tags:
@@ -61,16 +58,6 @@
     owner: root
     group: root
     mode: '0700'
-
-- name: Generate a new CA certificate
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.shell: >
-    openssl req -new -x509 -keyout {{ storage_certificate_path }}/CA/ca.key \
-    -out {{ storage_certificate_path }}/CA/ca.crt -days 3650 \
-    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
 - name: Generate OpenSSL configuration files for each node
   tags:
@@ -101,9 +88,9 @@
   ansible.builtin.shell: >
     openssl req -new \
     -subj   "/CN={{ hostvars[item].hostname }}" \
-    -key    {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.key \
-    -out    {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.csr \
-    -config {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.cnf
+    -key    {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
+    -out    {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.csr \
+    -config {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['cluster'] }}"
 
 - name: Sign node CSRs using the CA certificate
@@ -147,6 +134,19 @@
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ hostvars[item].hostname }} -noprompt
   loop: "{{ groups['cluster'] }}"
+
+- name: Create user directories for certificates
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  ansible.builtin.file:
+    path: "{{ storage_certificate_path }}/users/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
 
 - name: Generate private keys for users
   tags:
