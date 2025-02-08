@@ -28,7 +28,7 @@ shmoker:
   controllers: |
     docker run -d --restart=always \ 
     --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }} \ 
-    -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+    -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
   huyoker: ble
   blo: bli
 
