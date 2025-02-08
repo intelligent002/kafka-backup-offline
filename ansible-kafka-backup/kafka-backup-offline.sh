@@ -257,6 +257,14 @@ function cluster_prerequisites()
 
 # Backs up Kafka certificates on all cluster nodes **in parallel** using Ansible.
 # Ensures certificate files are preserved for recovery or migration.
+function cluster_certificates_generate()
+{
+    run_ansible_routine "Kafka Certificates Generate" "parallel" "certificates_generate"
+    return $?
+}
+
+# Backs up Kafka certificates on all cluster nodes **in parallel** using Ansible.
+# Ensures certificate files are preserved for recovery or migration.
 function cluster_certificates_backup()
 {
     run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
@@ -517,7 +525,15 @@ function certificates_menu() {
                return 0 ;;
             # Trigger the certificate generation process if "Generate" is selected
             2)
-               cluster_certificates_generate ;;
+               cluster_certificates_generate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the backup is successful
+                    show_success_message "Certificates were generated successfully!"
+               else
+                    # Show failure message if the backup fails
+                    show_failure_message "Failed to generate certificates!\nExit the tool and review the logs."
+               fi
+               ;;
             # Backup certificates and handle the result if "Backup" is selected
             3)
                cluster_certificates_backup
