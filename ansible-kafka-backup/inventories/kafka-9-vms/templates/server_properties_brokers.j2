@@ -23,7 +23,7 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 # Listener - Control Plane (controller-broker via mTLS)
 
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=JKS
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -34,7 +34,7 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_i
 # Listener - Replication (broker-broker via mTLS)
 
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.client.auth=required
-listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.type=JKS
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -45,7 +45,7 @@ listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'
 # Listener - Consumers (client-broker via mTLS)
 
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.client.auth=required
-listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.type=JKS
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -57,7 +57,7 @@ listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls
 
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.type=JKS
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks

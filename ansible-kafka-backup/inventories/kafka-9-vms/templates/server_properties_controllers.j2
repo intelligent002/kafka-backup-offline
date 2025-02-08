@@ -27,7 +27,7 @@ controller.quorum.election.timeout.ms=30000
 
 #listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.sasl.enabled.mechanisms=PLAIN
 #listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="controller-admin" password="controller";
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=JKS
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
