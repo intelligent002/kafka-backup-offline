@@ -1,8 +1,28 @@
 ---
-- name: Run docker containers in startup order
-  tags:
-    - containers_run
-  shell: "{{ docker_command_containers_run }}"
-  delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
-  run_once: true  # Ensure task runs only once on localhost
+#- name: Run docker containers in startup order
+#  tags:
+#    - containers_run
+#  shell: "{{ docker_command_containers_run }}"
+#  delegate_to: "{{ item }}"
+#  with_items: "{{ startup_order }}"
+#  run_once: true  # Ensure task runs only once on localhost
+
+- name: Determine the group for the host dynamically
+  tags: containers_run
+  set_fact:
+    relevant_group: "{{ item }}"
+  with_items: "{{ group_names }}"
+  when: item not in ['all', 'cluster', 'central']
+  run_once: false
+
+- name: Select the Docker command dynamically based on the group
+  tags: containers_run
+  set_fact:
+    selected_docker_command: "{{ docker_run_role[relevant_group] | regex_replace('\\s+', ' ') }}"
+  when: relevant_group in docker_run_role
+
+- name: Run Docker containers for the assigned role
+  tags: containers_run
+  shell: "{{ selected_docker_command }}"
+  delegate_to: "{{ inventory_hostname }}"
+  when: selected_docker_command is defined
