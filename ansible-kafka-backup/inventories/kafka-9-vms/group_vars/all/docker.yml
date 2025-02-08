@@ -31,7 +31,7 @@ docker_run_role:
   # The controller role
   controller: >
     docker run -d --restart=always
-    --name={{ hostvars[inventory_hostname]['hostname'] }} -h {{ hostvars[inventory_hostname]['hostname'] }}
+    --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
     -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
     -p {{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}
     -p {{ hostvars[inventory_hostname]['port_replication_ext'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }}
@@ -58,7 +58,7 @@ docker_run_role:
   # The broker role
   broker: >
     docker run -d --restart=always
-    --name={{ hostvars[inventory_hostname]['hostname'] }} -h {{ hostvars[inventory_hostname]['hostname'] }}
+    --name={{ hostvars[inventory_hostname].hostname }} -h {{ hostvars[inventory_hostname].hostname }}
     -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
     -p {{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}
     -p {{ hostvars[inventory_hostname]['port_replication_ext'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }}
@@ -86,14 +86,14 @@ docker_run_role:
   connect: >
     docker run -d --restart=always
     --name=node-7.intel.r7g.org -h node-7.intel.r7g.org
-    -p 9999:9999
-    -p 8080:8080
+    -p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+    -p {{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}
     -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
     -e KAFKA_JMX_OPTS="
-    -Djava.rmi.server.hostname=node-7.intel.r7g.org
+    -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
     -Dcom.sun.management.jmxremote 
-    -Dcom.sun.management.jmxremote.port=9999
-    -Dcom.sun.management.jmxremote.rmi.port=9999
+    -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+    -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
     -Dcom.sun.management.jmxremote.authenticate=false
     -Dcom.sun.management.jmxremote.ssl=false
     "
