@@ -1,11 +1,11 @@
-docker run --rm -u root
--v {{ node_config_path }}/:/mnt/shared/config
--v {{ node_data_path }}:/var/lib/kafka/data
--v {{ node_meta_path }}:/var/lib/kafka/meta
--v {{ node_logs_path }}:/opt/kafka/logs
--v {{ node_certificate_path }}/:/etc/kafka/secrets
-apache/kafka:3.9.0
-/opt/kafka/bin/kafka-storage.sh format
---cluster-id {{ cluster_id }}
---add-scram 'SCRAM-SHA-512=[name=admin,password=changeme]'
+docker run --rm -u root \
+-v {{ node_config_path }}/:/mnt/shared/config \
+-v {{ node_data_path }}:/var/lib/kafka/data \
+-v {{ node_meta_path }}:/var/lib/kafka/meta \
+-v {{ node_logs_path }}:/opt/kafka/logs \
+-v {{ node_certificate_path }}/:/etc/kafka/secrets \
+apache/kafka:3.9.0 \
+/opt/kafka/bin/kafka-storage.sh format \
+--cluster-id {{ cluster_id }} \
+--add-scram 'SCRAM-SHA-512=[name=admin,password=changeme]' \
 --config /mnt/shared/config/kraft.properties

@@ -1,20 +1,20 @@
-docker run -d --restart=always 
---name=node-7.intel.r7g.org -h node-7.intel.r7g.org 
--p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} 
--p {{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }} 
--e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G" 
--e KAFKA_JMX_OPTS=" 
--Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }} 
--Dcom.sun.management.jmxremote 
--Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} 
--Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} 
--Dcom.sun.management.jmxremote.authenticate=false 
--Dcom.sun.management.jmxremote.ssl=false 
-" 
--v /data/cluster/config:/mnt/shared/config 
--v /data/cluster/certificate:/etc/kafka/secrets 
--v /data/cluster/credentials:/credentials 
--v /data/cluster/logs:/opt/kafka/logs 
--v /data/cluster/connector-plugins:/usr/share/java 
-apache/kafka:3.9.0 
+docker run -d --restart=always \
+--name=node-7.intel.r7g.org -h node-7.intel.r7g.org \
+-p {{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+-p {{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }} \
+-e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G" \
+-e KAFKA_JMX_OPTS=" \
+-Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }} \
+-Dcom.sun.management.jmxremote \
+-Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+-Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }} \
+-Dcom.sun.management.jmxremote.authenticate=false \
+-Dcom.sun.management.jmxremote.ssl=false \
+" \
+-v /data/cluster/config:/mnt/shared/config \
+-v /data/cluster/certificate:/etc/kafka/secrets \
+-v /data/cluster/credentials:/credentials \
+-v /data/cluster/logs:/opt/kafka/logs \
+-v /data/cluster/connector-plugins:/usr/share/java \
+apache/kafka:3.9.0 \
 /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/connect-worker.properties
