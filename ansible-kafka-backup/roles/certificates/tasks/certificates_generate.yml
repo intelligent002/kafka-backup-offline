@@ -27,7 +27,7 @@
   run_once: true
   ansible.builtin.template:
     src: openssl.cnf.j2
-    dest: "{{ storage_certificate_path }}/{{ item.hostname }}.cnf"
+    dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
   loop: "{{ groups['cluster'] }}"
 
 - name: Generate CA certificate
