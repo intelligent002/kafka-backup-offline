@@ -1,4 +1,30 @@
 ---
+- name: Debug available docker_run_role mappings
+  debug:
+    var: docker_run_role
+  run_once: true
+
+- name: Precompile all Docker commands into a dictionary
+  tags:
+    - containers_run
+  set_fact:
+    compiled_docker_run_command: >-
+      {{
+        {
+          'controllers': docker_run_role.controllers | ansible.builtin.template,
+          'brokers': docker_run_role.brokers | ansible.builtin.template,
+          'connect': docker_run_role.connect | ansible.builtin.template
+        }
+      }}
+  run_once: true
+
+- name: Debug compiled Docker commands
+  tags:
+    - containers_run
+  debug:
+    var: compiled_docker_run_command
+  run_once: true
+
 - name: Collect all group names for nodes
   tags:
     - containers_run
