@@ -203,7 +203,7 @@
     -inkey {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.key \
     -certfile {{ storage_certificate_path }}/CA/ca.crt -name {{ item }} \
     -passin pass:{{ certificate_password }} -passout pass:{{ certificate_password }} \
-    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.keystore.p12
+    -out {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.p12
 
 - name: Convert PKCS#12 keystores to JKS format for users
   tags:
@@ -215,7 +215,7 @@
     keytool -importkeystore \
     -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
     -destkeystore {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.jks \
-    -srckeystore {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.keystore.p12 \
+    -srckeystore {{ storage_certificate_path }}/users/{{ item }}/{{ item }}.p12 \
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ item }} -noprompt
 
