@@ -82,11 +82,11 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl pkcs12 -export -in {{ storage_certificate_path }}/{{ item.hostname }}.crt \
-    -inkey {{ storage_certificate_path }}/{{ item.hostname }}.key \
-    -certfile {{ storage_certificate_path }}/ca.crt -name {{ item.hostname }} \
-    -password pass:{{ certificate_password }} -out {{ storage_certificate_path }}/{{ item.hostname }}.p12
-  loop: "{{ groups['cluster'] | map('extract', hostvars, 'hostname') | list }}"
+    openssl pkcs12 -export -in {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.crt \
+    -inkey {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.key \
+    -certfile {{ storage_certificate_path }}/ca.crt -name {{ hostvars[item].hostname }} \
+    -password pass:{{ certificate_password }} -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12
+  loop: "{{ groups['cluster'] }}"
 
 - name: Convert PKCS#12 to JKS Keystore
   tags:
@@ -96,11 +96,11 @@
   ansible.builtin.shell: >
     keytool -importkeystore \
     -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
-    -destkeystore {{ storage_certificate_path }}/{{ item.hostname }}.jks \
-    -srckeystore {{ storage_certificate_path }}/{{ item.hostname }}.p12 \
+    -destkeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.jks \
+    -srckeystore {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12 \
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
-    -alias {{ item.hostname }} -noprompt
-  loop: "{{ groups['cluster'] | map('extract', hostvars, 'hostname') | list }}"
+    -alias {{ hostvars[item].hostname }} -noprompt
+  loop: "{{ groups['cluster'] }}"
 
 - name: Generate JKS Truststore with CA
   tags:
