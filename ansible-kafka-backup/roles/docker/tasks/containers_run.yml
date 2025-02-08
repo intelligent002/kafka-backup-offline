@@ -1,5 +1,7 @@
 ---
 - name: Debug available docker_run_role mappings
+  tags:
+    - containers_run
   debug:
     var: docker_run_role
   run_once: true
