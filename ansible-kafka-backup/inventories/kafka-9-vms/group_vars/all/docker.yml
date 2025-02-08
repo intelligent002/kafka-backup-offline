@@ -28,8 +28,7 @@ shutdown_order:
 
 # Run the kafka roles
 docker_run_role:
-  controllers: {{ docker_command_controllers}}
-  brokers: {{ docker_command_brokers }}
-  connect: {{ docker_command_connect }}
+  controllers: "{{ docker_command_controllers}}"
+  brokers: "{{ docker_command_brokers }}"
+  connect: "{{ docker_command_connect }}"
 
-docker_run_data_format: {{ docker_command_data_format }}

@@ -32,4 +32,4 @@
 - name: Format Data on nodes
   tags:
     - data_format
-  shell: "{{ docker_run_data_format }}"
+  shell: "{{ docker_command_data_format }}"
