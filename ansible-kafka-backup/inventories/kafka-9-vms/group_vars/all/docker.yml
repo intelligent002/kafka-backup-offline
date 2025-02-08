@@ -1,10 +1,9 @@
 # === Nodes startup and shutdown order =================================================================================
 
 docker_run_roles:
-  controllers: "{{ docker_command_controllers}}"
-  brokers: "{{ docker_command_brokers }}"
-  connect: "{{ docker_command_connect }}"
-
+  controllers: "{{ inventory_dir }}/templates/docker_command_controllers.j2"
+  brokers: "{{ inventory_dir }}/templates/docker_command_brokers.j2"
+  connect: "{{ inventory_dir }}/templates/docker_command_connect.j2"
 
 # Defines the order of starting cluster nodes.
 startup_order:
