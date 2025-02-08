@@ -1,4 +1,12 @@
 ---
+- name: Collect all group names for nodes
+  tags:
+    - containers_run
+  set_fact:
+    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
 - name: Run Docker containers in startup order based on group
   tags:
     - containers_run
