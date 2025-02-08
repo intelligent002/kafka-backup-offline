@@ -1,9 +1,9 @@
 ---
-- name: Debug all loaded group_vars
+- name: Debug available startup_order mappings
   tags:
     - containers_run
   debug:
-    var: hostvars[inventory_hostname]
+    var: startup_order
   run_once: true
 
 - name: Debug available docker_run_role mappings
