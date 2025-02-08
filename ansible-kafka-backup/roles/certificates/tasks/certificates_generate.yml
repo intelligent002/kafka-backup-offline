@@ -76,7 +76,7 @@
   run_once: true
   ansible.builtin.shell: >
     openssl genpkey -algorithm RSA \
-    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}.key \
+    -out {{ storage_certificate_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
     -pass pass:{{ certificate_password }}
   loop: "{{ groups['cluster'] }}"
 
