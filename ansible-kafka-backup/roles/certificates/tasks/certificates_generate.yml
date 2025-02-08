@@ -36,11 +36,12 @@
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl req -new -nodes -keyout {{ storage_certificate_path }}/{{ item.hostname }}.key \
-    -out {{ storage_certificate_path }}/{{ item.hostname }}.csr -subj "/CN={{ item.hostname }}" && \
-    openssl x509 -req -in {{ storage_certificate_path }}/{{ item.hostname }}.csr \
-    -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
-    -CAcreateserial -out {{ storage_certificate_path }}/{{ item.hostname }}.crt -days 3650
+    echo hello-agam-{{ item.hostname }}
+#    openssl req -new -nodes -keyout {{ storage_certificate_path }}/{{ item.hostname }}.key \
+#    -out {{ storage_certificate_path }}/{{ item.hostname }}.csr -subj "/CN={{ item.hostname }}" && \
+#    openssl x509 -req -in {{ storage_certificate_path }}/{{ item.hostname }}.csr \
+#    -CA {{ storage_certificate_path }}/ca.crt -CAkey {{ storage_certificate_path }}/ca.key \
+#    -CAcreateserial -out {{ storage_certificate_path }}/{{ item.hostname }}.crt -days 3650
   loop: "{{ groups['cluster'] | map('extract', hostvars, 'hostname') | list }}"
 
 - name: Generate PKCS#12 Keystore for nodes
