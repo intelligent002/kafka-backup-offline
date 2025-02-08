@@ -1,12 +1,4 @@
 ---
-#- name: Run docker containers in startup order
-#  tags:
-#    - containers_run
-#  shell: "{{ docker_command_containers_run }}"
-#  delegate_to: "{{ item }}"
-#  with_items: "{{ startup_order }}"
-#  run_once: true  # Ensure task runs only once on localhost
-
 - name: Determine the group for the host dynamically
   tags: containers_run
   set_fact:
@@ -31,3 +23,11 @@
   shell: "{{ selected_docker_command }}"
   delegate_to: "{{ inventory_hostname }}"
   when: selected_docker_command is defined
+
+#- name: Run docker containers in startup order
+#  tags:
+#    - containers_run
+#  shell: "{{ docker_command_containers_run }}"
+#  delegate_to: "{{ item }}"
+#  with_items: "{{ startup_order }}"
+#  run_once: true  # Ensure task runs only once on localhost
