@@ -7,6 +7,12 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
+- name: Debug resolved group and command
+  debug:
+    msg: "Node: {{ item }}, Group: {{ host_group }}, Command: {{ docker_run_role[host_group] | default('NOT FOUND') }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
 - name: Run Docker containers in startup order based on group
   tags:
     - containers_run
