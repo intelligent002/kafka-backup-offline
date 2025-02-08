@@ -6,7 +6,7 @@
     var: startup_order
   run_once: true
 
-- name: Debug available docker_run_role mappings
+- name: Debug available shmoker mappings
   tags:
     - containers_run
   debug:
