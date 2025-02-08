@@ -7,13 +7,6 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Debug collected group names for nodes
-  tags:
-    - containers_run
-  debug:
-    var: group_names_all
-  run_once: true
-
 - name: Determine host group dynamically
   tags:
     - containers_run
