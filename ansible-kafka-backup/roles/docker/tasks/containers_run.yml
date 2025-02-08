@@ -14,30 +14,37 @@
     var: group_names_all
   run_once: true
 
+- name: Determine host group dynamically
+  tags:
+    - containers_run
+  set_fact:
+    host_group_map: "{{ host_group_map | default({}) | combine({ item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 else 'undefined_group' }) }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
+- name: Debug resolved group mapping
+  tags:
+    - containers_run
+  debug:
+    var: host_group_map
+  run_once: true
+
 - name: Debug resolved group and command
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }}, Groups: {{ group_names_all[item] | default([]) }}, Selected Group: {{ host_group }}, Command: {{ docker_run_role[host_group] | default('NOT FOUND') }}"
+    msg: "Node: {{ item }}, Groups: {{ group_names_all[item] | default([]) }}, Selected Group: {{ host_group_map[item] }}, Command: {{ docker_run_role[host_group_map[item]] | default('NOT FOUND') }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
 - name: Run Docker containers in startup order based on group
   tags:
     - containers_run
-  shell: "{{ docker_run_role[host_group] }}"
+  shell: "{{ docker_run_role[host_group_map[item]] }}"
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
   run_once: true
-  vars:
-    host_group: >-
-      {{
-        (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first)
-        if (group_names_all[item] | default([]) | difference(['all', 'cluster']) | length > 0
-        else 'undefined_group'
-      }}
-  when: host_group in docker_run_role
-
+  when: host_group_map[item] in docker_run_role
 
 
 #- name: Run docker containers in startup order
