@@ -26,9 +26,10 @@ shutdown_order:
 
 shmoker_h:
   smoker: |
-    bla \
-    blo \
+    bla 
+    blo 
     ble
+
   huyoker: ble
   blo: bli
 
