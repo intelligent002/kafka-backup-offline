@@ -1,5 +1,5 @@
 ---
-- name: Ensure certificate directory exists
+- name: Delete the certificate storage directory on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -8,7 +8,7 @@
     path: "{{ storage_certificate_path }}"
     state: absent
 
-- name: Recreate certificate directory
+- name: Create the certificate storage directory on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -20,7 +20,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificate }}"
 
-- name: Generate CA certificate
+- name: Generate a new CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -30,7 +30,7 @@
     -out {{ storage_certificate_path }}/ca.crt -days 3650 \
     -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
-- name: Generate OpenSSL configuration files for SAN certificates per nodes
+- name: Generate OpenSSL configuration files for each node
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -40,7 +40,7 @@
     dest: "{{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf"
   loop: "{{ groups['cluster'] }}"
 
-- name: Generate private key for nodes
+- name: Generate private keys for each node
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -51,7 +51,7 @@
     -pass pass:{{ certificate_password }}
   loop: "{{ groups['cluster'] }}"
 
-- name: Generate CSR using the per-node OpenSSL config
+- name: Create Certificate Signing Requests (CSR) for each node
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -64,7 +64,7 @@
     -config {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['cluster'] }}"
 
-- name: Sign CSRs using the custom config
+- name: Sign node CSRs using the CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -79,7 +79,7 @@
     -extfile {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['cluster'] }}"
 
-- name: Generate PKCS#12 Keystore for nodes
+- name: Generate PKCS#12 keystores for each node
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -92,7 +92,7 @@
     -out {{ storage_certificate_path }}/{{ hostvars[item].hostname }}.p12
   loop: "{{ groups['cluster'] }}"
 
-- name: Convert PKCS#12 to JKS Keystore
+- name: Convert PKCS#12 keystores to JKS format
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -106,7 +106,7 @@
     -alias {{ hostvars[item].hostname }} -noprompt
   loop: "{{ groups['cluster'] }}"
 
-- name: Generate JKS Truststore with CA
+- name: Generate a shared JKS truststore with the CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -117,7 +117,7 @@
     -keystore {{ storage_certificate_path }}/shared.truststore.jks \
     -storepass {{ certificate_password }}
 
-- name: Distribute node-specific certificates
+- name: Distribute node-specific keystore files to respective nodes
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -129,7 +129,7 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Distribute shared truststore to nodes
+- name: Distribute shared truststore to all nodes
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -141,7 +141,7 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Set ownership and permissions on nodes
+- name: Set correct permissions for certificate files on nodes
   tags:
     - certificates_generate
   ansible.builtin.file:
