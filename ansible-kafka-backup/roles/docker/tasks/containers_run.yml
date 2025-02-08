@@ -6,18 +6,11 @@
     var: startup_order
   run_once: true
 
-- name: Debug available shmoker mappings
-  tags:
-    - containers_run
-  debug:
-    var: shmoker
-  run_once: true
-
 - name: Debug available docker_run_role mappings
   tags:
     - containers_run
   debug:
-    var: docker_run_role.connnect
+    var: docker_run_role
   run_once: true
 
 - name: Precompile all Docker commands into a dictionary
