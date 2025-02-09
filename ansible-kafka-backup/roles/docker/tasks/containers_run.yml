@@ -33,15 +33,11 @@
 #  with_items: "{{ startup_order }}"
 #  when: host_group_map[item] is defined
 
-- name: Analyze groups to determine host roles
+- name: Collect group names for nodes
   tags:
     - containers_run
   set_fact:
     group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
-    host_group_map: "{{ host_group_map | default({}) | combine(
-      { item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) 
-      if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 
-      else 'undefined_group' }) }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
@@ -52,22 +48,13 @@
     var: group_names_all
   run_once: true
 
-- name: Debug host_group_map
-  tags:
-    - containers_run
-  debug:
-    var: host_group_map
-  run_once: true
-
 - name: Debug per-node details before running the command
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }}, Group: {{ host_group_map[item] }}"
+    msg: "Node: {{ item }}, Groups: {{ group_names_all[item] }}"
   with_items: "{{ startup_order }}"
   run_once: true
-
-
 
 - name: Run appropriate Docker command based on role
   tags:
@@ -75,13 +62,13 @@
   delegate_to: "{{ item }}"
   run_once: true
   shell: >
-    {% if 'controllers' in host_group_map[item] %} {{ docker_command_controllers_run }}
-    {% elif 'brokers' in host_group_map[item] %} {{ docker_command_brokers_run }}
-    {% elif 'connect' in host_group_map[item] %} {{ docker_command_connect_run }}
+    {% if 'controllers' in group_names_all[item] %} {{ docker_command_controllers_run }}
+    {% elif 'brokers' in group_names_all[item] %} {{ docker_command_brokers_run }}
+    {% elif 'connect' in group_names_all[item] %} {{ docker_command_connect_run }}
     {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"
-  when: host_group_map[item] is defined
+  when: group_names_all[item] is defined
 
 
 # old variant - single command for all containers
