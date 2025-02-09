@@ -24,7 +24,7 @@ shutdown_order:
   - node-2
   - node-1
 
-docker_command_containers_run: |
+docker_command_containers_run: >
   docker run -d --restart=always
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
