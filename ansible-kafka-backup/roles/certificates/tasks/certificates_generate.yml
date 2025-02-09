@@ -248,7 +248,7 @@
     - certificates_generate
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_certificate_path }}/users/admin/connect.jks"
+    src: "{{ storage_certificate_path }}/users/connect/connect.jks"
     dest: "{{ node_certificate_path }}/connect.jks"
     mode: push
     rsync_opts:
