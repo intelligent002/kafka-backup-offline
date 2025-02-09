@@ -31,7 +31,7 @@
 
 - name: Debug resolved group and command
   tags:
-    - containers_run
+    - data_format
   debug:
     msg: "inventory_dir: {{ inventory_dir }}"
   run_once: true
