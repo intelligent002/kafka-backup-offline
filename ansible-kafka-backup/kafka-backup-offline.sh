@@ -735,21 +735,21 @@ function containers_menu() {
             1) return 0 ;;
             2) cluster_containers_run
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully started! All services are now running."
+                   show_success_message "The containers were successfully started!\nAll services are now running."
                else
                    show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
                fi
                ;;
             3) cluster_containers_start
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully resumed! Previously stopped services are now active."
+                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
                else
                    show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
                fi
                ;;
             4) cluster_containers_stop
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully stopped! All services are now inactive."
+                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
                else
                    show_failure_message "Unable to stop the containers.\nPlease verify permissions or configurations and check the logs."
                fi
@@ -757,14 +757,14 @@ function containers_menu() {
             5)
                cluster_containers_restart
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully restarted! All services have been refreshed."
+                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
                else
                    show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
                fi
                ;;
             6) cluster_containers_remove
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully removed! Resources have been freed."
+                   show_success_message "The containers were successfully removed!\nResources have been freed."
                else
                    show_failure_message "Failed to remove the containers.\nCheck if the containers are running and review the logs for details."
                fi
