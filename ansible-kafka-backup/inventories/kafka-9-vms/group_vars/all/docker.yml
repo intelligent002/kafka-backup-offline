@@ -96,7 +96,7 @@ docker_command_connect_run: >
   -v /data/cluster/certificate:/etc/kafka/secrets
   -v /data/cluster/credentials:/credentials
   -v /data/cluster/logs:/opt/kafka/logs
-  -v /data/cluster/connector-plugins:/usr/share/java
+  -v /data/cluster/plugins:/usr/share/java
   apache/kafka:3.9.0
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
   
