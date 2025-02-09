@@ -20,7 +20,6 @@
     - containers_run
   delegate_to: "{{ item }}"
   run_once: true
-  ignore_errors: true
   shell: >
     {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
     {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
@@ -30,27 +29,6 @@
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
   register: docker_results
-
-- name: Display container startup results and fail if any errors occurred
-  tags:
-    - containers_run
-  run_once: true
-  block:
-    - name: Display container startup outputs
-      debug:
-        msg: > 
-          Node: {{ item.item }} -> 
-          {% if item.rc == 0 and item.stdout | trim != "" %} Container ID: {{ item.stdout | trim }} 
-          {% elif item.rc != 0 %} Error: {{ item.stderr | trim }} 
-          {% else %} No output received 
-          {% endif %}
-      with_items: "{{ docker_results.results }}"
-
-    - name: Fail playbook if any container startup failed
-      fail:
-        msg: "Container startup failed on node {{ item.item }}. Error: {{ item.stderr | trim }}"
-      with_items: "{{ docker_results.results }}"
-      when: item.rc != 0
 
 
 # old variant - single command for all containers
