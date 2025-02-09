@@ -28,7 +28,6 @@
     {% endif %}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
-  register: docker_results
 
 
 # old variant - single command for all containers
