@@ -36,7 +36,7 @@ docker_command_controllers_run: >
   -p {{ hostvars[item]['port_consumer_sasl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['hostname'] }}
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
   -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
@@ -62,7 +62,7 @@ docker_command_brokers_run: >
   -p {{ hostvars[item]['port_consumer_sasl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['hostname'] }}
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
   -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
@@ -85,7 +85,7 @@ docker_command_connect_run: >
   -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['hostname'] }}
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
   -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
   -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
