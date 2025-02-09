@@ -29,6 +29,13 @@
     - "{{ node_meta_path }}"
     - "{{ node_logs_path }}"
 
+- name: Debug resolved group and command
+  tags:
+    - containers_run
+  debug:
+    msg: "inventory_dir: {{ inventory_dir }}"
+  run_once: true
+
 - name: Format Data on nodes
   tags:
     - data_format
