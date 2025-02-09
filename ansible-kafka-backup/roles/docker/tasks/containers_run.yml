@@ -9,7 +9,7 @@
 
 - name: Assigned roles map
   tags:
-    - containers_run
+    - containers_run_debug
   debug:
     msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
   with_items: "{{ startup_order }}"
