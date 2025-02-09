@@ -33,11 +33,11 @@
 #  with_items: "{{ startup_order }}"
 #  when: host_group_map[item] is defined
 
-- name: Collect group names for nodes
+- name: Collect group names for nodes (excluding 'cluster')
   tags:
     - containers_run
   set_fact:
-    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
+    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
