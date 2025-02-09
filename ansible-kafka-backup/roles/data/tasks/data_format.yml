@@ -39,4 +39,4 @@
 - name: Format Data on nodes
   tags:
     - data_format
-  shell: "{{ {{ inventory_dir }}/templates/docker_command_data_format.j2 }}"
+  shell: "{{ lookup('template', inventory_dir ~ '/templates/docker_command_controllers.j2') }}"
