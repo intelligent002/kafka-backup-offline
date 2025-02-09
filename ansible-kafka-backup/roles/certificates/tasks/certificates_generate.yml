@@ -1,5 +1,5 @@
 ---
-- name: Delete the certificate storage directory on node-0
+- name: Delete certificates storage on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -8,7 +8,7 @@
     path: "{{ storage_certificates_path }}"
     state: absent
 
-- name: Create the certificate storage directory on node-0
+- name: Create certificates storage on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
