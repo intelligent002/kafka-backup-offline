@@ -24,10 +24,10 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password=insecure
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=PKCS12
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password=changeme
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password=insecure
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.type=PKCS12
 
 #############################################################################################
@@ -35,10 +35,10 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_i
 
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.client.auth=required
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.password=changeme
+listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.password=insecure
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.keystore.type=PKCS12
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.password=changeme
+listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.password=insecure
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.type=PKCS12
 
 #############################################################################################
@@ -46,22 +46,22 @@ listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'
 
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.client.auth=required
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.password=changeme
+listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.password=insecure
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.keystore.type=PKCS12
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.password=changeme
+listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.password=insecure
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.type=PKCS12
 
 #############################################################################################
 # Listener - Consumers (client-broker via SASL_SSL)
 
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="changeme";
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.keystore.p12
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.password=changeme
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.password=insecure
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.keystore.type=PKCS12
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.password=changeme
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.password=insecure
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_int'] }}.ssl.truststore.type=PKCS12
 
 #############################################################################################

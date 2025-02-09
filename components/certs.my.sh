@@ -15,7 +15,7 @@ CA_CERT_FILE="ca-cert.pem"
 CA_KEY_FILE="ca-key.pem"
 
 # Passwords for keystores/truststores (ensure these are securely stored)
-PARAM_PASS="changeme"
+PARAM_PASS="insecure"
 
 # List of brokers and users
 CLUSTER_NODES=(node-{0..9})

@@ -2,7 +2,7 @@
 
 # Configuration
 DAYS=3650
-PASSWORD="changeme"
+PASSWORD="insecure"
 OUTPUT_DIR="output"
 DOMAINS=("node-1.intel.r7g.org" "node-2.intel.r7g.org" "node-3.intel.r7g.org" "node-4.intel.r7g.org" "node-5.intel.r7g.org" "node-6.intel.r7g.org" )
 
