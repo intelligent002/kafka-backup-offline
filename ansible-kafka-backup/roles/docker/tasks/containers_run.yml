@@ -45,6 +45,30 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
+- name: Debug group_names_all
+  tags:
+    - containers_run
+  debug:
+    var: group_names_all
+  run_once: true
+
+- name: Debug host_group_map
+  tags:
+    - containers_run
+  debug:
+    var: host_group_map
+  run_once: true
+
+- name: Debug per-node details before running the command
+  tags:
+    - containers_run
+  debug:
+    msg: "Node: {{ item }}, Group: {{ host_group_map[item] }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
+
+
 - name: Run appropriate Docker command based on role
   tags:
     - containers_run
