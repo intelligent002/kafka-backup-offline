@@ -1,39 +1,66 @@
 ---
-- name: Collect all group names for nodes
+#- name: Collect all group names for nodes
+#  tags:
+#    - containers_run
+#  set_fact:
+#    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
+#  with_items: "{{ startup_order }}"
+#  run_once: true
+#
+#- name: Determine host group dynamically
+#  tags:
+#    - containers_run
+#  set_fact:
+#    host_group_map: "{{ host_group_map | default({}) | combine({ item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 else 'undefined_group' }) }}"
+#  with_items: "{{ startup_order }}"
+#  run_once: true
+#
+#- name: Determine and run appropriate Docker command based on group
+#  tags:
+#    - containers_run
+#  delegate_to: "{{ item }}"
+#  run_once: true
+#  shell: >
+#    {% if 'controllers' in host_group_map[item] %}
+#    {{ docker_command_controllers_run }}
+#    {% elif 'brokers' in host_group_map[item] %}
+#    {{ docker_command_brokers_run }}
+#    {% elif 'connect' in host_group_map[item] %}
+#    {{ docker_command_connect_run }}
+#    {% else %}
+#    echo 'Undefined group, no command executed'
+#    {% endif %}
+#  with_items: "{{ startup_order }}"
+#  when: host_group_map[item] is defined
+
+- name: Analyze groups to determine host roles
   tags:
     - containers_run
   set_fact:
     group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
+    host_group_map: "{{ host_group_map | default({}) | combine(
+      { item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) 
+      if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 
+      else 'undefined_group' }) }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Determine host group dynamically
-  tags:
-    - containers_run
-  set_fact:
-    host_group_map: "{{ host_group_map | default({}) | combine({ item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 else 'undefined_group' }) }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
-- name: Determine and run appropriate Docker command based on group
+- name: Run appropriate Docker command based on role
   tags:
     - containers_run
   delegate_to: "{{ item }}"
   run_once: true
   shell: >
-    {% if 'controllers' in host_group_map[item] %}
-    {{ docker_command_controllers_run }}
-    {% elif 'brokers' in host_group_map[item] %}
-    {{ docker_command_brokers_run }}
-    {% elif 'connect' in host_group_map[item] %}
-    {{ docker_command_connect_run }}
-    {% else %}
-    echo 'Undefined group, no command executed'
+    {% if 'controllers' in host_group_map[item] %} {{ docker_command_controllers_run }}
+    {% elif 'brokers' in host_group_map[item] %} {{ docker_command_brokers_run }}
+    {% elif 'connect' in host_group_map[item] %} {{ docker_command_connect_run }}
+    {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"
   when: host_group_map[item] is defined
 
-#
+
+# old variant - single command for all containers
 #- name: Run docker containers in startup order
 #  tags:
 #    - containers_run
