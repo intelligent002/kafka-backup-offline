@@ -219,13 +219,25 @@
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ item }} -noprompt
 
-- name: Distribute keystores to respective nodes
+- name: Distribute node keystore to respective node
   tags:
     - certificates_generate
   delegate_to: node-0
   synchronize:
     src: "{{ storage_certificate_path }}/nodes/{{ hostvars[inventory_hostname].hostname }}/{{ hostvars[inventory_hostname].hostname }}.jks"
     dest: "{{ node_certificate_path }}/{{ hostvars[inventory_hostname].hostname }}.jks"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+
+- name: Distribute admin keystore to all nodes
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  synchronize:
+    src: "{{ storage_certificate_path }}/users/admin/admin.jks"
+    dest: "{{ node_certificate_path }}/admin.jks"
     mode: push
     rsync_opts:
       - "--timeout=60"
