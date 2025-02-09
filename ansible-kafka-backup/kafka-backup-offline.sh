@@ -284,7 +284,7 @@ function cluster_certificates_restore()
 # Ensures all nodes have the latest configuration settings from inventory template.
 function cluster_configs_generate()
 {
-    run_ansible_routine "Kafka Configs Deploy" "parallel" "configs_generate"
+    run_ansible_routine "Kafka Configs Generate" "parallel" "configs_generate"
     return $?
 }
 
