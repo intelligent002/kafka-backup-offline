@@ -19,7 +19,7 @@
   tags:
     - containers_run
   set_fact:
-    inventory_dir: "/apps/kafka-9-vms"
+    inventory_dir: "/apps/inventories/kafka-9-vms"
   run_once: true
 
 - name: Determine and run appropriate Docker command based on group
