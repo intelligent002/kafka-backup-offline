@@ -3,7 +3,7 @@
   tags:
     - containers_run
   set_fact:
-    groups: "{{ groups | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
+    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
@@ -13,13 +13,13 @@
   delegate_to: "{{ item }}"
   run_once: true
   shell: >
-    {% if 'controllers' in groups[item] %} {{ docker_command_controllers_run }}
-    {% elif 'brokers' in groups[item] %} {{ docker_command_brokers_run }}
-    {% elif 'connect' in groups[item] %} {{ docker_command_connect_run }}
+    {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
+    {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
+    {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
     {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"
-  when: groups[item] is defined
+  when: group_roles[item] is defined
 
 
 # old variant - single command for all containers
