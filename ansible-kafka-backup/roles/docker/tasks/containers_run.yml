@@ -19,7 +19,7 @@
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }}, Selected Group: {{ host_group_map[item] }}, Command: {{ docker_run_role[host_group_map[item]] | default('NOT FOUND') }}"
+    msg: "Node: {{ item }}, Selected Group: {{ host_group_map[item] }}, Command: {{ docker_run_role_controllers | default('NOT FOUND') }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
