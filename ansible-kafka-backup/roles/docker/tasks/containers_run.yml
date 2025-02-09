@@ -7,6 +7,14 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
+- name: Show assigned roles per node
+  tags:
+    - containers_run
+  debug:
+    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
 - name: Run containers according to assigned roles
   tags:
     - containers_run
@@ -20,6 +28,16 @@
     {% endif %}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
+  register: docker_results
+
+- name: Display container startup results
+  tags:
+    - containers_run
+  debug:
+    msg: "Node: {{ item.item }} -> Docker Output: {{ item.stdout | default('No output') }} | Error: {{ item.stderr | default('No errors') }}"
+  with_items: "{{ docker_results.results }}"
+  run_once: true
+
 
 
 # old variant - single command for all containers
