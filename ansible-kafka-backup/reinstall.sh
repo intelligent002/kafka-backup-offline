@@ -27,7 +27,7 @@ git pull && chmod +x /data/KBO/kafka-backup-offline.sh
 
 # Execute Ansible playbooks
 ansible_playbook -i inventories/kafka-6-vms/hosts.yml playbooks/serial.yml --tags "containers_remove"
-ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "configs_deploy"
+ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "configs_generate"
 ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "certificates_generate"
 ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "credentials_generate"
 ansible_playbook -i inventories/$INVENTORY/hosts.yml playbooks/parallel.yml --tags "data_format"

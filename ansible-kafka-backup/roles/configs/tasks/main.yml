@@ -1,7 +1,7 @@
 ---
 - name: Generate and deploy configs
-  include_tasks: configs_deploy.yml
-  tags: configs_deploy
+  include_tasks: configs_generate.yml
+  tags: configs_generate
 
 - name: Run configs backup
   include_tasks: configs_backup.yml

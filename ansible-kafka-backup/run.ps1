@@ -21,7 +21,7 @@ ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --t
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "credentials_backup"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "credentials_rotate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "credentials_restore" --extra-vars "restore_archive=/backup/cold/certificate/rotated/2025/01/07/2025-01-07---11-26-34---certificate.tar.zx"
-ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "configs_deploy"
+ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "configs_generate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "configs_backup"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "configs_rotate"
 ansible-playbook -i inventories/kafka-6-vms/hosts.yml playbooks/parallel.yml --tags "configs_restore"      --extra-vars "restore_archive=/backup/cold/config/rotated/2025/01/07/2025-01-07---11-28-08---config.tar.zx"
