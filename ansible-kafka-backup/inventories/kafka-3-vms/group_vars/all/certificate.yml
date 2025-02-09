@@ -7,7 +7,7 @@ use_certificate: false
 # === LetsEncrypt parameters ===========================================================================================
 
 # Directory on central for certificate generation.
-storage_certificate_path: "/data/cluster/certificates"
+storage_certificates_path: "/data/cluster/certificates"
 
 # true for testing, false for production
 certbot_staging: false
@@ -38,9 +38,9 @@ certificate_regenerate_force: false
 # === Certificate Locations ============================================================================================
 
 # Certificate files
-cert_file_server_fullchain: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/fullchain.pem"
-cert_file_server_key: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/privkey.pem"
-cert_file_server_p12: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/keystore.p12"
-cert_file_server_keystore: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/kafka.server.keystore.jks"
-cert_file_server_truststore: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/kafka.server.truststore.jks"
-cert_file_client_truststore: "{{ storage_certificate_path }}/live/{{ keystore_alias_name }}/kafka.client.truststore.jks"
+cert_file_server_fullchain: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/fullchain.pem"
+cert_file_server_key: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/privkey.pem"
+cert_file_server_p12: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/keystore.p12"
+cert_file_server_keystore: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/kafka.server.keystore.jks"
+cert_file_server_truststore: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/kafka.server.truststore.jks"
+cert_file_client_truststore: "{{ storage_certificates_path }}/live/{{ keystore_alias_name }}/kafka.client.truststore.jks"
