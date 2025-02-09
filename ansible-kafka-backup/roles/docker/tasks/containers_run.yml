@@ -22,14 +22,6 @@
     inventory_dir: "/apps/inventory"
   run_once: true
 
-- name: Debug resolved group and command
-  tags:
-    - containers_run
-  debug:
-    msg: "Node: {{ item }}, Selected Group: {{ host_group_map[item] }}, Command: {{ {{ inventory_dir }}/templates/docker_command_controller.j2 }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
 - name: Determine and run appropriate Docker command based on group
   tags:
     - containers_run
