@@ -1,18 +1,4 @@
 ---
-- name: Debug available startup_order mappings
-  tags:
-    - containers_run
-  debug:
-    var: startup_order
-  run_once: true
-
-- name: Debug available docker_run_role mappings
-  tags:
-    - containers_run
-  debug:
-    var: docker_run_roles
-  run_once: true
-
 - name: Collect all group names for nodes
   tags:
     - containers_run
@@ -37,14 +23,23 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Run Docker containers in startup order based on group
+- name: Determine and run appropriate Docker command based on group
   tags:
     - containers_run
-  shell: "{{ docker_run_role[host_group_map[item]] }}"
   delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
   run_once: true
-  when: host_group_map[item] in docker_run_role
+  shell: >
+    {% if 'controllers' in host_group_map[item] %}
+    {{ lookup('template', docker_run_role_controllers) }}
+    {% elif 'brokers' in host_group_map[item] %}
+    {{ lookup('template', docker_run_role_brokers) }}
+    {% elif 'connect' in host_group_map[item] %}
+    {{ lookup('template', docker_run_role_connect) }}
+    {% else %}
+    echo 'Undefined group, no command executed'
+    {% endif %}
+  with_items: "{{ startup_order }}"
+  when: host_group_map[item] is defined
 
 
 #- name: Run docker containers in startup order
