@@ -1,57 +1,43 @@
 ---
-#- name: Collect all group names for nodes
-#  tags:
-#    - containers_run
-#  set_fact:
-#    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
-#  with_items: "{{ startup_order }}"
-#  run_once: true
-#
-#- name: Determine host group dynamically
-#  tags:
-#    - containers_run
-#  set_fact:
-#    host_group_map: "{{ host_group_map | default({}) | combine({ item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 else 'undefined_group' }) }}"
-#  with_items: "{{ startup_order }}"
-#  run_once: true
-#
-#- name: Define inventory directory manually
-#  tags:
-#    - containers_run
-#  set_fact:
-#    inventory_dir: "/apps/inventories/kafka-9-vms"
-#  run_once: true
-#
-#- name: Debug resolved group and command
-#  tags:
-#    - containers_run
-#  debug:
-#    msg: "inventory_dir: {{ inventory_dir }}"
-#  run_once: true
-#
-#- name: Determine and run appropriate Docker command based on group
-#  tags:
-#    - containers_run
-#  delegate_to: "{{ item }}"
-#  run_once: true
-#  shell: >
-#    {% if 'controllers' in host_group_map[item] %}
-#    {{ lookup('template', '/apps/inventories/kafka-9-vms/templates/docker_command_controllers.j2') }}
-#    {% elif 'brokers' in host_group_map[item] %}
-#    {{ lookup('template', '/apps/inventories/kafka-9-vms/templates/docker_command_brokers.j2') }}
-#    {% elif 'connect' in host_group_map[item] %}
-#    {{ lookup('template', '/apps/inventories/kafka-9-vms/templates/docker_command_connect.j2') }}
-#    {% else %}
-#    echo 'Undefined group, no command executed'
-#    {% endif %}
-#  with_items: "{{ startup_order }}"
-#  when: host_group_map[item] is defined
-
-
-- name: Run docker containers in startup order
+- name: Collect all group names for nodes
   tags:
     - containers_run
-  shell: "{{ docker_command_controllers_run }}"
-  delegate_to: "{{ item }}"
+  set_fact:
+    group_names_all: "{{ group_names_all | default({}) | combine({item: hostvars[item]['group_names']}) }}"
   with_items: "{{ startup_order }}"
-  run_once: true  # Ensure task runs only once on localhost
+  run_once: true
+
+- name: Determine host group dynamically
+  tags:
+    - containers_run
+  set_fact:
+    host_group_map: "{{ host_group_map | default({}) | combine({ item: (group_names_all[item] | default([]) | difference(['all', 'cluster']) | first) if (group_names_all[item] | default([]) | difference(['all', 'cluster'])) | length > 0 else 'undefined_group' }) }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
+- name: Determine and run appropriate Docker command based on group
+  tags:
+    - containers_run
+  delegate_to: "{{ item }}"
+  run_once: true
+  shell: >
+    {% if 'controllers' in host_group_map[item] %}
+    {{ docker_command_controllers_run }}
+    {% elif 'brokers' in host_group_map[item] %}
+    {{ docker_command_brokers_run }}
+    {% elif 'connect' in host_group_map[item] %}
+    {{ docker_command_connect_run }}
+    {% else %}
+    echo 'Undefined group, no command executed'
+    {% endif %}
+  with_items: "{{ startup_order }}"
+  when: host_group_map[item] is defined
+
+#
+#- name: Run docker containers in startup order
+#  tags:
+#    - containers_run
+#  shell: "{{ docker_command_controllers_run }}"
+#  delegate_to: "{{ item }}"
+#  with_items: "{{ startup_order }}"
+#  run_once: true  # Ensure task runs only once on localhost
