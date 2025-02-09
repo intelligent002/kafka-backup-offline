@@ -34,7 +34,6 @@ docker_command_containers_run_confluent: >
   "
   -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
   -v /data/cluster/credentials/client.conf:/client.conf
-  -v {{ hostvars[item]['node_credentials_file'] }}:/etc/kafka/kafka_server_jaas.conf
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
   -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl

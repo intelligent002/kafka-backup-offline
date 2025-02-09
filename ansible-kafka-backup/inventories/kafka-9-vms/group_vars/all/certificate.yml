@@ -7,7 +7,7 @@ use_certificate: false
 # === LetsEncrypt parameters ===========================================================================================
 
 # Directory on central for certificate generation.
-storage_certificate_path: "/data/certificate"
+storage_certificate_path: "/data/cluster/certificates"
 
 # true for testing, false for production
 certbot_staging: false

@@ -30,10 +30,6 @@ node_certificate_path: "/data/cluster/certificate"
 
 # cluster node's credentials file.
 node_credentials_path: "/data/cluster/credentials"
-# cluster node's credentials file.
-node_credentials_file: "{{ node_credentials_path }}/kafka_server_jaas.conf"
-# cluster node's credentials file.
-node_client_conf_file: "{{ node_credentials_path }}/client.conf"
 
 # cluster node's config files.
 node_config_path: "/data/cluster/config"
