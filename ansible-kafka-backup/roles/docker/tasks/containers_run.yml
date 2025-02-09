@@ -19,7 +19,7 @@
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }}, Selected Group: {{ host_group_map[item] }}, Command: {{ /apps/inventory/templates/docker_command_controller.js }}"
+    msg: "Node: {{ item }}, Selected Group: {{ host_group_map[item] }}, Command: {{ apps/inventory/templates/docker_command_controller.js }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
