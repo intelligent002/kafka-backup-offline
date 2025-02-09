@@ -38,14 +38,20 @@
   block:
     - name: Display container startup outputs
       debug:
-        msg: "Node: {{ item.item }} -> Docker Output: {{ item.stdout | default('No output') }} | Error: {{ item.stderr | default('No errors') }}"
+        msg: > 
+          Node: {{ item.item }} -> 
+          {% if item.rc == 0 and item.stdout | trim != "" %} Container ID: {{ item.stdout | trim }} 
+          {% elif item.rc != 0 %} Error: {{ item.stderr | trim }} 
+          {% else %} No output received 
+          {% endif %}
       with_items: "{{ docker_results.results }}"
 
     - name: Fail playbook if any container startup failed
       fail:
-        msg: "Container startup failed on node {{ item.item }}. Error: {{ item.stderr }}"
+        msg: "Container startup failed on node {{ item.item }}. Error: {{ item.stderr | trim }}"
       with_items: "{{ docker_results.results }}"
       when: item.rc != 0
+
 
 # old variant - single command for all containers
 #- name: Run docker containers in startup order
