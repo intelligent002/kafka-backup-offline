@@ -1,7 +1,7 @@
 ---
 - name: Fetch any broker from cluster
   tags:
-    - credentials_acl_apply
+    - acls_apply
   run_once: true
   set_fact:
     first_node: >-
@@ -13,7 +13,7 @@
 
 - name: Generate Kafka ACL commands batch
   tags:
-    - credentials_acl_apply
+    - acls_apply
   delegate_to: "{{ first_node }}"
   run_once: true
   set_fact:
@@ -43,7 +43,7 @@
 
 - name: Cleanup Kafka ACL commands batch
   tags:
-    - credentials_acl_apply
+    - acls_apply
   delegate_to: "{{ first_node }}"
   run_once: true
   set_fact:
@@ -53,13 +53,13 @@
   delegate_to: "{{ first_node }}"
   run_once: true
   tags:
-    - credentials_acl_apply
+    - acls_apply
   debug:
     msg: "Please be patient; this process may take a few minutes. It sequentially applies all ACLs from the inventory file to the Kafka cluster, ensuring proper access control. This idempotent process can be safely re-applied without causing issues." # {{ kafka_acl_commands }}"
 
 - name: Apply Kafka ACL commands batch
   tags:
-    - credentials_acl_apply
+    - acls_apply
   delegate_to: "{{ first_node }}"
   run_once: true
   shell: |
@@ -71,6 +71,6 @@
   delegate_to: "{{ first_node }}"
   run_once: true
   tags:
-    - credentials_acl_apply
+    - acls_apply
   debug:
     var: kafka_acl_apply_result.stdout_lines

@@ -1,0 +1,4 @@
+---
+- name: Run ACLs apply
+  include_tasks: acls_apply.yml
+  tags: acls_apply

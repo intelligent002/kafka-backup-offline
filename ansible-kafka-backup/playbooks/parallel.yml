@@ -18,8 +18,9 @@
 
   roles:
     - role: ../roles/system        # Include stuff like Prerequisites, temp folder cleanup etc.
+    - role: ../roles/acls          # Include ACLs related tasks
     - role: ../roles/credentials   # Include Credentials related tasks
-    - role: ../roles/certificates  # Include Certificate related tasks
+    - role: ../roles/certificates  # Include Certificates related tasks
     - role: ../roles/configs       # Include Configs related tasks
     - role: ../roles/data          # Include Data related tasks
 
