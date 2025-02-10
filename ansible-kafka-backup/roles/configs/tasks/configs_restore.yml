@@ -41,14 +41,14 @@
   tags:
     - configs_restore
   file:
-    path: "{{ node_configs_path }}"
+    path: "{{ node_config_path }}"
     state: absent
 
 - name: Create Config directory on nodes
   tags:
     - configs_restore
   ansible.builtin.file:
-    path: "{{ node_configs_path }}"
+    path: "{{ node_config_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -59,5 +59,5 @@
     - configs_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
-    dest: "{{ node_configs_path }}"
+    dest: "{{ node_config_path }}"
     remote_src: yes

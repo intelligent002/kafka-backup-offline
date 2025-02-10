@@ -55,7 +55,7 @@ docker_command_containers_run: >
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false"
   -e KAFKA_OPTS="-Djava.security.auth.login.config=/etc/kafka/credentials/kafka_server_jaas.conf"
-  -v {{ hostvars[item]['node_configs_path'] }}:/mnt/shared/config
+  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/etc/kafka/credentials
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
@@ -83,7 +83,7 @@ docker_command_data_format_confluent: >
 # Empty folder should be prepared for usage
 docker_command_data_format: >
   docker run --rm
-  -v {{ node_configs_path }}/:/mnt/shared/config
+  -v {{ node_config_path }}/:/mnt/shared/config
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_meta_path }}:/var/lib/kafka/meta
   -v {{ node_logs_path }}:/opt/kafka/logs

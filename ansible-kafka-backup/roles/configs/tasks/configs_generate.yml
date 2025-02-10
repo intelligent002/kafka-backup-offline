@@ -16,7 +16,7 @@
   tags:
     - configs_generate
   ansible.builtin.file:
-    path: "{{ node_configs_path }}"
+    path: "{{ node_config_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"

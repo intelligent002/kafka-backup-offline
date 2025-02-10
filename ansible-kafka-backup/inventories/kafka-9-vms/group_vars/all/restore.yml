@@ -32,9 +32,9 @@ node_certificates_path: "/data/cluster/certificates"
 node_credentials_path: "/data/cluster/credentials"
 
 # cluster node's config files.
-node_configs_path: "/data/cluster/config"
+node_config_path: "/data/cluster/config"
 # cluster node's config files.
-node_config_file: "{{ node_configs_path }}/kraft.properties"
+node_config_file: "{{ node_config_path }}/kraft.properties"
 
 # cluster node's data files.
 node_data_path: "/data/cluster/data/logs"
