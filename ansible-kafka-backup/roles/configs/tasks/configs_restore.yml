@@ -15,7 +15,7 @@
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
   when: not archive_stat.stat.exists
 
-- name: Extract config archive to temp on central
+- name: Extract configs archive to temp on central
   tags:
     - configs_restore
   delegate_to: node-0
@@ -30,8 +30,8 @@
     - configs_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
     mode: push
     rsync_opts:
       - "--timeout=60"
