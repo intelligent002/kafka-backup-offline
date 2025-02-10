@@ -50,7 +50,10 @@
   file:
     path: "{{ node_certificates_path }}"
     state: directory
-    mode: '0755'
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
 
 - name: Restore cluster certificate on nodes
   tags:
