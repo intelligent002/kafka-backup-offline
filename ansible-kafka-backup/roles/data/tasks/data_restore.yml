@@ -55,9 +55,9 @@
   file:
     path: "{{ node_data_path }}"
     state: directory
-    mode: "{{ chmod_data }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
 
 - name: Restore cluster data on nodes
   tags:

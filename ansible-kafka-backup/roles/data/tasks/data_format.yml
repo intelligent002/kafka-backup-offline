@@ -21,9 +21,9 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: "{{ chmod_data }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
   loop:
     - "{{ node_data_path }}"
     - "{{ node_meta_path }}"
