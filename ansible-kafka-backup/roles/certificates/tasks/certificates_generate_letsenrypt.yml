@@ -223,7 +223,7 @@
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_certificate }}'
+    mode: '{{ chmod_certificates }}'
 
 - name: Push certificate files from central node to target nodes
   tags:
@@ -249,5 +249,5 @@
     path: "{{ node_certificate_path }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificate }}"
+    mode: "{{ chmod_certificates }}"
     recurse: true

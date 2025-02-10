@@ -26,7 +26,7 @@ backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace
 # === Backup Sections ==================================================================================================
 
 # Path for storing certificate backups, organized by year/month/day.
-certificates_backup_path: "{{ storage_cold_path }}/certificate/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+certificates_backup_path: "{{ storage_cold_path }}/certificates/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 # Full path for the certificate backup archive, named with a timestamp.
 certificates_backup_file: "{{ certificates_backup_path }}/{{ backup_date }}---certificate.tar.zx"
 

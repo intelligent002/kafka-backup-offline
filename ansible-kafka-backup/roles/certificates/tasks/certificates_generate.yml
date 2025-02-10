@@ -18,7 +18,7 @@
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificate }}"
+    mode: "{{ chmod_certificates }}"
 
 - name: Create directories for certificates on node-0
   tags:
@@ -28,7 +28,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    mode: "{{ chmod_certificate }}"
+    mode: "{{ chmod_certificates }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
   loop:
@@ -275,5 +275,5 @@
     path: "{{ node_certificate_path }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificate }}"
+    mode: "{{ chmod_certificates }}"
     recurse: true
