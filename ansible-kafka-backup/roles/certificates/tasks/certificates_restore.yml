@@ -29,7 +29,6 @@
   tags:
     - certificates_restore
   delegate_to: node-0
-  any_errors_fatal: true
   synchronize:
     src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
@@ -37,6 +36,8 @@
     rsync_opts:
       - "--timeout=60"
       - "--checksum"
+  register: sync_result
+  failed_when: sync_result.rc != 0
 
 - name: Remove cluster certificate folder on nodes
   tags:
