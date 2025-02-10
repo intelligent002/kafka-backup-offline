@@ -347,7 +347,7 @@ function cluster_containers_remove()
 
 # Applies Kafka ACLs to enforce access control policies across the cluster.
 # Executes Ansible playbook in parallel to efficiently update permissions.
-function cluster_credentials_acl_apply()
+function cluster_acls_apply()
 {
     run_ansible_routine "Kafka ACL Apply" "parallel" "credentials_acl_apply"
     return $?
@@ -734,10 +734,9 @@ function credentials_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Credentials > Choose an action" 16 50 8 \
             "1" "Main menu" \
-            "2" "ACL Apply" \
-            "3" "Generate" \
-            "4" "Backup" \
-            "5" "Restore" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -749,16 +748,9 @@ function credentials_menu() {
         fi
 
         case $choice in
-            1) return 0 ;;
+            1)
+               return 0 ;;
             2)
-               cluster_credentials_acl_apply
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "ACLs was applied successfully!"
-               else
-                    show_failure_message "Failed to apply ACLs!\nExit the tool and review the logs."
-               fi
-               ;;
-            3)
                cluster_credentials_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was generated successfully!"
@@ -766,7 +758,7 @@ function credentials_menu() {
                     show_failure_message "Failed to generate credentials!\nExit the tool and review the logs."
                fi
                ;;
-            4)
+            3)
                cluster_credentials_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was backed up successfully!"
@@ -774,7 +766,7 @@ function credentials_menu() {
                     show_failure_message "Failed to backup credentials!\nExit the tool and review the logs."
                fi
                ;;
-            5) cluster_credentials_restore_menu ;;
+            4) cluster_credentials_restore_menu ;;
         esac
     done
 }
@@ -838,7 +830,7 @@ function cluster_credentials_restore_menu()
 function acls_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 16 50 8 \
+            --menu "ACLs > Choose an action" 16 50 8 \
             "1" "Main menu" \
             "2" "ACL Apply" \
             3>&1 1>&2 2>&3)
@@ -855,7 +847,7 @@ function acls_menu() {
             1)
                return 0 ;;
             2)
-               cluster_credentials_acl_apply
+               cluster_acls_apply
                if [[ $? -eq 0 ]]; then
                     show_success_message "ACLs was applied successfully!"
                else
