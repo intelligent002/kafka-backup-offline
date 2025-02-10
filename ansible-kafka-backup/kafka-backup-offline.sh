@@ -349,7 +349,7 @@ function cluster_containers_remove()
 # Executes Ansible playbook in parallel to efficiently update permissions.
 function cluster_credentials_acl_apply()
 {
-    run_ansible_routine "Kafka ACL Apply" "parallel" "credentials_credentials_acl_apply"
+    run_ansible_routine "Kafka ACL Apply" "parallel" "credentials_acl_apply"
     return $?
 }
 
