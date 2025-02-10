@@ -45,5 +45,8 @@ node_meta_path: "/data/cluster/data/meta"
 # cluster node's logs files.
 node_logs_path: "/data/cluster/logs"
 
+# cluster node's logs files.
+node_plugins_path: "/data/cluster/plugins"
+
 # Temporary directory on nodes for extracting & creating archives for backups & restores.
 node_temp_path: "/data/temp"
