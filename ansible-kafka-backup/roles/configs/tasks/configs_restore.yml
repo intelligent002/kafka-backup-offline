@@ -56,6 +56,6 @@
   tags:
     - configs_restore
   unarchive:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
     dest: "{{ node_config_path }}"
     remote_src: yes

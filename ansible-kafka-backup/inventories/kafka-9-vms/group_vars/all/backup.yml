@@ -38,7 +38,7 @@ credentials_backup_file: "{{ credentials_backup_path }}/{{ backup_date }}---cred
 # Path for storing config backups, organized by year/month/day.
 configs_backup_path: "{{ storage_cold_path }}/configs/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 # Full path for the config backup archive, named with a timestamp.
-configs_backup_file: "{{ configs_backup_path }}/{{ backup_date }}---config.tar.zx"
+configs_backup_file: "{{ configs_backup_path }}/{{ backup_date }}---configs.tar.zx"
 
 # Path for storing data backups, organized by year/month/day.
 data_backup_path: "{{ storage_cold_path }}/data/rotated/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
