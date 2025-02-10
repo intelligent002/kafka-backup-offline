@@ -795,7 +795,7 @@ function containers_menu() {
 function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 15 50 4 \
+            --menu "Credentials > Choose an action" 15 50 5 \
             "1" "Main menu" \
             "2" "ACL Apply" \
             "3" "Generate" \
