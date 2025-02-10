@@ -678,9 +678,9 @@ function configs_menu() {
 # Calls `cluster_configs_restore` with the selected backup file.
 function cluster_configs_restore_menu()
 {
-    local storage_config configs_backup_files choice selected_backup
+    local storage_configs configs_backup_files choice selected_backup
 
-    storage_config="$STORAGE_COLD/config"
+    storage_configs="$STORAGE_COLD/configs"
 
     # Find all available configuration backup files with their sizes
     configs_backup_files=()
@@ -688,8 +688,8 @@ function cluster_configs_restore_menu()
 
     # Check if no files are available
     if [[ ${#configs_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_config."
-        show_warning_message "No backup files found in $storage_config."
+        log "DEBUG" "No backup files found in $storage_configs."
+        show_warning_message "No backup files found in $storage_configs."
         return 1
     fi
 
