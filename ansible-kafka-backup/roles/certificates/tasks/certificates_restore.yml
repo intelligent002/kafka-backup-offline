@@ -39,13 +39,6 @@
   register: sync_result
   failed_when: sync_result.rc != 0
 
-- name: Remove cluster certificate folder on nodes
-  tags:
-    - certificates_restore
-  file:
-    path: "{{ node_certificates_path }}"
-    state: absent
-
 - name: Create cluster certificate folder on nodes
   tags:
     - certificates_restore

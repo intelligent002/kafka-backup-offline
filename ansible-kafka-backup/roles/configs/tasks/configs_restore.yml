@@ -37,13 +37,6 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Remove Config directory on nodes
-  tags:
-    - configs_restore
-  file:
-    path: "{{ node_config_path }}"
-    state: absent
-
 - name: Create Config directory on nodes
   tags:
     - configs_restore

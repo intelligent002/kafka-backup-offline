@@ -221,7 +221,7 @@
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ item }} -noprompt
 
-- name: Ensure Certificates directory exists on nodes
+- name: Create Certificates directory on nodes
   tags:
     - certificates_generate
   ansible.builtin.file:
