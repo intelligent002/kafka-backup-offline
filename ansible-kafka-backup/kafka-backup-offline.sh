@@ -427,7 +427,7 @@ function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose a section:" 15 50 8 \
+            --menu "Choose a section:" 16 50 8 \
             "1" "Quit" \
             "2" "Prerequisites" \
             "3" "Certificates" \
@@ -468,7 +468,7 @@ function prerequisites_menu() {
         # Display Whiptail menu for choosing an accessory-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Accessories > Choose an action:" 15 50 8 \
+            --menu "Accessories > Choose an action:" 16 50 8 \
             "1" "Main menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
             "3" "Deploy prerequisites - (docker etc)" \
@@ -521,7 +521,7 @@ function certificates_menu() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates > Choose an action:" 15 50 8 \
+            --menu "Certificates > Choose an action:" 16 50 8 \
             "1" "Main menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -635,7 +635,7 @@ function configs_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Configs > Choose an action:" 15 50 8 \
+            --menu "Configs > Choose an action:" 16 50 8 \
             "1" "Main menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -732,7 +732,7 @@ function cluster_configs_restore_menu()
 function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 15 50 8 \
+            --menu "Credentials > Choose an action" 16 50 8 \
             "1" "Main menu" \
             "2" "ACL Apply" \
             "3" "Generate" \
@@ -838,7 +838,7 @@ function cluster_credentials_restore_menu()
 function acls_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 15 50 8 \
+            --menu "Credentials > Choose an action" 16 50 8 \
             "1" "Main menu" \
             "2" "ACL Apply" \
             3>&1 1>&2 2>&3)
@@ -872,7 +872,7 @@ function acls_menu() {
 function containers_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Containers > Choose an action" 15 50 8 \
+            --menu "Containers > Choose an action" 16 50 8 \
             "1" "Main menu" \
             "2" "Run" \
             "3" "Start" \
@@ -937,7 +937,7 @@ function containers_menu() {
 function data_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Data > Choose an action:" 15 50 8 \
+            --menu "Data > Choose an action:" 16 50 8 \
             "1" "Main menu" \
             "2" "Format" \
             "3" "Backup" \
