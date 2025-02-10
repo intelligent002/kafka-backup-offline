@@ -37,20 +37,22 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Remove cluster config folder on nodes
+- name: Remove Config directory on nodes
   tags:
     - configs_restore
   file:
     path: "{{ node_configs_path }}"
     state: absent
 
-- name: Create cluster config folder on nodes
+- name: Create Config directory on nodes
   tags:
-    - configs_restore
-  file:
+    - configs_generate
+  ansible.builtin.file:
     path: "{{ node_configs_path }}"
     state: directory
-    mode: '0755'
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
 
 - name: Restore cluster config on nodes
   tags:
