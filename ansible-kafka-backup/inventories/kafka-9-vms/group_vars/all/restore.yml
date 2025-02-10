@@ -15,13 +15,13 @@ owner_group_data: 1000
 chmod_data: 0755
 
 # Config folder permissions
-chmod_configs: 0755
+chmod_configs: 0644
 
 # Credentials file permissions
-chmod_credentials: 0755
+chmod_credentials: 0644
 
 # Certificate file permissions
-chmod_certificates: 0600
+chmod_certificates: 0644
 
 # === Node Restore & Generate Locations ================================================================================
 
