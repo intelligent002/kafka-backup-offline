@@ -53,6 +53,8 @@ function load_configuration()
     STORAGE_COLD="${ini_data[storage.STORAGE_COLD]}"                         # Permanent cold storage directory for backups
     STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}"                 # Percentage of free space, below which we will show a warning
 
+    # make sure we can log stuff
+    mkdir -p "$(dirname "$(realpath $LOG_FILE)")"
 
     log "INFO" "Configuration loaded from '$config_file'"
 }
@@ -221,7 +223,7 @@ function run_ansible_routine()
         -v $(pwd):/apps \
         -v /var/log/ansible:/var/log/ansible \
         -w /apps \
-        alpine/ansible ansible-playbook \
+        alpine/ansible:2.18.1 ansible-playbook \
         -i inventories/$INVENTORY/hosts.yml playbooks/$playbook.yml \
         --tags \"$tag\" $extra_vars"
 
