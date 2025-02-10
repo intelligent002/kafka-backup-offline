@@ -429,12 +429,13 @@ function main_menu() {
             --cancel-button "Quit" \
             --menu "Choose a section:" 15 50 8 \
             "1" "Quit" \
-            "2" "Accessories" \
+            "2" "Prerequisites" \
             "3" "Certificates" \
             "4" "Configs" \
-            "5" "Containers" \
-            "6" "Credentials" \
-            "7" "Data" \
+            "5" "Credentials" \
+            "6" "ACLs" \
+            "7" "Containers" \
+            "8" "Data" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -448,12 +449,13 @@ function main_menu() {
         # Handle user choices
         case $choice in
             1) exit 0 ;; # Exit
-            2) accessories_menu ;;
+            2) prerequisites_menu ;;
             3) certificates_menu ;;
             4) configs_menu ;;
-            5) containers_menu ;;
-            6) credentials_menu ;;
-            7) data_menu ;;
+            5) credentials_menu ;;
+            6) acls_menu ;;
+            7) containers_menu ;;
+            8) data_menu ;;
         esac
     done
 }
@@ -461,12 +463,12 @@ function main_menu() {
 # Displays the Accessories menu using Whiptail for managing auxiliary tasks.
 # Provides options to deploy SSH keys and prerequisites across all nodes.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function accessories_menu() {
+function prerequisites_menu() {
     while true; do
         # Display Whiptail menu for choosing an accessory-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Accessories > Choose an action:" 15 50 6 \
+            --menu "Accessories > Choose an action:" 15 50 8 \
             "1" "Main menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
             "3" "Deploy prerequisites - (docker etc)" \
@@ -519,7 +521,7 @@ function certificates_menu() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates > Choose an action:" 15 50 6 \
+            --menu "Certificates > Choose an action:" 15 50 8 \
             "1" "Main menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -633,7 +635,7 @@ function configs_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Configs > Choose an action:" 15 50 6 \
+            --menu "Configs > Choose an action:" 15 50 8 \
             "1" "Main menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -724,78 +726,13 @@ function cluster_configs_restore_menu()
     fi
 }
 
-# Displays the Containers menu using Whiptail for managing Kafka containers.
-# Provides options to run, start, stop, restart, or remove containers.
-# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function containers_menu() {
-    while true; do
-        choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Containers > Choose an action" 15 50 6 \
-            "1" "Main menu" \
-            "2" "Run" \
-            "3" "Start" \
-            "4" "Stop" \
-            "5" "Restart" \
-            "6" "Remove" \
-            3>&1 1>&2 2>&3)
-
-        # Capture the exit status of whiptail
-        local exit_status=$?
-
-        # Exit on ESC or cancel
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            return 0
-        fi
-
-        case $choice in
-            1) return 0 ;;
-            2) cluster_containers_run
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully started!\nAll services are now running."
-               else
-                   show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
-               fi
-               ;;
-            3) cluster_containers_start
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
-               else
-                   show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
-               fi
-               ;;
-            4) cluster_containers_stop
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
-               else
-                   show_failure_message "Unable to stop the containers.\nPlease verify permissions or configurations and check the logs."
-               fi
-               ;;
-            5)
-               cluster_containers_restart
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
-               else
-                   show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
-               fi
-               ;;
-            6) cluster_containers_remove
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully removed!\nResources have been freed."
-               else
-                   show_failure_message "Failed to remove the containers.\nCheck if the containers are running and review the logs for details."
-               fi
-               ;;
-        esac
-    done
-}
-
 # Displays the Credentials menu using Whiptail for managing Kafka credentials.
 # Provides options to generate, backup, or restore credentials.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 15 50 5 \
+            --menu "Credentials > Choose an action" 15 50 8 \
             "1" "Main menu" \
             "2" "ACL Apply" \
             "3" "Generate" \
@@ -896,13 +833,111 @@ function cluster_credentials_restore_menu()
     fi
 }
 
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function acls_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Credentials > Choose an action" 15 50 8 \
+            "1" "Main menu" \
+            "2" "ACL Apply" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1)
+               return 0 ;;
+            2)
+               cluster_credentials_acl_apply
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "ACLs was applied successfully!"
+               else
+                    show_failure_message "Failed to apply ACLs!\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Containers menu using Whiptail for managing Kafka containers.
+# Provides options to run, start, stop, restart, or remove containers.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function containers_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Containers > Choose an action" 15 50 8 \
+            "1" "Main menu" \
+            "2" "Run" \
+            "3" "Start" \
+            "4" "Stop" \
+            "5" "Restart" \
+            "6" "Remove" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1) return 0 ;;
+            2) cluster_containers_run
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully started!\nAll services are now running."
+               else
+                   show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
+               fi
+               ;;
+            3) cluster_containers_start
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+               else
+                   show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
+               fi
+               ;;
+            4) cluster_containers_stop
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+               else
+                   show_failure_message "Unable to stop the containers.\nPlease verify permissions or configurations and check the logs."
+               fi
+               ;;
+            5)
+               cluster_containers_restart
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+               else
+                   show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
+               fi
+               ;;
+            6) cluster_containers_remove
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully removed!\nResources have been freed."
+               else
+                   show_failure_message "Failed to remove the containers.\nCheck if the containers are running and review the logs for details."
+               fi
+               ;;
+        esac
+    done
+}
+
 # Displays the Data menu using Whiptail for managing Kafka data.
 # Provides options to format, backup, or restore data.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function data_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Data > Choose an action:" 15 50 5 \
+            --menu "Data > Choose an action:" 15 50 8 \
             "1" "Main menu" \
             "2" "Format" \
             "3" "Backup" \
