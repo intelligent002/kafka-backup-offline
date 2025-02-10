@@ -460,15 +460,15 @@ function main_menu() {
     done
 }
 
-# Displays the Accessories menu using Whiptail for managing auxiliary tasks.
+# Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
 # Provides options to deploy SSH keys and prerequisites across all nodes.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
 function prerequisites_menu() {
     while true; do
-        # Display Whiptail menu for choosing an accessory-related action
+        # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Accessories > Choose an action:" 16 50 8 \
+            --menu "Prerequisites > Choose an action:" 16 50 8 \
             "1" "Main menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
             "3" "Deploy prerequisites - (docker etc)" \
