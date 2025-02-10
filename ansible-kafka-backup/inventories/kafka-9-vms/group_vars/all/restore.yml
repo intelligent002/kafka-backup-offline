@@ -15,26 +15,26 @@ owner_group_data: 1000
 chmod_data: 0755
 
 # Config folder permissions
-chmod_config: 0755
+chmod_configs: 0755
 
 # Credentials file permissions
 chmod_credentials: 0755
 
 # Certificate file permissions
-chmod_certificates: 0755
+chmod_certificates: 0600
 
 # === Node Restore & Generate Locations ================================================================================
 
 # cluster node's certificate files.
-node_certificate_path: "/data/cluster/certificates"
+node_certificates_path: "/data/cluster/certificates"
 
 # cluster node's credentials file.
 node_credentials_path: "/data/cluster/credentials"
 
 # cluster node's config files.
-node_config_path: "/data/cluster/config"
+node_configs_path: "/data/cluster/config"
 # cluster node's config files.
-node_config_file: "{{ node_config_path }}/kraft.properties"
+node_config_file: "{{ node_configs_path }}/kraft.properties"
 
 # cluster node's data files.
 node_data_path: "/data/cluster/data/logs"

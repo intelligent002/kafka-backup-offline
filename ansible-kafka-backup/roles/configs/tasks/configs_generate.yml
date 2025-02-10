@@ -16,11 +16,11 @@
   tags:
     - configs_generate
   ansible.builtin.file:
-    path: "{{ node_config_path }}"
+    path: "{{ node_configs_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_config }}'
+    mode: '{{ chmod_configs }}'
 
 - name: Deploy Config files to nodes
   tags: configs_generate
@@ -29,4 +29,4 @@
     dest: "{{ node_config_file }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_config }}'
+    mode: '{{ chmod_configs }}'

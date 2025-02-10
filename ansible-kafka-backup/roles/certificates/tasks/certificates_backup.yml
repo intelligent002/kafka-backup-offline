@@ -3,7 +3,7 @@
   tags:
     - certificates_backup
   community.general.archive:
-    path: "{{ node_certificate_path }}/"  # The directory or files to be archived
+    path: "{{ node_certificates_path }}/"  # The directory or files to be archived
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving

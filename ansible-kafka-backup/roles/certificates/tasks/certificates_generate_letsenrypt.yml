@@ -219,7 +219,7 @@
   tags:
     - certificates_generate
   file:
-    path: "{{ node_certificate_path }}"
+    path: "{{ node_certificates_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -231,7 +231,7 @@
   delegate_to: node-0
   synchronize:
     src: "{{ item }}"
-    dest: "{{ node_certificate_path }}/"
+    dest: "{{ node_certificates_path }}/"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -246,7 +246,7 @@
   tags:
     - certificates_generate
   ansible.builtin.file:
-    path: "{{ node_certificate_path }}"
+    path: "{{ node_certificates_path }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificates }}"

@@ -39,7 +39,7 @@ docker_command_containers_run_confluent: >
   -v {{ hostvars[item]['node_config_file'] }}:/etc/kafka/kraft.properties
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/kafka
-  -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/ssl
+  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-server-start /etc/kafka/kraft.properties
 
@@ -60,8 +60,8 @@ docker_command_containers_run: >
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false
   "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificate_path'] }}:/etc/kafka/secrets
+  -v {{ hostvars[item]['node_configs_path'] }}:/mnt/shared/config
+  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
@@ -102,7 +102,7 @@ docker_command_data_format_concluent: >
   -v {{ node_config_file }}:/etc/kafka/kraft.properties
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_logs_path }}:/var/log/kafka
-  -v {{ node_certificate_path }}:/etc/kafka/ssl
+  -v {{ node_certificates_path }}:/etc/kafka/ssl
   confluentinc/cp-kafka:7.8.0
   /usr/bin/kafka-storage format 
   --add-scram 'SCRAM-SHA-256=[name=admin,password=insecure]' 
@@ -111,11 +111,11 @@ docker_command_data_format_concluent: >
 
 docker_command_data_format: >
   docker run --rm -u root
-  -v {{ node_config_path }}/:/mnt/shared/config
+  -v {{ node_configs_path }}/:/mnt/shared/config
   -v {{ node_data_path }}:/var/lib/kafka/data
   -v {{ node_meta_path }}:/var/lib/kafka/meta
   -v {{ node_logs_path }}:/opt/kafka/logs
-  -v {{ node_certificate_path }}/:/etc/kafka/secrets
+  -v {{ node_certificates_path }}/:/etc/kafka/secrets
   apache/kafka:3.9.0
   /opt/kafka/bin/kafka-storage.sh format
   --cluster-id {{ cluster_id }}
