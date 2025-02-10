@@ -541,7 +541,7 @@ function certificates_menu() {
             # Return to the main menu if "Main menu" is selected
             1)
                return 0 ;;
-            # Trigger the certificate generation process if "Generate" is selected
+            # Trigger the certificates generation process if "Generate" is selected
             2)
                cluster_certificates_generate
                if [[ $? -eq 0 ]]; then
@@ -576,19 +576,19 @@ function certificates_menu() {
 # Calls `cluster_certificates_restore` with the selected backup file.
 function cluster_certificates_restore_menu()
 {
-    local storage_certificate certificates_backup_files choice selected_backup
+    local storage_certificates certificates_backup_files choice selected_backup
 
     # Define the path to certificate backup storage
-    storage_certificate="$STORAGE_COLD/certificate"
+    storage_certificates="$STORAGE_COLD/certificates"
 
     # Find all available certificates backup files with their sizes
     certificates_backup_files=()
-    mapfile -t certificates_backup_files < <(find "$storage_certificate" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    mapfile -t certificates_backup_files < <(find "$storage_certificates" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
 
     # Check if no files are available
     if [[ ${#certificates_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_certificate."
-        show_warning_message "No backup files found in $storage_certificate."
+        log "DEBUG" "No backup files found in $storage_certificates."
+        show_warning_message "No backup files found in $storage_certificates."
         return 1
     fi
 
