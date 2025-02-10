@@ -54,7 +54,7 @@ function load_configuration()
     STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}"                 # Percentage of free space, below which we will show a warning
 
     # make sure we can log stuff
-    mkdir -p "$(dirname "$(realpath $LOG_FILE)")"
+    mkdir -p "$(dirname "$(realpath "/var/log/kafka/backup-offline.log")")"
 
     log "INFO" "Configuration loaded from '$config_file'"
 }
