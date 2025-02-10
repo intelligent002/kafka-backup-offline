@@ -99,7 +99,16 @@ docker_command_connect_run: >
   -v /data/cluster/plugins:/usr/share/java
   apache/kafka:3.9.0
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
-  
+
+docker_command_acl_apply: >
+  docker exec -it zoo-kafka-1 /opt/kafka/bin/kafka-acls.sh --bootstrap-server localhost:9092
+      {%- for user in credentials -%}
+        {%- for permission in user.permissions -%}
+          --add --allow-principal User:{{ user.username }} --operation {{ permission.operation }}
+          --resource-type {{ permission.resource_type }} --resource-name {{ permission.resource_name }}
+        {%- endfor -%}
+      {%- endfor -%}
+
 docker_command_data_format: >
   docker run --rm
   -v {{ node_config_path }}/:/mnt/shared/config 

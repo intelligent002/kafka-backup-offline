@@ -347,6 +347,14 @@ function cluster_containers_remove()
 
 # Generates Kafka credentials on all cluster nodes in parallel using Ansible.
 # Ensures secure authentication files are created for user access control.
+function cluster_credentials_acl_apply()
+{
+    run_ansible_routine "Kafka ACL Apply" "parallel" "credentials_credentials_acl_apply"
+    return $?
+}
+
+# Generates Kafka credentials on all cluster nodes in parallel using Ansible.
+# Ensures secure authentication files are created for user access control.
 function cluster_credentials_generate()
 {
     run_ansible_routine "Kafka Credentials Generate" "parallel" "credentials_generate"

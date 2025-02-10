@@ -26,7 +26,7 @@ chmod_certificate: 0755
 # === Node Restore & Generate Locations ================================================================================
 
 # cluster node's certificate files.
-node_certificate_path: "/data/cluster/certificate"
+node_certificate_path: "/data/cluster/certificates"
 
 # cluster node's credentials file.
 node_credentials_path: "/data/cluster/credentials"
