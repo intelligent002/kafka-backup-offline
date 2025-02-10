@@ -46,7 +46,7 @@
 
 - name: Create Config directory on nodes
   tags:
-    - configs_generate
+    - configs_restore
   ansible.builtin.file:
     path: "{{ node_configs_path }}"
     state: directory
