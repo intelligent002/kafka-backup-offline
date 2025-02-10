@@ -105,9 +105,9 @@ function help()
     echo
     echo "      rotate_backups     Perform a backup rotation by deleting archives that are:                                  "
     echo "                         1. Older than retention policy days.                                                      "
-    echo "                         2. Folders /backup/cold/config/rotated/ & /backup/cold/data/rotated/ are rotated.         "
-    echo "                         3. Folders /backup/cold/config/pinned/  & /backup/cold/data/pinned/  are NOT rotated.     "
-    echo "                            to keep a CONFIG backup forever - move it to /backup/cold/config/pinned/'              "
+    echo "                         2. Folders /backup/cold/configs/rotated/ & /backup/cold/data/rotated/ are rotated.         "
+    echo "                         3. Folders /backup/cold/configs/pinned/  & /backup/cold/data/pinned/  are NOT rotated.     "
+    echo "                            to keep a CONFIG backup forever - move it to /backup/cold/configs/pinned/'              "
     echo "                            to keep a DATA backup forever   - move it to /backup/cold/data/pinned/'                "
     echo
     echo "      cluster_backup     Perform a Full Kafka Cluster Backup:                                                      "

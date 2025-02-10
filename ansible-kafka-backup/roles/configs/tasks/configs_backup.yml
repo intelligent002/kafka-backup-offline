@@ -20,7 +20,7 @@
       - "--timeout=60"
       - "--checksum"
 
-# Create directory path for zip-of-zips archive (/backup/cold/config/2025/01/01/)
+# Create directory path for zip-of-zips archive (/backup/cold/configs/2025/01/01/)
 - name: Create backup path folders
   tags:
     - configs_backup

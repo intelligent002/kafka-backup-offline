@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ storage_cold_path }}/config/rotated/"
+    paths: "{{ storage_cold_path }}/configs/rotated/"
     age: "{{ retention_policy_configs }}d"
     recurse: yes
     patterns: "*config.tar.*"
@@ -26,4 +26,4 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ storage_cold_path }}/config/rotated/ -depth -type d -empty -delete
+    find {{ storage_cold_path }}/configs/rotated/ -depth -type d -empty -delete
