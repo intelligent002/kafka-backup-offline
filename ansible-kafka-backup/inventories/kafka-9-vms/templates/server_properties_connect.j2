@@ -42,26 +42,15 @@ rest.advertised.port={{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
 rest.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
 
 # HTTPS configuration
-#listeners.https.ssl.client.auth=
-#listeners.https.ssl.endpoint.identification.algorithm=
-#listeners.https.ssl.key.password=
-#listeners.https.ssl.keystore.location=
-#listeners.https.ssl.keystore.password=
-#listeners.https.ssl.keystore.type=
-#listeners.https.ssl.truststore.location=
-#listeners.https.ssl.truststore.password=
-#listeners.https.ssl.truststore.type=
-
-# HTTPS configuration
-#listeners.https.ssl.client.auth=none
-#listeners.https.ssl.endpoint.identification.algorithm=
-#listeners.https.ssl.key.password={{ certificate_password }}
-#listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-#listeners.https.ssl.keystore.password={{ certificate_password }}
-#listeners.https.ssl.keystore.type=JKS
-#listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-#listeners.https.ssl.truststore.password={{ certificate_password }}
-#listeners.https.ssl.truststore.type=JKS
+listeners.https.ssl.client.auth=none
+listeners.https.ssl.endpoint.identification.algorithm=
+listeners.https.ssl.key.password={{ certificate_password }}
+listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+listeners.https.ssl.keystore.password={{ certificate_password }}
+listeners.https.ssl.keystore.type=JKS
+listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listeners.https.ssl.truststore.password={{ certificate_password }}
+listeners.https.ssl.truststore.type=JKS
 
 # Set to a list of filesystem paths separated by commas (,) to enable class loading isolation for plugins
 # plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins,/opt/connectors,
