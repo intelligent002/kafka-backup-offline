@@ -18,7 +18,7 @@ chmod_data: 0755
 chmod_configs: 0755
 
 # Credentials file permissions
-chmod_credentials: 0644
+chmod_credentials: 0755
 
 # Certificate file permissions
 chmod_certificates: 0755
