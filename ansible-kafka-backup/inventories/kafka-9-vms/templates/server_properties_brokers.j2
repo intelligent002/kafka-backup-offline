@@ -94,9 +94,6 @@ authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 sasl.enabled.mechanisms=
 
 # Specifies superusers that bypass the ACL checks
-#super.users=User:CN=node-1.intel.r7g.org;User:CN=node-2.intel.r7g.org;User:CN=node-3.intel.r7g.org;User:CN=node-4.intel.r7g.org;User:CN=node-5.intel.r7g.org;User:CN=node-6.intel.r7g.org;User:node-1.intel.r7g.org;User:node-2.intel.r7g.org;User:node-3.intel.r7g.org;User:node-4.intel.r7g.org;User:node-5.intel.r7g.org;User:node-6.intel.r7g.org;User:CN=admin;User:admin;
-
-# Specifies superusers that bypass the ACL checks
 super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) %}
 User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{% if not loop.last %};{% endif %}{% endfor %};User:CN=admin;User:admin;
 
