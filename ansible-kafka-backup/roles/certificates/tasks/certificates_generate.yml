@@ -141,12 +141,31 @@
   run_once: true
   ansible.builtin.shell: >
     keytool -importkeystore \
-    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
     -destkeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks \
+    -deststoretype JKS \
+    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
     -srckeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12 \
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ hostvars[item].hostname }} -noprompt
-  loop: "{{ groups['all'] }}"
+  with_items: "{{ groups['all'] }}"
+  register: keystore_conversion
+  changed_when: "'importing keystore' in keystore_conversion.stdout"
+  args:
+    creates: "{{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks"
+
+#- name: Convert PKCS#12 node keystores to JKS format
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    keytool -importkeystore \
+#    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
+#    -destkeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks \
+#    -srckeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12 \
+#    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
+#    -alias {{ hostvars[item].hostname }} -noprompt
+#  loop: "{{ groups['all'] }}"
 
 - name: Create directories for user certificates
   tags:
