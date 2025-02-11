@@ -39,7 +39,7 @@ listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inv
 # If not set, it uses the value for "listeners" if configured.
 rest.advertised.host.name={{ hostvars[inventory_hostname]['hostname'] }}
 rest.advertised.port={{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
-rest.advertised.listener=https
+rest.advertised.listener=HTTPS
 
 # HTTPS configuration
 listeners.https.ssl.client.auth=none
