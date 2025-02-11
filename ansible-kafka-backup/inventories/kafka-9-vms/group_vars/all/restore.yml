@@ -21,7 +21,7 @@ chmod_configs: 0755
 chmod_credentials: 0644
 
 # Certificate file permissions
-chmod_certificates: 0644
+chmod_certificates: 0755
 
 # === Node Restore & Generate Locations ================================================================================
 
