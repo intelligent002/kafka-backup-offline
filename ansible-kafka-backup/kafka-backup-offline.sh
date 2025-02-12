@@ -602,7 +602,7 @@ function certificates_menu() {
                # Render the certificate restore menu
                cluster_certificates_restore_menu ;;
             5)
-               # Trigger the certificates rotate process
+               # Trigger the certificates backup rotate process
                cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
@@ -721,10 +721,13 @@ function configs_menu() {
                cluster_configs_restore_menu
                ;;
             5)
+               # Trigger the configuration backup rotate process
                cluster_configs_rotate
                if [[ $? -eq 0 ]]; then
-                    show_success_message "Configuration backups were rotate up successfully!"
+                    # Show success message if the rotate is successful
+                    show_success_message "Configuration backups were rotated successfully!"
                else
+                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate configuration backups!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -831,7 +834,7 @@ function credentials_menu() {
                cluster_credentials_restore_menu
                ;;
             5)
-               # Trigger the certificates rotate process
+               # Trigger the credentials backup rotate process
                cluster_credentials_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
@@ -1008,6 +1011,7 @@ function data_menu() {
             "2" "Format" \
             "3" "Backup" \
             "4" "Restore" \
+            "5" "Rotate" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -1020,8 +1024,11 @@ function data_menu() {
 
         case $choice in
             1)
-               return 0 ;;
+               # Back to main menu
+               return 0
+               ;;
             2)
+               # Trigger the data format process
                cluster_data_format
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
@@ -1030,6 +1037,7 @@ function data_menu() {
                fi
                ;;
             3)
+               # Trigger the data backup process
                cluster_data_backup
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
@@ -1038,7 +1046,21 @@ function data_menu() {
                fi
                ;;
             4)
-               cluster_data_restore_menu ;;
+               # Trigger the data recovery sub menu
+               cluster_data_restore_menu
+               ;;
+            5)
+               # Trigger the data backup rotate process
+               cluster_data_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Data backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
+
         esac
     done
 }
