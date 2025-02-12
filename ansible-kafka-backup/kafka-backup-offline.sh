@@ -86,7 +86,6 @@ function disclaimer()
 function help()
 {
     disclaimer
-    log "INFO" "==================================================================================================================="
     log "INFO" ""
     log "INFO" "  Usage:"
     log "INFO" ""
@@ -95,6 +94,7 @@ function help()
     log "INFO" ""
     log "INFO" "  All internal functions are runnable via the parameter, only one parameter is supported."
     log "INFO" ""
+    log "INFO" "-------------------------------------------------------------------------------------------------------------------"
     log "INFO" "  cluster_backup        Perform a Full Kafka Cluster Backup:"
     log "INFO" ""
     log "INFO" "                          1. Validate availability of free space on backup location."
@@ -116,6 +116,7 @@ function help()
     log "INFO" "                          6. Start up the cluster by 'docker start' all containers in defined startup order."
     log "INFO" "                          7. Validate availability of free space on backup location."
     log "INFO" ""
+    log "INFO" "-------------------------------------------------------------------------------------------------------------------"
     log "INFO" "  cluster_reinstall     Perform a Full Kafka Cluster Reinstall:"
     log "INFO" ""
     log "INFO" "                          1. Generate config"
