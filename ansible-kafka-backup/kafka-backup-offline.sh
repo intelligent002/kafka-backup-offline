@@ -603,7 +603,7 @@ function certificates_menu() {
                cluster_certificates_restore_menu ;;
             5)
                # Trigger the certificates rotate process
-               cluster_certificates_backup
+               cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
                     show_success_message "Certificates backups were rotated up successfully!"
