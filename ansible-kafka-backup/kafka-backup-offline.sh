@@ -557,10 +557,10 @@ function certificates_menu() {
             --cancel-button "Back" \
             --menu "Certificates > Choose an action:" 16 50 8 \
             "1" "Main menu" \
-            "2" "Generate" \
-            "3" "Backup" \
-            "4" "Restore" \
-            "5" "Rotate" \
+            "2" "Generate & deploy to nodes" \
+            "3" "Backup from nodes" \
+            "4" "Restore & deploy to nodes" \
+            "5" "Rotate old backups" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of the Whiptail menu
