@@ -64,19 +64,19 @@ function load_configuration()
 # Provides author contact details and version information.
 function disclaimer()
 {
-    echo "==================================================================================================================="
-    echo "                                    Kafka-Backup-Offline Utility - version 1.0.0                                   "
-    echo "==================================================================================================================="
-    echo
-    echo "  © 2025 Rosenberg Arkady @ Dynamic Studio                      Contact: +972546373566 / intelligent002@gmail.com  "
-    echo
-    echo "  ** IMPORTANT NOTICE: **                                                                                          "
-    echo "  This solution is **NOT SUITABLE FOR PRODUCTION USE** as it requires taking the Kafka Cluster offline             "
-    echo "  for backup and restore operations. It is specifically designed for development and testing environments.         "
-    echo
-#    echo "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
-#    echo
-    echo "==================================================================================================================="
+    log "INFO" "==================================================================================================================="
+    log "INFO" "                                    Kafka-Backup-Offline Utility - version 1.0.0                                   "
+    log "INFO" "==================================================================================================================="
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  © 2025 Rosenberg Arkady @ Dynamic Studio                      Contact: +972546373566 / intelligent002@gmail.com  "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  ** IMPORTANT NOTICE: **                                                                                          "
+    log "INFO" "  This solution is **NOT SUITABLE FOR PRODUCTION USE** as it requires taking the Kafka Cluster offline             "
+    log "INFO" "  for backup and restore operations. It is specifically designed for development and testing environments.         "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "==================================================================================================================="
 }
 
 # Displays a help message detailing available functions in the Kafka-Backup-Offline Utility.
@@ -86,43 +86,49 @@ function disclaimer()
 function help()
 {
     disclaimer
-    echo
-    echo "  Usage: $0 [function_name]                                                                                        "
-    echo
-    echo "  Available routines:                                                                                              "
-    echo
-    echo "    Coziness section:                                                                                              "
-    echo
-    echo "      setup_sshs         Configure password-less SSH access to all cluster nodes by setting up SSH keys.           "
-    echo
-    echo "    Containers section:                                                                                            "
-    echo
-    echo "      cluster_containers_run     'docker run' the Kafka Cluster containers in the defined startup order                    "
-    echo "      cluster_containers_start   'docker start' the Kafka Cluster containers in the defined startup order                  "
-    echo "      cluster_containers_stop    'docker stop' the Kafka Cluster containers in the defined shutdown order                  "
-    echo "      cluster_containers_restart 'docker restart' the Kafka Cluster containers in the defined shutdown & startup order     "
-    echo "      cluster_containers_remove  'docker rm' the Kafka Cluster containers in the defined shutdown order                    "
-    echo
-    echo "    Backup section:                                                                                                "
-    echo
-    echo "      rotate_backups     Perform a backup rotation by deleting archives that are:                                  "
-    echo "                         1. Older than retention policy days.                                                      "
-    echo "                         2. Folders /backup/cold/configs/rotated/ & /backup/cold/data/rotated/ are rotated.         "
-    echo "                         3. Folders /backup/cold/configs/pinned/  & /backup/cold/data/pinned/  are NOT rotated.     "
-    echo "                            to keep a CONFIG backup forever - move it to /backup/cold/configs/pinned/'              "
-    echo "                            to keep a DATA backup forever   - move it to /backup/cold/data/pinned/'                "
-    echo
-    echo "      cluster_backup     Perform a Full Kafka Cluster Backup:                                                      "
-    echo "                         1. Rotate backups                                                                         "
-    echo "                         2. Shut down the cluster by 'docker stop' all containers in defined shutdown order        "
-    echo "                         3. Backup cluster config, archive to cold storage                                         "
-    echo "                         4. Backup cluster data, archive to cold storage                                           "
-    echo "                         5. Start up the cluster by 'docker start' all containers in defined startup order         "
-    echo
-    echo "  If no routine name is provided, an interactive menu will be displayed.                                           "
-    echo
-    echo "==================================================================================================================="
-    echo
+    log "INFO" "==================================================================================================================="
+    log "INFO" ""
+    log "INFO" "  Usage:"
+    log "INFO" ""
+    log "INFO" "    GUI: ./kafka-backup-offline.sh"
+    log "INFO" "    CLI: ./kafka-backup-offline.sh [function_name]"
+    log "INFO" ""
+    log "INFO" "  All internal functions are runnable via the parameter, only one parameter is supported."
+    log "INFO" ""
+    log "INFO" "  cluster_backup        Perform a Full Kafka Cluster Backup:"
+    log "INFO" ""
+    log "INFO" "                          1. Validate availability of free space on backup location."
+    log "INFO" "                          2. Rotate all backups according to section policies:"
+    log "INFO" "                               2.1 data         - keep last 30 days."
+    log "INFO" "                               2.2 config       - keep last 365 days."
+    log "INFO" "                               2.3 credentials  - keep last 365 days."
+    log "INFO" "                               2.4 certificates - keep last 365 days."
+    log "INFO" "                               2.5 each component have folder "rotated" which ARE rotated."
+    log "INFO" "                               2.6 each component have folder "pinned" which are NOT rotated."
+    log "INFO" "                               2.7 to keep some modular backup forever - move it to the pinned folder."
+    log "INFO" "                          3. Validate availability of free space on backup location."
+    log "INFO" "                          4. Shut down the cluster by 'docker stop' all containers in defined shutdown order."
+    log "INFO" "                          5. Zip and store the cluster, in separate archives, to allow modular recovery:"
+    log "INFO" "                               5.1 data"
+    log "INFO" "                               5.2 config"
+    log "INFO" "                               5.3 credentials"
+    log "INFO" "                               5.4 certificates"
+    log "INFO" "                          6. Start up the cluster by 'docker start' all containers in defined startup order."
+    log "INFO" "                          7. Validate availability of free space on backup location."
+    log "INFO" ""
+    log "INFO" "  cluster_reinstall     Perform a Full Kafka Cluster Reinstall:"
+    log "INFO" ""
+    log "INFO" "                          1. Generate config"
+    log "INFO" "                          2. Generate credentials"
+    log "INFO" "                          3. Generate certificates"
+    log "INFO" "                          4. Format the data storage"
+    log "INFO" "                          5. Apply ACLs"
+    log "INFO" "                          6. Start the containers"
+    log "INFO" ""
+    log "INFO" "  If no routine name is provided, an interactive menu will be displayed."
+    log "INFO" ""
+    log "INFO" "==================================================================================================================="
+    log "INFO" ""
 }
 
 # Cron-oriented function for automated Kafka cluster backups.
