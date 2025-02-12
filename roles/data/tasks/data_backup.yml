@@ -8,8 +8,8 @@
   tags:
     - data_backup
   community.general.archive:
-    path: "{{ node_data_path }}/"  # The directory or files to be archived
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"  # Destination archive
+    path: "{{ node_data_store }}/"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
