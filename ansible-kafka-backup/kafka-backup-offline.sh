@@ -606,7 +606,7 @@ function certificates_menu() {
                cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
-                    show_success_message "Certificates backups were rotated up successfully!"
+                    show_failure_message "Certificates backups were rotated up successfully!"
                else
                     # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate certificates backups!\nExit the tool and review the logs."
