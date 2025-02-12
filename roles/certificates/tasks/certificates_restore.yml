@@ -30,8 +30,8 @@
     - certificates_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -54,6 +54,6 @@
   tags:
     - certificates_restore
   unarchive:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificate.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
     dest: "{{ node_certificates_path }}"
     remote_src: yes

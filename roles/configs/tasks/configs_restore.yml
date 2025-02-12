@@ -30,8 +30,8 @@
     - configs_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -51,6 +51,6 @@
   tags:
     - configs_restore
   unarchive:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-configs.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_config_path }}"
     remote_src: yes
