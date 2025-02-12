@@ -440,7 +440,8 @@ function cluster_data_rotate()
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
-    whiptail --title "Failure" --msgbox "$1" 10 60
+    local message=$(echo -e "\033[1;31m$1\033[0m")
+    whiptail --title "Failure" --msgbox "$message" 10 60
 }
 
 # Displays a success message using a Whiptail dialog box.
@@ -556,11 +557,11 @@ function certificates_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Certificates > Choose an action:" 16 50 8 \
-            "1" "Main menu" \
-            "2" "Generate & deploy to nodes" \
-            "3" "Backup from nodes" \
-            "4" "Restore & deploy to nodes" \
-            "5" "Rotate old backups" \
+            "1" "Return to Main Menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
+            "5" "Rotate" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of the Whiptail menu
@@ -670,7 +671,7 @@ function cluster_certificates_restore_menu()
         show_success_message "Certificates restored successfully!"
     else
         # Show failure message if restoration fails
-        show_failure_message "Failed to restore certificates."
+        show_failure_message "Failed to restore certificates.\nExit the tool and review the logs."
     fi
 }
 
@@ -686,6 +687,7 @@ function configs_menu() {
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
+            "5" "Rotate" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -697,22 +699,35 @@ function configs_menu() {
         fi
 
         case $choice in
-            1) return 0 ;;
-            2) cluster_configs_generate
+            1)
+               return 0
+               ;;
+            2)
+               cluster_configs_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
                     show_failure_message "Failed to generate configuration!\nExit the tool and review the logs."
                fi
                ;;
-            3) cluster_configs_backup
+            3)
+               cluster_configs_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was backed up successfully!"
                else
                     show_failure_message "Failed to backup configuration!\nExit the tool and review the logs."
                fi
                ;;
-            4) cluster_configs_restore_menu
+            4)
+               cluster_configs_restore_menu
+               ;;
+            5)
+               cluster_configs_rotate
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration backups were rotate up successfully!"
+               else
+                    show_failure_message "Failed to rotate configuration backups!\nExit the tool and review the logs."
+               fi
                ;;
         esac
     done
