@@ -25,7 +25,8 @@ function parse_ini_file()
 # Sets log levels, file paths, and storage-related parameters.
 function load_configuration()
 {
-    local config_file=$1 # Accept the config file path as an argument
+    # Accept the config file path as an argument
+    local config_file=$1
 
     # Check if the configuration file exists
     if [[ ! -f "$config_file" ]]; then
@@ -33,6 +34,7 @@ function load_configuration()
         exit 1
     fi
 
+    # Handle log levels
     declare -gA LOG_LEVELS=(
         ["DEBUG"]=0
         ["INFO"]=1
@@ -57,6 +59,7 @@ function load_configuration()
     mkdir -p "$(dirname $LOG_FILE)"
 
     log "INFO" "Configuration loaded from '$config_file'"
+    ensure_free_space $STORAGE_COLD
 }
 
 # Displays a disclaimer message for the Kafka-Backup-Offline Utility.
@@ -1164,8 +1167,20 @@ function cluster_data_restore_menu() {
 }
 
 # ===== Main Execution =====
-# Call the configuration loader function with the path to your .ini file
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+# Save the original directory
+ORIGINAL_DIR="$(pwd)"
+
+# Change to the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || {
+    echo "Error: Failed to change directory to $SCRIPT_DIR"
+    exit 1
+}
+
+# Ensure the script returns to the original directory upon exit
+trap 'cd "$ORIGINAL_DIR"' EXIT
+
+# Load configuration
 CONFIG_FILE="$SCRIPT_DIR/config.ini"
 load_configuration "$CONFIG_FILE"
 create_pid_file
