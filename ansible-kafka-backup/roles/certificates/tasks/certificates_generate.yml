@@ -233,16 +233,16 @@
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
-    keytool -importkeystore
-    -deststorepass "{{ certificate_password }}"
-    -destkeypass "{{ certificate_password }}"
-    -destkeystore "{{ storage_certificates_path }}/users/{{ user }}/{{ user }}.jks"
-    -deststoretype JKS
-    -srckeystore "{{ storage_certificates_path }}/users/{{ user }}/{{ user }}.p12"
-    -srcstoretype PKCS12
-    -srcstorepass "{{ certificate_password }}"
-    -alias "{{ user }}"
-    -noprompt
+    keytool -importkeystore 
+      -deststorepass "{{ certificate_password }}" 
+      -destkeypass "{{ certificate_password }}" 
+      -destkeystore "{{ storage_certificates_path }}/users/{{ user }}/{{ user }}.jks" 
+      -deststoretype JKS 
+      -srckeystore "{{ storage_certificates_path }}/users/{{ user }}/{{ user }}.p12" 
+      -srcstoretype PKCS12 
+      -srcstorepass "{{ certificate_password }}" 
+      -alias "{{ user }}" 
+      -noprompt
 
 #- name: Convert PKCS#12 user keystores to JKS format
 #  tags:
