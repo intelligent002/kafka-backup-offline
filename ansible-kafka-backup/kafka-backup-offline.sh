@@ -1177,6 +1177,7 @@ if [[ $# -eq 0 ]]; then
 else
     # Parameter provided, assume it's a function name
     if declare -f "$1" >/dev/null; then
+        disclaimer
         # Call the function by name if it exists
         "$1"
     else
