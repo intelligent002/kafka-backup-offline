@@ -531,7 +531,7 @@ function main_menu() {
 
         # Handle user choices
         case $choice in
-            1) exit 0 ;; # Exit
+            1) exit 0 ;;
             2) prerequisites_menu ;;
             3) certificates_menu ;;
             4) configs_menu ;;
@@ -552,7 +552,7 @@ function prerequisites_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Prerequisites > Choose an action:" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
             "3" "Deploy prerequisites - (docker etc)" \
             3>&1 1>&2 2>&3)
@@ -731,7 +731,7 @@ function configs_menu() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
             --menu "Configs > Choose an action:" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
@@ -845,7 +845,7 @@ function credentials_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Credentials > Choose an action" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
@@ -957,7 +957,7 @@ function acls_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "ACLs > Choose an action" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "ACL Apply" \
             3>&1 1>&2 2>&3)
 
@@ -991,7 +991,7 @@ function containers_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Containers > Choose an action" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "Run" \
             "3" "Start" \
             "4" "Stop" \
@@ -1056,7 +1056,7 @@ function data_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "Data > Choose an action:" 16 50 8 \
-            "1" "Main menu" \
+            "1" "Return to Main Menu" \
             "2" "Format" \
             "3" "Backup" \
             "4" "Restore" \
