@@ -1174,7 +1174,6 @@ if [[ $# -eq 0 ]]; then
     # No parameters provided, show the menu
     disclaimer
     main_menu
-    disclaimer
 else
     # Parameter provided, assume it's a function name
     if declare -f "$1" >/dev/null; then
