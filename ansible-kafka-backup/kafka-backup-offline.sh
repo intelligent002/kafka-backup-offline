@@ -440,8 +440,7 @@ function cluster_data_rotate()
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
-    local message=$(echo -e "\033[1;31m$1\033[0m")
-    whiptail --title "Failure" --msgbox "$message" 10 60
+    whiptail --title "Failure" --msgbox "$1" 10 60 --ok-button "Fuck!"
 }
 
 # Displays a success message using a Whiptail dialog box.
@@ -607,7 +606,7 @@ function certificates_menu() {
                cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
-                    show_failure_message "Certificates backups were rotated up successfully!"
+                    show_success_message "Certificates backups were rotated up successfully!"
                else
                     # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate certificates backups!\nExit the tool and review the logs."
