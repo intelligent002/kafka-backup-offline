@@ -529,7 +529,7 @@ function prerequisites_menu() {
                     show_success_message "SSH public key deployed successfully on all nodes!"
                else
                     # Show failure message if SSH key deployment fails
-                    show_failure_message "Failed to deploy SSH public key.\nPlease exit the tool and review the logs for details."
+                    show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
                fi
                ;;
             # Deploy prerequisites (like Docker) to all nodes
@@ -540,7 +540,7 @@ function prerequisites_menu() {
                     show_success_message "Prerequisites were deployed on all nodes successfully!"
                else
                     # Show failure message if prerequisites deployment fails
-                    show_failure_message "Failed to deploy prerequisites!\nExit the tool and review the logs."
+                    show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -584,7 +584,7 @@ function certificates_menu() {
                     show_success_message "Certificates were generated successfully!"
                else
                     # Show failure message if the backup fails
-                    show_failure_message "Failed to generate certificates!\nExit the tool and review the logs."
+                    show_failure_message "Failed to generate certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
@@ -595,7 +595,7 @@ function certificates_menu() {
                     show_success_message "Certificates were backed up successfully!"
                else
                     # Show failure message if the backup fails
-                    show_failure_message "Failed to backup certificates!\nExit the tool and review the logs."
+                    show_failure_message "Failed to backup certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
@@ -606,10 +606,10 @@ function certificates_menu() {
                cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
-                    show_failure_message "Certificates backups were rotated up successfully!"
+                    show_success_message "Certificates backups were rotated up successfully!"
                else
                     # Show failure message if the rotate fails
-                    show_failure_message "Failed to rotate certificates backups!\nExit the tool and review the logs."
+                    show_failure_message "Failed to rotate certificates backups!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -670,7 +670,7 @@ function cluster_certificates_restore_menu()
         show_success_message "Certificates restored successfully!"
     else
         # Show failure message if restoration fails
-        show_failure_message "Failed to restore certificates.\nExit the tool and review the logs."
+        show_failure_message "Failed to restore certificates.\n\nExit the tool and review the logs."
     fi
 }
 
@@ -706,7 +706,7 @@ function configs_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
-                    show_failure_message "Failed to generate configuration!\nExit the tool and review the logs."
+                    show_failure_message "Failed to generate configuration!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
@@ -714,7 +714,7 @@ function configs_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was backed up successfully!"
                else
-                    show_failure_message "Failed to backup configuration!\nExit the tool and review the logs."
+                    show_failure_message "Failed to backup configuration!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
@@ -725,7 +725,7 @@ function configs_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration backups were rotate up successfully!"
                else
-                    show_failure_message "Failed to rotate configuration backups!\nExit the tool and review the logs."
+                    show_failure_message "Failed to rotate configuration backups!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -782,7 +782,7 @@ function cluster_configs_restore_menu()
     if [[ $? -eq 0 ]]; then
         show_success_message "Configuration restored successfully!"
     else
-        show_failure_message "Failed to restore configuration."
+        show_failure_message "Failed to restore configuration!\n\nExit the tool and review the logs."
     fi
 }
 
@@ -815,7 +815,7 @@ function credentials_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was generated successfully!"
                else
-                    show_failure_message "Failed to generate credentials!\nExit the tool and review the logs."
+                    show_failure_message "Failed to generate credentials!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
@@ -823,7 +823,7 @@ function credentials_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was backed up successfully!"
                else
-                    show_failure_message "Failed to backup credentials!\nExit the tool and review the logs."
+                    show_failure_message "Failed to backup credentials!\n\nExit the tool and review the logs."
                fi
                ;;
             4) cluster_credentials_restore_menu ;;
@@ -881,7 +881,7 @@ function cluster_credentials_restore_menu()
     if [[ $? -eq 0 ]]; then
         show_success_message "Credentials restored successfully!"
     else
-        show_failure_message "Failed to restore credentials."
+        show_failure_message "Failed to restore credentials!\n\nExit the tool and review the logs."
     fi
 }
 
@@ -911,7 +911,7 @@ function acls_menu() {
                if [[ $? -eq 0 ]]; then
                     show_success_message "ACLs was applied successfully!"
                else
-                    show_failure_message "Failed to apply ACLs!\nExit the tool and review the logs."
+                    show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -947,21 +947,21 @@ function containers_menu() {
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully started!\nAll services are now running."
                else
-                   show_failure_message "Unable to start the containers.\nPlease exit the tool and check the logs for details."
+                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
                fi
                ;;
             3) cluster_containers_start
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
                else
-                   show_failure_message "Failed to resume the containers.\nEnsure the environment is correctly configured and review the logs."
+                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
                fi
                ;;
             4) cluster_containers_stop
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully stopped!\nAll services are now inactive."
                else
-                   show_failure_message "Unable to stop the containers.\nPlease verify permissions or configurations and check the logs."
+                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
                fi
                ;;
             5)
@@ -969,14 +969,14 @@ function containers_menu() {
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
                else
-                   show_failure_message "Failed to restart the containers.\nEnsure no conflicting processes are running and review the logs."
+                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
                fi
                ;;
             6) cluster_containers_remove
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully removed!\nResources have been freed."
                else
-                   show_failure_message "Failed to remove the containers.\nCheck if the containers are running and review the logs for details."
+                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -1012,7 +1012,7 @@ function data_menu() {
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
                else
-                   show_failure_message "Data formatting failed.\nPlease exit the tool, review the logs, and verify the storage setup."
+                   show_failure_message "Data formatting failed!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
@@ -1020,7 +1020,7 @@ function data_menu() {
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
                else
-                   show_failure_message "Data backup failed.\nPlease exit the tool, review the logs, and ensure sufficient storage space is available."
+                   show_failure_message "Data backup failed!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
@@ -1078,7 +1078,7 @@ function cluster_data_restore_menu() {
     if [[ $? -eq 0 ]]; then
         show_success_message "Data restoration completed successfully!\nThe cluster has been restored to the selected backup state."
     else
-        show_failure_message "Data restoration failed.\nPlease review the logs and verify the backup integrity."
+        show_failure_message "Data restoration failed!\n\nExit the tool and review the logs."
     fi
 }
 
