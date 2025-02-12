@@ -126,7 +126,6 @@ function help()
     log "INFO" "  If no function name is provided, the script will display an interactive menu."
     log "INFO" ""
     log "INFO" "==================================================================================================================="
-    log "INFO" ""
 }
 
 # Cron-oriented function for automated Kafka cluster backups.
