@@ -65,7 +65,7 @@ function load_configuration()
 function disclaimer()
 {
     log "INFO" "==================================================================================================================="
-    log "INFO" "                                    Kafka-Backup-Offline Utility - version 1.0.0                                   "
+    log "INFO" "                                    Kafka-Backup-Offline Utility - version 2.0.0                                   "
     log "INFO" "==================================================================================================================="
     log "INFO" "                                                                                                                   "
     log "INFO" "  © 2025 Rosenberg Arkady @ Dynamic Studio                      Contact: +972546373566 / intelligent002@gmail.com  "
