@@ -606,7 +606,7 @@ function certificates_menu() {
                cluster_certificates_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
-                    show_success_message "Certificates backups were rotated up successfully!"
+                    show_success_message "Certificates backups were rotated successfully!"
                else
                     # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate certificates backups!\n\nExit the tool and review the logs."
@@ -797,6 +797,7 @@ function credentials_menu() {
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
+            "5" "Rotate" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -826,7 +827,20 @@ function credentials_menu() {
                     show_failure_message "Failed to backup credentials!\n\nExit the tool and review the logs."
                fi
                ;;
-            4) cluster_credentials_restore_menu ;;
+            4)
+               cluster_credentials_restore_menu
+               ;;
+            5)
+               # Trigger the certificates rotate process
+               cluster_credentials_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Credentials backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate credentials backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
         esac
     done
 }
