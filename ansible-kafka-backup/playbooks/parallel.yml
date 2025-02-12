@@ -1,5 +1,5 @@
 ---
-- name: Cluster Backup Offline
+- name: Cluster Backup Offline - Parallel execution
   hosts: cluster
   become: yes
   pre_tasks:
