@@ -440,7 +440,7 @@ function cluster_data_rotate()
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
-    whiptail --title "Failure" --msgbox "$1" 10 60 --ok-button "Oooops !!!"
+    whiptail --title "Failure" --msgbox "$1" 10 60 --ok-button "WTF"
 }
 
 # Displays a success message using a Whiptail dialog box.
