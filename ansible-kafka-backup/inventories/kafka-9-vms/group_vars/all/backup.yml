@@ -10,7 +10,7 @@ retention_policy_credentials: 365
 retention_policy_configs: 365
 
 # Number of days to retain data backups.
-retention_policy_data: 7
+retention_policy_data: 6
 
 # === Backup Base ======================================================================================================
 
