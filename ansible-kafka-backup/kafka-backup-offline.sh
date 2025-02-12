@@ -82,6 +82,7 @@ function disclaimer()
 # Displays a help message detailing available functions in the Kafka-Backup-Offline Utility.
 function help()
 {
+    # everything starts with a coffee ...
     disclaimer
     log "INFO" ""
     log "INFO" "  Usage:"
@@ -1170,12 +1171,13 @@ load_configuration "$CONFIG_FILE"
 create_pid_file
 # Decide what to run
 if [[ $# -eq 0 ]]; then
-    # No parameters provided, show the menu
+    # No parameters provided, show the menu, but first require coffee
     disclaimer
     main_menu
 else
     # Parameter provided, assume it's a function name
     if declare -f "$1" >/dev/null; then
+        # require coffee
         if [[ "$1" != "help" ]]; then
             disclaimer
         fi
