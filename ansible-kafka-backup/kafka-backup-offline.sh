@@ -2,7 +2,7 @@
 
 # Parses a specific section of an INI file and stores its key-value pairs in an associative array.
 # Skips comments and empty lines while trimming whitespace from keys and values.
-# Stores results in the global associative array "ini_data" using "section.key" as the index.
+# Stores the results in the global associative array "ini_data" using "section.key" as the index.
 function parse_ini_file()
 {
     local ini_file=$1
@@ -44,7 +44,7 @@ function load_configuration()
     parse_ini_file "$config_file" "general"
     PID_FILE="${ini_data[general.PID_FILE]}"   # Path to the PID file for ensuring single script execution
     LOG_FILE="${ini_data[general.LOG_FILE]}"   # Path to the log file for logging events
-    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level above which the errors will be shown in console, log will contain all
+    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level threshold: errors at or above this level will be shown in the console, while all logs are recorded.
     INVENTORY="${ini_data[general.INVENTORY]}" # inventory folder
 
     # Load storage configuration variables for temporary and cold backup storage paths.
@@ -80,9 +80,6 @@ function disclaimer()
 }
 
 # Displays a help message detailing available functions in the Kafka-Backup-Offline Utility.
-# Categorizes routines into Coziness, Containers, and Backup sections.
-# Provides usage instructions and descriptions for each function.
-# Warns that without a specified function name, an interactive menu will be shown.
 function help()
 {
     disclaimer
