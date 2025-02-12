@@ -46,14 +46,14 @@
   tags:
     - data_restore
   file:
-    path: "{{ node_data_path }}"
+    path: "{{ node_data_store }}"
     state: absent
 
 - name: Create cluster data folder on nodes
   tags:
     - data_restore
   file:
-    path: "{{ node_data_path }}"
+    path: "{{ node_data_store }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -64,5 +64,5 @@
     - data_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ node_data_path }}"
+    dest: "{{ node_data_store }}"
     remote_src: yes
