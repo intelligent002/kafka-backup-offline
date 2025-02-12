@@ -100,8 +100,8 @@ function help()
     log "INFO" "                               2.2 config       - keep last 365 days."
     log "INFO" "                               2.3 credentials  - keep last 365 days."
     log "INFO" "                               2.4 certificates - keep last 365 days."
-    log "INFO" "                               2.5 each component have folder 'rotated' which is rotated."
-    log "INFO" "                               2.6 each component have folder 'pinned' which is NOT rotated."
+    log "INFO" "                               2.5 each component has a 'rotated' folder, which is periodically rotated."
+    log "INFO" "                               2.6 each component has a 'pinned' folder, which is NOT rotated."
     log "INFO" "                               2.7 to keep some modular backup forever - move it to the pinned folder."
     log "INFO" "                          3. Validate availability of free space on backup location."
     log "INFO" "                          4. Shut down the cluster by 'docker stop' all containers in defined shutdown order."
@@ -131,7 +131,7 @@ function help()
 
 # Cron-oriented function for automated Kafka cluster backups.
 # 1. Stops all Kafka containers to ensure data consistency.
-# 2. Backs up configurations, certificates, credentials & data. storing everything in cold storage.
+# 2. Backs up configurations, certificates, credentials, and data, storing everything in cold storage.
 # 3. Starts all Kafka containers after the backup process completes.
 function cluster_backup()
 {
@@ -185,8 +185,8 @@ function cluster_reinstall()
     log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
 }
 
-# Creates a PID file to prevent multiple script instances from running.
-# Exits if the PID file exists, otherwise writes the current PID and sets a trap to remove the file on exit.
+# Creates a PID file to prevent multiple instances of the script from running.
+# If the PID file already exists, the script exits; otherwise, it writes the current PID and sets a trap to remove the file upon exit.
 function create_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
@@ -225,12 +225,12 @@ function log()
         echo "[$level] $message"
     fi
 
-    # In any case - log the message
+    # Always logs the message, regardless of the log level.
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >> "$LOG_FILE"
 }
 
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
-# Logs a warning if available disk space falls below 20% (or the configured `STORAGE_WARN_LOW` value).
+# Logs a warning if the available disk space drops below 20% (or the configured `STORAGE_WARN_LOW` threshold).
 function ensure_free_space()
 {
     local mount free_storage free_percent
@@ -971,7 +971,7 @@ function acls_menu() {
             2)
                cluster_acls_apply
                if [[ $? -eq 0 ]]; then
-                    show_success_message "ACLs was applied successfully!"
+                    show_success_message "ACLs were applied successfully!"
                else
                     show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
                fi
