@@ -282,6 +282,14 @@ function cluster_certificates_restore()
     return $?
 }
 
+# Deletes old archives according to retention_policy_certificates days amount value
+function cluster_certificates_rotate()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
+    return $?
+}
+
 # Deploys Kafka configuration files to all cluster nodes in parallel using Ansible.
 # Ensures all nodes have the latest configuration settings from inventory template.
 function cluster_configs_generate()
@@ -304,6 +312,14 @@ function cluster_configs_restore()
 {
     local archive=$1
     run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
+
+# Deletes old archives according to retention_policy_configs days amount value
+function cluster_configs_rotate()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
     return $?
 }
 
@@ -380,6 +396,14 @@ function cluster_credentials_restore()
     return $?
 }
 
+# Deletes old archives according to retention_policy_credentials days amount value
+function cluster_credentials_rotate()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
+    return $?
+}
+
 # Formats Kafka data on all cluster nodes in parallel using Ansible.
 # Prepares storage for new data by ensuring a clean state.
 function cluster_data_format()
@@ -402,6 +426,14 @@ function cluster_data_restore()
 {
     local archive=$1
     run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
+    return $?
+}
+
+# Deletes old archives according to retention_policy_data days amount value
+function cluster_data_rotate()
+{
+    local archive=$1
+    run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
     return $?
 }
 
@@ -528,6 +560,7 @@ function certificates_menu() {
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
+            "5" "Rotate" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of the Whiptail menu
@@ -540,11 +573,11 @@ function certificates_menu() {
 
         # Handle the user's menu choice
         case $choice in
-            # Return to the main menu if "Main menu" is selected
             1)
+               # Return to the main menu if "Main menu" is selected
                return 0 ;;
-            # Trigger the certificates generation process if "Generate" is selected
             2)
+               # Trigger the certificates generation process
                cluster_certificates_generate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the backup is successful
@@ -554,8 +587,8 @@ function certificates_menu() {
                     show_failure_message "Failed to generate certificates!\nExit the tool and review the logs."
                fi
                ;;
-            # Backup certificates and handle the result if "Backup" is selected
             3)
+               # Trigger the certificates backup process
                cluster_certificates_backup
                if [[ $? -eq 0 ]]; then
                     # Show success message if the backup is successful
@@ -565,9 +598,20 @@ function certificates_menu() {
                     show_failure_message "Failed to backup certificates!\nExit the tool and review the logs."
                fi
                ;;
-            # Trigger the menu for restoring certificates if "Restore" is selected
             4)
+               # Render the certificate restore menu
                cluster_certificates_restore_menu ;;
+            5)
+               # Trigger the certificates rotate process
+               cluster_certificates_backup
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Certificates backups were rotated up successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate certificates backups!\nExit the tool and review the logs."
+               fi
+               ;;
         esac
     done
 }
