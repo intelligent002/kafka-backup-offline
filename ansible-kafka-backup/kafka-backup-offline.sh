@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Parses a specific section of an INI file and stores key-value pairs in an associative array.
+# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
 # Skips comments and empty lines while trimming whitespace from keys and values.
 # Stores results in the global associative array "ini_data" using "section.key" as the index.
 function parse_ini_file()
@@ -21,8 +21,8 @@ function parse_ini_file()
 
 # Loads configuration settings from an INI file and stores them in global variables.
 # Validates if the configuration file exists before parsing.
-# Uses `parse_ini_file` to extract values from the "general" and "storage" sections.
-# Sets logging levels, file paths, and storage-related parameters.
+# Extracts values from the "general" and "storage" sections using `parse_ini_file`.
+# Sets log levels, file paths, and storage-related parameters.
 function load_configuration()
 {
     local config_file=$1 # Accept the config file path as an argument
@@ -60,8 +60,8 @@ function load_configuration()
 }
 
 # Displays a disclaimer message for the Kafka-Backup-Offline Utility.
-# Warns that the solution is not suitable for production as it requires taking Kafka offline.
-# Provides author contact details and version information.
+# Warns that this solution is unsuitable for production, as it requires taking Kafka offline.
+# Includes author contact details and version information.
 function disclaimer()
 {
     log "INFO" "==================================================================================================================="
@@ -126,7 +126,7 @@ function help()
     log "INFO" "                          5. Apply ACLs"
     log "INFO" "                          6. Start the containers"
     log "INFO" ""
-    log "INFO" "  If no routine name is provided, an interactive menu will be displayed."
+    log "INFO" "  If no function name is provided, the script will display an interactive menu."
     log "INFO" ""
     log "INFO" "==================================================================================================================="
     log "INFO" ""
@@ -233,7 +233,7 @@ function log()
 }
 
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
-# Logs a warning message if the available space is below 20% (or the configured `STORAGE_WARN_LOW` value).
+# Logs a warning if available disk space falls below 20% (or the configured `STORAGE_WARN_LOW` value).
 function ensure_free_space()
 {
     local mount free_storage free_percent
@@ -288,7 +288,7 @@ function run_ansible_routine()
 
 
 # Deploys SSH public keys to all cluster nodes in parallel using Ansible.
-# If SSH keys are not set up, will use the password supplied using `--ask-pass` for all nodes.
+# If SSH keys are not set up, the script will use the password provided via `--ask-pass` for all nodes.
 function cluster_ssh_keys()
 {
     run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass" "true"
@@ -413,7 +413,6 @@ function cluster_containers_remove()
 }
 
 # Applies Kafka ACLs to enforce access control policies across the cluster.
-# Executes Ansible playbook in parallel to efficiently update permissions.
 function cluster_acls_apply()
 {
     run_ansible_routine "Kafka ACLs Apply" "parallel" "acls_apply"
@@ -505,7 +504,7 @@ function show_warning_message() {
 }
 
 # Displays the main menu using Whiptail for managing Kafka backup and restore.
-# Allows navigation to submenus, Exits when the user selects "Quit" or presses ESC/cancel.
+# Allows navigation to submenus. Exits when the user selects "Quit" or presses ESC/cancel.
 function main_menu() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
