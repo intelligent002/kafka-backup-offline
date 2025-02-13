@@ -347,7 +347,6 @@ function cluster_certificates_restore()
 # Deletes old archives according to retention_policy_certificates days amount value
 function cluster_certificates_rotate()
 {
-    local archive=$1
     run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
     return $?
 }
@@ -380,7 +379,6 @@ function cluster_configs_restore()
 # Deletes old archives according to retention_policy_configs days amount value
 function cluster_configs_rotate()
 {
-    local archive=$1
     run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
     return $?
 }
@@ -460,7 +458,6 @@ function cluster_credentials_restore()
 # Deletes old archives according to retention_policy_credentials days amount value
 function cluster_credentials_rotate()
 {
-    local archive=$1
     run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
     return $?
 }
@@ -493,7 +490,6 @@ function cluster_data_restore()
 # Deletes old archives according to retention_policy_data days amount value
 function cluster_data_rotate()
 {
-    local archive=$1
     run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
     return $?
 }
