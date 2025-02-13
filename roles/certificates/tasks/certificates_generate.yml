@@ -48,6 +48,17 @@
     -out {{ storage_certificates_path }}/CA/ca.crt -days 3650 \
     -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
 
+- name: Generate a shared PKCS#12 truststore with the CA certificate
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    keytool -import -trustcacerts -noprompt -alias ca \
+    -file {{ storage_certificates_path }}/CA/ca.crt \
+    -keystore {{ storage_certificates_path }}/shared.truststore.p12 \
+    -storetype PKCS12 -storepass {{ certificate_password }}
+
 - name: Generate a shared JKS truststore with the CA certificate
   tags:
     - certificates_generate
@@ -57,7 +68,18 @@
     keytool -import -trustcacerts -noprompt -alias ca \
     -file {{ storage_certificates_path }}/CA/ca.crt \
     -keystore {{ storage_certificates_path }}/shared.truststore.jks \
-    -storepass {{ certificate_password }}
+    -storetype JKS -storepass {{ certificate_password }}
+
+- name: Generate a shared JKS truststore with the CA certificate
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    keytool -import -trustcacerts -noprompt -alias ca \
+    -file {{ storage_certificates_path }}/CA/ca.crt \
+    -keystore {{ storage_certificates_path }}/shared.truststore.jks \
+    -storetype JKS -storepass {{ certificate_password }}
 
 - name: Create directories for node certificates
   tags:
@@ -153,20 +175,6 @@
   args:
     creates: "{{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks"
 
-#- name: Convert PKCS#12 node keystores to JKS format
-#  tags:
-#    - certificates_generate
-#  delegate_to: node-0
-#  run_once: true
-#  ansible.builtin.shell: >
-#    keytool -importkeystore \
-#    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
-#    -destkeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks \
-#    -srckeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12 \
-#    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
-#    -alias {{ hostvars[item].hostname }} -noprompt
-#  loop: "{{ groups['all'] }}"
-
 - name: Create directories for user certificates
   tags:
     - certificates_generate
@@ -240,20 +248,6 @@
         -srckeystore {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.p12 \
         -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
         -alias {{ item }} -noprompt
-
-#- name: Convert PKCS#12 user keystores to JKS format
-#  tags:
-#    - certificates_generate
-#  delegate_to: node-0
-#  run_once: true
-#  loop: "{{ credentials | map(attribute='username') | list }}"
-#  ansible.builtin.shell: >
-#    keytool -importkeystore \
-#    -deststorepass {{ certificate_password }} -destkeypass {{ certificate_password }} \
-#    -destkeystore {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.jks \
-#    -srckeystore {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.p12 \
-#    -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
-#    -alias {{ item }} -noprompt
 
 - name: Create Certificates directory on nodes
   tags:
