@@ -340,7 +340,7 @@ function cluster_certificates_backup()
 function cluster_certificates_restore()
 {
     local archive=$1
-    local extra_vars="--extra-vars='{\"restore_archive\":\"${archive}\"}'"
+    local extra_vars="--extra-vars={\"restore_archive\":\"${archive}\"}"
 
     run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
     return $?
