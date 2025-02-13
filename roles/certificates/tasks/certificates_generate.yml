@@ -145,7 +145,7 @@
     -srckeystore {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.p12 \
     -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
     -alias {{ hostvars[item].hostname }} -noprompt
-  with_items: "{{ groups['all'] }}"
+  loop: "{{ groups['all'] }}"
   register: keystore_conversion
   changed_when: "'importing keystore' in keystore_conversion.stdout"
   args:
