@@ -248,7 +248,7 @@
     mode: '{{ chmod_certificates }}'
     recurse: true
 
-- name: Distribute shared truststores to all nodes
+- name: Distribute shared truststore to all nodes
   tags:
     - certificates_generate
   delegate_to: node-0
