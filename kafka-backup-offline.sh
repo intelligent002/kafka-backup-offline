@@ -281,7 +281,7 @@ function run_ansible_routine()
     )
 
     # Append extra_vars only if it's not empty
-    [[ -n "$extra_vars" ]] && docker_command+=(--extra-vars="$extra_vars")
+    [[ -n "$extra_vars" ]] && docker_command+=("$extra_vars")
     echo "${docker_command[@]}"
 
     # Loop for a few attempts
@@ -340,7 +340,9 @@ function cluster_certificates_backup()
 function cluster_certificates_restore()
 {
     local archive=$1
-    run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "--extra-vars \"restore_archive=$archive\""
+    local extra_vars="--extra-vars='{\"restore_archive\":\"${archive}\"}'"
+
+    run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
     return $?
 }
 
