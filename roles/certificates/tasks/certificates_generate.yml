@@ -190,12 +190,14 @@
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.csr \
-    -CA {{ storage_certificates_path }}/CA/ca.crt -CAkey {{ storage_certificates_path }}/CA/ca.key \
+    -CA {{ storage_certificates_path }}/CA/ca.crt \
+    -CAkey {{ storage_certificates_path }}/CA/ca.key \
     -passin pass:{{ certificate_password }} -CAcreateserial \
-    -out {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.crt -days 3650
+    -out {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.crt \
+    -days 3650 -extensions v3_req 
+  loop: "{{ credentials | map(attribute='username') | list }}"
 
 - name: Generate PKCS#12 user keystores
   tags:
