@@ -48,6 +48,7 @@ function load_configuration()
     LOG_FILE="${ini_data[general.LOG_FILE]}"   # Path to the log file for logging events
     LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level threshold: errors at or above this level will be shown in the console, while all logs are recorded.
     INVENTORY="${ini_data[general.INVENTORY]}" # inventory folder
+    ANSIBLE_ATTEMPTS="${ini_data[general.ANSIBLE_ATTEMPTS]}" # Ansbile retry attempts
 
     # Load storage configuration variables for temporary and cold backup storage paths.
     parse_ini_file "$config_file" "storage"
@@ -257,33 +258,44 @@ function run_ansible_routine()
     local routine=$1
     local playbook=$2
     local tag=$3
-    local extra_vars=${4:-}
+    local extra_vars=${4:-""}  # Ensure extra_vars is always set
     local interactive_mode=${5:-false}  # Default to false if not provided
-
-    log "INFO" "Routine - ${routine^} - started"
+    local attempt=1
+    local max_attempts=${ANSIBLE_ATTEMPTS:-3}  # Use ANSIBLE_ATTEMPTS if set, otherwise default to 3
 
     # Determine if -it should be included
     local docker_options="--rm"
     [[ "$interactive_mode" == "true" ]] && docker_options="-it --rm"
 
-    # Prepare the Docker command as a variable
-    local docker_command="docker run $docker_options \
-        -v ~/.ssh:/root/.ssh \
-        -v $(pwd):/apps \
-        -v /var/log/ansible:/var/log/ansible \
-        -w /apps \
-        alpine/ansible:2.18.1 ansible-playbook \
-        -i inventories/$INVENTORY/hosts.yml playbooks/$playbook.yml \
-        --tags \"$tag\" $extra_vars"
+    # Prepare the Docker command as an array (to avoid eval issues)
+    local docker_command=(
+        docker run $docker_options
+        -v ~/.ssh:/root/.ssh
+        -v "$SCRIPT_DIR":/apps
+        -v /var/log/ansible:/var/log/ansible
+        -w /apps
+        alpine/ansible:2.18.1 ansible-playbook
+        -i "inventories/$INVENTORY/hosts.yml"
+        "playbooks/$playbook.yml"
+        --tags "$tag"
+    )
 
-    # Execute the command
-    eval $docker_command || {
-        log "ERROR" "Playbook failed! Exact command: $docker_command"
-        return 1
-    }
+    # Append extra_vars only if it's not empty
+    [[ -n "$extra_vars" ]] && docker_command+=("$extra_vars")
 
-    log "INFO" "Routine - ${routine^} - OK"
-    return 0
+    # Loop for a few attempts
+    while [[ $attempt -le $max_attempts ]]; do
+        log "INFO" "Routine - ${routine^} - started (attempt #${attempt} of ${max_attempts})"
+        "${docker_command[@]}" && {
+            log "INFO" "Routine - ${routine^} - OK"
+            return 0
+        }
+        log "WARN" "Routine - ${routine^} - Failed attempt #${attempt} of ${max_attempts}, retrying."
+        ((attempt++))
+    done
+
+    log "ERROR" "Routine - ${routine^} - Failed, attempts exhausted. Failed command: ${docker_command[*]}"
+    return 1
 }
 
 
