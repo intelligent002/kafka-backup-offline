@@ -238,6 +238,16 @@
         -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
         -alias {{ item }} -noprompt
 
+- name: Set correct permissions for certificate files on nodes
+  tags:
+    - certificates_generate
+  ansible.builtin.file:
+    path: "{{ node_certificates_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
+
 - name: Create Certificates directory on nodes
   tags:
     - certificates_generate
@@ -298,12 +308,3 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Set correct permissions for certificate files on nodes
-  tags:
-    - certificates_generate
-  ansible.builtin.file:
-    path: "{{ node_certificates_path }}"
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificates }}"
-    recurse: true
