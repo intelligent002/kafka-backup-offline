@@ -261,7 +261,7 @@
       - "--checksum"
   with_items:
     - shared.truststore.jks
-    - shared.truststore.p12
+#    - shared.truststore.p12
 
 - name: Distribute node keystore to all nodes
   tags:
