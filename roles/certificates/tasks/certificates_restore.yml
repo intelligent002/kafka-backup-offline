@@ -57,3 +57,24 @@
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
     dest: "{{ node_certificates_path }}"
     remote_src: yes
+
+- name: Create cluster certificate folder on central
+  tags:
+    - certificates_restore
+  file:
+    path: "{{ storage_certificates_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
+
+- name: Restore central certificates
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  unarchive:
+    src: "{{ storage_temp_path }}/node-0-certificates.tar.zx"
+    dest: "{{ storage_certificates_path }}/"
+    remote_src: yes

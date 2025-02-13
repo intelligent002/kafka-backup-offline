@@ -20,6 +20,17 @@
       - "--timeout=60"
       - "--checksum"
 
+- name: Add archive of central certificates
+  tags:
+    - certificates_backup
+  delegate_to: node-0
+  run_once: true
+  community.general.archive:
+    path: "{{ storage_certificates_path }}/"  # The directory or files to be archived
+    dest: "{{ storage_temp_path }}/node-0-certificates.tar.zx"  # Destination archive
+    format: xz  # Use XZ compression
+    remove: no  # Set to 'yes' to remove the original files after archiving
+
 # Create directory path for zip-of-zips archive (/backup/cold/certificates/2025/01/01/)
 - name: Create backup path folders
   tags:
