@@ -281,8 +281,9 @@ function run_ansible_routine()
     )
 
     # Append extra_vars only if it's not empty
-    [[ -n "$extra_vars" ]] && docker_command+=("$extra_vars")
-    echo "${docker_command[@]}"
+    if [[ -n "$extra_vars" ]]; then
+        docker_command+=("$extra_vars")
+    fi
 
     # Loop for a few attempts
     while [[ $attempt -le $max_attempts ]]; do
