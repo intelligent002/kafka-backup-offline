@@ -339,9 +339,7 @@ function cluster_certificates_backup()
 # Uses the specified archive file to restore certificate files.
 function cluster_certificates_restore()
 {
-    local archive=$1
-    local extra_vars="--extra-vars={\"restore_archive\":\"${archive}\"}"
-
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
     return $?
 }
@@ -374,8 +372,8 @@ function cluster_configs_backup()
 # Uses the specified archive file to restore configuration settings.
 function cluster_configs_restore()
 {
-    local archive=$1
-    run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "--extra-vars \"restore_archive=$archive\""
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "$extra_vars"
     return $?
 }
 
@@ -454,8 +452,8 @@ function cluster_credentials_backup()
 # Uses the specified archive file to restore authentication data.
 function cluster_credentials_restore()
 {
-    local archive=$1
-    run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "--extra-vars \"restore_archive=$archive\""
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "$extra_vars"
     return $?
 }
 
@@ -487,8 +485,8 @@ function cluster_data_backup()
 # Uses the specified archive file to recover data.
 function cluster_data_restore()
 {
-    local archive=$1
-    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "--extra-vars \"restore_archive=$archive\""
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
     return $?
 }
 
