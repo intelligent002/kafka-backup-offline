@@ -1,5 +1,5 @@
 ---
-- name: Delete certificates storage on node-0
+- name: Delete certificates folder on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -8,20 +8,7 @@
     path: "{{ storage_certificates_path }}"
     state: absent
 
-- name: Create certificates storage on node-0
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  run_once: true
-  ansible.builtin.file:
-    path: "{{ storage_certificates_path }}"
-    state: directory
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificates }}"
-    recurse: true
-
-- name: Create directories for certificates on node-0
+- name: Create certificates folder on node-0
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -70,7 +57,7 @@
     -keystore {{ storage_certificates_path }}/shared.truststore.jks \
     -storetype JKS -storepass {{ certificate_password }}
 
-- name: Create directories for node certificates
+- name: Create folders for node certificates
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -164,7 +151,7 @@
   args:
     creates: "{{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks"
 
-- name: Create directories for user certificates
+- name: Create folders for user certificates
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -238,7 +225,7 @@
         -srcstoretype PKCS12 -srcstorepass {{ certificate_password }} \
         -alias {{ item }} -noprompt
 
-- name: Set correct permissions for certificate files on nodes
+- name: Set certificate folder permissions
   tags:
     - certificates_generate
   ansible.builtin.file:
@@ -248,7 +235,7 @@
     mode: "{{ chmod_certificates }}"
     recurse: true
 
-- name: Create Certificates directory on nodes
+- name: Create certificate folder on nodes
   tags:
     - certificates_generate
   ansible.builtin.file:
@@ -259,7 +246,22 @@
     mode: '{{ chmod_certificates }}'
     recurse: true
 
-- name: Distribute node keystore to respective node
+- name: Distribute shared truststores to all nodes
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  synchronize:
+    src: "{{ storage_certificates_path }}/{{ item }}"
+    dest: "{{ node_certificates_path }}/{{ item }}"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+  with_items:
+    - shared.truststore.jks
+    - shared.truststore.p12
+
+- name: Distribute node keystore to all nodes
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -295,16 +297,3 @@
       - "--timeout=60"
       - "--checksum"
   when: "'connect' in group_names"
-
-- name: Distribute shared truststore to all nodes
-  tags:
-    - certificates_generate
-  delegate_to: node-0
-  synchronize:
-    src: "{{ storage_certificates_path }}/shared.truststore.jks"
-    dest: "{{ node_certificates_path }}/shared.truststore.jks"
-    mode: push
-    rsync_opts:
-      - "--timeout=60"
-      - "--checksum"
-
