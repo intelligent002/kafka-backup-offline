@@ -1,5 +1,5 @@
 ---
-- name: Archive cluster certificate on nodes
+- name: Archive certificate archives on all nodes
   tags:
     - certificates_backup
   community.general.archive:
@@ -8,7 +8,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Pull node archives from nodes into central
+- name: Pull certificate archives from all nodes into node-0
   tags:
     - certificates_backup
   delegate_to: node-0
@@ -20,7 +20,7 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Add archive of central certificates
+- name: Add certificates folder archive from node-0
   tags:
     - certificates_backup
   delegate_to: node-0
