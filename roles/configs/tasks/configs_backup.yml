@@ -23,7 +23,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_configs }}"
 
-- name: Archive cluster configs on nodes
+- name: Create configs archive on all nodes
   tags:
     - configs_backup
   community.general.archive:
@@ -32,7 +32,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Pull node archives from nodes into central
+- name: Pull configs archive from nodes
   tags:
     - configs_backup
   delegate_to: node-0
@@ -44,18 +44,7 @@
       - "--timeout=60"
       - "--checksum"
 
-# Create directory path for zip-of-zips archive (/backup/cold/configs/2025/01/01/)
-- name: Create backup path folders
-  tags:
-    - configs_backup
-  delegate_to: node-0
-  run_once: true
-  file:
-    path: "{{ configs_backup_path }}"
-    state: directory
-    mode: '0755'
-
-- name: Archive cluster configs into zip of zips
+- name: Create configs zip of zips
   tags:
     - configs_backup
   delegate_to: node-0

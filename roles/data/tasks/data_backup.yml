@@ -37,7 +37,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Pull node archives from nodes into central
+- name: Pull data archive from all nodes
   tags:
     - data_backup
   synchronize:
@@ -49,18 +49,7 @@
       - "--checksum"
   delegate_to: node-0
 
-# Create directory path for zip-of-zips archive (/backup/cold/data/2025/01/01/)
-- name: Create backup folders
-  tags:
-    - data_backup
-  delegate_to: node-0
-  run_once: true
-  file:
-    path: "{{ data_backup_path }}"
-    state: directory
-    mode: '0755'
-
-- name: Archive nodes data into zip of zips
+- name: Create data zip of zips
   tags:
     - data_backup
   delegate_to: node-0

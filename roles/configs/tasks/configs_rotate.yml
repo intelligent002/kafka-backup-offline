@@ -1,4 +1,28 @@
 ---
+- name: Create folder for cold rotated backups
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ configs_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
+- name: Create folder for cold pinned backups
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ storage_cold_path }}/configs/pinned"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
 - name: Rotate old config backups
   tags:
     - configs_rotate

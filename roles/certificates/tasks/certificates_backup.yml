@@ -23,7 +23,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificates }}"
 
-- name: Archive certificate archives on all nodes
+- name: Create certificates archive on all nodes
   tags:
     - certificates_backup
   community.general.archive:
@@ -32,7 +32,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Pull certificate archives from all nodes into node-0
+- name: Pull certificates archive from all nodes
   tags:
     - certificates_backup
   delegate_to: node-0
@@ -44,7 +44,7 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Add certificates folder archive from node-0
+- name: Add certificates archive from node-0
   tags:
     - certificates_backup
   delegate_to: node-0
@@ -55,7 +55,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Archive cluster certificate into zip of zips
+- name: Create certificates zip of zips
   tags:
     - certificates_backup
   delegate_to: node-0
