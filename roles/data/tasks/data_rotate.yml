@@ -1,7 +1,7 @@
 ---
 - name: Create folder for cold rotated backups
   tags:
-    - data_backup
+    - data_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -13,7 +13,7 @@
 
 - name: Create folder for cold pinned backups
   tags:
-    - data_backup
+    - data_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -47,7 +47,7 @@
   loop_control:
     label: "Removed - {{ item.path }}"
 
-- name: Remove empty directories in data storage
+- name: Remove empty directories in cold storage
   tags:
     - data_rotate
   delegate_to: node-0

@@ -1,7 +1,7 @@
 ---
 - name: Create folder for cold rotated backups
   tags:
-    - certificates_backup
+    - certificates_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -13,7 +13,7 @@
 
 - name: Create folder for cold pinned backups
   tags:
-    - certificates_backup
+    - certificates_rotate
   delegate_to: node-0
   run_once: true
   file:
@@ -45,7 +45,7 @@
     state: absent
   with_items: "{{ old_certificates_backups.files }}"
 
-- name: Remove empty directories in data storage
+- name: Remove empty directories in cold storage
   tags: certificates_rotate
   delegate_to: node-0
   run_once: true

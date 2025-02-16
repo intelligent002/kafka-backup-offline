@@ -1,4 +1,9 @@
 ---
+- name: Validate containers status
+  tags:
+    - data_backup
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
 - name: Create folder for cold rotated backups
   tags:
     - data_backup
@@ -22,11 +27,6 @@
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
-
-- name: Validate containers status
-  tags:
-    - data_backup
-  include_tasks: ../../docker/tasks/containers_validation.yml
 
 - name: Archive cluster data on nodes
   tags:
