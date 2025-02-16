@@ -42,14 +42,14 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Remove cluster data folder on nodes
+- name: Remove data folder on nodes
   tags:
     - data_restore
   file:
     path: "{{ node_data_store }}"
     state: absent
 
-- name: Create cluster data folder on nodes
+- name: Create data folder on nodes
   tags:
     - data_restore
   file:
@@ -59,10 +59,22 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
 
-- name: Restore cluster data on nodes
+- name: Restore data on nodes
   tags:
     - data_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     dest: "{{ node_data_store }}"
     remote_src: yes
+
+- name: Set data permissions
+  tags:
+    - data_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ node_data_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    recurse: true

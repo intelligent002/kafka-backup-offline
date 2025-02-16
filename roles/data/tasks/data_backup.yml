@@ -28,7 +28,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
 
-- name: Archive cluster data on nodes
+- name: Create data archive on nodes
   tags:
     - data_backup
   community.general.archive:
@@ -37,7 +37,7 @@
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
 
-- name: Pull data archive from all nodes
+- name: Pull data archive from nodes
   tags:
     - data_backup
   synchronize:

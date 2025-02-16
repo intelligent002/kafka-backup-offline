@@ -267,7 +267,7 @@
     mode: '{{ chmod_certificates }}'
     recurse: true
 
-- name: Distribute shared truststore to all nodes
+- name: Distribute shared truststore to nodes
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -282,7 +282,7 @@
     - shared.truststore.jks
 #    - shared.truststore.p12
 
-- name: Distribute node keystore to all nodes
+- name: Distribute node keystore to nodes
   tags:
     - certificates_generate
   delegate_to: node-0
@@ -294,7 +294,7 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Distribute admin keystore to all nodes
+- name: Distribute admin keystore to nodes
   tags:
     - certificates_generate
   delegate_to: node-0

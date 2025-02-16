@@ -23,7 +23,7 @@
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_configs }}"
 
-- name: Create configs archive on all nodes
+- name: Create configs archive on nodes
   tags:
     - configs_backup
   community.general.archive:

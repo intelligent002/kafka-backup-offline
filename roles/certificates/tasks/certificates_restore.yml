@@ -25,7 +25,18 @@
     dest: "{{ storage_temp_path }}"
     remote_src: yes
 
-- name: Push node archives from node-0 to all nodes
+- name: Create certificates folder on nodes
+  tags:
+    - certificates_restore
+  file:
+    path: "{{ node_certificates_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
+
+- name: Push node archives from node-0 to nodes
   tags:
     - certificates_restore
   delegate_to: node-0
@@ -39,18 +50,7 @@
   register: sync_result
   failed_when: sync_result.rc != 0
 
-- name: Create certificates folder on all nodes
-  tags:
-    - certificates_restore
-  file:
-    path: "{{ node_certificates_path }}"
-    state: directory
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: "{{ chmod_certificates }}"
-    recurse: true
-
-- name: Restore certificates folder on all nodes
+- name: Restore certificates folder on nodes
   tags:
     - certificates_restore
   unarchive:
@@ -89,3 +89,15 @@
     src: "{{ storage_temp_path }}/node-0-certificates.tar.zx"
     dest: "{{ storage_certificates_path }}/"
     remote_src: yes
+
+- name: Set certificate permissions
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ node_certificates_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true

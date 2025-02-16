@@ -25,7 +25,17 @@
     dest: "{{ storage_temp_path }}"
     remote_src: yes
 
-- name: Push node archives from central into nodes
+- name: Create config directory on nodes
+  tags:
+    - configs_restore
+  ansible.builtin.file:
+    path: "{{ node_config_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Push node archives from node-0 to nodes
   tags:
     - configs_restore
   delegate_to: node-0
@@ -37,20 +47,22 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Create Config directory on nodes
-  tags:
-    - configs_restore
-  ansible.builtin.file:
-    path: "{{ node_config_path }}"
-    state: directory
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: '{{ chmod_configs }}'
-
-- name: Restore cluster config on nodes
+- name: Restore config on nodes
   tags:
     - configs_restore
   unarchive:
     src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
     dest: "{{ node_config_path }}"
     remote_src: yes
+
+- name: Set config permissions
+  tags:
+    - configs_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ node_config_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+    recurse: true
