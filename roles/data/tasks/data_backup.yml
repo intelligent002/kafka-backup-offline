@@ -1,4 +1,28 @@
 ---
+- name: Create folder for cold rotated backups
+  tags:
+    - data_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ data_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+
+- name: Create folder for cold pinned backups
+  tags:
+    - data_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ storage_cold_path }}/data/pinned"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+
 - name: Validate containers status
   tags:
     - data_backup

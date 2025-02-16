@@ -83,9 +83,9 @@
   ansible.builtin.file:
     path: "{{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}"
     state: directory
-    owner: root
-    group: root
-    mode: '0700'
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
 
 - name: Generate OpenSSL configuration
   tags:
@@ -177,9 +177,9 @@
   ansible.builtin.file:
     path: "{{ storage_certificates_path }}/users/{{ item }}"
     state: directory
-    owner: root
-    group: root
-    mode: '0700'
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
 
 - name: Generate private keys for users
   tags:
