@@ -25,15 +25,32 @@
     - "{{ storage_certificates_path }}/nodes"
     - "{{ storage_certificates_path }}/users"
 
+#- name: Generate a new CA certificate
+#  tags:
+#    - certificates_generate
+#  delegate_to: node-0
+#  run_once: true
+#  ansible.builtin.shell: >
+#    openssl req -new -x509 -keyout {{ storage_certificates_path }}/CA/ca.key \
+#    -out {{ storage_certificates_path }}/CA/ca.crt -days 3650 \
+#    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
+
 - name: Generate a new CA certificate
   tags:
     - certificates_generate
   delegate_to: node-0
   run_once: true
   ansible.builtin.shell: >
-    openssl req -new -x509 -keyout {{ storage_certificates_path }}/CA/ca.key \
-    -out {{ storage_certificates_path }}/CA/ca.crt -days 3650 \
-    -passout pass:{{ certificate_password }} -subj "/CN=Kafka-CA"
+    openssl req -new -x509 \
+    -keyout {{ storage_certificates_path }}/CA/ca.key \
+    -out {{ storage_certificates_path }}/CA/ca.crt \
+    -days 3650 \
+    -passout pass:{{ certificate_password }} \
+    -subj "/CN=Kafka-CA" \
+    -addext "basicConstraints=critical,CA:true" \
+    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+    -addext "subjectKeyIdentifier=hash" \
+    -addext "authorityKeyIdentifier=keyid,issuer"
 
 - name: Generate a shared PKCS#12 truststore with the CA certificate
   tags:
