@@ -1,0 +1,23 @@
+networks:
+  kafka-connect-balancer:
+    driver: bridge
+
+services:
+  kafka-connect-balancer:
+    image: nginx:1.27.4-alpine3.21
+    container_name: kafka-connect-balancer
+    hostname: kafka-connect-balancer
+    restart: always
+    healthcheck:
+      interval: 60s
+      retries: 5
+      start_period: 5s
+      test: ["CMD-SHELL", "response=$$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://node-0.intel.r7g.org:8080/); if echo \"$$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
+      timeout: 10s
+    ports:
+      - "8080:8080"
+    volumes:
+      - /data:/data
+      - /data/cluster/balancer/kafka-connect-balancer.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - kafka-connect-balancer

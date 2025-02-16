@@ -1,0 +1,46 @@
+networks:
+  kafka-console-kpow:
+    driver: bridge
+
+services:
+  kafka-console-kpow:
+    image: factorhouse/kpow-ce:93.4
+    container_name: kafka-console-kpow
+    hostname: kafka-console-kpow
+    restart: always
+    healthcheck:
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      test: ["CMD-SHELL", "response=$$(curl -s http://localhost:3000); if echo \"$$response\" | grep -q \"<title>Kpow for Apache Kafka\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
+      timeout: 10s
+    volumes:
+      - /data:/data
+    env_file:
+      - /data/cluster/gui/KPOW/env-ce-mtls.env
+    networks:
+      - kafka-console-kpow
+
+  kafka-gateway-kpow:
+    image: nginx:1.27.4-alpine3.21
+    container_name: kafka-gateway-kpow
+    hostname: kafka-gateway-kpow
+    restart: always
+    depends_on:
+        kafka-console-kpow:
+            condition: service_healthy
+            restart: true
+    healthcheck:
+      interval: 60s
+      retries: 5
+      start_period: 5s
+      test: ["CMD-SHELL", "response=$$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://node-0.intel.r7g.org/health/); if echo \"$$response\" | grep -q \":)\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
+      timeout: 10s
+    ports:
+      - "443:443"
+    volumes:
+      - /data:/data
+      - /data/cluster/gui/KPOW/kafka-gateway-kpow.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - kafka-console-kpow
+

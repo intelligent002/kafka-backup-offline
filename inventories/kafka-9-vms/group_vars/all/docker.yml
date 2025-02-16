@@ -31,9 +31,6 @@ docker_command_controllers_run: >
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
-  -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
-  -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
-  -p {{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
@@ -56,7 +53,6 @@ docker_command_brokers_run: >
   docker run -d --restart=always
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
   -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
   -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
   -p {{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}
