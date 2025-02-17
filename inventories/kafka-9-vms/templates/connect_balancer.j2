@@ -4,10 +4,10 @@ events {
 
 stream {
     upstream kafka_connect {
-        {% for host in groups['connect'] %}
-        server {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }};
-        {% endfor %}
-    }
+    {% for host in groups['connect'] %}
+    server {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }};
+    {% endfor %}
+}
 
     server {
         listen {{ port_connect_rest_int }} ssl;
