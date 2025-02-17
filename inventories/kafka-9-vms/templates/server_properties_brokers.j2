@@ -67,6 +67,9 @@ listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl
 #############################################################################################
 # Common listener configuration
 
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+
 # Advertise the broker listener for clients to connect
 advertised.listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }},CONSUMERS-MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},CONSUMERS-SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}
 
