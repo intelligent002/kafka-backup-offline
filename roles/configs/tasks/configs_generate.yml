@@ -30,3 +30,14 @@
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
+
+- name: Deploy Connect Balancer config on node-0
+  tags: configs_generate
+  delegate_to: node-0
+  run_once: true
+  template:
+    src: "{{ inventory_dir }}/templates/connect_balancer.j2"
+    dest: "/data/cluster/balancer/kafka-connect-balancer.conf"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
