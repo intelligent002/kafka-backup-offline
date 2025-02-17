@@ -1,0 +1,43 @@
+---
+- name: Determine the group for the host dynamically
+  tags: configs_generate
+  set_fact:
+    relevant_group: "{{ item }}"
+  with_items: "{{ group_names }}"
+  when: item not in ['all', 'cluster', 'central']
+  run_once: false
+
+- name: Determine the template dynamically based on the group
+  tags: configs_generate
+  set_fact:
+    selected_template: "{{ inventory_dir }}/templates/server_properties_{{ relevant_group }}.j2"
+
+- name: Ensure Config directory exists on nodes
+  tags:
+    - configs_generate
+  ansible.builtin.file:
+    path: "{{ node_config_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Deploy Config files to nodes
+  tags: configs_generate
+  template:
+    src: "{{ selected_template }}"
+    dest: "{{ node_config_file }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Deploy Connect Balancer config on node-0
+  tags: configs_generate
+  delegate_to: node-0
+  run_once: true
+  template:
+    src: "{{ inventory_dir }}/templates/connect_balancer.j2"
+    dest: "/data/cluster/balancer/kafka-connect-balancer.conf"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'

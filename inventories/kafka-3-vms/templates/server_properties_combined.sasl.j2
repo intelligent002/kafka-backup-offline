@@ -1,0 +1,234 @@
+# Node ID (int)
+node.id={{ node_id }}
+
+# Define the roles for this node (controller/broker)
+process.roles=broker,controller
+
+# Unique cluster ID that must match across all nodes - controller and broker (string)
+cluster.id={{ cluster_id }}
+
+#############################################################################################
+# Controller Quorum Configuration
+
+# Define the quorum of controllers with their respective node IDs and addresses
+controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_controller_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# Timeout for controller quorum elections (in milliseconds)
+controller.quorum.election.timeout.ms=10000
+
+#############################################################################################
+# Certificates
+
+{% if use_certificate %}
+# Path to the keystore file (JKS format) containing the private key and certificate.
+ssl.keystore.location=/etc/kafka/secrets/kafka.server.keystore.jks
+
+# Password to unlock the keystore file. Same password is used for the private key.
+ssl.keystore.password={{ certificate_password }}
+
+ssl.keystore.type=JKS
+
+# Password to unlock the private key in the keystore. Same password is used as the keystore password.
+ssl.key.password={{ certificate_password }}
+
+# Alias of the certificate in the keystore to use
+ssl.keystore.alias={{ keystore_alias_name }}
+
+# Path to the truststore file (JKS format) containing trusted CA certificates.
+ssl.truststore.location=/etc/kafka/secrets/kafka.server.truststore.jks
+
+# Password to unlock the truststore file.
+ssl.truststore.password={{ certificate_password }}
+
+ssl.truststore.type=JKS
+
+# The endpoint identification algorithm to validate server hostname using server certificate. Default - https
+ssl.endpoint.identification.algorithm=
+
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+
+{% if use_credentials %}
+# Optional: Require client certificates for authentication.
+ssl.client.auth=none
+{% endif %}
+{% endif %}
+
+#############################################################################################
+# Listeners and communication
+
+# Define the listeners for a combined node
+listeners=CONTROLLER://:{{ port_controller_ext }},BROKER://:{{ port_broker_ext }}
+
+# Map listeners to their respective security protocols
+{% if use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL,BROKER:SASL_SSL
+{% elif use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
+{% elif not use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
+{% endif %}
+
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
+# Listeners to publish to ZooKeeper for clients to use, if different than the listeners config property.
+# In IaaS environments, this may need to be different from the interface to which the broker binds.
+# If this is not set, the value for listeners will be used. Unlike listeners, it is not valid to advertise the 0.0.0.0 meta-address.
+advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
+
+# Name of listener used for communication between brokers.
+# If this is unset, the listener name is defined by security.inter.broker.protocol
+# It is an error to set this and security.inter.broker.protocol properties at the same time.
+# values - listener name
+inter.broker.listener.name=BROKER
+
+# deprecated outdated do not use
+# security.inter.broker.protocol=SASL_SSL
+
+# Protocol used to communicate with brokers. (PLAINTEXT/SSL/SASL_PLAINTEXT/SASL_SSL)
+security.protocol=SASL_SSL
+
+#############################################################################################
+# Data and Metadata Storage
+
+# Directory where the broker data are stored
+log.dirs=/var/lib/kafka/data
+
+# Directory where the controller metadata are stored
+metadata.log.dir=/var/lib/kafka/meta
+
+#############################################################################################
+# Internal Topics Configuration
+
+# Replication factor for the __consumer_offsets topic
+offsets.topic.replication.factor=3
+
+# Replication factor for the __transaction_state topic
+transaction.state.log.replication.factor=3
+
+# Minimum number of in-sync replicas required for transactional writes
+transaction.state.log.min.isr=2
+
+# Number of partitions for the __transaction_state topic
+transaction.state.log.num.partitions=10
+
+#############################################################################################
+# Transactions
+
+# Defines how often the broker will clean up expired or timed-out transactions
+transaction.abort.timed.out.transaction.cleanup.interval.ms=300000
+
+#############################################################################################
+# Log Retention Policies
+
+# Retention period for logs before they are eligible for deletion (in hours)
+log.retention.hours=168
+
+# Maximum size of a single log segment before it is rolled over (in bytes, 1 GB)
+log.segment.bytes=1073741824
+
+# Interval for checking and applying log retention policies (in ms)
+log.retention.check.interval.ms=300000
+
+# Enable log cleaner for log compaction
+log.cleaner.enable=true
+
+#############################################################################################
+# Performance Settings
+
+# Number of threads for handling network requests
+num.network.threads=6
+
+# Number of threads for handling I/O operations
+num.io.threads=8
+
+# Number of threads for log recovery during broker startup or failure recovery
+num.recovery.threads.per.data.dir=2
+
+socket.send.buffer.bytes=102400
+socket.receive.buffer.bytes=102400
+socket.request.max.bytes=1048576000
+
+#############################################################################################
+# Log Flush Policy
+
+# Messages are immediately written to the filesystem but by default we only fsync() to sync
+# the OS cache lazily. The following configurations control the flush of data to disk.
+# There are a few important trade-offs here:
+#    1. Durability: Unflushed data may be lost if you are not using replication.
+#    2. Latency: Very large flush intervals may lead to latency spikes when the flush does occur as there will be a lot of data to flush.
+#    3. Throughput: The flush is generally the most expensive operation, and a small flush interval may lead to excessive seeks.
+# The settings below allow one to configure the flush policy to flush data after a period of time or
+# every N messages (or both). This can be done globally and overridden on a per-topic basis.
+
+# The number of messages to accept before forcing a flush of data to disk
+log.flush.interval.messages=10000
+
+# The maximum amount of time a message can sit in a log before we force a flush
+log.flush.interval.ms=1000
+
+#############################################################################################
+# Security Settings (Optional for Production)
+
+# Enable/Disable automatic topic creation (recommended to disable for production)
+auto.create.topics.enable=true
+delete.topic.enable=true
+auto.leader.rebalance.enable=true
+
+# Enforce re-authentication every 24 hours
+connections.max.reauth.ms=86400000
+
+
+{% if use_credentials %}
+#############################################################################################
+# Authentication and Authorization
+
+# Enable SASL mechanisms for authentication, allowing clients to use SCRAM-SHA-256.
+# Default: None (SASL is disabled by default).
+# Options: PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, GSSAPI (Kerberos), OAUTHBEARER.
+sasl.enabled.mechanisms=SCRAM-SHA-256
+
+# Specify the SASL mechanism used for controller-to-controller communication.
+# Default: None (No SASL authentication for controllers by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
+sasl.mechanism.controller.protocol=SCRAM-SHA-256
+
+# Specify the SASL mechanism used for inter-broker communication.
+# Default: None (No SASL authentication for inter-broker communication by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN.
+sasl.mechanism.inter.broker.protocol=SCRAM-SHA-256
+
+# Specify the default SASL mechanism for client authentication if not explicitly set.
+# Default: None (No SASL authentication for clients by default).
+# Options: SCRAM-SHA-256, SCRAM-SHA-512, PLAIN, GSSAPI, OAUTHBEARER.
+sasl.mechanism=SCRAM-SHA-256
+
+listener.name.sasl_ssl.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
+listener.name.controller.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
+listener.name.broker.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="insecure" user_admin="insecure";
+
+log4j.logger.org.apache.kafka.common.network=DEBUG
+log4j.logger.org.apache.kafka.common.security.authenticator=DEBUG
+log4j.logger.org.apache.kafka.common.security.scram=DEBUG
+
+# Enable the StandardAuthorizer for ACL-based access control.
+# Default: None (Authorization is disabled by default).
+# Options:
+#   - org.apache.kafka.metadata.authorizer.StandardAuthorizer (in KRaft-based clusters).
+#   - kafka.security.auth.SimpleAclAuthorizer (in Zookeeper-based clusters).
+# authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
+
+# Specify whether to allow access to resources when no ACLs are defined.
+# Default: true (Allow access when no ACLs are found).
+# Options:
+#   - true: Access is allowed when no matching ACLs are found.
+#   - false: Access is denied when no matching ACLs are found (Recommended for secure environments).
+allow.everyone.if.no.acl.found=true
+
+# Specifies superusers who bypass ACL checks
+super.users=User:admin
+{% endif %}

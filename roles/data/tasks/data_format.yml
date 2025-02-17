@@ -1,0 +1,37 @@
+---
+- name: Validate containers status
+  tags:
+    - data_format
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
+- name: Remove Cluster Data Folders on nodes
+  tags:
+    - data_format
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ node_data_path }}"
+    - "{{ node_meta_path }}"
+    - "{{ node_logs_path }}"
+
+- name: Create Cluster Data Folders on nodes
+  tags:
+    - data_format
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+  loop:
+    - "{{ node_data_path }}"
+    - "{{ node_meta_path }}"
+    - "{{ node_logs_path }}"
+
+- name: Format Data on nodes
+  tags:
+    - data_format
+  shell: "{{ docker_command_data_format }}"
+  when: "'connect' not in group_names"
+

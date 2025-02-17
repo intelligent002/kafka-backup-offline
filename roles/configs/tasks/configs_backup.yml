@@ -1,0 +1,56 @@
+---
+- name: Create folder for cold rotated backups
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ configs_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
+- name: Create folder for cold pinned backups
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ storage_cold_path }}/configs/pinned"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
+- name: Create configs archive on nodes
+  tags:
+    - configs_backup
+  community.general.archive:
+    path: "{{ node_config_path }}/"  # The directory or files to be archived
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"  # Destination archive
+    format: xz  # Use XZ compression
+    remove: no  # Set to 'yes' to remove the original files after archiving
+
+- name: Pull configs archive from nodes
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  synchronize:
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.zx"
+    mode: pull
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+
+- name: Create configs zip of zips
+  tags:
+    - configs_backup
+  delegate_to: node-0
+  run_once: true
+  community.general.archive:
+    path: "{{ storage_temp_path }}/"  # The directory or files to be archived
+    dest: "{{ configs_backup_file }}"  # Destination archive
+    format: xz  # Use XZ compression
+    remove: no  # Set to 'yes' to remove the original files after archiving

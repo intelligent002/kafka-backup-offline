@@ -1,0 +1,14 @@
+# === Ansible Settings =================================================================================================
+
+# Specifies the Python interpreter to be used on the remote nodes.
+ansible_python_interpreter: /usr/bin/python
+
+# Connection to cluster nodes
+ansible_user: root
+ansible_key_pub: /root/.ssh/id_rsa.pub
+ansible_key_pri: /root/.ssh/id_rsa
+
+# === Cluster ID =======================================================================================================
+
+cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
+

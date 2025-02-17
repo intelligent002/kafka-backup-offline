@@ -1,0 +1,264 @@
+---
+- name: Validate if /data is mounted
+  tags: prerequisites
+  ansible.builtin.shell: mount | grep -w '/data'
+  register: data_mount_check
+  failed_when: data_mount_check.rc != 0
+  changed_when: false
+
+- name: Check free space on /data
+  tags: prerequisites
+  ansible.builtin.shell: df --output=avail -BG /data | tail -1 | awk '{print $1}' | sed 's/G//'
+  register: data_disk_size
+  failed_when: data_mount_check.rc == 0 and (data_disk_size.stdout | int < 40)
+  changed_when: false
+  when: data_mount_check.rc == 0
+
+- name: Notify if /data does not meet requirements
+  tags: prerequisites
+  ansible.builtin.fail:
+    msg: >
+      Either /data is not mounted, or it does not have sufficient space (at least 40 GB required).
+  when: data_mount_check.rc != 0 or (data_disk_size.stdout | int < 40)
+
+- name: Ensure /data/docker directory exists
+  tags: prerequisites
+  ansible.builtin.file:
+    path: /data/docker
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Check if /var/lib/docker exists
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
+
+- name: Remove /var/lib/docker if it is a directory
+  tags: prerequisites
+  ansible.builtin.file:
+    path: /var/lib/docker
+    state: absent
+  when: docker_path_check.stat.exists and not docker_path_check.stat.islnk
+
+- name: Check if /var/lib/docker exists after deletion
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
+
+- name: Create symlink for Docker directory if it does not exist
+  tags: prerequisites
+  ansible.builtin.file:
+    src: /data/docker
+    dest: /var/lib/docker
+    state: link
+  when: not docker_path_check.stat.exists
+
+- name: Check if /var/lib/docker exists after creation
+  tags: prerequisites
+  ansible.builtin.stat:
+    path: /var/lib/docker
+  register: docker_path_check
+
+- name: Verify existing symlink for Docker directory
+  tags: prerequisites
+  ansible.builtin.command: readlink -f /var/lib/docker
+  register: docker_symlink_check
+
+- name: Fail if symlink points to the wrong target
+  tags: prerequisites
+  ansible.builtin.fail:
+    msg: >
+      The existing symlink at /var/lib/docker points to {{ docker_symlink_check.stdout }},
+      but it should point to /data/docker.
+  when: docker_path_check.stat.islnk and docker_symlink_check.stdout != '/data/docker'
+
+- name: Notify about correct symlink
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "The existing symlink at /var/lib/docker correctly points to /data/docker."
+  when: docker_path_check.stat.islnk and docker_symlink_check.stdout == '/data/docker'
+
+- name: Check if Docker is installed
+  tags: prerequisites
+  ansible.builtin.shell: command -v docker
+  register: docker_check
+  failed_when: docker_check.rc != 0 and false
+  changed_when: false
+  ignore_errors: true
+
+- name: Notify if Docker is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "Docker is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: docker_check.rc != 0
+
+- name: Ensure Docker is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: "{{ docker_package }}"
+    state: present
+  vars:
+    docker_package: >-
+      {% if ansible_os_family == 'RedHat' %}
+        docker-ce
+      {% elif ansible_os_family == 'Debian' %}
+        docker-ce
+      {% else %}
+        docker
+      {% endif %}
+  when: docker_check.rc != 0
+
+- name: Ensure Docker service is enabled and started
+  tags: prerequisites
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Check if XZ is installed
+  tags: prerequisites
+  ansible.builtin.shell: command -v xz
+  register: xz_check
+  failed_when: xz_check.rc != 0 and false
+  changed_when: false
+  ignore_errors: true
+
+- name: Notify if XZ is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "XZ is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: xz_check.rc != 0
+
+- name: Ensure XZ is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: "{{ 'xz-utils' if ansible_os_family == 'Debian' else 'xz' }}"
+    state: present
+  when: xz_check.rc != 0
+
+- name: Validate XZ installation
+  tags: prerequisites
+  ansible.builtin.command: xz --version
+  register: xz_validate
+  changed_when: false
+
+- name: Check if Java is installed
+  tags: prerequisites
+  ansible.builtin.shell: command -v java
+  register: java_check
+  failed_when: java_check.rc != 0 and false
+  changed_when: false
+  ignore_errors: true
+  delegate_to: node-0
+  run_once: true
+
+- name: Notify if Java is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "Java is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: java_check.rc != 0
+  delegate_to: node-0
+  run_once: true
+
+- name: Ensure Java is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: "{{ java_package }}"
+    state: present
+  vars:
+    java_package: >-
+      {% if ansible_os_family == 'RedHat' %}
+        java-21-openjdk
+      {% elif ansible_os_family == 'Debian' %}
+        default-jre
+      {% else %}
+        java
+      {% endif %}
+  when: java_check.rc != 0
+  delegate_to: node-0
+  run_once: true
+
+- name: Verify Java version
+  tags: prerequisites
+  ansible.builtin.shell: java -version
+  register: java_version_check
+  changed_when: false
+  failed_when: java_check.rc != 0 and false
+  delegate_to: node-0
+  run_once: true
+
+- name: Display installed Java version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      Java version on {{ inventory_hostname }}:
+      {{ java_version_check.stdout_lines | default([]) }}
+  when: java_check.rc == 0
+  delegate_to: node-0
+  run_once: true
+
+- name: Set default Java version (Red Hat-based systems)
+  tags: prerequisites
+  ansible.builtin.command: alternatives --set java /usr/lib/jvm/java-21-openjdk/bin/java
+  when:
+    - ansible_os_family == 'RedHat'
+    - java_check.rc != 0
+  delegate_to: node-0
+  run_once: true
+
+- name: Confirm default Java version
+  tags: prerequisites
+  ansible.builtin.command: java -version
+  register: java_default_check
+  changed_when: false
+  failed_when: java_check.rc != 0 and false
+  delegate_to: node-0
+  run_once: true
+
+- name: Display default Java version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      Default Java version on {{ inventory_hostname }}:
+      {{ java_default_check.stdout_lines | default([]) }}
+  delegate_to: node-0
+  run_once: true
+
+- name: Check if rsync is installed
+  tags: prerequisites
+  ansible.builtin.shell: command -v rsync
+  register: rsync_check
+  failed_when: rsync_check.rc != 0 and false
+  changed_when: false
+  ignore_errors: true
+
+- name: Notify if rsync is missing
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: "rsync is missing on {{ inventory_hostname }}. It will be installed in a moment."
+  when: rsync_check.rc != 0
+
+- name: Ensure rsync is installed
+  tags: prerequisites
+  ansible.builtin.package:
+    name: rsync
+    state: present
+  when: rsync_check.rc != 0
+
+- name: Verify rsync installation
+  tags: prerequisites
+  ansible.builtin.command: rsync --version
+  register: rsync_version_check
+  changed_when: false
+  failed_when: rsync_check.rc != 0 and false
+
+- name: Display installed rsync version
+  tags: prerequisites
+  ansible.builtin.debug:
+    msg: |
+      rsync version on {{ inventory_hostname }}:
+      {{ rsync_version_check.stdout_lines | default([]) }}

@@ -1,0 +1,16 @@
+---
+- name: Generate and deploy configs
+  include_tasks: configs_generate.yml
+  tags: configs_generate
+
+- name: Run configs backup
+  include_tasks: configs_backup.yml
+  tags: configs_backup
+
+- name: Run configs restore
+  include_tasks: configs_restore.yml
+  tags: configs_restore
+
+- name: Rotate old configs backups
+  include_tasks: configs_rotate.yml
+  tags: configs_rotate

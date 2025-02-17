@@ -1,0 +1,37 @@
+---
+- name: Assign node roles based on inventory group
+  tags:
+    - containers_run
+  set_fact:
+    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
+- name: Assigned roles map
+  tags:
+    - containers_run_debug
+  debug:
+    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
+- name: Run containers according to assigned roles
+  tags:
+    - containers_run
+  delegate_to: "{{ item }}"
+  run_once: true
+  shell: >
+    {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
+    {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
+    {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
+    {% else %} echo 'Undefined group, no command executed'
+    {% endif %}
+  with_items: "{{ startup_order }}"
+  when: group_roles[item] is defined
+
+- name: Deploy Connect Balancer on node-0
+  tags: containers_run
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    {{ docker_command_balancer_run }}

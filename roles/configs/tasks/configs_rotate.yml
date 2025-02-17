@@ -1,0 +1,53 @@
+---
+- name: Create folder for cold rotated backups
+  tags:
+    - configs_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ configs_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
+- name: Create folder for cold pinned backups
+  tags:
+    - configs_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ storage_cold_path }}/configs/pinned"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_configs }}"
+
+- name: Rotate old config backups
+  tags:
+    - configs_rotate
+  delegate_to: node-0
+  run_once: true
+  find:
+    paths: "{{ storage_cold_path }}/configs/rotated/"
+    age: "{{ retention_policy_configs }}d"
+    recurse: yes
+    patterns: "*configs.tar.*"
+  register: old_configs_backups
+
+- name: Remove old config backups
+  tags:
+    - configs_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_configs_backups.files }}"
+
+- name: Remove empty directories in cold storage
+  tags: configs_rotate
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    find {{ storage_cold_path }}/configs/rotated/ -depth -type d -empty -delete

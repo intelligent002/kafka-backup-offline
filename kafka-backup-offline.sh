@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-# ===== Load Configuration from .ini File =====
+# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
+# Skips comments and empty lines while trimming whitespace from keys and values.
+# Stores the results in the global associative array "ini_data" using "section.key" as the index.
 function parse_ini_file()
 {
     local ini_file=$1
@@ -17,17 +19,22 @@ function parse_ini_file()
     done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
 }
 
-# This function loads configuration variables from an .ini file and populates global variables.
+# Loads configuration settings from an INI file and stores them in global variables.
+# Validates if the configuration file exists before parsing.
+# Extracts values from the "general" and "storage" sections using `parse_ini_file`.
+# Sets log levels, file paths, and storage-related parameters.
 function load_configuration()
 {
-    local config_file=$1 # Accept the config file path as an argument
+    # Accept the config file path as an argument
+    local config_file=$1
 
     # Check if the configuration file exists
     if [[ ! -f "$config_file" ]]; then
-        echo "Error: Configuration file '$config_file' not found!"
+        echo "Error: The configuration file '$config_file' was not found!"
         exit 1
     fi
 
+    # Handle log levels
     declare -gA LOG_LEVELS=(
         ["DEBUG"]=0
         ["INFO"]=1
@@ -39,169 +46,174 @@ function load_configuration()
     parse_ini_file "$config_file" "general"
     PID_FILE="${ini_data[general.PID_FILE]}"   # Path to the PID file for ensuring single script execution
     LOG_FILE="${ini_data[general.LOG_FILE]}"   # Path to the log file for logging events
-    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level above which the errors will be shown in console, log will contain all
-
-    # Load SSH-related configuration variables used for connecting to remote nodes.
-    parse_ini_file "$config_file" "ssh"
-    SSH_KEY_PRI="${ini_data[ssh.SSH_KEY_PRI]}" # SSH private key for connecting to nodes
-    SSH_KEY_PUB="${ini_data[ssh.SSH_KEY_PUB]}" # SSH public key for sharing with nodes
-    SSH_USER="${ini_data[ssh.SSH_USER]}"       # SSH user for accessing nodes
+    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level threshold: errors at or above this level will be shown in the console, while all logs are recorded.
+    INVENTORY="${ini_data[general.INVENTORY]}" # inventory folder
+    ANSIBLE_ATTEMPTS="${ini_data[general.ANSIBLE_ATTEMPTS]}" # Ansbile retry attempts
 
     # Load storage configuration variables for temporary and cold backup storage paths.
     parse_ini_file "$config_file" "storage"
     STORAGE_TEMP="${ini_data[storage.STORAGE_TEMP]}"                         # Temporary storage directory on the GUI server
     STORAGE_COLD="${ini_data[storage.STORAGE_COLD]}"                         # Permanent cold storage directory for backups
-    STORAGE_RETENTION_POLICY="${ini_data[storage.STORAGE_RETENTION_POLICY]}" # Retention period for backup files (in days)
     STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}"                 # Percentage of free space, below which we will show a warning
 
-    # Load Kafka cluster-specific configuration variables such as image, cluster ID, and node paths.
-    parse_ini_file "$config_file" "cluster"
-    IMAGE="${ini_data[cluster.IMAGE]}"             # Kafka Docker image
-    CLUSTER_ID="${ini_data[cluster.CLUSTER_ID]}"   # Kafka cluster identifier
-    NODE_CONFIG="${ini_data[cluster.NODE_CONFIG]}" # Path to node config directory on nodes
-    NODE_DATA="${ini_data[cluster.NODE_DATA]}"     # Path to node data directory on nodes
-    NODE_TEMP="${ini_data[cluster.NODE_TEMP]}"     # Path to node temp directory on nodes
+    # make sure we can log stuff
+    mkdir -p "$(dirname $LOG_FILE)"
 
-    # Load nodes configuration from the .ini file and store them in an associative array for easy lookup.
-    parse_ini_file "$config_file" "nodes"
-    declare -gA nodes
-    local role
-    for key in "${!ini_data[@]}"; do
-        if [[ $key == nodes.* ]]; then
-            role="${key#nodes.}"
-            nodes["$role"]="${ini_data[$key]}" # Map the role to its respective IP address
-        fi
-    done
-
-    # Load startup and shutdown orders for nodes to ensure proper Kafka cluster management.
-    parse_ini_file "$config_file" "order"
-    IFS=',' read -r -a order_startup <<<"${ini_data[order.startup]}"   # Load startup order into an array
-    IFS=',' read -r -a order_shutdown <<<"${ini_data[order.shutdown]}" # Load shutdown order into an array
     log "INFO" "Configuration loaded from '$config_file'"
+    ensure_free_space $STORAGE_COLD
 }
 
-# Help function to display available options
+# Displays a disclaimer message for the Kafka-Backup-Offline Utility.
+# Warns that this solution is unsuitable for production, as it requires taking Kafka offline.
+# Includes author contact details and version information.
 function disclaimer()
 {
-    echo "==================================================================================================================="
-    echo "                                    Kafka-Backup-Offline Utility - version 1.0.0                                   "
-    echo "==================================================================================================================="
-    echo
-    echo "  © 2024 Rosenberg Arkady @ Dynamic Studio                      Contact: +972546373566 / intelligent002@gmail.com  "
-    echo
-    echo "  ** IMPORTANT NOTICE: **                                                                                          "
-    echo "  This solution is **NOT SUITABLE FOR PRODUCTION USE** as it requires taking the Kafka Cluster offline             "
-    echo "  for backup and restore operations. It is specifically designed for development and testing environments.         "
-    echo
-    echo "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
-    echo
-    echo "==================================================================================================================="
+    log "INFO" "==================================================================================================================="
+    log "INFO" "                                    Kafka-Backup-Offline Utility - version 2.0.0                                   "
+    log "INFO" "==================================================================================================================="
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  © 2025 Rosenberg Arkady @ Dynamic Studio                      Contact: +972546373566 / intelligent002@gmail.com  "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  ** IMPORTANT NOTICE: **                                                                                          "
+    log "INFO" "  This solution is **NOT SUITABLE FOR PRODUCTION USE** as it requires taking the Kafka Cluster offline             "
+    log "INFO" "  for backup and restore operations. It is specifically designed for development and testing environments.         "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "  Support the project: [Buy Me a Coffee] ( https://buymeacoffee.com/intelligent002 ) ☕                            "
+    log "INFO" "                                                                                                                   "
+    log "INFO" "==================================================================================================================="
 }
 
+# Displays a help message detailing available functions in the Kafka-Backup-Offline Utility.
 function help()
 {
+    # everything starts with a coffee ...
     disclaimer
-    echo
-    echo "  Usage: $0 [function_name]                                                                                        "
-    echo
-    echo "  Available routines:                                                                                              "
-    echo
-    echo "    Coziness section:                                                                                              "
-    echo
-    echo "      setup_sshs         Configure password-less SSH access to all cluster nodes by setting up SSH keys.           "
-    echo
-    echo "    Containers section:                                                                                            "
-    echo
-    echo "      containers_run     'docker run' the Kafka Cluster containers in the defined startup order                    "
-    echo "      containers_start   'docker start' the Kafka Cluster containers in the defined startup order                  "
-    echo "      containers_stop    'docker stop' the Kafka Cluster containers in the defined shutdown order                  "
-    echo "      containers_restart 'docker restart' the Kafka Cluster containers in the defined shutdown & startup order     "
-    echo "      containers_remove  'docker rm' the Kafka Cluster containers in the defined shutdown order                    "
-    echo
-    echo "    Backup section:                                                                                                "
-    echo
-    echo "      rotate_backups     Perform a backup rotation by deleting archives that are:                                  "
-    echo "                         1. Older than retention policy days.                                                      "
-    echo "                         2. Folders /backup/cold/config/rotated/ & /backup/cold/data/rotated/ are rotated.         "
-    echo "                         3. Folders /backup/cold/config/pinned/  & /backup/cold/data/pinned/  are NOT rotated.     "
-    echo "                            to keep a CONFIG backup forever - move it to /backup/cold/config/pinned/'              "
-    echo "                            to keep a DATA backup forever   - move it to /backup/cold/data/pinned/'                "
-    echo
-    echo "      cluster_backup     Perform a Full Kafka Cluster Backup:                                                      "
-    echo "                         1. Rotate backups                                                                         "
-    echo "                         2. Shut down the cluster by 'docker stop' all containers in defined shutdown order        "
-    echo "                         3. Backup cluster config, archive to cold storage                                         "
-    echo "                         4. Backup cluster data, archive to cold storage                                           "
-    echo "                         5. Start up the cluster by 'docker start' all containers in defined startup order         "
-    echo
-    echo "  If no routine name is specified, an interactive menu will be displayed.                                          "
-    echo
-    echo "==================================================================================================================="
-    echo
+    log "INFO" ""
+    log "INFO" "  Usage:"
+    log "INFO" ""
+    log "INFO" "    GUI: ./kafka-backup-offline.sh"
+    log "INFO" "    CLI: ./kafka-backup-offline.sh [function_name]"
+    log "INFO" ""
+    log "INFO" "  All internal functions are runnable via the parameter, only one parameter is supported."
+    log "INFO" ""
+    log "INFO" "-------------------------------------------------------------------------------------------------------------------"
+    log "INFO" "  cluster_backup        Perform a Full Kafka Cluster Backup:"
+    log "INFO" ""
+    log "INFO" "                          1. Validate availability of free space on backup location."
+    log "INFO" "                          2. Rotate all backups according to section policies:"
+    log "INFO" "                               2.1 data         - keep last 30 days."
+    log "INFO" "                               2.2 config       - keep last 365 days."
+    log "INFO" "                               2.3 credentials  - keep last 365 days."
+    log "INFO" "                               2.4 certificates - keep last 365 days."
+    log "INFO" "                               2.5 each component has a 'rotated' folder, which is periodically rotated."
+    log "INFO" "                               2.6 each component has a 'pinned' folder, which is NOT rotated."
+    log "INFO" "                               2.7 to keep some modular backup forever - move it to the pinned folder."
+    log "INFO" "                          3. Validate availability of free space on backup location."
+    log "INFO" "                          4. Shut down the cluster by 'docker stop' all containers in defined shutdown order."
+    log "INFO" "                          5. Zip and store the cluster, in separate archives, to allow modular recovery:"
+    log "INFO" "                               5.1 data"
+    log "INFO" "                               5.2 config"
+    log "INFO" "                               5.3 credentials"
+    log "INFO" "                               5.4 certificates"
+    log "INFO" "                          6. Start up the cluster by 'docker start' all containers in defined startup order."
+    log "INFO" "                          7. Validate availability of free space on backup location."
+    log "INFO" ""
+    log "INFO" "-------------------------------------------------------------------------------------------------------------------"
+    log "INFO" "  cluster_reinstall     Perform a Full Kafka Cluster Reinstall:"
+    log "INFO" ""
+    log "INFO" "                          1. Generate config"
+    log "INFO" "                          2. Generate credentials"
+    log "INFO" "                          3. Generate certificates"
+    log "INFO" "                          4. Format the data storage"
+    log "INFO" "                          5. Apply ACLs"
+    log "INFO" "                          6. Start the containers"
+    log "INFO" ""
+    log "INFO" "  If no function name is provided, the script will display an interactive menu."
+    log "INFO" ""
+    log "INFO" "==================================================================================================================="
 }
 
+# Cron-oriented function for automated Kafka cluster backups.
+# 1. Stops all Kafka containers to ensure data consistency.
+# 2. Backs up configurations, certificates, credentials, and data, storing everything in cold storage.
+# 3. Starts all Kafka containers after the backup process completes.
 function cluster_backup()
 {
-    containers_stop
-    cluster_wide_config_backup
-    cluster_wide_data_backup
-    containers_start
+    log "INFO" "---------------------------------------=[ INITIATING FULL CLUSTER BACKUP ]=----------------------------------------"
+    # validate storage space
+    ensure_free_space $STORAGE_COLD
+
+    # cleanup old stuff
+    cluster_configs_rotate
+    cluster_certificates_rotate
+    cluster_credentials_rotate
+    cluster_data_rotate
+
+    # validate storage space
+    ensure_free_space $STORAGE_COLD
+
+    # create new stuff
+    cluster_configs_backup
+    cluster_certificates_backup
+    cluster_credentials_backup
+
+    # offline actions to maintain data integrity
+    cluster_containers_stop
+    cluster_data_backup
+    cluster_containers_start
+
+    # validate storage space
+    ensure_free_space $STORAGE_COLD
+    log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER BACKUP ]=----------------------------------------"
 }
 
-# Creates a PID file to ensure only one instance of the script runs at a time
+function cluster_reinstall()
+{
+    log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
+    # regenerate all components
+    cluster_configs_generate
+    cluster_certificates_generate
+    cluster_credentials_generate
+
+    # wipe cluster data (without containers running)
+    cluster_containers_remove
+    cluster_data_format
+
+    # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
+    cluster_containers_run
+    cluster_acls_apply
+
+    # start containers from scratch, to: 1 - start failed nodes, 2 - wipe errors about missing ACLs.
+    cluster_containers_remove
+    cluster_containers_run
+    log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
+}
+
+# Creates a PID file to prevent multiple instances of the script from running.
+# If the PID file already exists, the script exits; otherwise, it writes the current PID and sets a trap to remove the file upon exit.
 function create_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
-        log "INFO" "Script is already running (PID: $(cat "$PID_FILE")). Exiting."
+        log "INFO" "The script is already running (PID: $(cat "$PID_FILE")). Exiting."
         exit 1
     fi
 
     echo $$ >"$PID_FILE"
-    trap remove_pid_file EXIT
+    trap "kill 0; exit 130" SIGINT  # Kill all processes and exit gracefully when CTRL+C is pressed
+    trap remove_pid_file EXIT       # Ensure the PID file is removed on any exit
     log "DEBUG" "PID file created with PID: $$"
 }
 
-# Removes the PID file on script exit.
+# Removes the PID file to allow future script executions.
+# Logs the removal of the PID file for debugging purposes.
 function remove_pid_file()
 {
     rm -f "$PID_FILE"
     log "DEBUG" "PID file removed"
 }
 
-function clear_temp_central()
-{
-    log "DEBUG" "Clear temp of central - started"
-
-    (rm -rf "$STORAGE_TEMP" && mkdir -p "$STORAGE_TEMP") || {
-        log "ERROR" "Clear temp of central - failed"
-        return 1
-    }
-
-    log "DEBUG" "Clear temp of central - OK"
-    return 0
-}
-
-function clear_temp_node()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Clear temp of $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "rm -rf $NODE_TEMP && mkdir -p $NODE_TEMP " || {
-        log "ERROR" "Clear temp of $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Clear temp of $role at $ip - OK"
-    return 0
-}
-
-# Logs messages to the console and the specified log file
-# Parameters:
-#   $1 - The message to log.
+# Logs messages with a specified log level to both the console and log file.
+# Compares the log level with the configured threshold to decide whether to print the message to the console.
 function log()
 {
     local level=$1
@@ -209,7 +221,7 @@ function log()
 
     # Check if the $level exists in the LOG_LEVELS
     if [[ -z "${LOG_LEVELS[$level]}" ]]; then
-        echo "specified log level [$level] is not defined"
+        echo "The specified log level [$level] is not defined."
         exit 1
     fi
 
@@ -218,105 +230,12 @@ function log()
         echo "[$level] $message"
     fi
 
-    # In any case - log the message
-    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >>"$LOG_FILE"
+    # Always logs the message, regardless of the log level.
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >> "$LOG_FILE"
 }
 
-# ===== Backups Rotation =====
-# Rotates backups in the "rotated" directories, keeping only files younger than STORAGE_RETENTION_POLICY
-function rotate_backups()
-{
-    log "DEBUG" "Rotating backups, retention policy: $STORAGE_RETENTION_POLICY days - started"
-
-    # Find and remove backups older than $days_to_keep days
-    find "$STORAGE_COLD/config/rotated/" -type f -mtime +"$STORAGE_RETENTION_POLICY" -name "*.tar.gz" -exec rm -f {} \;
-    find "$STORAGE_COLD/data/rotated/" -type f -mtime +"$STORAGE_RETENTION_POLICY" -name "*.tar.gz" -exec rm -f {} \;
-
-    log "DEBUG" "Rotating backups, retention policy: $STORAGE_RETENTION_POLICY days - OK"
-}
-
-# ===== Coziness Functions =====
-# Copies SSH keys to all nodes for password-less access
-function setup_sshs()
-{
-    local role
-
-    log "INFO" "Routine - Setup up SSH Keys on all nodes - started"
-    for role in "${order_startup[@]}"; do setup_ssh "$role"; done
-    log "INFO" "Routine - Setup up SSH Keys on all nodes - OK"
-}
-
-# Copies SSH key to a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function setup_ssh()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Setup SSH key to $role at $ip"
-    ssh-copy-id -i "$SSH_KEY_PUB" "$SSH_USER"@"$ip" || {
-        log "WARN" "Failed to copy SSH key to $role at $ip. Password-less access might not work."
-        return 1
-    }
-}
-
-# ===== Kafka Cluster Safe Mode =====
-# Ensures that all Kafka containers are stopped before certain operations
-function ensure_containers_stopped()
-{
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
-
-    log "DEBUG" "Test - Ensure Kafka Containers on all nodes are stopped - started"
-
-    # Launch container_start for each role in the background
-    for role in "${order_startup[@]}"; do
-        ensure_container_stopped "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Test - Ensure Kafka Containers on all nodes are stopped - failed"
-        return 1
-    fi
-
-    log "DEBUG" "Test - Ensure Kafka Containers on all nodes are stopped - OK"
-    return 0
-}
-
-# Ensures that all Kafka containers are stopped before certain operations
-function ensure_container_stopped()
-{
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    status=$(ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker inspect -f '{{.State.Running}}' $role" 2>/dev/null)
-
-    if [[ "$status" == "true" ]]; then
-        log "DEBUG" "Error: Container $role at $ip is still running. Please stop all containers before proceeding."
-        return 1
-    fi
-
-    return 0
-}
-
-# Ensures that there is enough space for stable operation
+# Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
+# Logs a warning if the available disk space drops below 20% (or the configured `STORAGE_WARN_LOW` threshold).
 function ensure_free_space()
 {
     local mount free_storage free_percent
@@ -329,799 +248,971 @@ function ensure_free_space()
 
     # Check if the free percentage is less than 20%
     if ((free_percent < STORAGE_WARN_LOW)); then
-        log "WARN" "Low disk space in $mount. Available: ${free_storage}KB (${free_percent}% of total)."
+        log "WARN" "Low disk space on $mount. Available: ${free_storage} KB (${free_percent}% of total)."
     fi
 }
 
-# ===== Kafka Containers Run =====
-# Starts all Kafka containers in the pre-defined order
-function containers_run()
+# Runs an Ansible playbook inside a Docker container with specified routines and tags.
+# Logs the start and end of the routine, and handles errors by logging the failed command.
+function run_ansible_routine()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
+    local routine=$1
+    local playbook=$2
+    local tag=$3
+    local extra_vars=${4:-""}  # Ensure extra_vars is always set
+    local interactive_mode=${5:-false}  # Default to false if not provided
+    local attempt=1
+    local max_attempts=${ANSIBLE_ATTEMPTS:-3}  # Use ANSIBLE_ATTEMPTS if set, otherwise default to 3
 
-    log "INFO" "Routine - Kafka Containers Run on all nodes - started"
+    # Determine if -it should be included
+    local docker_options="--rm"
+    [[ "$interactive_mode" == "true" ]] && docker_options="-it --rm"
 
-    # Launch container_run for each role one by one according to best practice
-    for role in "${order_startup[@]}"; do
-        container_run "$role" || {
-            failed_roles+=("$role")
+    # Prepare the Docker command as an array (to avoid eval issues)
+    local docker_command=(
+        docker run $docker_options
+        -v ~/.ssh:/root/.ssh
+        -v "$SCRIPT_DIR":/apps
+        -v /var/log/ansible:/var/log/ansible
+        -w /apps
+        alpine/ansible:2.18.1 ansible-playbook
+        -i "inventories/$INVENTORY/hosts.yml"
+        "playbooks/$playbook.yml"
+        --tags "$tag"
+    )
+
+    # Append extra_vars only if it's not empty
+    if [[ -n "$extra_vars" ]]; then
+        docker_command+=("$extra_vars")
+    fi
+
+    # Loop for a few attempts
+    while [[ $attempt -le $max_attempts ]]; do
+        log "INFO" "Routine - ${routine^} - started (attempt #${attempt} of ${max_attempts})"
+        "${docker_command[@]}" && {
+            log "INFO" "Routine - ${routine^} - OK"
+            return 0
         }
+        log "WARN" "Routine - ${routine^} - Failed attempt #${attempt} of ${max_attempts}, retrying."
+        ((attempt++))
     done
 
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Containers Run on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Run on all nodes - OK"
-    return 0
+    log "ERROR" "Routine - ${routine^} - Failed, attempts exhausted. Failed command: ${docker_command[*]}"
+    return 1
 }
 
-# ===== Kafka Container Run =====
-# Starts a Kafka container on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_run()
+
+# Deploys SSH public keys to all cluster nodes in parallel using Ansible.
+# If SSH keys are not set up, the script will use the password provided via `--ask-pass` for all nodes.
+function cluster_ssh_keys()
 {
-    local role ip port_jmx port_kafka
-
-    role=$1
-    ip=${nodes[$role]}
-    port_jmx=9999
-
-    case "$role" in
-        kafka-controller-*)
-            port_kafka=9093
-            ;;
-        kafka-broker-*)
-            port_kafka=9092
-            ;;
-        *)
-            log "DEBUG" "Unknown role: $role"
-            return 1
-            ;;
-    esac
-
-    log "DEBUG" "Container run $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker run -d --name=$role -h $role --restart=always \
-        -p $port_kafka:$port_kafka -p $port_jmx:$port_jmx \
-        -e KAFKA_JMX_OPTS='-Dcom.sun.management.jmxremote \
-        -Dcom.sun.management.jmxremote.port=$port_jmx \
-        -Dcom.sun.management.jmxremote.rmi.port=$port_jmx \
-        -Dcom.sun.management.jmxremote.authenticate=false \
-        -Dcom.sun.management.jmxremote.ssl=false \
-        -Djava.rmi.server.hostname=$ip' \
-        -v $NODE_CONFIG/kraft.properties:/etc/kafka/kraft.properties \
-        -v $NODE_DATA:/var/lib/kafka/data \
-        $IMAGE /usr/bin/kafka-server-start /etc/kafka/kraft.properties" || {
-        log "ERROR" "Container run $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Container run $role at $ip - OK"
-    return 0
+    run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass" "true"
+    return $?
 }
 
-# ===== Kafka Containers Start =====
-# Starts all Kafka containers in the defined startup order
-function containers_start()
+# Deploys prerequisites to all cluster nodes in parallel using Ansible.
+# Validates if /data is mounted and has at least 40GB free space.
+# Ensures /var/lib/docker is symlinked to /data/docker.
+# Installs and verifies: Docker, XZ, Java, and rsync.
+# Ensures Docker service is enabled and running.
+function cluster_prerequisites()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
-    log "INFO" "Routine - Kafka Containers Start on all nodes - started"
-
-    # Launch container_start for each role one by one according to best practice
-    for role in "${order_startup[@]}"; do
-        container_start "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Containers Start on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Start on all nodes - OK"
-    return 0
+    run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
+    return $?
 }
 
-# ===== Kafka Container Start =====
-# Starts a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_start()
+# Generates Kafka certificates on all cluster nodes in parallel using Ansible.
+# Ensures SSL/mTLS authentication files are created for secure communication.
+function cluster_certificates_generate()
 {
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container start $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker start $role" || {
-        log "ERROR" "Container start $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Container start $role at $ip - OK"
-    return 0
+    run_ansible_routine "Kafka Certificates Generate" "parallel" "certificates_generate"
+    return $?
 }
 
-# ===== Kafka Containers Stop =====
-# Stops all Kafka containers in the defined shutdown order
-function containers_stop()
+# Backs up Kafka certificates on all cluster nodes in parallel using Ansible.
+# Ensures certificate files are preserved for recovery or migration.
+function cluster_certificates_backup()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
-    log "INFO" "Routine - Kafka Containers Stop on all nodes - started"
-
-    # Launch container_stop for each role one by one according to best practice
-    for role in "${order_shutdown[@]}"; do
-        container_stop "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Containers Stop on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Stop on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
+    return $?
 }
 
-# Stops a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_stop()
+# Restores Kafka certificates on all cluster nodes in parallel using Ansible.
+# Uses the specified archive file to restore certificate files.
+function cluster_certificates_restore()
 {
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container stop $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker stop $role" || {
-        log "DEBUG" "Container stop $role at $ip - stop failed"
-        return 1
-    }
-
-    log "DEBUG" "Container stop $role at $ip - OK"
-    return 0
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
+    return $?
 }
 
-# ===== Kafka Containers Restart =====
-# Restarts all Kafka containers in the defined shutdown and startup orders
-function containers_restart()
+# Deletes old archives according to retention_policy_certificates days amount value
+function cluster_certificates_rotate()
 {
-    containers_stop
-    containers_start
+    run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
+    return $?
 }
 
-# ===== Kafka Containers Remove =====
-# Removes all Kafka containers in the defined shutdown order
-function containers_remove()
+# Deploys Kafka configuration files to all cluster nodes in parallel using Ansible.
+# Ensures all nodes have the latest configuration settings from inventory template.
+function cluster_configs_generate()
 {
-    local role
-    declare -a failed_roles # Array to track roles that failed
-
-    log "INFO" "Routine - Kafka Containers Remove on all nodes - started"
-
-    # Launch container_remove for each role one by one according to best practice
-    for role in "${order_shutdown[@]}"; do
-        container_remove "$role" || {
-            failed_roles+=("$role")
-        }
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Containers Remove on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Containers Remove on all nodes - OK"
-    return 0
+    run_ansible_routine "Kafka Configs Generate" "parallel" "configs_generate"
+    return $?
 }
 
-# Removes a specific Kafka container on a node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function container_remove()
+# Backs up Kafka configuration files from all cluster nodes in parallel using Ansible.
+# Ensures configuration settings are preserved for recovery or migration.
+function cluster_configs_backup()
 {
-    local role ip
-
-    role=$1
-    ip=${nodes[$role]}
-
-    log "DEBUG" "Container remove $role at $ip - started"
-
-    if ! ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "docker rm -f $role"; then
-        log "ERROR" "Container remove $role at $ip - failed"
-        return 1
-    fi
-
-    log "DEBUG" "Container remove $role at $ip - OK"
-    return 0
+    run_ansible_routine "Kafka Configs Backup" "parallel" "configs_backup"
+    return $?
 }
 
-# ===== Kafka Cluster Wide Data Delete =====
-# Deletes all data on all nodes
-function cluster_wide_data_delete()
+# Restores Kafka configuration files on all cluster nodes in parallel using Ansible.
+# Uses the specified archive file to restore configuration settings.
+function cluster_configs_restore()
 {
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "$extra_vars"
+    return $?
+}
 
-    log "INFO" "Routine - Kafka Cluster Data Delete on all nodes - started"
+# Deletes old archives according to retention_policy_configs days amount value
+function cluster_configs_rotate()
+{
+    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
+    return $?
+}
 
-    # Launch cluster_node_data_delete for each role in the background
-    for role in "${order_shutdown[@]}"; do
-        cluster_node_data_delete "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
+# Starts Kafka containers on all cluster nodes in serial using Ansible.
+# Ensures proper startup order and avoids simultaneous resource contention.
+function cluster_containers_run()
+{
+    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    return $?
+}
 
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
+# Resumes existing Kafka containers on all cluster nodes in serial using Ansible.
+# Ensures a controlled startup sequence to prevent conflicts.
+function cluster_containers_start()
+{
+    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
+    return $?
+}
+
+# Stops Kafka containers on all cluster nodes in serial using Ansible.
+# Ensures a controlled shutdown to prevent data corruption or inconsistencies.
+function cluster_containers_stop()
+{
+    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
+    return $?
+}
+
+# Restarts Kafka containers on all cluster nodes in serial using Ansible.
+# Stops containers first, then starts them again in a controlled order.
+function cluster_containers_restart()
+{
+    cluster_containers_stop
+    cluster_containers_start
+}
+
+# Removes Kafka containers on all cluster nodes in serial using Ansible.
+# Ensures a controlled removal sequence to prevent dependency issues.
+function cluster_containers_remove()
+{
+    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    return $?
+}
+
+# Applies Kafka ACLs to enforce access control policies across the cluster.
+function cluster_acls_apply()
+{
+    run_ansible_routine "Kafka ACLs Apply" "parallel" "acls_apply"
+    return $?
+}
+
+# Generates Kafka credentials on all cluster nodes in parallel using Ansible.
+# Ensures secure authentication files are created for user access control.
+function cluster_credentials_generate()
+{
+    run_ansible_routine "Kafka Credentials Generate" "parallel" "credentials_generate"
+    return $?
+}
+
+# Backs up Kafka credentials on all cluster nodes in parallel using Ansible.
+# Ensures authentication data is preserved for recovery or migration.
+function cluster_credentials_backup()
+{
+    run_ansible_routine "Kafka Credentials Backup" "parallel" "credentials_backup"
+    return $?
+}
+
+# Restores Kafka credentials on all cluster nodes in parallel using Ansible.
+# Uses the specified archive file to restore authentication data.
+function cluster_credentials_restore()
+{
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "$extra_vars"
+    return $?
+}
+
+# Deletes old archives according to retention_policy_credentials days amount value
+function cluster_credentials_rotate()
+{
+    run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
+    return $?
+}
+
+# Formats Kafka data on all cluster nodes in parallel using Ansible.
+# Prepares storage for new data by ensuring a clean state.
+function cluster_data_format()
+{
+    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    return $?
+}
+
+# Backs up Kafka data on all cluster nodes in parallel using Ansible.
+# Ensures data is preserved for recovery or migration.
+function cluster_data_backup()
+{
+    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    return $?
+}
+
+# Restores Kafka data on all cluster nodes in parallel using Ansible.
+# Uses the specified archive file to recover data.
+function cluster_data_restore()
+{
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
+    return $?
+}
+
+# Deletes old archives according to retention_policy_data days amount value
+function cluster_data_rotate()
+{
+    run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
+    return $?
+}
+
+# Displays a failure message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
+function show_failure_message() {
+    whiptail --title "Failure" --msgbox "$1" 10 60 --ok-button "WTF"
+}
+
+# Displays a success message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
+function show_success_message() {
+    whiptail --title "Success" --msgbox "$1" 10 60
+}
+
+# Displays a warning message using a Whiptail dialog box.
+# Accepts a message string as an argument and shows it in a 10x60 box.
+function show_warning_message() {
+    whiptail --title "Warning" --msgbox "$1" 10 60
+}
+
+# Displays the main menu using Whiptail for managing Kafka backup and restore.
+# Allows navigation to submenus. Exits when the user selects "Quit" or presses ESC/cancel.
+function main_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Quit" \
+            --menu "Choose a section:" 16 50 8 \
+            "1" "Quit" \
+            "2" "Prerequisites" \
+            "3" "Certificates" \
+            "4" "Configs" \
+            "5" "Credentials" \
+            "6" "ACLs" \
+            "7" "Containers" \
+            "8" "Data" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            exit 0
         fi
+
+        # Handle user choices
+        case $choice in
+            1) exit 0 ;;
+            2) prerequisites_menu ;;
+            3) certificates_menu ;;
+            4) configs_menu ;;
+            5) credentials_menu ;;
+            6) acls_menu ;;
+            7) containers_menu ;;
+            8) data_menu ;;
+        esac
     done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Delete on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Cluster Data Delete on all nodes - OK"
-    return 0
 }
 
-# ===== Kafka Cluster Node Data Delete =====
-# Deletes data on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function cluster_node_data_delete()
-{
-    local role ip
+# Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
+# Provides options to deploy SSH keys and prerequisites across all nodes.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function prerequisites_menu() {
+    while true; do
+        # Display Whiptail menu for choosing an prerequisites-related action
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Prerequisites > Choose an action:" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Deploy SSH certificate - (ssh-copy-id)" \
+            "3" "Deploy prerequisites - (docker etc)" \
+            3>&1 1>&2 2>&3)
 
-    role=$1
-    ip=${nodes[$role]}
+        # Capture the exit status of whiptail
+        local exit_status=$?
 
-    log "DEBUG" "Kafka Cluster Data Delete of $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "\
-         rm -rf $NODE_DATA && \
-         mkdir -p $NODE_DATA && \
-         chown -R 1000:1000 $NODE_DATA && \
-         chmod -R 0750 $NODE_DATA" || {
-        log "ERROR" "Kafka Cluster Data Delete of $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Kafka Cluster Data Delete of $role at $ip - OK"
-}
-
-# ===== Kafka Cluster Wide Data Format =====
-# Formats data on all nodes
-function cluster_wide_data_format()
-{
-    local role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
-
-    log "INFO" "Routine - Kafka Cluster Data Format on all nodes - started"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
-        return 1
-    }
-
-    # Launch cluster_node_data_delete && cluster_node_data_format for each role in the background
-    for role in "${order_shutdown[@]}"; do
-        cluster_node_data_delete "$role" && cluster_node_data_format "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for all background jobs and log any failures
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
+        # Exit the function if ESC or cancel is pressed
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
         fi
+
+        # Handle the user's menu choice
+        case $choice in
+            # Return to the main menu if "Main menu" is selected
+            1)
+               return 0 ;;
+            # Deploy SSH certificate (ssh-copy-id) to all nodes
+            2)
+               cluster_ssh_keys
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if SSH key deployment is successful
+                    show_success_message "SSH public key deployed successfully on all nodes!"
+               else
+                    # Show failure message if SSH key deployment fails
+                    show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
+               fi
+               ;;
+            # Deploy prerequisites (like Docker) to all nodes
+            3)
+               cluster_prerequisites
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if prerequisites are deployed successfully
+                    show_success_message "Prerequisites were deployed on all nodes successfully!"
+               else
+                    # Show failure message if prerequisites deployment fails
+                    show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
     done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Format on all nodes - failed"
-        return 1
-    fi
-
-    log "INFO" "Routine - Kafka Cluster Data Format on all nodes - OK"
-    return 0
 }
 
-# ===== Kafka Cluster Node Data Format =====
-# Formats data on a specific node
-# Parameters:
-#   $1 - The role of the node (e.g., kafka-controller-1)
-function cluster_node_data_format()
-{
-    local role ip
+# Displays the Certificates menu using Whiptail for managing Kafka certificates.
+# Provides options to generate, backup, or restore certificates.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function certificates_menu() {
+    while true; do
+        # Display Whiptail menu for choosing a certificate-related action
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Certificates > Choose an action:" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
+            "5" "Rotate" \
+            3>&1 1>&2 2>&3)
 
-    role=$1
-    ip=${nodes[$role]}
+        # Capture the exit status of the Whiptail menu
+        local exit_status=$?
 
-    log "DEBUG" "Format Kafka node data of $role at $ip - started"
-
-    ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "\
-         docker run --rm \
-            -v $NODE_CONFIG/kraft.properties:/etc/kafka/kraft.properties \
-            -v $NODE_DATA:/var/lib/kafka/data \
-            $IMAGE \
-            /usr/bin/kafka-storage format -t $CLUSTER_ID -c /etc/kafka/kraft.properties" || {
-        log "ERROR" "Format Kafka node data of $role at $ip - failed"
-        return 1
-    }
-
-    log "DEBUG" "Format Kafka node data of $role at $ip - OK"
-}
-
-# ===== Kafka Cluster Wide Data Backup =====
-# Performs a full data backup of the Kafka cluster across all nodes.
-function cluster_wide_data_backup()
-{
-    local role ip backup_date backup_path backup_archive
-    declare -A pids         # Associative array to track background task process IDs
-    declare -a failed_roles # Array to track failed roles
-
-    log "INFO" "Routine - Kafka Cluster Data Backup - started"
-
-    # Rotating backups according to retention policy
-    rotate_backups
-
-    backup_date=$(date '+%Y-%m-%d---%H-%M-%S')
-    backup_path="$STORAGE_COLD/data/rotated/$(date '+%Y/%m/%d')"
-    backup_archive="$backup_path/$backup_date---data.tar.gz"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
-        return 1
-    }
-
-    # Archive all nodes data on the nodes - simultaneously
-    log "DEBUG" "Archiving Kafka data locally on all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        clear_temp_node "$role" &&
-            log "DEBUG" "Archiving Kafka Cluster Data locally as $role.tar.gz on $role at $ip - started" &&
-            ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "tar -czf $NODE_TEMP/$role.tar.gz -C $NODE_DATA ./" &&
-            log "DEBUG" "Archiving Kafka Cluster Data locally as $role.tar.gz on $role at $ip - OK" &&
-            log "DEBUG" "Collecting Kafka Cluster Data archive as $role.tar.gz from $role at $ip - started" &&
-            rsync -aqz -e "ssh -i $SSH_KEY_PRI" "$SSH_USER@$ip:$NODE_TEMP/$role.tar.gz" "$STORAGE_TEMP/$role.tar.gz" &&
-            log "DEBUG" "Collecting Kafka Cluster Data archive as $role.tar.gz from $role at $ip - OK" &&
-            clear_temp_node "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for archiving tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
+        # Exit the function if ESC or cancel is pressed
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
         fi
-    done
 
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Backup - failed"
+        # Handle the user's menu choice
+        case $choice in
+            1)
+               # Return to the main menu if "Main menu" is selected
+               return 0 ;;
+            2)
+               # Trigger the certificates generation process
+               cluster_certificates_generate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the backup is successful
+                    show_success_message "Certificates were generated successfully!"
+               else
+                    # Show failure message if the backup fails
+                    show_failure_message "Failed to generate certificates!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               # Trigger the certificates backup process
+               cluster_certificates_backup
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the backup is successful
+                    show_success_message "Certificates were backed up successfully!"
+               else
+                    # Show failure message if the backup fails
+                    show_failure_message "Failed to backup certificates!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               # Render the certificate restore menu
+               cluster_certificates_restore_menu ;;
+            5)
+               # Trigger the certificates backup rotate process
+               cluster_certificates_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Certificates backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate certificates backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays a Whiptail menu for restoring Kafka certificates from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_certificates_restore` with the selected backup file.
+function cluster_certificates_restore_menu()
+{
+    local storage_certificates certificates_backup_files choice selected_backup
+
+    # Define the path to certificate backup storage
+    storage_certificates="$STORAGE_COLD/certificates"
+
+    # Find all available certificates backup files with their sizes
+    certificates_backup_files=()
+    mapfile -t certificates_backup_files < <(find "$storage_certificates" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#certificates_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_certificates."
+        show_warning_message "No backup files found in $storage_certificates."
         return 1
     fi
 
-    # Create the cluster zip of zips in cold storage
-    log "DEBUG" "Creating a cluster-wide backup archive (zip of zips) - started"
-    mkdir -p "$backup_path"
-    (cd "$STORAGE_TEMP" && tar -czf "$backup_archive" ./*.tar.gz)
-    log "DEBUG" "Creating a cluster-wide backup archive (zip of zips) - OK"
+    # Prepare the options for whiptail menu
+    local menu_options=("back" "Return to certificate Menu") # Add "Back" option first
+    for i in "${!certificates_backup_files[@]}"; do
+        # Add each backup file with its details to the menu options
+        menu_options+=("$i" "${certificates_backup_files[$i]}")
+    done
 
-    ensure_free_space "$STORAGE_TEMP"
-    ensure_free_space "$STORAGE_COLD"
-    clear_temp_central
+    # Display the menu using whiptail for user selection
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Certificates > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
-    log "INFO" "Kafka Cluster Data Archive stored at: $backup_archive"
-    log "INFO" "Routine - Kafka Cluster Data Backup - OK"
+    # Capture the exit status of whiptail
+    local exit_status=$?
+
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${certificates_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected certificates backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_certificates_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        # Show success message if restoration is successful
+        show_success_message "Certificates restored successfully!"
+    else
+        # Show failure message if restoration fails
+        show_failure_message "Failed to restore certificates.\n\nExit the tool and review the logs."
+    fi
 }
 
-# ===== Kafka Cluster Wide Data Restore Menu =====
-# Presents a menu to the user to select and restore a Kafka data backup.
-# Displays available backups from the `STORAGE_COLD/data` directory and validates user input.
-# Pinned folder is not being rotated.
-# Rotated folder is being rotated, according to retention policy of keep days
-function cluster_wide_data_restore_menu()
+# Displays the Configs menu using Whiptail for managing Kafka configurations.
+# Provides options to generate, backup, or restore configuration files.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function configs_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Configs > Choose an action:" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
+            "5" "Rotate" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1)
+               return 0
+               ;;
+            2)
+               cluster_configs_generate
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration was generated successfully!"
+               else
+                    show_failure_message "Failed to generate configuration!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               cluster_configs_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Configuration was backed up successfully!"
+               else
+                    show_failure_message "Failed to backup configuration!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               cluster_configs_restore_menu
+               ;;
+            5)
+               # Trigger the configuration backup rotate process
+               cluster_configs_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Configuration backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate configuration backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays a Whiptail menu for restoring Kafka configuration backups.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_configs_restore` with the selected backup file.
+function cluster_configs_restore_menu()
 {
-    local storage_data i choice backup_files num_files selected_backup
+    local storage_configs configs_backup_files choice selected_backup
+
+    storage_configs="$STORAGE_COLD/configs"
+
+    # Find all available configuration backup files with their sizes
+    configs_backup_files=()
+    mapfile -t configs_backup_files < <(find "$storage_configs" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#configs_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_configs."
+        show_warning_message "No backup files found in $storage_configs."
+        return 1
+    fi
+
+    # Prepare the options for whiptail menu
+    local menu_options=("back" "Return to Config Menu") # Add "Back" option first
+    for i in "${!configs_backup_files[@]}"; do
+        menu_options+=("$i" "${configs_backup_files[$i]}")
+    done
+
+    # Display the menu using whiptail
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Configs > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    # Capture the exit status of whiptail
+    local exit_status=$?
+
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${configs_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected configuration backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_configs_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Configuration restored successfully!"
+    else
+        show_failure_message "Failed to restore configuration!\n\nExit the tool and review the logs."
+    fi
+}
+
+# Displays the Credentials menu using Whiptail for managing Kafka credentials.
+# Provides options to generate, backup, or restore credentials.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function credentials_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Credentials > Choose an action" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Generate" \
+            "3" "Backup" \
+            "4" "Restore" \
+            "5" "Rotate" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1)
+               return 0 ;;
+            2)
+               cluster_credentials_generate
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Credentials was generated successfully!"
+               else
+                    show_failure_message "Failed to generate credentials!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               cluster_credentials_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Credentials was backed up successfully!"
+               else
+                    show_failure_message "Failed to backup credentials!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               cluster_credentials_restore_menu
+               ;;
+            5)
+               # Trigger the credentials backup rotate process
+               cluster_credentials_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Credentials backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate credentials backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays a Whiptail menu for restoring Kafka credentials from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_credentials_restore` with the selected backup file.
+function cluster_credentials_restore_menu()
+{
+    local storage_credentials credentials_backup_files choice selected_backup
+
+    storage_credentials="$STORAGE_COLD/credentials"
+
+    # Find all available credentials backup files with their sizes
+    credentials_backup_files=()
+    mapfile -t credentials_backup_files < <(find "$storage_credentials" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+
+    # Check if no files are available
+    if [[ ${#credentials_backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_credentials."
+        show_warning_message "No backup files found in $storage_credentials."
+        return 1
+    fi
+
+    # Prepare the options for whiptail menu
+    local menu_options=("back" "Return to credentials Menu") # Add "Back" option first
+    for i in "${!credentials_backup_files[@]}"; do
+        menu_options+=("$i" "${credentials_backup_files[$i]}")
+    done
+
+    # Display the menu using whiptail
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Credentials > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
+
+    # Capture the exit status of whiptail
+    local exit_status=$?
+
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
+    fi
+
+    # Get the selected backup file path
+    selected_backup=$(echo "${credentials_backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected credentials backup file: $selected_backup"
+
+    # Call the restore function with the selected backup file
+    cluster_credentials_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Credentials restored successfully!"
+    else
+        show_failure_message "Failed to restore credentials!\n\nExit the tool and review the logs."
+    fi
+}
+
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function acls_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "ACLs > Choose an action" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "ACL Apply" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1)
+               return 0 ;;
+            2)
+               cluster_acls_apply
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "ACLs were applied successfully!"
+               else
+                    show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Containers menu using Whiptail for managing Kafka containers.
+# Provides options to run, start, stop, restart, or remove containers.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function containers_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Containers > Choose an action" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Run" \
+            "3" "Start" \
+            "4" "Stop" \
+            "5" "Restart" \
+            "6" "Remove" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1) return 0 ;;
+            2) cluster_containers_run
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully started!\nAll services are now running."
+               else
+                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3) cluster_containers_start
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+               else
+                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4) cluster_containers_stop
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+               else
+                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               cluster_containers_restart
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+               else
+                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            6) cluster_containers_remove
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully removed!\nResources have been freed."
+               else
+                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Data menu using Whiptail for managing Kafka data.
+# Provides options to format, backup, or restore data.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function data_menu() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Data > Choose an action:" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Format" \
+            "3" "Backup" \
+            "4" "Restore" \
+            "5" "Rotate" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case $choice in
+            1)
+               # Back to main menu
+               return 0
+               ;;
+            2)
+               # Trigger the data format process
+               cluster_data_format
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
+               else
+                   show_failure_message "Data formatting failed!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               # Trigger the data backup process
+               cluster_data_backup
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
+               else
+                   show_failure_message "Data backup failed!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               # Trigger the data recovery sub menu
+               cluster_data_restore_menu
+               ;;
+            5)
+               # Trigger the data backup rotate process
+               cluster_data_rotate
+               if [[ $? -eq 0 ]]; then
+                    # Show success message if the rotate is successful
+                    show_success_message "Data backups were rotated successfully!"
+               else
+                    # Show failure message if the rotate fails
+                    show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
+               fi
+               ;;
+
+        esac
+    done
+}
+
+# Displays a Whiptail menu for restoring Kafka data from backup files.
+# Lists available backup files with their sizes and allows the user to select one for restoration.
+# If no backups are found, shows a warning and exits.
+# Calls `cluster_data_restore` with the selected backup file.
+function cluster_data_restore_menu() {
+    local storage_data backup_files choice selected_backup
 
     storage_data="$STORAGE_COLD/data"
 
     # Find all available backup files with their sizes
     backup_files=()
-    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.gz" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
-    num_files=${#backup_files[@]}
+    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
 
-    if [ "$num_files" -eq 0 ]; then
-        log "WARN" "No backup files found in $storage_data."
+    # Check if no backup files are available
+    if [[ ${#backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage_data."
+        show_warning_message "No backup files found in $storage_data."
         return 1
     fi
 
-    # Display available backup files with sizes
-    echo "Available backup files (size):"
-    echo
-    echo "0) Exit restore menu"
+    # Prepare options for the menu
+    local menu_options=("back" "Return to Data Menu") # Add a back option first
     for i in "${!backup_files[@]}"; do
-        echo "$((i + 1))) ${backup_files[$i]}"
-    done
-    echo
-
-    # Prompt the user for input
-    choice=""
-    while true; do
-        read -rp "Enter the number corresponding to the backup file you want to restore (or 0 to exit): " choice
-
-        # Handle exit option
-        if [[ $choice == "0" ]]; then
-            echo "Exiting restore menu."
-            return 1
-        fi
-
-        # Validate choice
-        if [[ $choice =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "$num_files" ]; then
-            # Extract the file path (first field of the entry)
-            selected_backup=$(echo "${backup_files[$((choice - 1))]}" | awk '{print $1}')
-            log "DEBUG" "Selected backup file: $selected_backup"
-            break
-        else
-            echo "Invalid choice. Please select a valid number between 0 and $num_files."
-        fi
+        menu_options+=("$i" "${backup_files[$i]}") # Append each backup file as a menu option
     done
 
-    # Call recovery with the selected backup file
-    cluster_wide_data_restore "$selected_backup"
-}
+    # Display the menu and capture the user's choice
+    choice=$(whiptail --title "Kafka Backup Offline" \
+        --cancel-button "Back" \
+        --menu "Data > Restore > Choose a backup file to restore:" 40 130 32 \
+        "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
-# ===== Kafka Cluster Wide Data Restore =====
-# Restores a Kafka cluster's data from a specified backup archive.
-# Parameters:
-#   $1 - Path to the cluster-wide data backup archive (e.g., /backup/cold/data/rotated/YYYY/MM/DD/backup.tar.gz).
-# Actions:
-# - Ensures that all containers are stopped before proceeding.
-# - Extracts the cluster-wide archive to a temporary storage directory.
-# - Distributes per-node archives to their respective nodes.
-# - Deletes existing data and restores from the archives.
-# - Does not restart the containers after restoration.
-function cluster_wide_data_restore()
-{
-    local cluster_archive role ip
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
+    # Capture the exit status of whiptail
+    local exit_status=$?
 
-    cluster_archive=$1
-
-    log "INFO" "Routine - Kafka Cluster Data Restore - started"
-
-    # Ensure all containers are stopped
-    ensure_containers_stopped || {
-        log "DEBUG" "Routine aborted due to running containers."
-        return 1
-    }
-
-    # Extract the cluster zip on the central server
-    log "DEBUG" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - started"
-    mkdir -p "$STORAGE_TEMP"
-    tar -xzf "$cluster_archive" -C "$STORAGE_TEMP" || {
-        log "ERROR" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - failed"
-        return 1
-    }
-    log "DEBUG" "Extract Kafka Cluster Data (zip of zips) to $STORAGE_TEMP - OK"
-
-    # Stop containers on all nodes (optional, uncomment if needed)
-    # containers_stop
-
-    # Transfer node archives to respective nodes - simultaneously
-    log "DEBUG" "Restoring Kafka Cluster Nodes Data - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        clear_temp_node "$role" &&
-            log "DEBUG" "Distributing Kafka Cluster Data archive $role.tar.gz to $role at $ip - started" &&
-            rsync -aqz --partial "$STORAGE_TEMP/$role.tar.gz" "$SSH_USER"@"$ip":"$NODE_TEMP"/ &&
-            log "DEBUG" "Distributing Kafka Cluster Data archive $role.tar.gz to $role at $ip - OK" &&
-            cluster_node_data_delete "$role" &&
-            log "DEBUG" "Extracting Kafka Cluster Data from archive $role.tar.gz on $role at $ip - started" &&
-            ssh -i "$SSH_KEY_PRI" "$SSH_USER"@"$ip" "tar -xzf $NODE_TEMP/$role.tar.gz -C $NODE_DATA" &&
-            log "DEBUG" "Extracting Kafka Cluster Data from archive $role.tar.gz on $role at $ip - OK" &&
-            clear_temp_node "$role" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for transfer tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Log failures for transfers and abort if any failed
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed for roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Data Restore - failed"
-        return 1
-    fi
-    log "DEBUG" "Restoring Kafka Cluster Nodes Data - OK"
-
-    clear_temp_central
-
-    log "INFO" "Routine - Kafka Cluster Data Restore - OK"
-    return 0
-}
-
-# ===== Kafka Cluster Wide Config Backup =====
-# Backs up Kafka cluster configuration files from all nodes to a centralized storage location.
-# Actions:
-# - Rotates existing backups based on retention policy (default: 30 days).
-# - Collects configuration files from each node using `rsync`.
-# - Compresses the collected configuration files into a timestamped archive.
-# - Cleans up temporary files after backup.
-# Stored at: `$STORAGE_COLD/config/rotated/YYYY/MM/DD/backup.tar.gz`.
-function cluster_wide_config_backup()
-{
-    local backup_date backup_path backup_archive backup_temp ip role
-    declare -A pids         # Associative array to track background task process IDs
-    declare -a failed_roles # Array to track failed roles
-
-    log "INFO" "Routine - Kafka Cluster Config Backup - started"
-
-    # Rotating backups according to retention policy
-    rotate_backups
-
-    # Local variables
-    backup_date=$(date '+%Y-%m-%d---%H-%M-%S')
-    backup_path="$STORAGE_COLD/config/rotated/$(date '+%Y/%m/%d')"
-    backup_archive="$backup_path/$backup_date---config.tar.gz"
-    backup_temp="$STORAGE_TEMP/config"
-
-    # Ensure central temp directory exists
-    mkdir -p "$backup_temp"
-
-    # Collect configuration files from nodes
-    log "DEBUG" "Collecting Kafka configuration files from all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        log "DEBUG" "Collecting config of $role at $ip - started" &&
-            rsync -aqz -e "ssh -i $SSH_KEY_PRI" "$SSH_USER"@"$ip":"$NODE_CONFIG/" "$backup_temp/$role/" &&
-            log "DEBUG" "Collecting config of $role at $ip - OK" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for archiving tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Final summary log
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Config Backup - failed"
-        return 1
+    # Exit on ESC or cancel
+    if [[ $exit_status -eq 1 || $exit_status -eq 255 || $choice == "back" ]]; then
+        return 0
     fi
 
-    # Compress the collected configurations
-    log "DEBUG" "Archiving collected configurations - started"
-    mkdir -p "$backup_path"
-    (cd "$backup_temp" && tar -czf "$backup_archive" .)
-    log "DEBUG" "Archiving collected configurations - OK"
+    # Get the selected backup file path
+    selected_backup=$(echo "${backup_files[$choice]}" | awk '{print $1}')
+    log "DEBUG" "Selected backup file: $selected_backup"
 
-    clear_temp_central
-
-    log "INFO" "Kafka Cluster Config Backup stored at: $backup_archive"
-    log "INFO" "Routine - Kafka Cluster Config Backup - OK"
-}
-
-# ===== Kafka Cluster Wide Config Restore Menu =====
-# Presents a menu to the user to select and restore a Kafka configuration backup.
-# Displays available backups from the `STORAGE_COLD/config` directory and validates user input.
-# Invokes the `cluster_wide_config_restore` function to restore the selected backup.
-function cluster_wide_config_restore_menu()
-{
-    local storage_config i config_backup_files num_files choice selected_backup
-
-    storage_config="$STORAGE_COLD/config"
-
-    # Find all available configuration backup files with their sizes
-    config_backup_files=()
-    mapfile -t config_backup_files < <(find "$storage_config" -type f -name "*.tar.gz" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
-    num_files=${#config_backup_files[@]}
-
-    if [ "$num_files" -eq 0 ]; then
-        log "WARN" "No configuration backup files found in $storage_config."
-        return 1
+    # Call the restore function with the selected backup file
+    cluster_data_restore "$selected_backup"
+    if [[ $? -eq 0 ]]; then
+        show_success_message "Data restoration completed successfully!\nThe cluster has been restored to the selected backup state."
+    else
+        show_failure_message "Data restoration failed!\n\nExit the tool and review the logs."
     fi
-
-    # Display available configuration backup files with sizes
-    echo "Available configuration backup files (size):"
-    echo
-    echo "0) Exit restore menu"
-    for i in "${!config_backup_files[@]}"; do
-        echo "$((i + 1))) ${config_backup_files[$i]}"
-    done
-    echo
-
-    choice=""
-    while true; do
-        read -rp "Enter the number corresponding to the configuration backup you want to restore (or 0 to exit): " choice
-
-        # Handle exit option
-        if [[ $choice == "0" ]]; then
-            echo "Exiting restore menu."
-            return 1
-        fi
-
-        # Validate choice
-        if [[ $choice =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "$num_files" ]; then
-            # Extract the file path (first field of the entry)
-            selected_backup=$(echo "${config_backup_files[$((choice - 1))]}" | awk '{print $1}')
-            log "DEBUG" "Selected configuration backup file: $selected_backup"
-            break
-        else
-            echo "Invalid choice. Please select a valid number between 0 and $num_files."
-        fi
-    done
-
-    # Call restore with the selected backup file
-    cluster_wide_config_restore "$selected_backup"
-}
-
-# ===== Kafka Cluster Wide Config Restore =====
-# Restores Kafka cluster configuration files to all nodes from a specified backup archive.
-# Parameters:
-#   $1 - Path to the cluster-wide config backup archive (e.g., /backup/cold/config/rotated/YYYY/MM/DD/backup.tar.gz).
-function cluster_wide_config_restore()
-{
-    local config_archive ip role
-    declare -A pids         # Associative array for background task process IDs
-    declare -a failed_roles # Array to track roles that failed
-
-    config_archive=$1
-
-    log "INFO" "Routine - Kafka Cluster Config Restore - started"
-
-    # Extract the archive to the central temp folder
-    log "DEBUG" "Extracting configuration archive to $STORAGE_TEMP - started"
-    mkdir -p "$STORAGE_TEMP"
-    tar -xzf "$config_archive" -C "$STORAGE_TEMP" || {
-        log "DEBUG" "Failed to extract configuration archive: $config_archive"
-        return 1
-    }
-
-    # Distribute configuration files to nodes
-    log "DEBUG" "Distributing configuration files to all nodes - started"
-    for role in "${order_startup[@]}"; do
-        ip=${nodes[$role]}
-        log "DEBUG" "Distributing configuration file for $role at $ip - started" &&
-            rsync -aqz "$STORAGE_TEMP/$role/" "$SSH_USER"@"$ip":"$NODE_CONFIG/" &&
-            log "DEBUG" "Distributing configuration file for $role at $ip - OK" &
-        pids["$role"]=$! # Capture the process ID of the background job
-    done
-
-    # Wait for transfer tasks to complete
-    failed_roles=()
-    for role in "${!pids[@]}"; do
-        if ! wait "${pids[$role]}"; then
-            failed_roles+=("$role")
-        fi
-    done
-
-    # Log failures for transfers and abort if any failed
-    if ((${#failed_roles[@]} > 0)); then
-        log "ERROR" "Failed for roles: ${failed_roles[*]}."
-        log "ERROR" "Routine - Kafka Cluster Config Restore - failed"
-        return 1
-    fi
-
-    log "DEBUG" "Distributing configuration files to all nodes - OK"
-
-    clear_temp_central
-
-    log "INFO" "Routine - Kafka Cluster Config Restore - OK"
-}
-
-# ===== Menu Function =====
-function menu()
-{
-    local choice
-
-    while true; do
-        echo "Available routines:"
-        echo "0) Exit"
-        echo "1) Setup SSH Keys"
-        echo "2) Containers Run"
-        echo "3) Containers Start"
-        echo "4) Containers Stop"
-        echo "5) Containers Restart"
-        echo "6) Containers Remove"
-        echo "7) Data Backup"
-        echo "8) Data Format"
-        echo "9) Data Restore"
-        echo "10) Config Backup"
-        echo "11) Config Restore"
-        read -rp "Choose an option [0-11]: " choice
-
-        case $choice in
-            0)
-                disclaimer
-                log "INFO" "Have a nice day!"
-                break
-                ;;
-            1) setup_sshs ;;
-            2) containers_run ;;
-            3) containers_start ;;
-            4) containers_stop ;;
-            5) containers_restart ;;
-            6) containers_remove ;;
-            7) cluster_wide_data_backup ;;
-            8) cluster_wide_data_format ;;
-            9) cluster_wide_data_restore_menu ;;
-            10) cluster_wide_config_backup ;;
-            11) cluster_wide_config_restore_menu ;;
-            *) echo "Invalid choice. Please try again." ;;
-        esac
-    done
 }
 
 # ===== Main Execution =====
-# Call the configuration loader function with the path to your .ini file
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+# Save the original directory
+ORIGINAL_DIR="$(pwd)"
+
+# Change to the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || {
+    echo "Error: Failed to change directory to $SCRIPT_DIR"
+    exit 1
+}
+
+# Ensure the script returns to the original directory upon exit
+trap 'cd "$ORIGINAL_DIR"' EXIT
+
+# Load configuration
 CONFIG_FILE="$SCRIPT_DIR/config.ini"
 load_configuration "$CONFIG_FILE"
 create_pid_file
-# Render welcome message
-help
 # Decide what to run
 if [[ $# -eq 0 ]]; then
-    # No parameters provided, show the menu
-    menu
+    # No parameters provided, show the menu, but first require coffee
+    disclaimer
+    main_menu
 else
     # Parameter provided, assume it's a function name
     if declare -f "$1" >/dev/null; then
+        # require coffee
+        if [[ "$1" != "help" ]]; then
+            disclaimer
+        fi
         # Call the function by name if it exists
         "$1"
     else
         # Show help if the function doesn't exist
-        echo "Error: Function '$1' not found."
-        show_help
+        log "ERROR" "Error: Function '$1' not found."
+        help
         exit 1
     fi
 fi

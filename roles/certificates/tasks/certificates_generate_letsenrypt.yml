@@ -1,0 +1,253 @@
+---
+- name: Ensure Certbot volume directory exists
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ storage_certificates_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create Cloudflare credentials file
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.template:
+    src: cloudflare.ini.j2
+    dest: "{{ storage_certificates_path }}/cloudflare.ini"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Run Certbot to renew certificate
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    docker run --rm 
+    -v "{{ storage_certificates_path }}:/etc/letsencrypt"
+    -v "{{ storage_certificates_path }}:/var/lib/letsencrypt"
+    "{{ certbot_docker_image }}" certonly
+    --dns-cloudflare
+    --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini
+    --email "{{ certbot_cloudflare_user_email }}"
+    --agree-tos
+    --non-interactive
+    {% if certbot_staging %}
+    --server https://acme-staging-v02.api.letsencrypt.org/directory
+    {% else %}
+    --server https://acme-v02.api.letsencrypt.org/directory
+    {% endif %}
+    --domain "{{ certbot_subject }}"
+    {% if certificate_regenerate_force %}
+    --force-renewal
+    {% endif %}
+  register: certbot_result
+
+- name: Display Certbot output
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  debug:
+    var: certbot_result.stdout
+
+- name: Verify certificate files exist on central
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  stat:
+    path: "{{ item }}"
+  with_items:
+    - "{{ cert_file_server_fullchain }}"
+    - "{{ cert_file_server_key }}"
+  register: cert_stats
+
+- name: Fail if any certificate file is missing
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  fail:
+    msg: >
+      The specified certificate file {{ item.item }} does not exist!
+  when: not item.stat.exists
+  with_items: "{{ cert_stats.results }}"
+
+- name: Extract certificate expiration details
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  shell: |
+    cert_date=$(openssl x509 -enddate -noout -in {{ cert_file_server_fullchain }} | sed 's/^notAfter=//')
+    cert_epoch=$(date -d "$cert_date" +%s)
+    current_epoch=$(date +%s)
+    cert_days_remaining=$(( (cert_epoch - current_epoch) / 86400 ))
+    echo "expiration_date=$cert_date"
+    echo "days_remaining=$cert_days_remaining"
+  register: cert_details
+
+- name: Parse certificate expiration details
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  set_fact:
+    certificate_expiration_date: "{{ cert_details.stdout_lines | select('search', '^expiration_date=') | map('regex_replace', '^expiration_date=', '') | first }}"
+    certificate_expire_in_days: "{{ cert_details.stdout_lines | select('search', '^days_remaining=') | map('regex_replace', '^days_remaining=', '') | first | int }}"
+
+- name: Debug certificate expiration details
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  debug:
+    msg: >
+      Raw expiration date: {{ certificate_expiration_date }},
+      Days until expiration: {{ certificate_expire_in_days }}.
+
+- name: Fail if certificate is expired or expires soon
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  fail:
+    msg: >
+      {% if certificate_expire_in_days | float == 0 %}
+      The specified certificate fullchain {{ cert_file_server_fullchain }} expires today!
+      {% elif certificate_expire_in_days | float < 0 %}
+      The specified certificate fullchain {{ cert_file_server_fullchain }} expired {{ certificate_expire_in_days | float | abs | round(2) }} days ago!
+      {% else %}
+      The specified certificate fullchain {{ cert_file_server_fullchain }} will expire in {{ certificate_expire_in_days  | float | round(2) }} days!
+      {% endif %}
+  when: certificate_expire_in_days | float < certificate_expiration_threshold
+
+- name: Generate PKCS#12 KeyStore from full chain and private key
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    openssl pkcs12 -export
+    -in {{ cert_file_server_fullchain }}
+    -inkey {{ cert_file_server_key }}
+    -out {{ cert_file_server_p12 }}
+    -name {{ keystore_alias_name }}
+    -password pass:{{ certificate_password }}
+
+- name: Convert PKCS#12 KeyStore to JKS KeyStore
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: |
+    keytool -importkeystore \ 
+      -deststorepass {{ certificate_password }} \ 
+      -destkeypass {{ certificate_password }} \
+      -destkeystore {{ cert_file_server_keystore }} \ 
+      -srckeystore {{ cert_file_server_p12 }} \
+      -srcstoretype PKCS12 \
+      -srcstorepass {{ certificate_password }} \ 
+      -alias {{ keystore_alias_name }} \
+      -noprompt
+
+- name: Cleanup JKS TrustStore
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ cert_file_server_truststore }}"
+    state: absent
+
+- name: Import CA certificate into JKS TrustStore
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: |
+    yes | keytool -import \ 
+      -trustcacerts \
+      -file {{ cert_file_server_fullchain }} \
+      -alias {{ truststore_ca_name }} \
+      -keystore {{ cert_file_server_truststore }} \
+      -storepass {{ certificate_password }} \
+      -noprompt
+
+- name: Verify Keystore file
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    keytool -list -keystore {{ cert_file_server_keystore }} -storepass {{ certificate_password }}
+  register: keystore_check
+
+- name: Display Keystore Details
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  debug:
+    var: keystore_check.stdout
+
+- name: Verify TrustStore file
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell: >
+    keytool -list -keystore {{ cert_file_server_truststore }} -storepass {{ certificate_password }}
+  register: truststore_check
+
+- name: Display TrustStore Details
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  run_once: true
+  debug:
+    var: truststore_check.stdout
+
+- name: Ensure certificate folder exists on nodes
+  tags:
+    - certificates_generate
+  file:
+    path: "{{ node_certificates_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_certificates }}'
+
+- name: Push certificate files from central node to target nodes
+  tags:
+    - certificates_generate
+  delegate_to: node-0
+  synchronize:
+    src: "{{ item }}"
+    dest: "{{ node_certificates_path }}/"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+  loop:
+    - "{{ cert_file_server_keystore }}"
+    - "{{ cert_file_server_truststore }}"
+
+#    - "{{ cert_file_client_truststore }}"
+
+- name: Set ownership and permissions of the certificate folder recursively
+  tags:
+    - certificates_generate
+  ansible.builtin.file:
+    path: "{{ node_certificates_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true

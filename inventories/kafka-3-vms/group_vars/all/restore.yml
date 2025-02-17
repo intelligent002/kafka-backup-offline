@@ -1,0 +1,53 @@
+# === Restore archive parameter ========================================================================================
+
+# Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
+restore_archive: ""
+
+# === Node Permissions =================================================================================================
+
+# Service user
+owner_user_data: 1000
+
+# Service group
+owner_group_data: 1000
+
+# Data folder permissions
+chmod_data: 0755
+
+# Config folder permissions
+chmod_configs: 0755
+
+# Credentials file permissions
+chmod_credentials: 0755
+
+# Certificate file permissions
+chmod_certificates: 0755
+
+# === Node Restore & Generate Locations ================================================================================
+
+# cluster node's certificate files.
+node_certificates_path: "/data/cluster/certificate"
+
+# cluster node's credentials file.
+node_credentials_path: "/data/cluster/credentials"
+# cluster node's credentials file.
+node_credentials_file: "{{ node_credentials_path }}/kafka_server_jaas.conf"
+# cluster node's credentials file.
+node_client_conf_file: "{{ node_credentials_path }}/client.conf"
+
+# cluster node's config files.
+node_config_path: "/data/cluster/config"
+# cluster node's config files.
+node_config_file: "{{ node_config_path }}/kraft.properties"
+
+# cluster node's data files.
+node_data_path: "/data/cluster/data/logs"
+
+# cluster node's meta files.
+node_meta_path: "/data/cluster/data/meta"
+
+# cluster node's logs files.
+node_logs_path: "/data/cluster/logs"
+
+# Temporary directory on nodes for extracting & creating archives for backups & restores.
+node_temp_path: "/data/temp"

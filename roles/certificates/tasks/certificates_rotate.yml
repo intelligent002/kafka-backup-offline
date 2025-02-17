@@ -1,0 +1,53 @@
+---
+- name: Create folder for cold rotated backups
+  tags:
+    - certificates_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ certificates_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+
+- name: Create folder for cold pinned backups
+  tags:
+    - certificates_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ storage_cold_path }}/certificates/pinned"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+
+- name: Rotate old certificate backups
+  tags:
+    - certificates_rotate
+  delegate_to: node-0
+  run_once: true
+  find:
+    paths: "{{ storage_cold_path }}/certificates/rotated/"
+    age: "{{ retention_policy_certificates }}d"
+    recurse: yes
+    patterns: "*certificate.tar.*"
+  register: old_certificates_backups
+
+- name: Remove old certificate backups
+  tags:
+    - certificates_rotate
+  delegate_to: node-0
+  run_once: true
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ old_certificates_backups.files }}"
+
+- name: Remove empty directories in cold storage
+  tags: certificates_rotate
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    find {{ storage_cold_path }}/certificates/rotated/ -depth -type d -empty -delete

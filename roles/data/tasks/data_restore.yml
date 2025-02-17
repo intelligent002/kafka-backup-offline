@@ -1,0 +1,80 @@
+---
+- name: Validate containers status
+  tags:
+    - data_restore
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
+- name: Verify archive exists
+  tags:
+    - data_restore
+  delegate_to: node-0
+  run_once: true
+  stat:
+    path: "{{ restore_archive }}"
+  register: archive_stat
+
+- name: Fail if archive does not exist
+  tags:
+    - data_restore
+  fail:
+    msg: "The specified restore archive {{ restore_archive }} does not exist!"
+  when: not archive_stat.stat.exists
+
+- name: Extract data archive to temp on central
+  tags:
+    - data_restore
+  delegate_to: node-0
+  run_once: true
+  unarchive:
+    src: "{{ restore_archive }}"
+    dest: "{{ storage_temp_path }}"
+    remote_src: yes
+
+- name: Push node archives from central into nodes
+  tags:
+    - data_restore
+  delegate_to: node-0
+  synchronize:
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+
+- name: Remove data folder on nodes
+  tags:
+    - data_restore
+  file:
+    path: "{{ node_data_store }}"
+    state: absent
+
+- name: Create data folder on nodes
+  tags:
+    - data_restore
+  file:
+    path: "{{ node_data_store }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+
+- name: Restore data on nodes
+  tags:
+    - data_restore
+  unarchive:
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    dest: "{{ node_data_store }}"
+    remote_src: yes
+
+- name: Set data permissions
+  tags:
+    - data_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ node_data_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    recurse: true

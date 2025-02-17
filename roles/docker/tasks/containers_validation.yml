@@ -1,0 +1,22 @@
+---
+- name: Check if the containers are running
+  tags:
+    - containers_validation
+    - data_backup
+    - data_format
+    - data_restore
+  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ hostvars[inventory_hostname]['hostname'] }}"
+  register: container_status
+  failed_when: false  # Avoid marking the task as failed
+  changed_when: false # Do not mark it as a change
+
+- name: Fail if containers are still running
+  tags:
+    - containers_validation
+    - data_backup
+    - data_format
+    - data_restore
+  fail:
+    msg: "Container {{ hostvars[inventory_hostname]['hostname'] }} on {{ inventory_hostname }} is still running. Please stop all containers before proceeding."
+  when: container_status.stdout | trim | lower == "true"
+  any_errors_fatal: true

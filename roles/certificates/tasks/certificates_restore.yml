@@ -1,0 +1,103 @@
+---
+- name: Verify archive exists
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  stat:
+    path: "{{ restore_archive }}"
+  register: archive_stat
+
+- name: Fail if archive does not exist
+  tags:
+    - certificates_restore
+  fail:
+    msg: "The specified restore archive {{ restore_archive }} does not exist!"
+  when: not archive_stat.stat.exists
+
+- name: Extract certificates archive to temp on node-0
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  unarchive:
+    src: "{{ restore_archive }}"
+    dest: "{{ storage_temp_path }}"
+    remote_src: yes
+
+- name: Create certificates folder on nodes
+  tags:
+    - certificates_restore
+  file:
+    path: "{{ node_certificates_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
+
+- name: Push node archives from node-0 to nodes
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  synchronize:
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+  register: sync_result
+  failed_when: sync_result.rc != 0
+
+- name: Restore certificates folder on nodes
+  tags:
+    - certificates_restore
+  unarchive:
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.zx"
+    dest: "{{ node_certificates_path }}"
+    remote_src: yes
+
+- name: Delete certificates folder on node-0
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ storage_certificates_path }}"
+    state: absent
+
+- name: Create certificates folder on node-0
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ storage_certificates_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true
+
+- name: Restore certificates folder on node-0
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  unarchive:
+    src: "{{ storage_temp_path }}/node-0-certificates.tar.zx"
+    dest: "{{ storage_certificates_path }}/"
+    remote_src: yes
+
+- name: Set certificate permissions
+  tags:
+    - certificates_restore
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.file:
+    path: "{{ node_certificates_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_certificates }}"
+    recurse: true

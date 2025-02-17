@@ -11,22 +11,22 @@ restore operations.
 
 ## **In general, Kafka Cluster deployment options are:**
 
-| **Aspect**                  | **Cloud-Managed Services**   | **Kubernetes**                            | **Docker in VMs**          | **Virtual Machines**  | **Bare Metal**                     | **Docker Compose**                   |
-|-----------------------------|------------------------------|-------------------------------------------|----------------------------|-----------------------|------------------------------------|--------------------------------------|
-| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐⭐	                                    | ⭐⭐⭐⭐                       | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
-| **Definition**              | Fully managed Kafka services | Orchestrates containerized Kafka clusters | Kafka in containers on VMs | Kafka binaries on VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
-| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
-| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                             | ★★★<br>Medium              | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
-| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                          | ★★★<br>Medium              | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
-| **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
-| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                              | ★★★★<br>Good               | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★<br>Very Weak                       |
-| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★★<br>Helm or Operators                 | ★★★<br>Docker images       | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
-| **Backup**                  | ★★★★★<br>Fully Automatic     | ★★<br>Requires tooling                    | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Recovery**                | ★★★★<br>On demand            | ★★<br>Requires tooling                    | ★★<br>Manual               | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
-| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                              | ★★★<br>Moderate            | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very Poor                       |
-| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent                        | ★★★★<br>Good               | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
-| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate            | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
-| **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent                        | ★★★<br>Moderate            | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
+| **Aspect**                  | **Cloud-Managed Services**   | **Kubernetes**                  | **Docker in VMs**      | **Binary in VMs**     | **Binary on Bare Metal**           | **Docker Compose**                   |
+|-----------------------------|------------------------------|---------------------------------|------------------------|-----------------------|------------------------------------|--------------------------------------|
+| **Overall Rating**          | ⭐⭐⭐⭐⭐                        | ⭐⭐⭐⭐⭐	                          | ⭐⭐⭐⭐                   | 	⭐⭐⭐	                 | ⭐⭐	                                | ⭐⭐                                   |
+| **Definition**              | Fully managed Kafka services | Kafka operator<br>in Kubernetes | Kafka in docker in VMs | Kafka binaries in VMs | Kafka binaries on physical servers | Kafka in containers on single docker |
+| **Performance**             | ★★★★★<br>Excellent           | ★★★★<br>Good                    | ★★★★<br>Good           | ★★★★<br>Good          | ★★★★★<br>Excellent                 | ★★<br>Poor                           |
+| **Performance Overhead**    | ★★★★★<br>Minimal             | ★★★<br>Medium                   | ★★★<br>Medium          | ★★★★<br>Moderate      | ★★★★★<br>None                      | ★★<br>High                           |
+| **Operational Overhead**    | ★★★★★<br>Minimal             | ★★★★<br>Moderate                | ★★★<br>Medium          | ★★<br>High            | ★<br>Very High                     | ★★<br>High                           |
+| **Operational Confidence**  | ★★★★★<br>High                | ★★★★<br>Good                    | ★★★★<br>Good           | ★★★<br>Moderate       | ★★<br>Low                          | ★★<br>Low                            |
+| **Resource Isolation**      | ★★★★★<br>Strong              | ★★★★<br>Good                    | ★★★★<br>Good           | ★★★★<br>Good          | ★★★★★<br>Strong                    | ★<br>Very Weak                       |
+| **Updates**                 | ★★★★★<br>Fully Automatic     | ★★★★<br>Helm or Operators       | ★★★<br>Docker images   | ★★<br>Manual          | ★<br>Manual                        | ★★★<br>Docker images                 |
+| **Backup**                  | ★★★★★<br>Fully Automatic     | ★★<br>Requires tooling          | ★★<br>Manual           | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
+| **Recovery**                | ★★★★<br>On demand            | ★★<br>Requires tooling          | ★★<br>Manual           | ★★<br>Manual          | ★<br>Manual                        | ★<br>Manual                          |
+| **Scaling**                 | ★★★★★<br>Auto-scales         | ★★★★<br>Good                    | ★★★<br>Moderate        | ★★★<br>Moderate       | ★★<br>Poor                         | ★<br>Very Poor                       |
+| **Flexibility**             | ★★★★<br>Good                 | ★★★★★<br>Excellent              | ★★★★<br>Good           | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
+| **Automation**              | ★★★★★<br>Excellent           | ★★★★★<br>Excellent              | ★★★<br>Moderate        | ★★<br>Poor            | ★★<br>Poor                         | ★★<br>Poor                           |
+| **Modern DevOps Practices** | ★★★★★<br>Excellent           | ★★★★★<br>Excellent              | ★★★<br>Moderate        | ★★<br>Poor            | ★<br>Very Poor                     | ★★<br>Poor                           |
 
 If a cloud-managed service is not a viable option; and you prefer to avoid Kubernetes; your next best choice is to use
 **virtual machines (VMs) and Docker inside them.**
@@ -59,6 +59,9 @@ operations efficiently.
 10. **Minimal Downtime:** Routine backups and restores can be performed with minimal impact on cluster availability,
     ensuring smooth operations.
 
+This approach provides flexibility, simplicity, and robust management of your Kafka environment while avoiding the
+complexity of Kubernetes.
+
 ## **Cluster Deployment**
 
 Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
@@ -73,7 +76,7 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
     - Ensure the VMs are provisioned with sufficient CPU, RAM and DISK to meet Kafka's
       workload demands.
 - **Storage Considerations**:
-    - Avoid **RAID-5** due to its high write latency, which can degrade Kafka performance.
+    - **Avoid RAID-5** due to its high write latency, which can degrade Kafka performance.
     - Prefer configurations such as:
         - **Single SSD** for high performance.
         - **RAID-0** for performance without redundancy.
@@ -89,9 +92,16 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 The minimal development/testing cluster should include the following roles:
 
 1. **Central node(s):**
-    - Responsible for running web console for GUI, backup & restore operations
+    - Responsible for:
+      - running any web console for GUI
+      - backup & restore operations
+      - certificate management operations
+      - cluster management operations
+      - in general, it's the control center
     - Mount (or bind via NFS) **Large size & Slow I/O** drive for **backup.**
-    - Includes at least one node:
+    - To manage certificates, java is required
+      - For centos `yum install java-11-openjdk-devel -y`
+    - Includes at least one node (more nodes required for complex GUI options like [conduktor.io](https://conduktor.io/) which is resource hungry):
         - `kafka-central-1`
 
 
@@ -129,14 +139,24 @@ once the virtual machines are up and runnig, lets see what the Kafka-Backup-Offl
 
 ### Container Management
 
-- Stop Kafka containers
-- Start Kafka containers
-- Restart Kafka containers
-- Remove Kafka containers
-- Deploy Kafka containers
+- Run Kafka containers (execute docker run with params)
+- Remove Kafka containers (execute docker rm with params)
+- Start Kafka containers (execute docker start with params)
+- Stop Kafka containers (execute docker stop with params)
+- Restart Kafka containers (execute docker stop & start with params)
 
-This approach provides flexibility, simplicity, and robust management of your Kafka environment while avoiding the
-complexity of Kubernetes.
+### Certificate management
+
+- The management starts after certificates was generated by any tool, like certbot.
+- Since we support dynamic amount of nodes, we better use wildcard certificates.
+- The solution requires a few files to be present after the generation, in the example we will use such files, (they are not about to be commited and published, you will have to generate them by your own, consult letsencrypt on how to get those):
+  - wildcard.intel.r7g.org-ACME.all.pem
+  - wildcard.intel.r7g.org-ACME.ca
+  - wildcard.intel.r7g.org-ACME.crt
+  - wildcard.intel.r7g.org-ACME.fullchain
+  - wildcard.intel.r7g.org-ACME.key 
+
+
 
 ## **Cluster Procedures**
 
@@ -202,6 +222,3 @@ routine:
 ### **Backup Command**
 
 To perform a full cluster backup, use the following command:
-
-```bash
-./kafka_manager.sh cluster_backup

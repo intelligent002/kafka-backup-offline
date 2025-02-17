@@ -1,0 +1,184 @@
+# Node ID
+node.id={{ node_id }}
+
+# Define the roles for this node (controller and broker)
+process.roles=broker,controller
+
+# Unique cluster ID that must match across all nodes (controller and broker)
+cluster.id={{ cluster_id }}
+
+#############################################################################################
+# Controller Quorum Configuration
+
+# Define the quorum of controllers with their respective node IDs and addresses
+controller.quorum.voters={% for host in (groups['combined'] | default([])) + (groups['controllers'] | default([])) %}
+{{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_controller_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# Timeout for controller quorum elections (in milliseconds)
+controller.quorum.election.timeout.ms=10000
+
+#############################################################################################
+# Listeners and communication
+
+{% if use_certificate %}
+# Path to the keystore file (JKS format) containing the private key and certificate.
+ssl.keystore.location=/etc/kafka/ssl/keystore.jks
+
+# Password to unlock the keystore file. Same password is used for the private key.
+ssl.keystore.password={{ certificate_password }}
+
+# Password to unlock the private key in the keystore. Same password is used as the keystore password.
+ssl.key.password={{ certificate_password }}
+
+# Alias of the certificate in the keystore to use
+ssl.keystore.alias={{ keystore_alias_name }}
+
+# Path to the truststore file (JKS format) containing trusted CA certificates.
+ssl.truststore.location=/etc/kafka/ssl/truststore.jks
+
+# Password to unlock the truststore file.
+ssl.truststore.password={{ certificate_password }}
+
+# Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
+ssl.enabled.protocols=TLSv1.3
+
+{% if use_credentials %}
+# Optional: Require client certificates for authentication.
+ssl.client.auth=required
+{% endif %}
+{% endif %}
+
+# Specify the name of the listener used for controller communication
+controller.listener.names=CONTROLLER
+
+# Define the advertised listeners for a combined node
+advertised.listeners=BROKER://{{ hostname }}:{{ port_broker_ext }}
+
+# Define the listeners for a combined node
+listeners=BROKER://:{{ port_broker_ext }},CONTROLLER://:{{ port_controller_ext }}
+
+# Map listeners to their respective security protocols
+{% if use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SASL_SSL,BROKER:SASL_SSL
+{% elif use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:SSL,BROKER:SSL
+{% elif not use_certificate and use_credentials %}
+listener.security.protocol.map=CONTROLLER:SASL_PLAINTEXT,BROKER:SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT
+{% endif %}
+
+# Define the security protocol for inter-broker communication
+inter.broker.listener.name=BROKER
+
+# Define the security protocol for controller-to-controller communication
+{% if use_certificate and use_credentials %}
+security.controller.protocol=SASL_SSL
+{% elif use_certificate and not use_credentials %}
+security.controller.protocol=SSL
+{% elif not use_certificate and use_credentials %}
+security.controller.protocol=SASL_PLAINTEXT
+{% elif not use_certificate and not use_credentials %}
+security.controller.protocol=PLAINTEXT
+{% endif %}
+
+#############################################################################################
+# Data and Metadata Storage
+
+# Directory where the broker data are stored
+log.dirs=/var/lib/kafka/data
+
+# Directory where the controller metadata are stored
+metadata.log.dir=/var/lib/kafka/meta
+
+#############################################################################################
+# Internal Topics Configuration
+
+# Replication factor for the __consumer_offsets topic
+offsets.topic.replication.factor=3
+
+# Replication factor for the __transaction_state topic
+transaction.state.log.replication.factor=3
+
+# Minimum number of in-sync replicas required for transactional writes
+transaction.state.log.min.isr=2
+
+# Number of partitions for the __transaction_state topic
+transaction.state.log.num.partitions=10
+
+#############################################################################################
+# Transactions
+
+# Defines how often the broker will clean up expired or timed-out transactions
+transaction.abort.timed.out.transaction.cleanup.interval.ms=300000
+
+#############################################################################################
+# Log Retention Policies
+
+# Retention period for logs before they are eligible for deletion (in hours)
+log.retention.hours=168
+
+# Maximum size of a single log segment before it is rolled over (in bytes, 1 GB)
+log.segment.bytes=1073741824
+
+# Interval for checking and applying log retention policies (in ms)
+log.retention.check.interval.ms=300000
+
+# Enable log cleaner for log compaction
+log.cleaner.enable=true
+
+#############################################################################################
+# Performance Settings
+
+# Number of threads for handling network requests
+num.network.threads=6
+
+# Number of threads for handling I/O operations
+num.io.threads=8
+
+# Number of threads for log recovery during broker startup or failure recovery
+num.recovery.threads.per.data.dir=2
+
+#############################################################################################
+# Log Flush Policy
+
+# Messages are immediately written to the filesystem but by default we only fsync() to sync
+# the OS cache lazily. The following configurations control the flush of data to disk.
+# There are a few important trade-offs here:
+#    1. Durability: Unflushed data may be lost if you are not using replication.
+#    2. Latency: Very large flush intervals may lead to latency spikes when the flush does occur as there will be a lot of data to flush.
+#    3. Throughput: The flush is generally the most expensive operation, and a small flush interval may lead to excessive seeks.
+# The settings below allow one to configure the flush policy to flush data after a period of time or
+# every N messages (or both). This can be done globally and overridden on a per-topic basis.
+
+# The number of messages to accept before forcing a flush of data to disk
+log.flush.interval.messages=10000
+
+# The maximum amount of time a message can sit in a log before we force a flush
+log.flush.interval.ms=1000
+
+#############################################################################################
+# Security Settings (Optional for Production)
+
+# Enable/Disable automatic topic creation (recommended to disable for production)
+auto.create.topics.enable=true
+
+# Enforce re-authentication every 24 hours
+connections.max.reauth.ms=86400000
+
+{% if use_credentials %}
+#############################################################################################
+# Authentication and Authorization
+
+# Enables SASL authentication mechanisms (SCRAM-SHA-256 for SSL, PLAIN for plaintext)
+sasl.enabled.mechanisms={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+
+# Configures the SASL mechanism used for inter-broker communication
+sasl.mechanism.inter.broker.protocol={% if use_certificate %}SCRAM-SHA-256{% else %}PLAIN{% endif %}
+
+# Defines the authorizer class to enable ACL-based authorization
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+
+# Specifies superusers who bypass ACL checks
+super.users=User:admin
+{% endif %}

@@ -1,0 +1,47 @@
+---
+- name: Add host to known_hosts
+  tags: ssh_keys
+  ansible.builtin.known_hosts:
+    path: ~/.ssh/known_hosts
+    name: "{{ ansible_host }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -q ' + ansible_host) }}"
+    state: present
+  delegate_to: localhost
+  run_once: true
+
+- name: Ensure SSH directory exists on the remote host
+  tags: ssh_keys
+  ansible.builtin.file:
+    path: ~/.ssh
+    state: directory
+    mode: '0700'
+
+- name: Copy public key to the remote server
+  tags: ssh_keys
+  ansible.builtin.shell: |
+    grep -q "$(cat ~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys || \
+    echo "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" >> ~/.ssh/authorized_keys
+  args:
+    executable: /bin/bash
+
+- name: Set proper permissions on authorized_keys
+  tags: ssh_keys
+  ansible.builtin.file:
+    path: ~/.ssh/authorized_keys
+    mode: '0600'
+
+- name: Test password-less SSH access
+  tags: ssh_keys
+  ansible.builtin.shell: |
+    ssh {{ ansible_host }} "hostname && uname -a"
+  delegate_to: localhost
+  register: ssh_test_output
+  failed_when: ssh_test_output.rc != 0
+
+- name: Display SSH test output
+  tags: ssh_keys
+  ansible.builtin.debug:
+    msg: |
+      Host: {{ ansible_host }}
+      stdout: {{ ssh_test_output.stdout }}
+      stderr: {{ ssh_test_output.stderr }}

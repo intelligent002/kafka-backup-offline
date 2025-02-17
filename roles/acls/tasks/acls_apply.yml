@@ -1,0 +1,91 @@
+---
+- name: Fetch any broker from cluster
+  tags:
+    - acls_apply
+  run_once: true
+  set_fact:
+    first_node: >-
+      {{
+        (groups['combined'] | default([])) |
+        union(groups['brokers'] | default([])) |
+        first
+      }}
+
+- name: Generate Kafka ACL commands batch
+  tags:
+    - acls_apply
+  delegate_to: "{{ first_node }}"
+  run_once: true
+  set_fact:
+    kafka_acl_commands: >-
+      {% for user in credentials %}
+        {% for permission in user.permissions %}
+          JMX_PORT=9997 KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote.port=9997 -Dcom.sun.management.jmxremote.rmi.port=9997 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false" 
+          /opt/kafka/bin/kafka-acls.sh --bootstrap-server {{ hostvars[first_node]['hostname'] }}:9093 
+          --command-config /credentials/admin.ssl.properties 
+          --add --allow-principal User:{{ user.username }}
+          {% if permission.operation is iterable and permission.operation is not string %}
+            {% for op in permission.operation %} --operation {{ op }} {% endfor %}
+          {% else %}
+            --operation {{ permission.operation }}
+          {% endif %}
+          {% if permission.resource_type == 'cluster' %}
+            --cluster
+          {% else %}
+            --{{ permission.resource_type }} "{{ permission.resource_name }}"
+          {% endif %}
+          && 
+          JMX_PORT=9997 KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote.port=9997 -Dcom.sun.management.jmxremote.rmi.port=9997 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false" 
+          /opt/kafka/bin/kafka-acls.sh --bootstrap-server {{ hostvars[first_node]['hostname'] }}:9093 
+          --command-config /credentials/admin.ssl.properties 
+          --add --allow-principal User:CN={{ user.username }}
+          {% if permission.operation is iterable and permission.operation is not string %}
+            {% for op in permission.operation %} --operation {{ op }} {% endfor %}
+          {% else %}
+            --operation {{ permission.operation }}
+          {% endif %}
+          {% if permission.resource_type == 'cluster' %}
+            --cluster
+          {% else %}
+            --{{ permission.resource_type }} "{{ permission.resource_name }}"
+          {% endif %}
+          && 
+        {% endfor %}
+      {% endfor %}
+      JMX_PORT=9997 KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote.port=9997 -Dcom.sun.management.jmxremote.rmi.port=9997 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false" 
+      /opt/kafka/bin/kafka-acls.sh --bootstrap-server {{ hostvars[first_node]['hostname'] }}:9093 
+      --command-config /credentials/admin.ssl.properties --list
+
+- name: Cleanup Kafka ACL commands batch
+  tags:
+    - acls_apply
+  delegate_to: "{{ first_node }}"
+  run_once: true
+  set_fact:
+    kafka_acl_commands: "{{ kafka_acl_commands | replace('\n', ' ') | regex_replace(' +', ' ') }}"
+
+- name: Debug Kafka ACL commands batch
+  delegate_to: "{{ first_node }}"
+  run_once: true
+  tags:
+    - acls_apply
+  debug:
+    msg: "Please be patient; this process may take a few minutes. It sequentially applies all ACLs from the inventory file to the Kafka cluster, ensuring proper access control. This idempotent process can be safely re-applied without causing issues." # {{ kafka_acl_commands }}"
+
+- name: Apply Kafka ACL commands batch
+  tags:
+    - acls_apply
+  delegate_to: "{{ first_node }}"
+  run_once: true
+  shell: |
+    docker exec {{ hostvars[first_node]['hostname'] }} bash -c '{{ kafka_acl_commands }}'
+  register: kafka_acl_apply_result
+  changed_when: false
+
+- name: Result Kafka ACL commands batch
+  delegate_to: "{{ first_node }}"
+  run_once: true
+  tags:
+    - acls_apply
+  debug:
+    var: kafka_acl_apply_result.stdout_lines
