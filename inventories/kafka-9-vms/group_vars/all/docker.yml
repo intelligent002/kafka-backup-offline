@@ -109,7 +109,6 @@ docker_command_balancer_run: >
     --health-start-period=5s \
     -v /data:/data \
     -v /data/cluster/balancer/kafka-connect-balancer.conf:/etc/nginx/nginx.conf:ro \
-    --network kafka-connect-balancer \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >
