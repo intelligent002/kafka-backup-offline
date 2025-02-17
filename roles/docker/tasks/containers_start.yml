@@ -7,3 +7,12 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
   run_once: true  # Ensure task runs only once on localhost
+
+- name: Start Connect Balancer on node-0
+  tags:
+    - containers_start
+    - containers_restart
+  delegate_to: node-0
+  run_once: true
+  shell: >
+    docker start kafka-connect-balancer
