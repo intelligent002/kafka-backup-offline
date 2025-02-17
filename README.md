@@ -91,7 +91,7 @@ Kafka demands significant resources in terms of **Disk I/O, Memory & CPU**.
 
 The minimal development/testing cluster should include the following roles:
 
-1. **Central node(s):**
+1. **Management node(s):**
     - Responsible for:
       - running any web console for GUI
       - backup & restore operations
@@ -102,27 +102,33 @@ The minimal development/testing cluster should include the following roles:
     - To manage certificates, java is required
       - For centos `yum install java-11-openjdk-devel -y`
     - Includes at least one node (more nodes required for complex GUI options like [conduktor.io](https://conduktor.io/) which is resource hungry):
-        - `kafka-central-1`
+        - `kafka-node-0`
 
-
-2. **Controllers**:
+2. **Controller**:
     - Responsible for managing cluster metadata, leader elections, and topic configurations.
     - Mount **Small size & Fast I/O** drive for **meta-data.**
-    - Includes at least three controllers:
-        - `kafka-controller-1`
-        - `kafka-controller-2`
-        - `kafka-controller-3`
+    - Includes at least three nodes:
+        - `kafka-node-1`
+        - `kafka-node-2`
+        - `kafka-node-3`
 
-
-3. **Brokers**:
+3. **Broker**:
     - Handle data storage, replication, and client requests.
     - Mount **Medium size & Fast I/O** drive for **data.**
-    - Includes at least three brokers:
-        - `kafka-broker-1`
-        - `kafka-broker-2`
-        - `kafka-broker-3`
+    - Includes at least three nodes:
+        - `kafka-node-4`
+        - `kafka-node-5`
+        - `kafka-node-6`
 
-once the virtual machines are up and runnig, lets see what the Kafka-Backup-Offline can offer you:
+4. **Connect**:
+    - Handling data movement between kafka and other parties, like CDC for pulling updates from DB, or synk to push data from topics towards DB
+    - Mount **Small size & Slow I/O** drive for **configurations and plugins**
+    - Includes at least three nodes:
+        - `kafka-node-7`
+        - `kafka-node-8`
+        - `kafka-node-9`
+
+once the virtual machines are up and running, lets see what the Kafka-Backup-Offline can offer you:
 
 ---
 
