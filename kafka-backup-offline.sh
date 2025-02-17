@@ -199,7 +199,8 @@ function create_pid_file()
     fi
 
     echo $$ >"$PID_FILE"
-    trap remove_pid_file EXIT
+    trap "kill 0; exit 130" SIGINT  # Kill all processes and exit gracefully when CTRL+C is pressed
+    trap remove_pid_file EXIT       # Ensure the PID file is removed on any exit
     log "DEBUG" "PID file created with PID: $$"
 }
 
