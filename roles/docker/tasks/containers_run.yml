@@ -28,13 +28,3 @@
     {% endif %}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
-
-
-# old variant - single command for all containers
-#- name: Run docker containers in startup order
-#  tags:
-#    - containers_run
-#  shell: "{{ docker_command_controllers_run }}"
-#  delegate_to: "{{ item }}"
-#  with_items: "{{ startup_order }}"
-#  run_once: true  # Ensure task runs only once on localhost
