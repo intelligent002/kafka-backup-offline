@@ -30,7 +30,7 @@
   when: group_roles[item] is defined
 
 - name: Deploy Connect Balancer on node-0
-  tags: configs_generate
+  tags: containers_run
   delegate_to: node-0
   run_once: true
   template:
