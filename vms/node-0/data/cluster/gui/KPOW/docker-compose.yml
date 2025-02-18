@@ -15,7 +15,7 @@ services:
       test: ["CMD-SHELL", "response=$$(curl -s http://localhost:3000); if echo \"$$response\" | grep -q \"<title>Kpow for Apache Kafka\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
       timeout: 10s
     volumes:
-      - /data:/data
+      - /data:/data:ro
     env_file:
       - /data/cluster/gui/KPOW/env-ee-mtls.env
     networks:
@@ -39,7 +39,7 @@ services:
     ports:
       - "8107:443"
     volumes:
-      - /data:/data
+      - /data:/data:ro
       - /data/cluster/gui/KPOW/kafka-gateway-kpow.conf:/etc/nginx/nginx.conf:ro
     networks:
       - kafka-console-kpow
