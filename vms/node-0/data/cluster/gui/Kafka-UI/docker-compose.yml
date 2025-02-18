@@ -31,7 +31,7 @@ services:
       - "8106:443"
     volumes:
       - /data:/data:ro
-      - cd ..:/etc/nginx/nginx.conf:ro
+      - /data/cluster/gui/Kafka-UI/kafka-gateway-kafka-ui.conf:/etc/nginx/nginx.conf:ro
     networks:
       - kafka-console-kafka-ui
 
