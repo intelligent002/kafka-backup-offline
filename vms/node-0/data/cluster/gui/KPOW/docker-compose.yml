@@ -4,7 +4,7 @@ networks:
 
 services:
   kafka-console-kpow:
-    image: factorhouse/kpow-ce:93.4
+    image: factorhouse/kpow-ee:93.4
     container_name: kafka-console-kpow
     hostname: kafka-console-kpow
     restart: always
