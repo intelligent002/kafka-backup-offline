@@ -17,7 +17,7 @@ services:
     volumes:
       - /data:/data
     env_file:
-      - /data/cluster/gui/KPOW/env-ce-mtls.env
+      - /data/cluster/gui/KPOW/env-ee-mtls.env
     networks:
       - kafka-console-kpow
 
