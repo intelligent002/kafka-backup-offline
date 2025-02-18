@@ -2,7 +2,7 @@ auth:
   type: DISABLED
 kafka:
   clusters:
-  - bootstrapServers: 10.1.3.24:9093,10.1.3.25:9093,10.1.3.26:9093
+  - bootstrapServers: node-4.intel.r7g.org:9093,node-5.intel.r7g.org:9093,node-6.intel.r7g.org:9093
     kafkaConnect:
     - name: connect-balancer
       address: https://node-0.intel.r7g.org:8080
