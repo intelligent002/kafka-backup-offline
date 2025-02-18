@@ -10,7 +10,7 @@ services:
     restart: always
     volumes:
       - /data:/data
-      - /data/cluster/gui/Kafka-UI/dynamic_config_mtls.yaml:/etc/kafkaui/dynamic_config.yaml
+      - /data/cluster/gui/Kafka-UI/dynamic_config_mtls.yaml:/etc/kafkaui/dynamic_config.yaml:ro
     networks:
       - kafka-console-kafka-ui
 
