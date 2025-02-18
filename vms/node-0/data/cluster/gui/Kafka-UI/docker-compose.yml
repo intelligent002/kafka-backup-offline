@@ -9,7 +9,7 @@ services:
     hostname: kafka-console-kafka-ui
     restart: always
     volumes:
-      - /data:/data
+      - /data:/data:ro
       - /data/cluster/gui/Kafka-UI/dynamic_config_mtls.yaml:/etc/kafkaui/dynamic_config.yaml:ro
     networks:
       - kafka-console-kafka-ui
@@ -28,7 +28,7 @@ services:
     ports:
       - "8106:443"
     volumes:
-      - /data:/data
+      - /data:/data:ro
       - /data/cluster/gui/Kafka-UI/kafka-gateway-kafka-ui.conf:/etc/nginx/nginx.conf:ro
     networks:
       - kafka-console-kafka-ui
