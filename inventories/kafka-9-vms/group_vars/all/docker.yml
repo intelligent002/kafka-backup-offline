@@ -81,6 +81,7 @@ docker_command_connect_run: >
   -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
   -p {{ hostvars[item]['port_jolokia_ext'] }}:{{ hostvars[item]['port_jolokia_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx2G -Xms2G"
+  -e KAFKA_OPTS=-javaagent:/opt/jolokia/jolokia.jar=port=8778,host=0.0.0.0
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
@@ -89,6 +90,7 @@ docker_command_connect_run: >
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false
   "
+  -v /data/cluster/plugins/jolokia.jar:/opt/jolokia/jolokia.jar
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
