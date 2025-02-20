@@ -15,3 +15,6 @@ port_consumer_sasl_ssl_ext: 9095
 
 port_connect_rest_int: 8080
 port_connect_rest_ext: 8080
+
+port_jolokia_ext: 8778
+port_jolokia_int: 8778
