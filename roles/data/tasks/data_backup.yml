@@ -31,25 +31,12 @@
 - name: Create data archive on nodes
   tags:
     - data_backup
-  community.general.archive:
-    path: "{{ node_data_store }}/"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
-    extra_opts:
-      - "--fast"   # Use a faster compression level with lower memory usage
-      - "--threads=2"  # Limit to 2 CPU threads (adjust as needed)
-      - "--memlimit-compress=512MiB"  # Set a memory limit (adjust as needed)
-
-- name: Create data archive on nodes with controlled memory usage
-  tags:
-    - data_backup
   ansible.builtin.shell:
     cmd: >
       tar -cf - "{{ node_data_store }}/" |
       nice -n 19 ionice -c3 xz --fast --threads=2 --memlimit-compress=512MiB >
       "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz" && 
-      ls -lah {{ node_temp_path }}
+      ls -lah {{ node_temp_path }} > /tmp/ls.txt
 
 - name: Pull data archive from nodes
   tags:
