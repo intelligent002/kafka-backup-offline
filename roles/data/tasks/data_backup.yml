@@ -33,9 +33,7 @@
     - data_backup
   ansible.builtin.shell:
     cmd: >
-      tar -cf - "{{ node_data_store }}" |
-      xz -6 --lzma2=preset=6,dict=256MiB --threads=0 --memlimit-compress=4GiB >
-      "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+      tar -cf - "{{ node_data_store }}" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 - name: Pull data archive from nodes
   tags:
@@ -56,6 +54,4 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - "{{ storage_temp_path }}/*-data.tar.xz" |
-      xz -6 --lzma2=preset=6,dict=256MiB --threads=0 --memlimit-compress=4GiB >
-      "{{ data_backup_file }}"
+      tar -cf - "{{ storage_temp_path }}/*-data.tar.xz" | xz > "{{ data_backup_file }}"
