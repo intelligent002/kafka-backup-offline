@@ -5,13 +5,6 @@
   setup:
   with_items: "{{ startup_order }}"
 
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_run
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
 
 - name: Calculate RAM per node
   tags:
@@ -29,7 +22,6 @@
     msg: "Node: {{ item }} - Detected RAM: {{ ram_gb }} GB"
   with_items: "{{ startup_order }}"
 
-
 - name: Populate node_specs with RAM & Heap Size
   tags:
     - containers_run
@@ -44,6 +36,16 @@
       {%- else -%}                    4G
       {%- endif -%}
   with_items: "{{ startup_order }}"
+
+
+- name: Assign node roles based on inventory group
+  tags:
+    - containers_run
+  set_fact:
+    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
+  with_items: "{{ startup_order }}"
+  run_once: true
+
 
 - name: Assigned roles map
   tags:
