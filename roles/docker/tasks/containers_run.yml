@@ -10,7 +10,6 @@
 - name: Detect RAM & Decide Heap Size
   tags:
     - containers_run
-  setup:
   delegate_to: "{{ item }}"
   set_fact:
     node_specs: "{{ node_specs | default({}) | combine({ item: {'ram_gb': ram_gb, 'heap_size': heap_size} }) }}"
