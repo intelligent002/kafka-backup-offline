@@ -23,7 +23,7 @@
       {%- else -%}                    4G
       {%- endif -%}
   with_items: "{{ startup_order }}"
-  run_once: true
+  run_once: false
 
 - name: Debug calculated Heap Size per node
   tags:
