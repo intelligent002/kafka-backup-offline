@@ -1,4 +1,12 @@
 ---
+- name: Gather facts for all remote nodes
+  tags:
+    - containers_run
+  setup:
+  delegate_to: "{{ item }}"
+  with_items: "{{ startup_order }}"
+  run_once: false
+
 - name: Assign node roles based on inventory group
   tags:
     - containers_run
