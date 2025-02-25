@@ -36,6 +36,10 @@
     dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
+    extra_opts:
+      - "--fast"   # Use a faster compression level with lower memory usage
+      - "--threads=2"  # Limit to 2 CPU threads (adjust as needed)
+      - "--memlimit-compress=512MiB"  # Set a memory limit (adjust as needed)
 
 - name: Pull data archive from nodes
   tags:
@@ -59,3 +63,7 @@
     dest: "{{ data_backup_file }}"  # Destination archive
     format: xz  # Use XZ compression
     remove: no  # Set to 'yes' to remove the original files after archiving
+    extra_opts:
+      - "--fast"   # Use a faster compression level with lower memory usage
+      - "--threads=2"  # Limit to 2 CPU threads (adjust as needed)
+      - "--memlimit-compress=512MiB"  # Set a memory limit (adjust as needed)
