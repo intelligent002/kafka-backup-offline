@@ -30,7 +30,7 @@
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }} Detected RAM: {{ hostvars[item]['ram_gb'] }} GB, Decided Heap Size: {{ hostvars[item]['heap_size'] }}, Decided Role: {{ group_roles[item] | default('No role assigned') }}"
+    msg: "Node: {{ item }} Detected RAM: {{ node_specs[item]['ram_gb'] }} GB, Decided Heap Size: {{ node_specs[item]['heap_size'] }}, Decided Role: {{ group_roles[item] | default('No role assigned') }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
