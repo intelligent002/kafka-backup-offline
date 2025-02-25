@@ -16,6 +16,7 @@
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
+  register: ram_result
 
 - name: Calculate Kafka Heap Size
   tags:
@@ -32,12 +33,13 @@
       {%- endif -%}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
+  register: heap_result
 
-- name: Assigned roles map
+- name: Debug calculated Heap Size per node
   tags:
     - containers_run_debug
   debug:
-    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+    msg: "Node: {{ item }} Detected RAM: {{ hostvars[item]['ram_gb'] }} GB, Decided Heap Size: {{ hostvars[item]['heap_size'] }}, Decided Role: {{ group_roles[item] | default('No role assigned') }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
