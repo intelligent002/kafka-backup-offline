@@ -3,8 +3,7 @@
   tags:
     - containers_run
   setup:
-  with_items: "{{ startup_order }}"
-
+  when: inventory_hostname in startup_order
 
 - name: Calculate RAM per node
   tags:
