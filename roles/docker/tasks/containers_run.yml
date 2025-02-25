@@ -11,7 +11,7 @@
   tags:
     - containers_run
   setup:
-  when: inventory_hostname in startup_order  # Ensures facts are collected globally
+  with_items: "{{ startup_order }}"
 
 - name: Calculate RAM per node
   tags:
