@@ -5,6 +5,7 @@
   delegate_to: "{{ item }}"
   setup:
   with_items: "{{ startup_order }}"
+  run_once: true
 
 - name: Calculate RAM per node
   tags:
@@ -13,6 +14,7 @@
   set_fact:
     node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
   with_items: "{{ startup_order }}"
+  run_once: true
 
 - name: Debug RAM per node
   tags:
@@ -21,6 +23,7 @@
   debug:
     msg: "Node: {{ item }} - Detected RAM: {{ node_ram }} GB"
   with_items: "{{ startup_order }}"
+  run_once: true
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
