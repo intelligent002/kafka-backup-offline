@@ -37,6 +37,13 @@
       nice -n 19 ionice -c3 xz --fast --threads=2 --memlimit-compress=512MiB >
       "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
+- name: Ensure archive exists before rsync
+  tags:
+    - data_backup
+  ansible.builtin.stat:
+    path: "/data/temp/{{ inventory_hostname }}-data.tar.zx"
+  register: archive_stat
+
 - name: Pull data archive from nodes
   tags:
     - data_backup
