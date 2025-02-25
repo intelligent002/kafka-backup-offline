@@ -7,31 +7,14 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Get vm RAM size for heap calculation
+- name: Detect RAM & Decide Heap Size
   tags:
     - containers_run
   delegate_to: "{{ item }}"
-  run_once: true
   set_fact:
+    node_specs: "{{ node_specs | default({}) | combine({ item: {'ram_gb': ram_gb, 'heap_size': heap_size} }) }}"
+  vars:
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
-  with_items: "{{ startup_order }}"
-  when: group_roles[item] is defined
-  register: ram_result
-
-- name: Store RAM info in localhost for later access
-  tags:
-    - containers_run
-  set_fact:
-    hostvars_store: "{{ hostvars_store | default({}) | combine({ item: {'ram_gb': hostvars[item]['ram_gb']} }) }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
-- name: Calculate Kafka Heap Size
-  tags:
-    - containers_run
-  delegate_to: "{{ item }}"
-  run_once: true
-  set_fact:
     heap_size: >-
       {%- if   ram_gb | int <= 2 -%}  256M
       {%- elif ram_gb | int <= 4 -%}  512M
@@ -41,15 +24,7 @@
       {%- endif -%}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
-  register: heap_result
-
-- name: Store Heap Size info in localhost for later access
-  tags:
-    - containers_run
-  set_fact:
-    hostvars_store: "{{ hostvars_store | default({}) | combine({ item: {'ram_gb': hostvars[item]['ram_gb'], 'heap_size': hostvars[item]['heap_size']} }) }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
+  run_once: false
 
 - name: Debug calculated Heap Size per node
   tags:
