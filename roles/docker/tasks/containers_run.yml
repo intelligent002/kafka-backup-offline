@@ -34,7 +34,6 @@
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
   register: heap_result
-  cacheable: true
 
 - name: Debug calculated Heap Size per node
   tags:
