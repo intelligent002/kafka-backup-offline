@@ -19,21 +19,21 @@
     - containers_run
   delegate_to: "{{ item }}"
   debug:
-    msg: "Node: {{ item }} - Detected RAM: {{ ram_gb }} GB"
+    msg: "Node: {{ item }} - Detected RAM: {{ node_ram }} GB"
   with_items: "{{ startup_order }}"
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
     - containers_run
   set_fact:
-    node_specs: "{{ node_specs | default({}) | combine({ item: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
+    node_specs: "{{ node_specs | default({}) | combine({ item: { 'node_ram': node_ram, 'heap_size': heap_size } }) }}"
   vars:
     heap_size: >-
-      {%- if   ram_gb | int <= 2 -%}  256M
-      {%- elif ram_gb | int <= 4 -%}  512M
-      {%- elif ram_gb | int <= 8 -%}  1G
-      {%- elif ram_gb | int <= 16 -%} 2G
-      {%- else -%}                    4G
+      {%- if   node_ram | int <= 2 -%}  256M
+      {%- elif node_ram | int <= 4 -%}  512M
+      {%- elif node_ram | int <= 8 -%}  1G
+      {%- elif node_ram | int <= 16 -%} 2G
+      {%- else -%}                      4G
       {%- endif -%}
   with_items: "{{ startup_order }}"
 
