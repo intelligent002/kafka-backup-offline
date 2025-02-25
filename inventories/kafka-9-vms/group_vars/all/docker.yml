@@ -31,7 +31,7 @@ docker_command_controllers_run: >
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ hostvars[item]['heap_size'] }} -Xms{{ hostvars[item]['heap_size'] }}"
+  -e KAFKA_HEAP_OPTS="-Xmx512M -Xms512M"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
@@ -56,7 +56,7 @@ docker_command_brokers_run: >
   -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
   -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
   -p {{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ hostvars[item]['heap_size'] }} -Xms{{ hostvars[item]['heap_size'] }}"
+  -e KAFKA_HEAP_OPTS="-Xmx1G -Xms1G"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
@@ -79,7 +79,7 @@ docker_command_connect_run: >
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
-  -e KAFKA_CONNECT_HEAP_OPTS="-Xmx{{ hostvars[item]['heap_size'] }} -Xms{{ hostvars[item]['heap_size'] }}"
+  -e KAFKA_HEAP_OPTS="-Xmx512M -Xms512M"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
