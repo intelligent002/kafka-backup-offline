@@ -13,14 +13,6 @@
   when: "'ansible_memtotal_mb' in ansible_facts"
   run_once: false  # Runs on each node separately
 
-- name: Store node RAM in a shared fact
-  tags:
-    - containers_run
-  set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine({inventory_hostname: node_ram}) }}"
-  run_once: true
-  delegate_to: localhost
-  with_items: "{{ startup_order }}"
 
 - name: Debug RAM per node
   tags:
