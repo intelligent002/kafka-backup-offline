@@ -37,9 +37,9 @@
 
 - name: Assigned roles map
   tags:
-    - containers_run_debug
+    - containers_run
   debug:
-    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+    msg: "Node: {{ item }} - RAM: {{ node_specs[item]['ram_gb'] }} GB - Heap: {{ node_specs[item]['heap_size'] }} - Role: {{ group_roles[item] | join(', ') }}"
   with_items: "{{ startup_order }}"
   run_once: true
 
