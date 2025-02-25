@@ -7,20 +7,25 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Ensure facts are gathered for all nodes
+- name: Gather facts for all nodes
   tags:
     - containers_run
   setup:
-  when: inventory_hostname in startup_order  # Run on all nodes in startup_order
+  when: inventory_hostname in startup_order  # Ensures facts are collected globally
 
-- name: Detect RAM & Decide Heap Size
+- name: Calculate RAM per node
   tags:
     - containers_run
-  delegate_to: "{{ item }}"
   set_fact:
-    node_specs: "{{ node_specs | default({}) | combine({ item: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
+    ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
+  when: inventory_hostname in startup_order  # Ensures task runs only on relevant nodes
+
+- name: Populate node_specs with RAM & Heap Size
+  tags:
+    - containers_run
+  set_fact:
+    node_specs: "{{ node_specs | default({}) | combine({ inventory_hostname: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
   vars:
-    ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"  # Now correctly fetched per node
     heap_size: >-
       {%- if ram_gb | int <= 2 -%} 256M
       {%- elif ram_gb | int <= 4 -%} 512M
@@ -28,9 +33,7 @@
       {%- elif ram_gb | int <= 16 -%} 2G
       {%- else -%} 4G
       {%- endif -%}
-  with_items: "{{ startup_order }}"
-  when: group_roles[item] is defined
-  run_once: false  # Ensure it runs per node
+  when: inventory_hostname in startup_order  # Ensures task runs only on relevant nodes
 
 - name: Debug calculated Heap Size per node
   tags:
