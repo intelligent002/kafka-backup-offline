@@ -33,10 +33,9 @@
     - data_backup
   ansible.builtin.shell:
     cmd: >
-      tar -cf - "{{ node_data_store }}/" |
+      tar -cf - "{{ node_data_store }}" |
       nice -n 19 ionice -c3 xz --fast --threads=2 --memlimit-compress=512MiB >
-      "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz" && 
-      ls -lah {{ node_temp_path }} > /tmp/ls.txt
+      "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 - name: Pull data archive from nodes
   tags:
