@@ -16,6 +16,7 @@
 - name: Calculate RAM per node
   tags:
     - containers_run
+  delegate_to: "{{ item }}"
   set_fact:
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
   with_items: "{{ startup_order }}"
@@ -23,6 +24,7 @@
 - name: Debug RAM per node
   tags:
     - containers_run
+  delegate_to: "{{ item }}"
   debug:
     msg: "Node: {{ inventory_hostname }} - Detected RAM: {{ ram_gb }} GB"
   when: ram_gb is defined
