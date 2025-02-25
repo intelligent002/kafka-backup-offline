@@ -2,10 +2,10 @@
 - name: Gather facts for all nodes
   tags:
     - containers_run
-  delegate_to: "{{ item }}"
   setup:
+  delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
-  run_once: false
+  run_once: false  # Runs on each node individually
 
 - name: Calculate RAM per node
   tags:
@@ -14,7 +14,7 @@
   set_fact:
     node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
   with_items: "{{ startup_order }}"
-  run_once: false
+  run_once: false  # Runs separately on each node
 
 - name: Debug RAM per node
   tags:
@@ -22,7 +22,7 @@
   debug:
     msg: "Node: {{ item }} - Detected RAM: {{ node_ram[item] }} GB"
   with_items: "{{ startup_order }}"
-  run_once: false
+  run_once: true  # Runs once, but prints all stored values
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
