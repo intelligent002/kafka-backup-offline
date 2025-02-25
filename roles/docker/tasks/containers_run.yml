@@ -26,8 +26,8 @@
     - containers_run
   delegate_to: "{{ item }}"
   debug:
-    msg: "Node: {{ inventory_hostname }} - Detected RAM: {{ ram_gb }} GB"
-  when: ram_gb is defined
+    msg: "Node: {{ item }} - Detected RAM: {{ ram_gb }} GB"
+  with_items: "{{ startup_order }}"
 
 
 - name: Populate node_specs with RAM & Heap Size
