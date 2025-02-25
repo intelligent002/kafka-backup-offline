@@ -1,4 +1,10 @@
 ---
+- name: Gather facts for all nodes
+  tags:
+    - containers_run
+  setup:
+  with_items: "{{ startup_order }}"
+
 - name: Assign node roles based on inventory group
   tags:
     - containers_run
@@ -7,18 +13,19 @@
   with_items: "{{ startup_order }}"
   run_once: true
 
-- name: Gather facts for all nodes
-  tags:
-    - containers_run
-  setup:
-  with_items: "{{ startup_order }}"
-
 - name: Calculate RAM per node
   tags:
     - containers_run
   set_fact:
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
   with_items: "{{ startup_order }}"
+
+- name: Debug RAM per node
+  tags:
+    - containers_run
+  debug:
+    msg: "Node: {{ item }} - Detected RAM: {{ ram_gb }} GB"
+  when: "'ram_gb' in {{ startup_order }}"
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
