@@ -5,21 +5,24 @@
   setup:
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
-  run_once: false  # Runs on each node individually
+  run_once: false  # Ensures facts are gathered per node
 
 - name: Calculate RAM per node and store it persistently
   tags:
     - containers_run
+  delegate_to: "{{ item }}"
   set_fact:
-    node_ram: "{{ node_ram | default({}) | combine({ inventory_hostname: (ansible_memtotal_mb / 1024) | round | int }) }}"
-  when: "'ansible_memtotal_mb' in hostvars[inventory_hostname]"
+    node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
+  with_items: "{{ startup_order }}"
+  run_once: false  # Runs separately per node
 
 - name: Debug RAM per node
   tags:
-    - containers_run
+    - containers_run_debug
   debug:
-    msg: "Node: {{ inventory_hostname }} - Detected RAM: {{ node_ram[inventory_hostname] }} GB"
-  when: "'inventory_hostname' in node_ram"
+    msg: "Node: {{ item }} - Detected RAM: {{ node_ram[item] }} GB"
+  with_items: "{{ startup_order }}"
+  run_once: true  # Prints values once after collecting all
 
 
 - name: Populate node_specs with RAM & Heap Size
