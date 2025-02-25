@@ -11,23 +11,18 @@
   tags:
     - containers_run
   set_fact:
-    ram_gb: "{{ (ansible_memtotal_mb | int / 1024) | round | int }}"
+    ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
 
 - name: Calculate Kafka Heap Size
   tags:
     - containers_run
   set_fact:
     heap_size: >-
-      {% if ram_gb <= 2 %}
-        256M
-      {% elif ram_gb <= 4 %}
-        512M
-      {% elif ram_gb <= 8 %}
-        1G
-      {% elif ram_gb <= 16 %}
-        2G
-      {% else %}
-        4G
+      {% if   ram_gb | int <= 2 %}  256M
+      {% elif ram_gb | int <= 4 %}  512M
+      {% elif ram_gb | int <= 8 %}  1G
+      {% elif ram_gb | int <= 16 %} 2G
+      {% else %}                    4G
       {% endif %}
 
 - name: Assigned roles map
