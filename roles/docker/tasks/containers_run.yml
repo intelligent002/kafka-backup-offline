@@ -11,9 +11,7 @@
   tags:
     - containers_run
   setup:
-  delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
-  run_once: false  # Runs on each node individually
+  when: inventory_hostname in startup_order  # Run on all nodes in startup_order
 
 - name: Detect RAM & Decide Heap Size
   tags:
@@ -22,7 +20,7 @@
   set_fact:
     node_specs: "{{ node_specs | default({}) | combine({ item: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
   vars:
-    ram_gb: "{{ (hostvars[item]['ansible_memtotal_mb'] / 1024) | round | int }}"
+    ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"  # Now correctly fetched per node
     heap_size: >-
       {%- if ram_gb | int <= 2 -%} 256M
       {%- elif ram_gb | int <= 4 -%} 512M
@@ -32,7 +30,7 @@
       {%- endif -%}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
-  run_once: false  # Ensures it runs on each node
+  run_once: false  # Ensure it runs per node
 
 - name: Debug calculated Heap Size per node
   tags:
