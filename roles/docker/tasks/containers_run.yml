@@ -24,8 +24,9 @@
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }} - Detected RAM: {{ ram_gb }} GB"
-  when: "'ram_gb' in {{ startup_order }}"
+    msg: "Node: {{ inventory_hostname }} - Detected RAM: {{ ram_gb }} GB"
+  when: ram_gb is defined
+
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
