@@ -33,7 +33,7 @@
       {%- elif ram_gb | int <= 16 -%} 2G
       {%- else -%}                    4G
       {%- endif -%}
-  when: inventory_hostname in startup_order
+  with_items: "{{ startup_order }}"
 
 - name: Assigned roles map
   tags:
