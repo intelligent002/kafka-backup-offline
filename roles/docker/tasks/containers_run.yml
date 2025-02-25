@@ -24,7 +24,7 @@
       {%- endif -%}
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
-  run_once: false
+  run_once: true
 
 - name: Debug calculated Heap Size per node
   tags:
