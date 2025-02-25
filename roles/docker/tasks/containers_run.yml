@@ -1,11 +1,4 @@
 ---
-- name: Gather facts for all nodes
-  tags:
-    - containers_run
-  setup:
-  delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
-
 - name: Calculate RAM per node and store it persistently
   tags:
     - containers_run
