@@ -2,8 +2,9 @@
 - name: Gather facts for all nodes
   tags:
     - containers_run
+  delegate_to: "{{ item }}"
   setup:
-  when: inventory_hostname in startup_order
+  with_items: "{{ startup_order }}"
 
 - name: Calculate RAM per node
   tags:
