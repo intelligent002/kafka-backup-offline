@@ -3,7 +3,7 @@
   tags:
     - containers_run
   setup:
-  when: inventory_hostname in startup_order  # Runs on all nodes
+  when: inventory_hostname in startup_order  # Runs on all nodes in startup_order
 
 - name: Calculate RAM per node
   tags:
@@ -13,14 +13,14 @@
   when: "'ansible_memtotal_mb' in ansible_facts"
   run_once: false  # Runs on each node separately
 
-- name: Collect RAM data globally
+- name: Store node RAM in a shared fact
   tags:
     - containers_run
   set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine({ item: hostvars[item].node_ram | default(omit) }) }}"
+    global_node_ram: "{{ global_node_ram | default({}) | combine({inventory_hostname: node_ram}) }}"
+  run_once: true
+  delegate_to: localhost
   with_items: "{{ startup_order }}"
-  run_once: true  # Runs once on localhost to collect RAM data from all nodes
-  when: "hostvars[item].node_ram is defined"
 
 - name: Debug RAM per node
   tags:
@@ -28,7 +28,7 @@
   debug:
     msg: "Node: {{ item }} - Detected RAM: {{ global_node_ram[item] | default('N/A') }} GB"
   with_items: "{{ startup_order }}"
-  run_once: true  # Runs once on localhost
+  run_once: true
 
 
 
