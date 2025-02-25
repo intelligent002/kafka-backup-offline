@@ -24,7 +24,7 @@
   tags:
     - containers_run
   set_fact:
-    node_specs: "{{ node_specs | default({}) | combine({ inventory_hostname: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
+    node_specs: "{{ node_specs | default({}) | combine({ item: { 'ram_gb': ram_gb, 'heap_size': heap_size } }) }}"
   vars:
     heap_size: >-
       {%- if   ram_gb | int <= 2 -%}  256M
