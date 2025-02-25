@@ -35,8 +35,8 @@
     - data_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -63,7 +63,7 @@
   tags:
     - data_restore
   unarchive:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
     dest: "{{ node_data_store }}"
     remote_src: yes
 

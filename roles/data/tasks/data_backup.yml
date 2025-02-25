@@ -34,15 +34,15 @@
   ansible.builtin.shell:
     cmd: >
       tar -cf - "{{ node_data_store }}" |
-      nice -n 19 ionice -c3 xz --fast --threads=2 --memlimit-compress=512MiB >
+      xz -9 --extreme --lzma2=preset=9,dict=512MiB --threads=0 --memlimit-compress=3GiB >
       "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 - name: Pull data archive from nodes
   tags:
     - data_backup
   synchronize:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.zx"
+    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -54,12 +54,8 @@
     - data_backup
   delegate_to: node-0
   run_once: true
-  community.general.archive:
-    path: "{{ storage_temp_path }}/*-data.tar.zx"  # The directory or files to be archived
-    dest: "{{ data_backup_file }}"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
-    extra_opts:
-      - "--fast"   # Use a faster compression level with lower memory usage
-      - "--threads=2"  # Limit to 2 CPU threads (adjust as needed)
-      - "--memlimit-compress=512MiB"  # Set a memory limit (adjust as needed)
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - "{{ storage_temp_path }}/*-data.tar.xz" |
+      xz -9 --extreme --lzma2=preset=9,dict=512MiB --threads=0 --memlimit-compress=3GiB >
+      "{{ data_backup_file }}"
