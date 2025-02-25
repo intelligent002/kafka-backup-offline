@@ -8,10 +8,14 @@
   run_once: true
 
 - name: Get vm RAM size for heap calculation
+  tags:
+    - containers_run
   set_fact:
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
 
 - name: Calculate Kafka Heap Size
+  tags:
+    - containers_run
   set_fact:
     heap_size: >-
       {% if ram_gb <= 2 %}
