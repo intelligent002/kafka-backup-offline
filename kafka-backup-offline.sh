@@ -707,7 +707,7 @@ function cluster_certificates_restore_menu()
     # Display the menu using whiptail for user selection
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Certificates > Restore > Choose a backup file to restore:" 40 130 32 \
+        --menu "Certificates > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
@@ -824,7 +824,7 @@ function cluster_configs_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Configs > Restore > Choose a backup file to restore:" 40 130 32 \
+        --menu "Configs > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
@@ -937,7 +937,7 @@ function cluster_credentials_restore_menu()
     # Display the menu using whiptail
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Credentials > Restore > Choose a backup file to restore:" 40 130 32 \
+        --menu "Credentials > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
@@ -1153,7 +1153,7 @@ function cluster_data_restore_menu() {
     # Display the menu and capture the user's choice
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Data > Restore > Choose a backup file to restore:" 40 130 32 \
+        --menu "Data > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     # Capture the exit status of whiptail
