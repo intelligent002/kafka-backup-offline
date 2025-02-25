@@ -18,7 +18,7 @@
     - containers_run
   set_fact:
     ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
-  when: inventory_hostname in startup_order  # Ensures task runs only on relevant nodes
+  with_items: "{{ startup_order }}"
 
 - name: Populate node_specs with RAM & Heap Size
   tags:
