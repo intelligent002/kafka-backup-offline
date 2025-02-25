@@ -11,7 +11,7 @@
   tags:
     - containers_run
   set_fact:
-    ram_gb: "{{ (ansible_memtotal_mb / 1024) | round | int }}"
+    ram_gb: "{{ (ansible_memtotal_mb | int / 1024) | round | int }}"
 
 - name: Calculate Kafka Heap Size
   tags:
