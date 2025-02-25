@@ -19,9 +19,8 @@
 - name: Debug RAM per node
   tags:
     - containers_run
-  delegate_to: "{{ item }}"
   debug:
-    msg: "Node: {{ item }} - Detected RAM: {{ node_ram }} GB"
+    msg: "Node: {{ item }} - Detected RAM: {{ node_ram[item] }} GB"
   with_items: "{{ startup_order }}"
   run_once: true
 
