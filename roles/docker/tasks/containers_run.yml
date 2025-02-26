@@ -7,7 +7,7 @@
   register: ram_output
   with_items: "{{ startup_order }}"
 
-- name: Analyze RAM size
+- name: Compute RAM in GB
   tags:
     - containers_run
   set_fact:
