@@ -13,6 +13,8 @@
   debug:
     msg: "{{ item.item }} -> Total RAM: {{ (item.stdout | int / 1024) | round | int }} MB"
   with_items: "{{ ram_output.results }}"
+  loop_control:
+    label: "{{ item.item }}"
   run_once: true
   delegate_to: localhost
 
