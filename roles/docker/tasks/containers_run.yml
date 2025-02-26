@@ -34,6 +34,8 @@
   delegate_to: localhost
 
 - name: Debug Computed RAM and Heap Summary
+  tags:
+    - containers_run
   debug:
     msg: "{{ node_heap | to_nice_json }}"
   run_once: true
