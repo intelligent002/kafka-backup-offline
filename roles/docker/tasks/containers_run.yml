@@ -1,27 +1,24 @@
 ---
-- name: Gather facts for all nodes
+- name: Retrieve RAM size for each node
   tags:
     - containers_run
-  setup:
   delegate_to: "{{ item }}"
+  shell: "awk '/MemTotal/ {print $2}' /proc/meminfo"
+  register: ram_output
   with_items: "{{ startup_order }}"
 
-- name: Ensure RAM data is stored correctly per node
+- name: Process and Store RAM Data Globally
   tags:
     - containers_run
   set_fact:
-    node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_facts['memtotal_mb'] / 1024) | round | int }) }}"
-  delegate_to: "{{ item }}"
-  with_items: "{{ startup_order }}"
-
-- name: Collect and Store RAM data globally on localhost
-  tags:
-    - containers_run
-  set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
+    global_node_ram: >-
+      {{
+        global_node_ram | default({}) |
+        combine({ item.item: (item.stdout | int / 1024) | round | int })
+      }}
   delegate_to: localhost
-  run_once: false
-  with_items: "{{ startup_order }}"
+  with_items: "{{ ram_output.results }}"
+  run_once: true
 
 - name: Debug RAM per node (Using `global_node_ram`)
   tags:
@@ -30,3 +27,4 @@
     msg: "Node: {{ item }} - Total RAM: {{ global_node_ram[item] | default('N/A') }} GB"
   with_items: "{{ startup_order }}"
   run_once: true
+
