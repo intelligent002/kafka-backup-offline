@@ -19,6 +19,7 @@
   delegate_to: localhost
   with_items: "{{ ram_output.results }}"
   run_once: true
+  no_log: true
 
 - name: Debug RAM per node (Using `global_node_ram`)
   tags:
