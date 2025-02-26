@@ -13,9 +13,11 @@
   set_fact:
     node_ram_gb: "{{ node_ram_gb | default({}) | combine({ item.item: (item.stdout | int / 1024 / 1024) | round | int }) }}"
   with_items: "{{ ram_output.results }}"
+  loop_control:
+    label: "{{ item.item }}"  # Show only node names in output
   run_once: true
   delegate_to: localhost
-  no_log: true  # Suppress unnecessary output
+  no_log: true  # Suppress detailed logs
 
 - name: Compute Heap Size
   tags:
@@ -31,6 +33,8 @@
       {%- else -%}                  4G
       {%- endif -%}
   with_dict: "{{ node_ram_gb }}"
+  loop_control:
+    label: "{{ item.key }}"  # Show only node names in output
   run_once: true
   delegate_to: localhost
 
@@ -38,6 +42,9 @@
   tags:
     - containers_run
   debug:
-    msg: "{{ node_heap }}"
+    msg: "{{ item.key }} -> Heap Size: {{ item.value }}"
+  with_dict: "{{ node_heap }}"
+  loop_control:
+    label: "{{ item.key }}"  # Show only node names in output
   run_once: true
   delegate_to: localhost
