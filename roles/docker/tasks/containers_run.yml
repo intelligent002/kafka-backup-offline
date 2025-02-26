@@ -47,11 +47,15 @@
   run_once: true
   delegate_to: localhost
 
-- name: Assigned roles map
+- name: Debug Node Configurations Before Running Containers
   tags:
-    - containers_run_debug
+    - containers_run
   debug:
-    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+    msg: |
+      Node: {{ item }}
+      RAM: {{ node_ram_gb[item] | default('Unknown') }} GB
+      Heap: {{ node_heap[item] | default('Unknown') }}
+      Role: {{ group_roles[item] | default('No role assigned') }}
   with_items: "{{ startup_order }}"
   loop_control:
     label: "{{ item }}"
