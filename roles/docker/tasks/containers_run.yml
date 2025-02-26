@@ -1,5 +1,5 @@
 ---
-- name: Request RAM size on each node
+- name: Get RAM size of each node
   tags:
     - containers_run
   delegate_to: "{{ item }}"
@@ -7,13 +7,37 @@
   register: ram_output
   with_items: "{{ startup_order }}"
 
-- name: Parse RAM size responses
+- name: Analyze RAM size
+  tags:
+    - containers_run
+  set_fact:
+    node_ram_gb: "{{ node_ram_gb | default({}) | combine({ item.item: (item.stdout | int / 1024 / 1024) | round | int }) }}"
+  with_items: "{{ ram_output.results }}"
+  run_once: true
+  delegate_to: localhost
+
+- name: Compute Heap Size
+  tags:
+    - containers_run
+  set_fact:
+    node_heap: "{{ node_heap | default({}) | combine({ item.key: { 'ram_gb': item.value, 'heap_size': heap_size } }) }}"
+  vars:
+    heap_size: >-
+      {%- if   item.value <= 2 -%}  256M
+      {%- elif item.value <= 4 -%}  512M
+      {%- elif item.value <= 8 -%}  1G
+      {%- elif item.value <= 16 -%} 2G
+      {%- else -%}                  4G
+      {%- endif -%}
+  with_dict: "{{ node_ram_gb }}"
+  run_once: true
+  delegate_to: localhost
+
+- name: Debug Computed RAM and Heap
   tags:
     - containers_run
   debug:
-    msg: "{{ item.item }} -> Total RAM: {{ (item.stdout | int / 1024) | round | int }} MB"
-  with_items: "{{ ram_output.results }}"
-  loop_control:
-    label: "{{ item.item }}"
+    msg: "{{ item.key }} -> RAM: {{ item.value.ram_gb }} GB, Heap: {{ item.value.heap_size }}"
+  with_dict: "{{ node_heap }}"
   run_once: true
   delegate_to: localhost
