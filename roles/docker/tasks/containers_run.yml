@@ -8,7 +8,7 @@
 
 - name: Debug RAM for Each Node (Using `hostvars`)
   tags:
-    - containers_run_debug
+    - containers_run
   debug:
     msg: "Node: {{ item }} - Total RAM: {{ hostvars[item]['ansible_memtotal_mb'] | default('N/A') }} MB"
   with_items: "{{ startup_order }}"
