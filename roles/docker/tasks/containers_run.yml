@@ -20,7 +20,8 @@
   set_fact:
     global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
   delegate_to: localhost
-  run_once: true
+  run_once: false
+  with_items: "{{ startup_order }}"
 
 - name: Debug RAM per node (Using `global_node_ram`)
   tags:
