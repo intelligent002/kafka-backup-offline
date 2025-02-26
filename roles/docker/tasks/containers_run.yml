@@ -15,12 +15,13 @@
   with_items: "{{ ram_output.results }}"
   run_once: true
   delegate_to: localhost
+  no_log: true  # Suppress unnecessary output
 
 - name: Compute Heap Size
   tags:
     - containers_run
   set_fact:
-    node_heap: "{{ node_heap | default({}) | combine({ item.key: { 'ram_gb': item.value, 'heap_size': heap_size } }) }}"
+    node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
   vars:
     heap_size: >-
       {%- if   item.value <= 2 -%}  256M
@@ -33,10 +34,10 @@
   run_once: true
   delegate_to: localhost
 
-- name: Debug Computed RAM and Heap Summary
+- name: Log Computed Heap Size
   tags:
     - containers_run
   debug:
-    msg: "{{ node_heap | to_nice_json }}"
+    msg: "{{ node_heap }}"
   run_once: true
   delegate_to: localhost
