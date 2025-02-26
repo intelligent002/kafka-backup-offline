@@ -19,4 +19,5 @@ COPY krb5.keytab /etc/krb5.keytab
 RUN chmod 600 /etc/krb5.keytab
 
 # Automatically authenticate using Kerberos at startup
-CMD ["sh", "-c", "kinit -kt /etc/krb5.keytab mssql_user@INTEL.R7G.ORG && /opt/kafka/bin/connect-distributed.sh /opt/kafka/config/connect-distributed.properties"]
+CMD ["sh", "-c", "kinit -kt /etc/krb5.keytab mssql_user@INTEL.R7G.ORG && /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties"]
+

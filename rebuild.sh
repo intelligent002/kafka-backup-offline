@@ -40,8 +40,7 @@ for host in "${hosts[@]}"; do
             -v /data/cluster/data/meta:/var/lib/kafka/meta \
             -v /data/cluster/logs:/opt/kafka/logs \
             -v /data/cluster/plugins:/usr/share/java \
-            docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version} \
-            /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
+            docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version}
 
         echo "Kafka container started on $host!"
 EOF
