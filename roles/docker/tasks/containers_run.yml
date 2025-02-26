@@ -12,11 +12,14 @@
     - containers_run
   set_fact:
     global_node_ram: >-
-      {{ global_node_ram | default({}) | combine({ item.item: (item.stdout | int / 1024) | round | int }) }}
+      {{
+        global_node_ram | default({}) |
+        combine({ item.item: (item.stdout | default(0) | int / 1024) | round | int })
+      }}
   delegate_to: localhost
   with_items: "{{ ram_output.results }}"
   run_once: true
-  no_log: true
+  when: item.stdout is defined and item.stdout | length > 0
 
 - name: Debug RAM per node (Using `global_node_ram`)
   tags:
