@@ -7,7 +7,7 @@ echo "Deployment version: $version"
 # Define the hosts
 hosts=("node-7.intel.r7g.org" "node-8.intel.r7g.org" "node-9.intel.r7g.org")
 
-docker build . -tag docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version}
+docker build . --tag docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version}
 docker push docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version}
 
 # Iterate over each host
