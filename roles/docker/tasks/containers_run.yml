@@ -11,12 +11,8 @@
   tags:
     - containers_run
   debug:
-    msg: >-
-      {{
-        ram_output.results | map(attribute='item') | list | zip(
-        ram_output.results | map(attribute='stdout') | map('int') | map('regex_replace', '^(.+)$', '\1') | map('int') | map('abs') | map('floordiv', 1024) | map('string') | list
-        ) | map('join', ' -> Total RAM: ') | map('regex_replace', '$', ' MB') | list
-      }}
+    msg: "{{ item.item }} -> Total RAM: {{ (item.stdout | int / 1024) | round | int }} MB"
+  with_items: "{{ ram_output.results }}"
   run_once: true
   delegate_to: localhost
 
