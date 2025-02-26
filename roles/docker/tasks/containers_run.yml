@@ -6,23 +6,28 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
 
-- name: Store gathered RAM into dictionary on localhost
+- name: Store gathered RAM in per-node dictionary
   tags:
     - containers_run
   set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine({ item: (hostvars[item]['ansible_memtotal_mb'] / 1024) | round | int }) }}"
+    node_ram: "{{ node_ram | default({}) | combine({ inventory_hostname: (ansible_memtotal_mb / 1024) | round | int }) }}"
+  when: "'ansible_memtotal_mb' in ansible_facts"
+
+- name: Aggregate RAM data on localhost
+  tags:
+    - containers_run
+  set_fact:
+    global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
   delegate_to: localhost
   run_once: true
-  with_items: "{{ startup_order }}"
 
-- name: Debug RAM per node (Using `global_node_ram`)
+- name: Debug RAM per node
   tags:
     - containers_run
   debug:
     msg: "Node: {{ item }} - Total RAM: {{ global_node_ram[item] | default('N/A') }} GB"
   with_items: "{{ startup_order }}"
   run_once: true
-
 
 - name: Calculate RAM per node and store it persistently
   tags:
