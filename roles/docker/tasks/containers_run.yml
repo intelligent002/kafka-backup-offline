@@ -6,13 +6,13 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
 
-- name: Debug RAM for Each Node
+- name: Debug RAM for Each Node (Using `hostvars`)
   tags:
-    - containers_run
-  delegate_to: "{{ item }}"
+    - containers_run_debug
   debug:
-    msg: "Node: {{ item }} - Total RAM: {{ ansible_memtotal_mb }} MB"
+    msg: "Node: {{ item }} - Total RAM: {{ hostvars[item]['ansible_memtotal_mb'] | default('N/A') }} MB"
   with_items: "{{ startup_order }}"
+  run_once: true
 
 
 - name: Calculate RAM per node and store it persistently
