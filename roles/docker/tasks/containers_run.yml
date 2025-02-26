@@ -1,5 +1,5 @@
 ---
-- name: Retrieve RAM size for each node
+- name: Request RAM size on each node
   tags:
     - containers_run
   delegate_to: "{{ item }}"
@@ -7,7 +7,7 @@
   register: ram_output
   with_items: "{{ startup_order }}"
 
-- name: Debug Processed RAM per Node (Clean Output)
+- name: Parse RAM size responses
   tags:
     - containers_run
   debug:
@@ -17,12 +17,3 @@
     label: "{{ item.item }}"
   run_once: true
   delegate_to: localhost
-
-- name: Debug RAM per node (Using `global_node_ram`)
-  tags:
-    - containers_run
-  debug:
-    msg: "Node: {{ item }} - Total RAM: {{ global_node_ram[item] | default('N/A') }} GB"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
