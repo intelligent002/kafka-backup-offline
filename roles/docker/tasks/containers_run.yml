@@ -14,7 +14,7 @@
     global_node_ram: >-
       {{
         global_node_ram | default({}) |
-        combine({ item.item: (item.stdout | default(0) | int / 1024) | round | int })
+        combine({ item.item: (item.stdout | int / 1024 / 1024) | round(1) })
       }}
   delegate_to: localhost
   with_items: "{{ ram_output.results }}"
