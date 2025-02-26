@@ -14,7 +14,7 @@
     msg: >-
       {{
         ram_output.results | map(attribute='item') | list | zip(
-        ram_output.results | map(attribute='stdout') | map('int') | map('regex_replace', '^([0-9]+)$', '\\1 MB') | list
+        ram_output.results | map(attribute='stdout') | map('int') | map('string') | list
         ) | map('join', ' -> Total RAM: ') | list
       }}
   run_once: true
