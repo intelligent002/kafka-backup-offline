@@ -33,11 +33,8 @@
   run_once: true
   delegate_to: localhost
 
-- name: Debug Computed RAM and Heap
-  tags:
-    - containers_run
+- name: Debug Computed RAM and Heap Summary
   debug:
-    msg: "{{ item.key }} -> RAM: {{ item.value.ram_gb }} GB, Heap: {{ item.value.heap_size }}"
-  with_dict: "{{ node_heap }}"
+    msg: "{{ node_heap | to_nice_json }}"
   run_once: true
   delegate_to: localhost
