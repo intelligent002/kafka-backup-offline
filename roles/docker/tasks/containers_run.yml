@@ -1,17 +1,35 @@
 ---
-- name: Gather facts for all nodes (Ensures facts persist in `hostvars`)
+- name: Gather facts for all nodes
   tags:
     - containers_run
   setup:
-  when: inventory_hostname in startup_order  # Runs on all nodes
+  delegate_to: "{{ item }}"
+  with_items: "{{ startup_order }}"
 
-- name: Debug RAM for Each Node (Using `hostvars`)
+- name: Store gathered RAM into dictionary
+  tags:
+    - containers_run
+  set_fact:
+    node_ram: "{{ node_ram | default({}) | combine({item: (ansible_memtotal_mb / 1024) | round | int }) }}"
+  with_items: "{{ startup_order }}"
+
+- name: Aggregate RAM data on localhost
+  tags:
+    - containers_run
+  set_fact:
+    global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
+  delegate_to: localhost
+  run_once: true
+  with_items: "{{ startup_order }}"
+
+- name: Debug RAM per node
   tags:
     - containers_run
   debug:
-    msg: "Node: {{ item }} - Total RAM: {{ hostvars[item]['ansible_memtotal_mb'] | default('N/A') }} MB"
+    msg: "Node: {{ item }} - Total RAM: {{ global_node_ram[item] | default('N/A') }} GB"
   with_items: "{{ startup_order }}"
   run_once: true
+
 
 - name: Calculate RAM per node and store it persistently
   tags:
