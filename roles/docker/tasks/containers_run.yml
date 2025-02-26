@@ -6,95 +6,18 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
 
-- name: Store gathered RAM in per-node dictionary
+- name: Store gathered RAM per node on localhost
   tags:
     - containers_run
   set_fact:
-    node_ram: "{{ node_ram | default({}) | combine({ inventory_hostname: (ansible_memtotal_mb / 1024) | round | int }) }}"
-  when: "'ansible_memtotal_mb' in ansible_facts"
-
-- name: Aggregate RAM data on localhost
-  tags:
-    - containers_run
-  set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
+    global_node_ram: "{{ global_node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
   delegate_to: localhost
-  run_once: true
+  with_items: "{{ startup_order }}"
 
-- name: Debug RAM per node
+- name: Debug RAM per node (Using `global_node_ram`)
   tags:
     - containers_run
   debug:
     msg: "Node: {{ item }} - Total RAM: {{ global_node_ram[item] | default('N/A') }} GB"
   with_items: "{{ startup_order }}"
   run_once: true
-
-- name: Calculate RAM per node and store it persistently
-  tags:
-    - containers_run
-  delegate_to: "{{ item }}"
-  set_fact:
-    node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
-  with_items: "{{ startup_order }}"
-
-- name: Debug RAM per node
-  tags:
-    - containers_run
-  debug:
-    msg: "Node: {{ item }} - Detected RAM: {{ node_ram[item] }} GB"
-  with_items: "{{ startup_order }}"
-
-
-- name: Populate node_specs with RAM & Heap Size
-  tags:
-    - containers_run
-  set_fact:
-    node_specs: "{{ node_specs | default({}) | combine({ item: { 'node_ram': node_ram, 'heap_size': heap_size } }) }}"
-  vars:
-    heap_size: >-
-      {%- if   node_ram | int <= 2 -%}  256M
-      {%- elif node_ram | int <= 4 -%}  512M
-      {%- elif node_ram | int <= 8 -%}  1G
-      {%- elif node_ram | int <= 16 -%} 2G
-      {%- else -%}                      4G
-      {%- endif -%}
-  with_items: "{{ startup_order }}"
-
-
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_run
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
-
-- name: Assigned roles map
-  tags:
-    - containers_run
-  debug:
-    msg: "Node: {{ item }} - RAM: {{ node_specs[item]['ram_gb'] }} GB - Heap: {{ node_specs[item]['heap_size'] }} - Role: {{ group_roles[item] | join(', ') }}"
-  with_items: "{{ startup_order }}"
-  run_once: true
-
-- name: Run containers according to assigned roles
-  tags:
-    - containers_run
-  delegate_to: "{{ item }}"
-  run_once: true
-  shell: >
-    {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
-    {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
-    {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
-    {% else %} echo 'Undefined group, no command executed'
-    {% endif %}
-  with_items: "{{ startup_order }}"
-  when: group_roles[item] is defined
-
-- name: Deploy Connect Balancer on node-0
-  tags: containers_run
-  delegate_to: node-0
-  run_once: true
-  shell: >
-    {{ docker_command_balancer_run }}
