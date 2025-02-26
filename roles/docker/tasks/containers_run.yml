@@ -6,13 +6,21 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
 
-- name: Store gathered RAM per node on localhost
+- name: Ensure RAM data is stored correctly per node
   tags:
     - containers_run
   set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine({ item: (ansible_memtotal_mb / 1024) | round | int }) }}"
-  delegate_to: localhost
+    node_ram: "{{ node_ram | default({}) | combine({ item: (ansible_facts['memtotal_mb'] / 1024) | round | int }) }}"
+  delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
+
+- name: Collect and Store RAM data globally on localhost
+  tags:
+    - containers_run
+  set_fact:
+    global_node_ram: "{{ global_node_ram | default({}) | combine(node_ram) }}"
+  delegate_to: localhost
+  run_once: true
 
 - name: Debug RAM per node (Using `global_node_ram`)
   tags:
