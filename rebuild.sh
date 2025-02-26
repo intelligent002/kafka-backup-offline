@@ -33,13 +33,13 @@ for host in "${hosts[@]}"; do
             -Dcom.sun.management.jmxremote.authenticate=false
             -Dcom.sun.management.jmxremote.ssl=false
             " \
-            -v /mnt/shared/config:/mnt/shared/config \
-            -v /etc/kafka/secrets:/etc/kafka/secrets \
-            -v /credentials:/credentials \
-            -v /var/lib/kafka/data:/var/lib/kafka/data \
-            -v /var/lib/kafka/meta:/var/lib/kafka/meta \
-            -v /opt/kafka/logs:/opt/kafka/logs \
-            -v /usr/share/java:/usr/share/java \
+            -v /data/cluster/config:/mnt/shared/config \
+            -v /data/cluster/certificates:/etc/kafka/secrets \
+            -v /data/cluster/credentials:/credentials \
+            -v /data/clister/data/data:/var/lib/kafka/data \
+            -v /data/clister/data/meta:/var/lib/kafka/meta \
+            -v /data/clister/logs:/opt/kafka/logs \
+            -v /data/clister/plugins:/usr/share/java \
             docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version} \
             /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
