@@ -6,11 +6,11 @@
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
 
-- name: Collect and Store RAM per node on localhost
+- name: Store gathered RAM into dictionary on localhost
   tags:
     - containers_run
   set_fact:
-    global_node_ram: "{{ global_node_ram | default({}) | combine({item: (ansible_memtotal_mb / 1024) | round | int }) }}"
+    global_node_ram: "{{ global_node_ram | default({}) | combine({ item: (hostvars[item]['ansible_memtotal_mb'] / 1024) | round | int }) }}"
   delegate_to: localhost
   run_once: true
   with_items: "{{ startup_order }}"
