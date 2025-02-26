@@ -36,10 +36,10 @@ for host in "${hosts[@]}"; do
             -v /data/cluster/config:/mnt/shared/config \
             -v /data/cluster/certificates:/etc/kafka/secrets \
             -v /data/cluster/credentials:/credentials \
-            -v /data/clister/data/data:/var/lib/kafka/data \
-            -v /data/clister/data/meta:/var/lib/kafka/meta \
-            -v /data/clister/logs:/opt/kafka/logs \
-            -v /data/clister/plugins:/usr/share/java \
+            -v /data/cluster/data/data:/var/lib/kafka/data \
+            -v /data/cluster/data/meta:/var/lib/kafka/meta \
+            -v /data/cluster/logs:/opt/kafka/logs \
+            -v /data/cluster/plugins:/usr/share/java \
             docker.artifactory.intel.r7g.org/kafka-connect-kerberos:${version} \
             /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
