@@ -1,5 +1,5 @@
 {
-   "name":"intel-mssql-replication",
+   "name":"intel-mssql-connector",
    "config":{
       "connector.class":"io.debezium.connector.sqlserver.SqlServerConnector",
       "consumer.override.security.protocol":"SSL",
@@ -12,8 +12,6 @@
       "consumer.override.ssl.truststore.password":"insecure",
       "consumer.override.ssl.truststore.type":"JKS",
       "database.encrypt":"true",
-      "database.history.kafka.bootstrap.servers":"node-4.intel.r7g.org:9093,node-5.intel.r7g.org:9093,node-6.intel.r7g.org:9093",
-      "database.history.kafka.topic":"schema-history-cdc-mssql",
       "database.hostname":"kafka-mssql.intel.r7g.org",
       "database.names":"FHIR",
       "database.password":"StrongPassword123!",
@@ -33,6 +31,8 @@
       "producer.override.ssl.truststore.password":"insecure",
       "producer.override.ssl.truststore.type":"JKS",
       "schema.history.internal.kafka.recovery.poll.interval.ms":"30000",
+      "schema.history.internal.kafka.topic":"schema-history-cdc-mssql",
+      "schema.history.internal.kafka.bootstrap.servers": "node-4.intel.r7g.org:9093,node-5.intel.r7g.org:9093,node-6.intel.r7g.org:9093",
       "snapshot.mode":"initial",
       "table.include.list":"dbo.Employees",
       "tasks.max":"1",

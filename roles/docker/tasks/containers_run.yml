@@ -7,30 +7,24 @@
   register: ram_output
   with_items: "{{ startup_order }}"
 
-- name: Compute RAM in GB
+- name: Compute RAM in MB
   tags:
     - containers_run
   set_fact:
-    node_ram_gb: "{{ node_ram_gb | default({}) | combine({ item.item: (item.stdout | int / 1024 / 1024) | round | int }) }}"
+    node_ram_mb: "{{ node_ram_mb | default({}) | combine({ item.item: (item.stdout | int / 1024) | round | int }) }}"
   with_items: "{{ ram_output.results }}"
   run_once: true
   delegate_to: localhost
   no_log: true  # Suppress detailed logs
 
-- name: Compute Heap Size
+- name: Compute Heap Size as 50% of RAM
   tags:
     - containers_run
   set_fact:
     node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
   vars:
-    heap_size: >-
-      {%- if   item.value <= 2 -%}  256M
-      {%- elif item.value <= 4 -%}  512M
-      {%- elif item.value <= 8 -%}  1G
-      {%- elif item.value <= 16 -%} 2G
-      {%- else -%}                  4G
-      {%- endif -%}
-  with_dict: "{{ node_ram_gb }}"
+    heap_size: "{{ (item.value / 2) | round(0, 'floor') | string + 'M' }}"
+  with_dict: "{{ node_ram_mb }}"
   loop_control:
     label: "{{ item.key }}"  # Show only node names in output
   run_once: true
