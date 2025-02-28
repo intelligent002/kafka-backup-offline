@@ -17,13 +17,13 @@
   delegate_to: localhost
   no_log: true  # Suppress detailed logs
 
-- name: Compute Heap Size as 50% of RAM
+- name: Compute Heap Size
   tags:
     - containers_run
   set_fact:
     node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
   vars:
-    heap_size: "{{ (item.value / 2) | round(0, 'floor') | string + 'M' }}"
+    heap_size: "{{ (item.value / 2) | int }}M"
   with_dict: "{{ node_ram_mb }}"
   loop_control:
     label: "{{ item.key }}"  # Show only node names in output
