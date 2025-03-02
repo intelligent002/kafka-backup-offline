@@ -1,0 +1,19 @@
+{
+   "name":"intel-db2as400-connector",
+   "config":{
+      "connector.class":"io.debezium.connector.db2as400.As400RpcConnector",
+      "database.dbname":"IASP1",
+      "database.hostname":"192.168.24.113",
+      "database.password":"${secrets:debezium-example/debezium-secret:password}",
+      "database.port":446,
+      "database.schema":"ESB",
+      "database.user":"${secrets:debezium-example/debezium-secret:username}",
+      "schema.history.internal.kafka.bootstrap.servers":"debezium-cluster-kafka-bootstrap:9092",
+      "schema.history.internal.kafka.topic":"schema-changes.db2",
+      "secure":false,
+      "snapshot.mode":"initial",
+      "table.include.list":"ESB.ADA_FIX",
+      "tasks.max":1,
+      "topic.prefix":"cdc-db2"
+   }
+}
