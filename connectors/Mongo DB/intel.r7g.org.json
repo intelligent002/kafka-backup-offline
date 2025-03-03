@@ -57,6 +57,7 @@
       "topic.creation.default.partitions": "3",
       "topic.creation.default.replication.factor": "3",
       "topic.creation.default.retention.ms": "5259600000",
+      "topic.delimiter": "-",
       "topic.prefix": "cdc-mongodb"
    }
 }
