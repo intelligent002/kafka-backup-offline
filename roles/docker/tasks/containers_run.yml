@@ -45,7 +45,7 @@
   tags:
     - containers_run
   debug:
-    msg: "RAM: {{ node_ram_gb[item] | default('Unknown') }} GB, Heap: {{ node_heap[item] | default('Unknown') }}, Role: {{ group_roles[item] | default('No role assigned') }}"
+    msg: "RAM: {{ node_ram_mb[item] | default('Unknown') }} MB, Heap: {{ node_heap[item] | default('Unknown') }} MB, Role: {{ group_roles[item] | default('No role assigned') }}"
   with_items: "{{ startup_order }}"
   loop_control:
     label: "{{ item }}"
