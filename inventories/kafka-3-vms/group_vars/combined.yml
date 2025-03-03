@@ -1,6 +1,0 @@
-port_controller_int: 9093
-port_controller_ext: 9093
-port_broker_int: 9092
-port_broker_ext: 9092
-port_jmx_monitoring_int: 9999
-port_jmx_monitoring_ext: 9999
