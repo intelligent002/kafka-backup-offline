@@ -1,19 +1,56 @@
 ---
+- name: Get RAM size of each node
+  tags:
+    - containers_run
+  delegate_to: "{{ item }}"
+  shell: "awk '/MemTotal/ {print $2}' /proc/meminfo"
+  register: ram_output
+  with_items: "{{ startup_order }}"
+
+- name: Compute RAM in MB
+  tags:
+    - containers_run
+  set_fact:
+    node_ram_mb: "{{ node_ram_mb | default({}) | combine({ item.item: (item.stdout | int / 1024) | round | int }) }}"
+  with_items: "{{ ram_output.results }}"
+  run_once: true
+  delegate_to: localhost
+  no_log: true  # Suppress detailed logs
+
+- name: Compute Heap Size
+  tags:
+    - containers_run
+  set_fact:
+    node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
+  vars:
+    heap_size: "{{ (item.value / 2) | int }}M"
+  with_dict: "{{ node_ram_mb }}"
+  loop_control:
+    label: "{{ item.key }}"  # Show only node names in output
+  run_once: true
+  delegate_to: localhost
+
 - name: Assign node roles based on inventory group
   tags:
     - containers_run
   set_fact:
     group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
   with_items: "{{ startup_order }}"
+  loop_control:
+    label: "{{ item }}"
   run_once: true
+  delegate_to: localhost
 
-- name: Assigned roles map
+- name: Debug Node Configurations Before Running Containers
   tags:
-    - containers_run_debug
+    - containers_run
   debug:
-    msg: "Node: {{ item }} -> Roles: {{ group_roles[item] | default('No role assigned') }}"
+    msg: "RAM: {{ node_ram_gb[item] | default('Unknown') }} GB, Heap: {{ node_heap[item] | default('Unknown') }}, Role: {{ group_roles[item] | default('No role assigned') }}"
   with_items: "{{ startup_order }}"
+  loop_control:
+    label: "{{ item }}"
   run_once: true
+  delegate_to: localhost
 
 - name: Run containers according to assigned roles
   tags:

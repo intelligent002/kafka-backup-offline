@@ -60,6 +60,7 @@ connector.client.config.override.policy=All
 
 # SSL Configuration
 security.protocol=SSL
+ssl.enabled.protocols=TLSv1.3
 ssl.endpoint.identification.algorithm=
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
