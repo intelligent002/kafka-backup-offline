@@ -10,6 +10,12 @@ services:
     restart: always
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
+    healthcheck:
+      test: ["CMD-SHELL", "response=$$(wget -qO- http://localhost:8080/actuator/health | grep '\"status\":\"UP\"'); if [ -n \"$$response\" ]; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     volumes:
       - /data:/data:ro
       - /data/cluster/gui/Kafka-UI/dynamic_config_mtls.yaml:/etc/kafkaui/dynamic_config.yaml:ro
@@ -21,6 +27,10 @@ services:
     container_name: kafka-gateway-kafka-ui
     hostname: kafka-gateway-kafka-ui
     restart: always
+    depends_on:
+        kafka-console-kafka-ui:
+            condition: service_healthy
+            restart: true
     healthcheck:
       interval: 60s
       retries: 3
