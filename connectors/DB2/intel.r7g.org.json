@@ -13,6 +13,7 @@
       "consumer.override.ssl.truststore.type":"JKS",
       "database.cdcschema":"ASNCDC",
       "database.dbname":"TESTDB",
+      "database.history.kafka.topic": "cdc-db2-schema-history",
       "database.hostname":"kafka-db2.intel.r7g.org",
       "database.password":"your_password",
       "database.port":"50000",

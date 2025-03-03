@@ -12,6 +12,7 @@
       "consumer.override.ssl.truststore.password":"insecure",
       "consumer.override.ssl.truststore.type":"JKS",
       "database.encrypt":"true",
+      "database.history.kafka.topic": "cdc-mssql-schema-history",
       "database.hostname":"kafka-mssql.intel.r7g.org",
       "database.names":"FHIR",
       "database.password":"StrongPassword123!",

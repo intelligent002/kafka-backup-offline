@@ -11,6 +11,7 @@
       "consumer.override.ssl.truststore.location":"/etc/kafka/secrets/shared.truststore.jks",
       "consumer.override.ssl.truststore.password":"insecure",
       "consumer.override.ssl.truststore.type":"JKS",
+      "database.history.kafka.topic": "cdc-mysql-schema-history",
       "database.hostname":"mysql-slave.intel.r7g.org",
       "database.include.list":"FHIR",
       "database.password":"kafka",
