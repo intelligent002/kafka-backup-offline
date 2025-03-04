@@ -114,9 +114,6 @@ data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.xz"
 # Temporal data archive on central, for backup/restore operations
 central_temp_data_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
-# Temporal data archives mask to be stored as ZIP of ZIPS
-central_temp_data_archive_mask: "{{ storage_temp_path }}/*-data.tar.xz"
-
 # === Node Storage Base  ===============================================================================================
 
 # Cluster storage on nodes for everything related to cluster - should be fast drive
