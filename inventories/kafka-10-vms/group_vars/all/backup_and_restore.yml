@@ -61,10 +61,10 @@ central_certificates_backup_path: "{{ central_certificates_backup_rotated }}/{{ 
 central_certificates_backup_file: "{{ central_certificates_backup_path }}/{{ backup_date }}---certificates.tar.xz"
 
 # Temporal certificates archive on central, for backup/restore operations
-central_certificates_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
+central_certificates_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---certificates.tar.xz"
 
 # Temporal certificates archive on central, for backup/restore operations - all certificates storage
-central_certificates_temp_archive_node_0: "{{ storage_temp_path }}/node-0-certificates.tar.xz"
+central_certificates_temp_archive_node_0: "{{ storage_temp_path }}/node-0---certificates.tar.xz"
 
 # === Central Storage Credentials section ==============================================================================
 
@@ -84,10 +84,10 @@ central_credentials_backup_path: "{{ central_credentials_backup_rotated }}/{{ an
 central_credentials_backup_file: "{{ central_credentials_backup_path }}/{{ backup_date }}---credentials.tar.xz"
 
 # Temporal credentials archive on central, for backup/restore operations
-central_credentials_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
+central_credentials_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---credentials.tar.xz"
 
 # Temporal credentials archive on central, for backup/restore operations - all credentials storage
-central_credentials_temp_archive_node_0: "{{ storage_temp_path }}/node-0-credentials.tar.xz"
+central_credentials_temp_archive_node_0: "{{ storage_temp_path }}/node-0---credentials.tar.xz"
 
 # === Central Storage Config section ===================================================================================
 
@@ -107,7 +107,7 @@ central_config_backup_path: "{{ central_config_backup_rotated }}/{{ ansible_date
 central_config_backup_file: "{{ central_config_backup_path }}/{{ backup_date }}---config.tar.xz"
 
 # Temporal config archive on central, for backup/restore operations
-central_config_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
+central_config_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---config.tar.xz"
 
 # === Central Storage Data section =====================================================================================
 
@@ -127,7 +127,7 @@ central_data_backup_path: "{{ central_data_backup_rotated }}/{{ ansible_date_tim
 central_data_backup_file: "{{ central_data_backup_path }}/{{ backup_date }}---data.tar.xz"
 
 # Temporal data archive on central, for backup/restore operations
-central_data_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+central_data_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---data.tar.xz"
 
 # === Node Storage Base  ===============================================================================================
 
@@ -143,7 +143,7 @@ node_temp_path: "/data/temp"
 node_certificates_path: "{{ node_storage_base }}/certificates"
 
 # Temporal certificates archive on node, for backup/restore operations
-node_certificates_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
+node_certificates_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---certificates.tar.xz"
 
 # === Node Storage Credentials section =================================================================================
 
@@ -151,7 +151,7 @@ node_certificates_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-c
 node_credentials_path: "{{ node_storage_base }}/credentials"
 
 # Temporal credentials archive on node, for backup/restore operations
-node_credentials_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
+node_credentials_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---credentials.tar.xz"
 
 # === Node Storage Config section ======================================================================================
 
@@ -162,7 +162,7 @@ node_config_path: "{{ node_storage_base }}/config"
 node_config_file: "{{ node_config_path }}/kraft.properties"
 
 # Temporal credentials archive on node, for backup/restore operations
-node_config_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
+node_config_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---config.tar.xz"
 
 # === Node Storage Data section ========================================================================================
 
@@ -176,7 +176,7 @@ node_data_path: "{{ node_data_store }}/logs"
 node_meta_path: "{{ node_data_store }}/meta"
 
 # Temporal data archive on node, for backup/restore operations
-node_data_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+node_data_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---data.tar.xz"
 
 # === Node Storage Logs section ========================================================================================
 
