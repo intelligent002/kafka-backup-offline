@@ -83,6 +83,12 @@ credentials_backup_path: "{{ credentials_backup_rotated }}/{{ ansible_date_time.
 # Full path for the backup archive, named with a timestamp.
 credentials_backup_file: "{{ credentials_backup_path }}/{{ backup_date }}---credentials.tar.xz"
 
+# Temporal credentials archive on central, for backup/restore operations
+central_temp_credentials_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
+
+# Temporal credentials archive on central, for backup/restore operations - all credentials storage
+central_temp_credentials_archive_node_0: "{{ storage_temp_path }}/node-0-credentials.tar.xz"
+
 # === Central Storage Config section ===================================================================================
 
 # Folder dedicated for configs backups on cold storage
@@ -140,6 +146,9 @@ node_temp_certificates_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-c
 
 # Folder for credentials files on each node
 node_credentials_path: "{{ node_storage_base }}/credentials"
+
+# Temporal credentials archive on node, for backup/restore operations
+node_temp_credentials_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
 
 # === Node Storage Config section ======================================================================================
 
