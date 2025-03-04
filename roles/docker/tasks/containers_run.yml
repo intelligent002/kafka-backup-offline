@@ -52,6 +52,16 @@
   run_once: true
   delegate_to: localhost
 
+- name: Create folder for application logs
+  tags:
+    - containers_run
+  file:
+    path: "{{ node_logs_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_logs }}"
+
 - name: Run containers according to assigned roles
   tags:
     - containers_run

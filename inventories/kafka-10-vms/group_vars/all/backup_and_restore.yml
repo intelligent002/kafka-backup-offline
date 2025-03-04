@@ -32,6 +32,9 @@ chmod_configs: 0755
 # Data folder permissions
 chmod_data: 0755
 
+# Data folder permissions
+chmod_logs: 0755
+
 # === Central Storage Base =============================================================================================
 
 # Directory for long-term storage (cold storage) of backups - may be big and slow drive.
