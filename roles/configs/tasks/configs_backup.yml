@@ -35,7 +35,7 @@
     - configs_backup
   delegate_to: node-0
   synchronize:
-    src: "{{ node_config_temp_archive }}"
+    src: "{{ node_configs_temp_archive }}"
     dest: "{{ central_configs_temp_archive }}"
     mode: pull
     rsync_opts:
