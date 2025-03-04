@@ -60,7 +60,7 @@
     label: "{{ item }}"
   run_once: true
   ansible.builtin.file:
-    path: "{{ node_logs_path }}"
+    path: "/data/cluster/logs"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
