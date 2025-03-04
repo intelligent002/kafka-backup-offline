@@ -33,14 +33,14 @@
     - data_backup
   ansible.builtin.shell:
     cmd: >
-      tar -cf - "{{ node_data_store }}" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+      tar -cf - {{ node_data_store }} | xz > {{ node_temp_data_archive }}
 
 - name: Pull data archive from nodes
   tags:
     - data_backup
   synchronize:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    src: "{{ node_temp_data_archive }}"
+    dest: "{{ central_temp_data_archive }}"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -54,4 +54,4 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - {{ storage_temp_path }}/*-data.tar.xz | xz > "{{ data_backup_file }}"
+      tar -cf - {{ central_temp_data_archive_mask }} | xz > {{ data_backup_file }}

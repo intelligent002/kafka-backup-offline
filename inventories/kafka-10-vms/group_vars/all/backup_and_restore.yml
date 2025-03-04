@@ -111,6 +111,12 @@ data_backup_path: "{{ data_backup_rotated }}/{{ ansible_date_time.year }}/{{ ans
 # Full path for the backup archive, named with a timestamp.
 data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.xz"
 
+# Temporal data archive on central, for backup/restore operations
+central_temp_data_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+
+# Temporal data archives mask to be stored as ZIP of ZIPS
+central_temp_data_archive_mask: "{{ storage_temp_path }}/*-data.tar.xz"
+
 # === Node Storage Base  ===============================================================================================
 
 # Cluster storage on nodes for everything related to cluster - should be fast drive
@@ -147,6 +153,9 @@ node_data_path: "{{ node_data_store }}/logs"
 
 # Folder for meta files in the data folder on each node
 node_meta_path: "{{ node_data_store }}/meta"
+
+# Temporal data archive on node, for backup/restore operations
+node_temp_data_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 # === Node Storage Logs section ========================================================================================
 
