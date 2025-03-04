@@ -13,7 +13,7 @@
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ owner_user_data }}"

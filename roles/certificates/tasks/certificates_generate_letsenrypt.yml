@@ -218,7 +218,7 @@
 - name: Ensure certificate folder exists on nodes
   tags:
     - certificates_generate
-  file:
+  ansible.builtin.file:
     path: "{{ node_certificates_path }}"
     state: directory
     owner: "{{ owner_user_data }}"

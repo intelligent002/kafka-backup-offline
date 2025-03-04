@@ -58,12 +58,13 @@
   with_items: "{{ startup_order }}"
   loop_control:
     label: "{{ item }}"
-  file:
+  ansible.builtin.file:
     path: "{{ node_logs_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_logs }}"
+    recurse: true
 
 - name: Run containers according to assigned roles
   tags:

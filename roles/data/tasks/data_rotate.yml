@@ -4,7 +4,7 @@
     - data_rotate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ central_data_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
@@ -16,7 +16,7 @@
     - data_rotate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ central_data_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"

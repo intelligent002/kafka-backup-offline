@@ -28,7 +28,7 @@
 - name: Create certificates folder on nodes
   tags:
     - certificates_restore
-  file:
+  ansible.builtin.file:
     path: "{{ node_certificates_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
