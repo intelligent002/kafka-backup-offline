@@ -22,7 +22,7 @@
   with_items: "{{ shutdown_order }}"
   run_once: true  # Ensure task runs only once on localhost
   ansible.builtin.file:
-    path: "{{ node_data_store }}"
+    path: "{{ node_logs_path }}"
     state: absent
 
 
