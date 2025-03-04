@@ -40,7 +40,7 @@
     - configs_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ central_configs_temp_archive }}"
+    src: "{{ central_config_temp_archive }}"
     dest: "{{ node_config_temp_archive }}"
     mode: push
     rsync_opts:

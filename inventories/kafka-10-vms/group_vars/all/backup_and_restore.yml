@@ -92,22 +92,22 @@ central_temp_credentials_archive_node_0: "{{ storage_temp_path }}/node-0-credent
 # === Central Storage Config section ===================================================================================
 
 # Folder dedicated for configs backups on cold storage
-central_configs_backup_base: "{{ storage_cold_path }}/configs"
+central_config_backup_base: "{{ storage_cold_path }}/configs"
 
 # Folder dedicated for pinned backups, that will be excluded from rotation
-central_configs_backup_pinned: "{{ central_configs_backup_base }}/pinned"
+central_config_backup_pinned: "{{ central_config_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
-central_configs_backup_rotated: "{{ central_configs_backup_base }}/rotated"
+central_config_backup_rotated: "{{ central_config_backup_base }}/rotated"
 
 # Folder that should be created during backup operation, including year/month/day folders.
-central_configs_backup_path: "{{ central_configs_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+central_config_backup_path: "{{ central_config_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the backup archive, named with a timestamp.
-central_configs_backup_file: "{{ central_configs_backup_path }}/{{ backup_date }}---config.tar.xz"
+central_config_backup_file: "{{ central_config_backup_path }}/{{ backup_date }}---config.tar.xz"
 
 # Temporal config archive on central, for backup/restore operations
-central_configs_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
+central_config_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
 
 # === Central Storage Data section =====================================================================================
 
