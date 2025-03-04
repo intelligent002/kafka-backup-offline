@@ -48,7 +48,7 @@
   delegate_to: node-0
   run_once: true
   template:
-    src: "{{ inventory_dir }}/templates/connect_balancer.j2"
+    src: "connect_balancer.j2"
     dest: "{{ node_config_path }}/kafka-connect-balancer.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
