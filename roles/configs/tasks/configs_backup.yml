@@ -49,4 +49,4 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ config_backup_file }}"
+      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_config_backup_file }}"
