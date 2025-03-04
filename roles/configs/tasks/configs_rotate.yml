@@ -17,7 +17,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ storage_cold_path }}/configs/pinned"
+    path: "{{ configs_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -29,7 +29,7 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ storage_cold_path }}/configs/rotated/"
+    paths: "{{ configs_backup_rotated }}"
     age: "{{ retention_policy_configs }}d"
     recurse: yes
     patterns: "*configs.tar.*"
@@ -45,9 +45,9 @@
     state: absent
   with_items: "{{ old_configs_backups.files }}"
 
-- name: Remove empty directories in cold storage
+- name: Remove empty config directories in cold storage
   tags: configs_rotate
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ storage_cold_path }}/configs/rotated/ -depth -type d -empty -delete
+    find {{ configs_backup_rotated }} -depth -type d -empty -delete
