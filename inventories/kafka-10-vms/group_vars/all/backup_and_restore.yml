@@ -10,7 +10,27 @@ retention_policy_credentials: 365
 retention_policy_configs: 365
 
 # Number of days to retain data backups.
-retention_policy_data: 6
+retention_policy_data: 30
+
+# === Node Permissions =================================================================================================
+
+# Service user
+owner_user_data: 1000
+
+# Service group
+owner_group_data: 1000
+
+# Data folder permissions
+chmod_data: 0755
+
+# Config folder permissions
+chmod_configs: 0755
+
+# Credentials file permissions
+chmod_credentials: 0755
+
+# Certificate file permissions
+chmod_certificates: 0755
 
 # === Backup Base ======================================================================================================
 
@@ -45,3 +65,33 @@ data_backup_path: "{{ storage_cold_path }}/data/rotated/{{ ansible_date_time.yea
 # Full path for the data backup archive, named with a timestamp.
 data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.xz"
 
+# === Node Restore & Generate Locations ================================================================================
+
+# cluster node's certificate files.
+node_certificates_path: "/data/cluster/certificates"
+
+# cluster node's credentials file.
+node_credentials_path: "/data/cluster/credentials"
+
+# cluster node's config files.
+node_config_path: "/data/cluster/config"
+# cluster node's config files.
+node_config_file: "{{ node_config_path }}/kraft.properties"
+
+# cluster node`s data store
+node_data_store: "/data/cluster/data"
+
+# cluster node's data files.
+node_data_path: "{{ node_data_store }}/logs"
+
+# cluster node's meta files.
+node_meta_path: "{{ node_data_store }}/meta"
+
+# cluster node's logs files.
+node_logs_path: "/data/cluster/logs"
+
+# cluster node's logs files.
+node_plugins_path: "/data/cluster/plugins"
+
+# Temporary directory on nodes for extracting & creating archives for backups & restores.
+node_temp_path: "/data/temp"

@@ -1,0 +1,17 @@
+# === Ansible Settings =================================================================================================
+
+# Specifies the Python interpreter to be used on the remote nodes.
+ansible_python_interpreter: /usr/bin/python
+
+# Connection to cluster nodes
+ansible_user: root
+ansible_key_pub: /root/.ssh/id_rsa.pub
+ansible_key_pri: /root/.ssh/id_rsa
+
+# === Restore archive parameter ========================================================================================
+
+# Path to the restore archive (to be provided via CLI parameters). Should be an absolute file path.
+restore_archive: ""
+
+# === Cluster ID =======================================================================================================
+cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
