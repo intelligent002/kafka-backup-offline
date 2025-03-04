@@ -10,7 +10,7 @@
 - name: Determine the template dynamically based on the group
   tags: configs_generate
   set_fact:
-    selected_template: "{{ inventory_dir }}/templates/server_properties_{{ relevant_group }}.j2"
+    selected_template: "server_properties_{{ relevant_group }}.j2"
 
 - name: Ensure Config directory exists on nodes
   tags:
@@ -48,7 +48,7 @@
   delegate_to: node-0
   run_once: true
   template:
-    src: "{{ inventory_dir }}/templates/connect_balancer.j2"
+    src: "connect_balancer.j2"
     dest: "{{ node_config_path }}/kafka-connect-balancer.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"

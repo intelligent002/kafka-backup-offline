@@ -117,4 +117,3 @@ credentials:
       - resource_type: "group"
         resource_name: "connect-cluster"
         operation: "Read"
-
