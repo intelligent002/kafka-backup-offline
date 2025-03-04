@@ -9,7 +9,20 @@
 - name: Remove Docker containers in shutdown order
   tags:
     - containers_remove
-  shell: docker rm -f {{ hostvars[item]['hostname'] }}
+  delegate_to: "{{ item }}"
+  with_items: "{{ shutdown_order }}"
+  run_once: true
+  shell: >
+    docker rm -f {{ hostvars[item]['hostname'] }}
+
+- name: Remove folder for application logs
+  tags:
+    - containers_remove
   delegate_to: "{{ item }}"
   with_items: "{{ shutdown_order }}"
   run_once: true  # Ensure task runs only once on localhost
+  ansible.builtin.file:
+    path: "{{ node_data_store }}"
+    state: absent
+
+

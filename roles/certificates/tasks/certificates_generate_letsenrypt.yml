@@ -163,7 +163,7 @@
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ cert_file_server_truststore }}"
     state: absent
 

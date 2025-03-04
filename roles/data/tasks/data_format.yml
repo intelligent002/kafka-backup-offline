@@ -7,7 +7,7 @@
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
