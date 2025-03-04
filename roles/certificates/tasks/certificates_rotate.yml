@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ certificates_backup_path }}"
+    path: "{{ central_certificates_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -17,7 +17,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ certificates_backup_pinned }}"
+    path: "{{ central_certificates_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -29,7 +29,7 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ certificates_backup_rotated }}"
+    paths: "{{ central_certificates_backup_rotated }}"
     age: "{{ retention_policy_certificates }}d"
     recurse: yes
     patterns: "*certificate.tar.*"
@@ -50,4 +50,4 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ certificates_backup_rotated }} -depth -type d -empty -delete
+    find {{ central_certificates_backup_rotated }} -depth -type d -empty -delete

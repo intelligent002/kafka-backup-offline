@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ data_backup_path }}"
+    path: "{{ central_data_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -17,7 +17,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ data_backup_pinned }}"
+    path: "{{ central_data_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -29,7 +29,7 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ data_backup_rotated }}"
+    paths: "{{ central_data_backup_rotated }}"
     age: "{{ retention_policy_data }}d"
     recurse: yes
     patterns: "*data.tar*"
@@ -53,4 +53,4 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ data_backup_rotated }} -depth -type d -empty -delete
+    find {{ central_data_backup_rotated }} -depth -type d -empty -delete

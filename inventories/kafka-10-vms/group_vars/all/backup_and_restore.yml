@@ -46,19 +46,19 @@ backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace
 # === Central Storage Certificates section =============================================================================
 
 # Folder dedicated for certificates backups on cold storage
-certificates_backup_base: "{{ storage_cold_path }}/certificates"
+central_certificates_backup_base: "{{ storage_cold_path }}/certificates"
 
 # Folder dedicated for pinned backups, that will be excluded from rotation
-certificates_backup_pinned: "{{ certificates_backup_base }}/pinned"
+central_certificates_backup_pinned: "{{ central_certificates_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
-certificates_backup_rotated: "{{ certificates_backup_base }}/rotated"
+central_certificates_backup_rotated: "{{ central_certificates_backup_base }}/rotated"
 
 # Folder that should be created during backup operation, including year/month/day folders.
-certificates_backup_path: "{{ certificates_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+central_certificates_backup_path: "{{ central_certificates_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the ZIP of ZIPS backup, named with a timestamp.
-certificates_backup_file: "{{ certificates_backup_path }}/{{ backup_date }}---certificates.tar.xz"
+central_certificates_backup_file: "{{ central_certificates_backup_path }}/{{ backup_date }}---certificates.tar.xz"
 
 # Temporal certificates archive on central, for backup/restore operations
 central_temp_certificates_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
@@ -69,19 +69,19 @@ central_temp_certificates_archive_node_0: "{{ storage_temp_path }}/node-0-certif
 # === Central Storage Credentials section ==============================================================================
 
 # Folder dedicated for credentials backups on cold storage
-credentials_backup_base: "{{ storage_cold_path }}/credentials"
+central_credentials_backup_base: "{{ storage_cold_path }}/credentials"
 
 # Folder dedicated for pinned backups, that will be excluded from rotation
-credentials_backup_pinned: "{{ credentials_backup_base }}/pinned"
+central_credentials_backup_pinned: "{{ central_credentials_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
-credentials_backup_rotated: "{{ credentials_backup_base }}/rotated"
+central_credentials_backup_rotated: "{{ central_credentials_backup_base }}/rotated"
 
 # Folder that should be created during backup operation, including year/month/day folders.
-credentials_backup_path: "{{ credentials_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+central_credentials_backup_path: "{{ central_credentials_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the backup archive, named with a timestamp.
-credentials_backup_file: "{{ credentials_backup_path }}/{{ backup_date }}---credentials.tar.xz"
+central_credentials_backup_file: "{{ central_credentials_backup_path }}/{{ backup_date }}---credentials.tar.xz"
 
 # Temporal credentials archive on central, for backup/restore operations
 central_temp_credentials_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
@@ -92,39 +92,42 @@ central_temp_credentials_archive_node_0: "{{ storage_temp_path }}/node-0-credent
 # === Central Storage Config section ===================================================================================
 
 # Folder dedicated for configs backups on cold storage
-configs_backup_base: "{{ storage_cold_path }}/configs"
+central_configs_backup_base: "{{ storage_cold_path }}/configs"
 
 # Folder dedicated for pinned backups, that will be excluded from rotation
-configs_backup_pinned: "{{ configs_backup_base }}/pinned"
+central_configs_backup_pinned: "{{ central_configs_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
-configs_backup_rotated: "{{ configs_backup_base }}/rotated"
+central_configs_backup_rotated: "{{ central_configs_backup_base }}/rotated"
 
 # Folder that should be created during backup operation, including year/month/day folders.
-configs_backup_path: "{{ configs_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+central_configs_backup_path: "{{ central_configs_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the backup archive, named with a timestamp.
-configs_backup_file: "{{ configs_backup_path }}/{{ backup_date }}---configs.tar.xz"
+central_configs_backup_file: "{{ central_configs_backup_path }}/{{ backup_date }}---config.tar.xz"
+
+# Temporal config archive on central, for backup/restore operations
+central_configs_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
 
 # === Central Storage Data section =====================================================================================
 
 # Folder dedicated for data backups on cold storage
-data_backup_base: "{{ storage_cold_path }}/data"
+central_data_backup_base: "{{ storage_cold_path }}/data"
 
 # Folder dedicated for pinned backups, that will be excluded from rotation
-data_backup_pinned: "{{ data_backup_base }}/pinned"
+central_data_backup_pinned: "{{ central_data_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
-data_backup_rotated: "{{ data_backup_base }}/rotated"
+central_data_backup_rotated: "{{ central_data_backup_base }}/rotated"
 
 # Folder that should be created during backup operation, including year/month/day folders.
-data_backup_path: "{{ data_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+central_data_backup_path: "{{ central_data_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
 # Full path for the backup archive, named with a timestamp.
-data_backup_file: "{{ data_backup_path }}/{{ backup_date }}---data.tar.xz"
+central_data_backup_file: "{{ central_data_backup_path }}/{{ backup_date }}---data.tar.xz"
 
 # Temporal data archive on central, for backup/restore operations
-central_temp_data_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+central_data_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 # === Node Storage Base  ===============================================================================================
 
@@ -140,7 +143,7 @@ node_temp_path: "/data/temp"
 node_certificates_path: "{{ node_storage_base }}/certificates"
 
 # Temporal certificates archive on node, for backup/restore operations
-node_temp_certificates_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
+node_certificates_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
 
 # === Node Storage Credentials section =================================================================================
 
@@ -148,7 +151,7 @@ node_temp_certificates_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-c
 node_credentials_path: "{{ node_storage_base }}/credentials"
 
 # Temporal credentials archive on node, for backup/restore operations
-node_temp_credentials_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
+node_credentials_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-credentials.tar.xz"
 
 # === Node Storage Config section ======================================================================================
 
@@ -157,6 +160,9 @@ node_config_path: "{{ node_storage_base }}/config"
 
 # Common filename of the kafka config file on nodes
 node_config_file: "{{ node_config_path }}/kraft.properties"
+
+# Temporal credentials archive on node, for backup/restore operations
+node_config_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
 
 # === Node Storage Data section ========================================================================================
 
@@ -170,7 +176,7 @@ node_data_path: "{{ node_data_store }}/logs"
 node_meta_path: "{{ node_data_store }}/meta"
 
 # Temporal data archive on node, for backup/restore operations
-node_temp_data_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+node_data_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
 
 # === Node Storage Logs section ========================================================================================
 

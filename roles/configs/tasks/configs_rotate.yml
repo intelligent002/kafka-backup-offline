@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ configs_backup_path }}"
+    path: "{{ central_configs_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -17,7 +17,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ configs_backup_pinned }}"
+    path: "{{ central_configs_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -29,7 +29,7 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ configs_backup_rotated }}"
+    paths: "{{ central_configs_backup_rotated }}"
     age: "{{ retention_policy_configs }}d"
     recurse: yes
     patterns: "*configs.tar.*"
@@ -50,4 +50,4 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ configs_backup_rotated }} -depth -type d -empty -delete
+    find {{ central_configs_backup_rotated }} -depth -type d -empty -delete

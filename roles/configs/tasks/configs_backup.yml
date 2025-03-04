@@ -5,7 +5,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ configs_backup_path }}"
+    path: "{{ central_configs_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -17,7 +17,7 @@
   delegate_to: node-0
   run_once: true
   file:
-    path: "{{ configs_backup_pinned }}"
+    path: "{{ central_configs_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -26,19 +26,17 @@
 - name: Create configs archive on nodes
   tags:
     - configs_backup
-  community.general.archive:
-    path: "{{ node_config_path }}/"  # The directory or files to be archived
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.xz"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ node_config_path }} ./ | xz > {{ node_config_temp_archive }}
 
 - name: Pull configs archive from nodes
   tags:
     - configs_backup
   delegate_to: node-0
   synchronize:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-config.tar.xz"
+    src: "{{ node_config_temp_archive }}"
+    dest: "{{ central_configs_temp_archive }}"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -49,8 +47,6 @@
     - configs_backup
   delegate_to: node-0
   run_once: true
-  community.general.archive:
-    path: "{{ storage_temp_path }}/"  # The directory or files to be archived
-    dest: "{{ configs_backup_file }}"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ config_backup_file }}"

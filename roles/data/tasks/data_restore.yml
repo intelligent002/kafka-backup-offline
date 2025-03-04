@@ -35,8 +35,8 @@
     - data_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ central_temp_data_archive }}"
-    dest: "{{ node_temp_data_archive }}"
+    src: "{{ central_data_temp_archive }}"
+    dest: "{{ node_data_temp_archive }}"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -63,7 +63,7 @@
   tags:
     - data_restore
   unarchive:
-    src: "{{ node_temp_data_archive }}"
+    src: "{{ node_data_temp_archive }}"
     dest: "{{ node_data_store }}"
     remote_src: yes
 

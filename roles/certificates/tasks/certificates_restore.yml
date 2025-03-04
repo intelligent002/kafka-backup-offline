@@ -42,7 +42,7 @@
   delegate_to: node-0
   synchronize:
     src: "{{ central_temp_certificates_archive }}"
-    dest: "{{ node_temp_certificates_archive }}"
+    dest: "{{ node_certificates_temp_archive }}"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -54,7 +54,7 @@
   tags:
     - certificates_restore
   unarchive:
-    src: "{{ node_temp_certificates_archive }}"
+    src: "{{ node_certificates_temp_archive }}"
     dest: "{{ node_certificates_path }}"
     remote_src: yes
 
