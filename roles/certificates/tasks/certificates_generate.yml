@@ -13,7 +13,7 @@
     - certificates_generate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ owner_user_data }}"
@@ -264,7 +264,7 @@
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_certificates }}'
+    mode: "{{ chmod_certificates }}"
     recurse: true
 
 - name: Distribute shared truststore to nodes

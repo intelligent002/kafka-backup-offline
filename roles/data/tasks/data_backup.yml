@@ -9,8 +9,8 @@
     - data_backup
   delegate_to: node-0
   run_once: true
-  file:
-    path: "{{ data_backup_path }}"
+  ansible.builtin.file:
+    path: "{{ central_data_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -21,8 +21,8 @@
     - data_backup
   delegate_to: node-0
   run_once: true
-  file:
-    path: "{{ storage_cold_path }}/data/pinned"
+  ansible.builtin.file:
+    path: "{{ central_data_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -33,14 +33,14 @@
     - data_backup
   ansible.builtin.shell:
     cmd: >
-      tar -cf - "{{ node_data_store }}" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+      tar -cf - -C {{ node_data_store }} ./ | xz > {{ node_data_temp_archive }}
 
 - name: Pull data archive from nodes
   tags:
     - data_backup
   synchronize:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    src: "{{ node_data_temp_archive }}"
+    dest: "{{ central_data_temp_archive }}"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -54,4 +54,4 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - {{ storage_temp_path }}/*-data.tar.xz | xz > "{{ data_backup_file }}"
+      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_data_backup_file }}"

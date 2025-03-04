@@ -35,8 +35,8 @@
     - data_restore
   delegate_to: node-0
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    src: "{{ central_data_temp_archive }}"
+    dest: "{{ node_data_temp_archive }}"
     mode: push
     rsync_opts:
       - "--timeout=60"
@@ -45,14 +45,14 @@
 - name: Remove data folder on nodes
   tags:
     - data_restore
-  file:
+  ansible.builtin.file:
     path: "{{ node_data_store }}"
     state: absent
 
 - name: Create data folder on nodes
   tags:
     - data_restore
-  file:
+  ansible.builtin.file:
     path: "{{ node_data_store }}"
     state: directory
     owner: "{{ owner_user_data }}"
@@ -63,7 +63,7 @@
   tags:
     - data_restore
   unarchive:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-data.tar.xz"
+    src: "{{ node_data_temp_archive }}"
     dest: "{{ node_data_store }}"
     remote_src: yes
 

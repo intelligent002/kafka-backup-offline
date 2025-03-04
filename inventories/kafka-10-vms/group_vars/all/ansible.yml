@@ -14,4 +14,4 @@ ansible_key_pri: /root/.ssh/id_rsa
 restore_archive: ""
 
 # === Cluster ID =======================================================================================================
-cluster_id: "AkU3OEVBNTcwNTJENDM2Qk"
+cluster_id: "AkU3OEVBNTcwNTJENDM2Qd"

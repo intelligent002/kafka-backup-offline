@@ -4,8 +4,8 @@
     - data_rotate
   delegate_to: node-0
   run_once: true
-  file:
-    path: "{{ data_backup_path }}"
+  ansible.builtin.file:
+    path: "{{ central_data_backup_path }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -16,8 +16,8 @@
     - data_rotate
   delegate_to: node-0
   run_once: true
-  file:
-    path: "{{ storage_cold_path }}/data/pinned"
+  ansible.builtin.file:
+    path: "{{ central_data_backup_pinned }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
@@ -29,10 +29,10 @@
   delegate_to: node-0
   run_once: true
   find:
-    paths: "{{ storage_cold_path }}/data/rotated/"
+    paths: "{{ central_data_backup_rotated }}"
     age: "{{ retention_policy_data }}d"
     recurse: yes
-    patterns: "*data.tar.*"
+    patterns: "*data.tar*"
   register: old_data_backups
 
 - name: Remove old data backups
@@ -40,17 +40,17 @@
     - data_rotate
   delegate_to: node-0
   run_once: true
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ old_data_backups.files }}"
   loop_control:
     label: "Removed - {{ item.path }}"
 
-- name: Remove empty directories in cold storage
+- name: Remove empty data directories in cold storage
   tags:
     - data_rotate
   delegate_to: node-0
   run_once: true
   shell: >
-    find {{ storage_cold_path }}/data/rotated/ -depth -type d -empty -delete
+    find {{ central_data_backup_rotated }} -depth -type d -empty -delete

@@ -7,24 +7,24 @@
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
-    - "{{ node_data_path }}"
-    - "{{ node_meta_path }}"
+    - "{{ node_data_store }}"
     - "{{ node_logs_path }}"
 
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
   loop:
+    - "{{ node_data_store }}"
     - "{{ node_data_path }}"
     - "{{ node_meta_path }}"
     - "{{ node_logs_path }}"
