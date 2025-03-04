@@ -63,6 +63,9 @@ certificates_backup_file: "{{ certificates_backup_path }}/{{ backup_date }}---ce
 # Temporal certificates archive on central, for backup/restore operations
 central_temp_certificates_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
 
+# Temporal certificates archive on central, for backup/restore operations
+central_temp_certificates_archive_node_0: "{{ storage_temp_path }}/node-0-certificates.tar.xz"
+
 # === Central Storage Credentials section ==============================================================================
 
 # Folder dedicated for credentials backups on cold storage

@@ -49,7 +49,7 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - -C {{ storage_certificates_path }} ./ | xz > node-0-certificates.tar.xz
+      tar -cf - -C {{ storage_certificates_path }} ./ | xz > {{ central_temp_certificates_archive_node_0 }}
 
 - name: Create certificates zip of zips
   tags:
