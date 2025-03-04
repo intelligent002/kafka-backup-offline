@@ -10,7 +10,7 @@
 - name: Determine the template dynamically based on the group
   tags: configs_generate
   set_fact:
-    selected_template: "{{ inventory_dir }}/templates/server_properties_{{ relevant_group }}.j2"
+    selected_template: "server_properties_{{ relevant_group }}.j2"
 
 - name: Ensure Config directory exists on nodes
   tags:
