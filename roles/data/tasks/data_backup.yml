@@ -54,4 +54,4 @@
   run_once: true
   ansible.builtin.shell:
     cmd: >
-      tar -cf - {{ central_temp_data_archive_mask }} | xz > {{ data_backup_file }}
+      tar -cf - {{ central_temp_data_archive_mask }} | xz > "{{ data_backup_file }}"
