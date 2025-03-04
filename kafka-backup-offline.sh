@@ -170,13 +170,13 @@ function cluster_backup()
 function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
+    # stop everything
+    cluster_containers_remove
+
     # regenerate all components
     cluster_configs_generate
     cluster_certificates_generate
     cluster_credentials_generate
-
-    # wipe cluster data (without containers running)
-    cluster_containers_remove
     cluster_data_format
 
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
