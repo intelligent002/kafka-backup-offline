@@ -26,19 +26,17 @@
 - name: Create certificates archive on nodes
   tags:
     - certificates_backup
-  community.general.archive:
-    path: "{{ node_certificates_path }}/"  # The directory or files to be archived
-    dest: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ node_certificates_path }} ./ | xz > {{ node_temp_certificates_archive }}
 
 - name: Pull certificates archive from nodes
   tags:
     - certificates_backup
   delegate_to: node-0
   synchronize:
-    src: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
+    src: "{{ node_temp_certificates_archive }}"
+    dest: "{{ central_temp_certificates_archive }}"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -49,19 +47,15 @@
     - certificates_backup
   delegate_to: node-0
   run_once: true
-  community.general.archive:
-    path: "{{ storage_certificates_path }}/"  # The directory or files to be archived
-    dest: "{{ storage_temp_path }}/node-0-certificates.tar.xz"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ storage_certificates_path }} ./ | xz > {{ central_temp_certificates_archive }}
 
 - name: Create certificates zip of zips
   tags:
     - certificates_backup
   delegate_to: node-0
   run_once: true
-  community.general.archive:
-    path: "{{ storage_temp_path }}/"  # The directory or files to be archived
-    dest: "{{ certificates_backup_file }}"  # Destination archive
-    format: xz  # Use XZ compression
-    remove: no  # Set to 'yes' to remove the original files after archiving
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ certificates_backup_file }}"

@@ -57,8 +57,11 @@ certificates_backup_rotated: "{{ certificates_backup_base }}/rotated"
 # Folder that should be created during backup operation, including year/month/day folders.
 certificates_backup_path: "{{ certificates_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
-# Full path for the backup archive, named with a timestamp.
+# Full path for the ZIP of ZIPS backup, named with a timestamp.
 certificates_backup_file: "{{ certificates_backup_path }}/{{ backup_date }}---certificates.tar.xz"
+
+# Temporal certificates archive on central, for backup/restore operations
+central_temp_certificates_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
 
 # === Central Storage Credentials section ==============================================================================
 
@@ -126,6 +129,9 @@ node_temp_path: "/data/temp"
 
 # Folder for certificates files on each node
 node_certificates_path: "{{ node_storage_base }}/certificates"
+
+# Temporal certificates archive on node, for backup/restore operations
+node_temp_certificates_archive: "{{ node_temp_path }}/{{ inventory_hostname }}-certificates.tar.xz"
 
 # === Node Storage Credentials section =================================================================================
 
