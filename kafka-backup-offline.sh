@@ -1135,8 +1135,11 @@ function cluster_data_restore_menu() {
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        backup_files+=("$line")
-    done < <(find "$storage_data" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
+        filename=$(awk '{$NF=""; print $0}' <<< "$line")  # Extract filename
+        filesize_kb=$(awk '{print $NF}' <<< "$line")      # Extract size in KB
+        filesize_mb=$((filesize_kb / 1024))               # Convert KB to MB
+        backup_files+=("${filename} ${filesize_mb}MB")    # Append formatted entry
+    done < <(find "$storage_data" -type f -name "*.tar.*" -printf '%P %k\n' | sort)
 
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
