@@ -499,10 +499,12 @@ function cluster_data_backup()
 # Uses the specified archive file to recover data.
 function cluster_data_restore()
 {
-    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
+    local restore_archive="$1"
+    local extra_vars="--extra-vars '{\"restore_archive\":\"'"$restore_archive"'\"}'"
     run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
     return $?
 }
+
 
 # Deletes old archives according to retention_policy_data days amount value
 function cluster_data_rotate()
