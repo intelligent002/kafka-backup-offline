@@ -499,12 +499,10 @@ function cluster_data_backup()
 # Uses the specified archive file to recover data.
 function cluster_data_restore()
 {
-    local restore_archive="$1"
-    local extra_vars="--extra-vars '{\"restore_archive\":\"'"$restore_archive"'\"}'"
+    local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
     return $?
 }
-
 
 # Deletes old archives according to retention_policy_data days amount value
 function cluster_data_rotate()
@@ -1185,9 +1183,18 @@ function cluster_data_restore_menu() {
         return 0
     fi
 
-    # Get the selected backup file path safely
-    IFS=' ' read -r selected_backup _ <<< "${backup_files[$choice]}"
-    selected_backup="$storage_data/$selected_backup"  # Ensure full path
+    # Debug: Print the chosen menu entry before extracting the filename
+    echo "DEBUG: Selected menu entry -> ${backup_files[$choice]}"
+
+    # Extract the full filename safely (removes the last space-separated field which is the size)
+    selected_backup="${backup_files[$choice]% *}"
+
+    # Ensure the full path is included
+    selected_backup="$storage_data/$selected_backup"
+
+    # Debug: Print the final filename before restoring
+    echo "DEBUG: Final backup file passed to restore -> '$selected_backup'"
+
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
