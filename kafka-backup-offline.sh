@@ -704,10 +704,10 @@ function cluster_certificates_restore_menu()
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        filename=$(awk '{$NF=""; sub(/[ \t]+$/, ""); print}' <<< "$line")  # Extract filename & trim trailing space
-        filesize_bytes=$(awk '{print $NF}' <<< "$line")                    # Extract size in bytes
-        formatted_size=$(format_filesize "$filesize_bytes")                # Format size
-        backup_files+=("${filename} ${formatted_size}")                    # Append formatted entry
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
     done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
@@ -831,10 +831,10 @@ function cluster_configs_restore_menu()
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        filename=$(awk '{$NF=""; sub(/[ \t]+$/, ""); print}' <<< "$line")  # Extract filename & trim trailing space
-        filesize_bytes=$(awk '{print $NF}' <<< "$line")                    # Extract size in bytes
-        formatted_size=$(format_filesize "$filesize_bytes")                # Format size
-        backup_files+=("${filename} ${formatted_size}")                    # Append formatted entry
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
     done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
@@ -953,10 +953,10 @@ function cluster_credentials_restore_menu()
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        filename=$(awk '{$NF=""; sub(/[ \t]+$/, ""); print}' <<< "$line")  # Extract filename & trim trailing space
-        filesize_bytes=$(awk '{print $NF}' <<< "$line")                    # Extract size in bytes
-        formatted_size=$(format_filesize "$filesize_bytes")                # Format size
-        backup_files+=("${filename} ${formatted_size}")                    # Append formatted entry
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
     done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
@@ -1178,10 +1178,10 @@ function cluster_data_restore_menu()
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        filename=$(awk '{$NF=""; sub(/[ \t]+$/, ""); print}' <<< "$line")  # Extract filename & trim trailing space
-        filesize_bytes=$(awk '{print $NF}' <<< "$line")                    # Extract size in bytes
-        formatted_size=$(format_filesize "$filesize_bytes")                # Format size
-        backup_files+=("${filename} ${formatted_size}")                    # Append formatted entry
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
     done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no backup files are available
