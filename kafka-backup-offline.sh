@@ -540,7 +540,7 @@ function main_menu() {
         fi
 
         # Handle user choices
-        case $choice in
+        case "$choice" in
             1) exit 0 ;;
             2) prerequisites_menu ;;
             3) certificates_menu ;;
@@ -576,7 +576,7 @@ function prerequisites_menu() {
         fi
 
         # Handle the user's menu choice
-        case $choice in
+        case "$choice" in
             # Return to the main menu if "Main menu" is selected
             1)
                return 0 ;;
@@ -631,7 +631,7 @@ function certificates_menu() {
         fi
 
         # Handle the user's menu choice
-        case $choice in
+        case "$choice" in
             1)
                # Return to the main menu if "Main menu" is selected
                return 0 ;;
@@ -756,7 +756,7 @@ function configs_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0
                ;;
@@ -870,7 +870,7 @@ function credentials_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0 ;;
             2)
@@ -979,7 +979,7 @@ function acls_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0 ;;
             2)
@@ -1017,7 +1017,7 @@ function containers_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1) return 0 ;;
             2) cluster_containers_run
                if [[ $? -eq 0 ]]; then
@@ -1081,7 +1081,7 @@ function data_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                # Back to main menu
                return 0
@@ -1119,7 +1119,6 @@ function data_menu() {
                     show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
                fi
                ;;
-
         esac
     done
 }
@@ -1133,9 +1132,11 @@ function cluster_data_restore_menu() {
 
     storage_data="$STORAGE_COLD/data"
 
-    # Find all available backup files with their sizes
+    # Find all available backup files with their sizes safely
     backup_files=()
-    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    while IFS= read -r line; do
+        backup_files+=("$line")
+    done < <(find "$storage_data" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
@@ -1164,8 +1165,9 @@ function cluster_data_restore_menu() {
         return 0
     fi
 
-    # Get the selected backup file path
-    selected_backup=$(echo "${backup_files[$choice]}" | awk '{print $1}')
+    # Get the selected backup file path safely
+    IFS=' ' read -r selected_backup _ <<< "${backup_files[$choice]}"
+    selected_backup="$storage_data/$selected_backup"  # Ensure full path
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
