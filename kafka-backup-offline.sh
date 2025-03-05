@@ -234,6 +234,21 @@ function log()
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >> "$LOG_FILE"
 }
 
+# Converts a file size from bytes to a human-readable format (B, KB, MB, GB).
+# Uses echo to return the formatted size as a string.
+function format_filesize() {
+    local size=$1
+    if ((size < 1024)); then
+        echo "${size} B"
+    elif ((size < 1048576)); then
+        echo "$((size / 1024)) KB"
+    elif ((size < 1073741824)); then
+        echo "$((size / 1048576)) MB"
+    else
+        echo "$((size / 1073741824)) GB"
+    fi
+}
+
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
 # Logs a warning if the available disk space drops below 20% (or the configured `STORAGE_WARN_LOW` threshold).
 function ensure_free_space()
@@ -1135,11 +1150,11 @@ function cluster_data_restore_menu() {
     # Find all available backup files with their sizes safely
     backup_files=()
     while IFS= read -r line; do
-        filename=$(awk '{$NF=""; print $0}' <<< "$line")  # Extract filename
-        filesize_kb=$(awk '{print $NF}' <<< "$line")      # Extract size in KB
-        filesize_mb=$((filesize_kb / 1024))               # Convert KB to MB
-        backup_files+=("${filename} ${filesize_mb}MB")    # Append formatted entry
-    done < <(find "$storage_data" -type f -name "*.tar.*" -printf '%P %k\n' | sort)
+        filename=$(awk '{$NF=""; print $0}' <<< "$line")     # Extract filename
+        filesize_bytes=$(awk '{print $NF}' <<< "$line")      # Extract size in bytes
+        formatted_size=$(format_filesize "$filesize_bytes")  # Format size
+        backup_files+=("${filename} ${formatted_size}")      # Append formatted entry
+    done < <(find "$storage_data" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
