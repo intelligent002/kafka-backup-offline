@@ -234,6 +234,21 @@ function log()
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] [$level] $message" >> "$LOG_FILE"
 }
 
+# Converts a file size from bytes to a human-readable format (B, KB, MB, GB).
+# The IEC and SI recommend no space between the number and unit for file sizes.
+function format_filesize() {
+    local size=$1
+    if ((size < 1024)); then
+        echo "${size}B"
+    elif ((size < 1048576)); then
+        echo "$((size / 1024))KB"
+    elif ((size < 1073741824)); then
+        echo "$((size / 1048576))MB"
+    else
+        echo "$((size / 1073741824))GB"
+    fi
+}
+
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
 # Logs a warning if the available disk space drops below 20% (or the configured `STORAGE_WARN_LOW` threshold).
 function ensure_free_space()
@@ -540,7 +555,7 @@ function main_menu() {
         fi
 
         # Handle user choices
-        case $choice in
+        case "$choice" in
             1) exit 0 ;;
             2) prerequisites_menu ;;
             3) certificates_menu ;;
@@ -576,7 +591,7 @@ function prerequisites_menu() {
         fi
 
         # Handle the user's menu choice
-        case $choice in
+        case "$choice" in
             # Return to the main menu if "Main menu" is selected
             1)
                return 0 ;;
@@ -631,7 +646,7 @@ function certificates_menu() {
         fi
 
         # Handle the user's menu choice
-        case $choice in
+        case "$choice" in
             1)
                # Return to the main menu if "Main menu" is selected
                return 0 ;;
@@ -681,27 +696,32 @@ function certificates_menu() {
 # Calls `cluster_certificates_restore` with the selected backup file.
 function cluster_certificates_restore_menu()
 {
-    local storage_certificates certificates_backup_files choice selected_backup
+    local storage backup_files choice selected_backup
 
     # Define the path to certificate backup storage
-    storage_certificates="$STORAGE_COLD/certificates"
+    storage="$STORAGE_COLD/certificates"
 
-    # Find all available certificates backup files with their sizes
-    certificates_backup_files=()
-    mapfile -t certificates_backup_files < <(find "$storage_certificates" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    # Find all available backup files with their sizes safely
+    backup_files=()
+    while IFS= read -r line; do
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
+    done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
-    if [[ ${#certificates_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_certificates."
-        show_warning_message "No backup files found in $storage_certificates."
+    if [[ ${#backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage."
+        show_warning_message "No backup files found in $storage."
         return 1
     fi
 
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to certificate Menu") # Add "Back" option first
-    for i in "${!certificates_backup_files[@]}"; do
+    for i in "${!backup_files[@]}"; do
         # Add each backup file with its details to the menu options
-        menu_options+=("$i" "${certificates_backup_files[$i]}")
+        menu_options+=("$i" "${backup_files[$i]}")
     done
 
     # Display the menu using whiptail for user selection
@@ -718,9 +738,12 @@ function cluster_certificates_restore_menu()
         return 0
     fi
 
-    # Get the selected backup file path
-    selected_backup=$(echo "${certificates_backup_files[$choice]}" | awk '{print $1}')
-    log "DEBUG" "Selected certificates backup file: $selected_backup"
+    # Extract the full filename safely (removes the last space-separated field which is the filesize)
+    selected_backup="${backup_files[$choice]% *}"
+
+    # Ensure the full path is included
+    selected_backup="$storage/$selected_backup"
+    log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
     cluster_certificates_restore "$selected_backup"
@@ -756,7 +779,7 @@ function configs_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0
                ;;
@@ -800,25 +823,31 @@ function configs_menu() {
 # Calls `cluster_configs_restore` with the selected backup file.
 function cluster_configs_restore_menu()
 {
-    local storage_configs configs_backup_files choice selected_backup
+    local storage backup_files choice selected_backup
 
-    storage_configs="$STORAGE_COLD/configs"
+    # Define the path to config backup storage
+    storage="$STORAGE_COLD/configs"
 
-    # Find all available configuration backup files with their sizes
-    configs_backup_files=()
-    mapfile -t configs_backup_files < <(find "$storage_configs" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    # Find all available backup files with their sizes safely
+    backup_files=()
+    while IFS= read -r line; do
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
+    done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
-    if [[ ${#configs_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_configs."
-        show_warning_message "No backup files found in $storage_configs."
+    if [[ ${#backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage."
+        show_warning_message "No backup files found in $storage."
         return 1
     fi
 
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to Config Menu") # Add "Back" option first
-    for i in "${!configs_backup_files[@]}"; do
-        menu_options+=("$i" "${configs_backup_files[$i]}")
+    for i in "${!backup_files[@]}"; do
+        menu_options+=("$i" "${backup_files[$i]}")
     done
 
     # Display the menu using whiptail
@@ -835,9 +864,12 @@ function cluster_configs_restore_menu()
         return 0
     fi
 
-    # Get the selected backup file path
-    selected_backup=$(echo "${configs_backup_files[$choice]}" | awk '{print $1}')
-    log "DEBUG" "Selected configuration backup file: $selected_backup"
+    # Extract the full filename safely (removes the last space-separated field which is the filesize)
+    selected_backup="${backup_files[$choice]% *}"
+
+    # Ensure the full path is included
+    selected_backup="$storage/$selected_backup"
+    log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
     cluster_configs_restore "$selected_backup"
@@ -870,7 +902,7 @@ function credentials_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0 ;;
             2)
@@ -913,25 +945,31 @@ function credentials_menu() {
 # Calls `cluster_credentials_restore` with the selected backup file.
 function cluster_credentials_restore_menu()
 {
-    local storage_credentials credentials_backup_files choice selected_backup
+    local storage backup_files choice selected_backup
 
-    storage_credentials="$STORAGE_COLD/credentials"
+    # Define the path to credentials backup storage
+    storage="$STORAGE_COLD/credentials"
 
-    # Find all available credentials backup files with their sizes
-    credentials_backup_files=()
-    mapfile -t credentials_backup_files < <(find "$storage_credentials" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    # Find all available backup files with their sizes safely
+    backup_files=()
+    while IFS= read -r line; do
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
+    done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no files are available
-    if [[ ${#credentials_backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_credentials."
-        show_warning_message "No backup files found in $storage_credentials."
+    if [[ ${#backup_files[@]} -eq 0 ]]; then
+        log "DEBUG" "No backup files found in $storage."
+        show_warning_message "No backup files found in $storage."
         return 1
     fi
 
     # Prepare the options for whiptail menu
     local menu_options=("back" "Return to credentials Menu") # Add "Back" option first
-    for i in "${!credentials_backup_files[@]}"; do
-        menu_options+=("$i" "${credentials_backup_files[$i]}")
+    for i in "${!backup_files[@]}"; do
+        menu_options+=("$i" "${backup_files[$i]}")
     done
 
     # Display the menu using whiptail
@@ -948,9 +986,12 @@ function cluster_credentials_restore_menu()
         return 0
     fi
 
-    # Get the selected backup file path
-    selected_backup=$(echo "${credentials_backup_files[$choice]}" | awk '{print $1}')
-    log "DEBUG" "Selected credentials backup file: $selected_backup"
+    # Extract the full filename safely (removes the last space-separated field which is the filesize)
+    selected_backup="${backup_files[$choice]% *}"
+
+    # Ensure the full path is included
+    selected_backup="$storage/$selected_backup"
+    log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
     cluster_credentials_restore "$selected_backup"
@@ -979,7 +1020,7 @@ function acls_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                return 0 ;;
             2)
@@ -1017,7 +1058,7 @@ function containers_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1) return 0 ;;
             2) cluster_containers_run
                if [[ $? -eq 0 ]]; then
@@ -1081,7 +1122,7 @@ function data_menu() {
             return 0
         fi
 
-        case $choice in
+        case "$choice" in
             1)
                # Back to main menu
                return 0
@@ -1119,7 +1160,6 @@ function data_menu() {
                     show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
                fi
                ;;
-
         esac
     done
 }
@@ -1128,19 +1168,26 @@ function data_menu() {
 # Lists available backup files with their sizes and allows the user to select one for restoration.
 # If no backups are found, shows a warning and exits.
 # Calls `cluster_data_restore` with the selected backup file.
-function cluster_data_restore_menu() {
-    local storage_data backup_files choice selected_backup
+function cluster_data_restore_menu()
+{
+    local storage backup_files choice selected_backup
 
-    storage_data="$STORAGE_COLD/data"
+    # Define the path to data backup storage
+    storage="$STORAGE_COLD/data"
 
-    # Find all available backup files with their sizes
+    # Find all available backup files with their sizes safely
     backup_files=()
-    mapfile -t backup_files < <(find "$storage_data" -type f -name "*.tar.*" -exec ls -lh {} \; | awk '{print $9, $5}' | sort)
+    while IFS= read -r line; do
+        filesize_bytes="${line##* }"                           # Extract the last field (file size)
+        filename="${line:0:${#line} - ${#filesize_bytes} - 1}" # Remove the file size from the end
+        formatted_size=$(format_filesize "$filesize_bytes")    # Convert size to readable format
+        backup_files+=("${filename} ${formatted_size}")        # Store filename with formatted size
+    done < <(find "$storage" -type f -name "*.tar.*" -printf '%P %s\n' | sort)
 
     # Check if no backup files are available
     if [[ ${#backup_files[@]} -eq 0 ]]; then
-        log "DEBUG" "No backup files found in $storage_data."
-        show_warning_message "No backup files found in $storage_data."
+        log "DEBUG" "No backup files found in $storage."
+        show_warning_message "No backup files found in $storage."
         return 1
     fi
 
@@ -1164,8 +1211,11 @@ function cluster_data_restore_menu() {
         return 0
     fi
 
-    # Get the selected backup file path
-    selected_backup=$(echo "${backup_files[$choice]}" | awk '{print $1}')
+    # Extract the full filename safely (removes the last space-separated field which is the filesize)
+    selected_backup="${backup_files[$choice]% *}"
+
+    # Ensure the full path is included
+    selected_backup="$storage/$selected_backup"
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
