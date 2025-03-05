@@ -239,13 +239,13 @@ function log()
 function format_filesize() {
     local size=$1
     if ((size < 1024)); then
-        echo "${size} B"
+        echo "${size}B"
     elif ((size < 1048576)); then
-        echo "$((size / 1024)) KB"
+        echo "$((size / 1024))KB"
     elif ((size < 1073741824)); then
-        echo "$((size / 1048576)) MB"
+        echo "$((size / 1048576))MB"
     else
-        echo "$((size / 1073741824)) GB"
+        echo "$((size / 1073741824))GB"
     fi
 }
 
