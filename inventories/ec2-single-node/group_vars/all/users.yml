@@ -1,0 +1,119 @@
+# === Credentials parameters ===========================================================================================
+
+# true - to generate the credentials file and ability to run ACL commands
+# false - to create guest enabled cluster - everybody can do anything
+use_credentials: true
+
+# Directory on central for credentials generation.
+storage_credentials_path: "/data/cluster/credentials"
+
+# this is the only source of truth for the deployments
+# * credentials file is generated according to this list
+# * ACL permission opt-in run over that nested structure
+# * admin is admin, no other admin
+credentials:
+  - username: "admin"
+    password: "insecure"
+    permissions:
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: "All"
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "group"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "delegation-token"
+        resource_name: "*"
+        operation: "All"
+
+  - username: "connect"
+    password: "insecure"
+    permissions:
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: "Create"
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "group"
+        resource_name: "connect-cluster"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-mysql-schemahistory"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-db2-schemahistory"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-mssql-schemahistory"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-mongodb-schemahistory"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-postgresql-schemahistory"
+        operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-oracledb-schemahistory"
+        operation: "Read"
+
+  - username: "pub"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: ["Write", "Read"]
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "Write"
+
+  - username: "sub"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "Read"
+
+  - username: "node-7.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: "Create"
+      - resource_type: "group"
+        resource_name: "connect-cluster"
+        operation: "Read"
+
+  - username: "node-8.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: "Create"
+      - resource_type: "group"
+        resource_name: "connect-cluster"
+        operation: "Read"
+
+  - username: "node-9.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: "Create"
+      - resource_type: "group"
+        resource_name: "connect-cluster"
+        operation: "Read"
