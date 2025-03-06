@@ -1,4 +1,16 @@
 ---
+- name: Assign node roles based on inventory group
+  tags:
+    - containers_stop
+    - containers_restart
+  set_fact:
+    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
+  with_items: "{{ startup_order }}"
+  loop_control:
+    label: "{{ item }}"
+  run_once: true
+  delegate_to: localhost
+
 - name: Stop Connect Balancer on node-0
   tags:
     - containers_stop
@@ -12,7 +24,8 @@
   tags:
     - containers_stop
     - containers_restart
-  shell: docker stop {{ hostvars[item]['hostname'] }}
+  shell: >
+    docker stop {{ hostvars[item]['hostname'] }}-{{ group_roles[item] }}
   delegate_to: "{{ item }}"
   with_items: "{{ shutdown_order }}"
   run_once: true  # Ensure task runs only once on localhost
