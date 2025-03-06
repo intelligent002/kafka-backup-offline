@@ -1,22 +1,10 @@
 ---
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_start
-    - containers_restart
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({ item: (hostvars[item]['group_names'] | difference(['cluster']) | first) }) }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
-
 - name: Start Docker containers in startup order
   tags:
     - containers_start
     - containers_restart
   shell: >
-    docker start {{ hostvars[item]['hostname'] }}-{{ group_roles[item] }}
+    docker start {{ hostvars[item]['hostname'] }}
   delegate_to: "{{ item }}"
   with_items: "{{ startup_order }}"
   run_once: true  # Ensure task runs only once on localhost

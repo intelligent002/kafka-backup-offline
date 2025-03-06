@@ -6,17 +6,6 @@
   shell: >
     docker rm -f kafka-connect-balancer
 
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_remove
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) | first }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
-
 - name: Remove Docker containers in shutdown order
   tags:
     - containers_remove
@@ -24,7 +13,7 @@
   with_items: "{{ shutdown_order }}"
   run_once: true
   shell: >
-    docker rm -f {{ hostvars[item]['hostname'] }}-{{ group_roles[item] }}
+    docker rm -f {{ hostvars[item]['hostname'] }}
 
 - name: Remove folder for application logs
   tags:

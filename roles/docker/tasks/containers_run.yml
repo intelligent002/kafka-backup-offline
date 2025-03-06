@@ -23,7 +23,7 @@
   set_fact:
     node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
   vars:
-    heap_size: "{{ (item.value / 100 * (heap_size_percent | default(50) | int) ) | int }}M"
+    heap_size: "{{ (item.value / 100 * ( hostvars[item][heap_size_percent | default(50) | int) ) | int }}M"
   with_dict: "{{ node_ram_mb }}"
   loop_control:
     label: "{{ item.key }}"  # Show only node names in output
@@ -34,7 +34,7 @@
   tags:
     - containers_run
   set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({ item: (hostvars[item]['group_names'] | difference(['cluster']) | first) }) }}"
+    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
   with_items: "{{ startup_order }}"
   loop_control:
     label: "{{ item }}"
@@ -74,9 +74,9 @@
   delegate_to: "{{ item }}"
   run_once: true
   shell: >
-    {% if 'controllers' == group_roles[item] %} {{ docker_command_controllers_run }}
-    {% elif 'brokers' == group_roles[item] %} {{ docker_command_brokers_run }}
-    {% elif 'connect' == group_roles[item] %} {{ docker_command_connect_run }}
+    {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
+    {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
+    {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
     {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"

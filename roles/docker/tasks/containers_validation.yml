@@ -1,25 +1,11 @@
 ---
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_validation
-    - data_backup
-    - data_format
-    - data_restore
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({ item: (hostvars[item]['group_names'] | difference(['cluster']) | first) }) }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
-
 - name: Check if the containers are running
   tags:
     - containers_validation
     - data_backup
     - data_format
     - data_restore
-  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ hostvars[inventory_hostname]['hostname'] }}-{{ group_roles[item] }}"
+  shell: "docker inspect -f '{{ '{{.State.Running}}' }}' {{ hostvars[inventory_hostname]['hostname'] }}"
   register: container_status
   failed_when: false  # Avoid marking the task as failed
   changed_when: false # Do not mark it as a change

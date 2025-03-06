@@ -18,7 +18,7 @@ heap_size_percent: 15
 
 docker_command_controllers_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }}-{{ group_roles[item] }}
+  --name={{ hostvars[item]['hostname'] }}
   -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
@@ -41,7 +41,7 @@ docker_command_controllers_run: >
 
 docker_command_brokers_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }}-{{ group_roles[item] }} 
+  --name={{ hostvars[item]['hostname'] }} 
   -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
   -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
@@ -66,7 +66,7 @@ docker_command_brokers_run: >
 
 docker_command_connect_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }}-{{ group_roles[item] }}
+  --name={{ hostvars[item]['hostname'] }}
   -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
