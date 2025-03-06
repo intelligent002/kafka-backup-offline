@@ -79,32 +79,6 @@ credentials:
         resource_name: "*"
         operation: "Read"
 
-  - username: "controller-ec2-kafka-outburn.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "*"
-        operation: "All"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
-      - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "Read"
-
-  - username: "broker-ec2-kafka-outburn.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "*"
-        operation: "All"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
-      - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "Read"
-
   - username: "connect-ec2-kafka-outburn.r7g.org"
     password: "insecure"
     permissions:
