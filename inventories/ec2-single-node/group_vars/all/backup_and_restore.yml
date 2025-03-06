@@ -38,10 +38,10 @@ chmod_logs: 0755
 # === Central Storage Base =============================================================================================
 
 # Directory for long-term storage (cold storage) of backups - may be big and slow drive.
-storage_cold_path: "/data/single-node/backup/cold"
+storage_cold_path: "/backup/cold"
 
 # Temporary directory on central for extracting & creating of backup files - should be fast drive.
-storage_temp_path: "/data/single-node/temp"
+storage_temp_path: "/data/temp"
 
 # Timestamp for the backup files, formatted as "YYYY-MM-DD---HH-MM-SS".
 backup_date: "{{ ansible_date_time.date }}---{{ ansible_date_time.time | replace(':', '-') }}"
