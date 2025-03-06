@@ -67,25 +67,25 @@ User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{%
 # Replication
 
 # The replication factor for automatically created topics, and for topics created with -1 as the replication factor
-default.replication.factor={{ ((groups['brokers'] | default([])) | length) | max(1) | min(3) }}
+default.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 
 # When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas
 # that must acknowledge a write for the write to be considered successful.
-min.insync.replicas={{ ((groups['brokers'] | default([])) | length - 1) | max(1) | min(3) }}
+min.insync.replicas={{ ((groups['brokers'] | default([])) | length) }}
 
 # The replication factor for the __consumer_offsets topic (set higher to ensure availability).
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
-offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length) | max(1) | min(3) }}
+offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 
 # The minimum number of replicas that must acknowledge a write to transaction topic in order to be considered successful.
-transaction.state.log.min.isr={{ ((groups['brokers'] | default([])) | length - 1) | max(1) | min(3) }}
+transaction.state.log.min.isr={{ ((groups['brokers'] | default([])) | length) }}
 
 #############################################################################################
 # Transactions
 
 # The replication factor for the __transaction_state topic (set higher to ensure availability).
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
-transaction.state.log.replication.factor={{ ((groups['brokers'] | default([])) | length) | max(1) | min(3) }}
+transaction.state.log.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 
 # Number of partitions for the __transaction_state topic
 transaction.state.log.num.partitions=50
