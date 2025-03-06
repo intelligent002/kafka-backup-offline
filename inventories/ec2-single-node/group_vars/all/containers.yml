@@ -14,6 +14,8 @@ shutdown_order:
 
 # === Nodes startup docker commands ====================================================================================
 
+heap_size_percent: 50
+
 docker_command_controllers_run: >
   docker run -d --restart=always
   --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}

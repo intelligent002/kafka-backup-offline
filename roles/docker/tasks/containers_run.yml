@@ -23,7 +23,7 @@
   set_fact:
     node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
   vars:
-    heap_size: "{{ (item.value / 2) | int }}M"
+    heap_size: "{{ (item.value / 100 * {{ heap_size_percent }} | int) | int }}M"
   with_dict: "{{ node_ram_mb }}"
   loop_control:
     label: "{{ item.key }}"  # Show only node names in output
