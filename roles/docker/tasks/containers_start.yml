@@ -4,7 +4,7 @@
     - containers_start
     - containers_restart
   set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) | first }}"
+    group_roles: "{{ group_roles | default({}) | combine({ item: (hostvars[item]['group_names'] | difference(['cluster']) | first) }) }}"
   with_items: "{{ startup_order }}"
   loop_control:
     label: "{{ item }}"
