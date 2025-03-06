@@ -1,7 +1,7 @@
 # === Ansible Settings =================================================================================================
 
 # Specifies the Python interpreter to be used on the remote nodes.
-ansible_python_interpreter: /usr/bin/python
+ansible_python_interpreter: /usr/bin/python3
 
 # Connection to cluster nodes
 ansible_user: root
