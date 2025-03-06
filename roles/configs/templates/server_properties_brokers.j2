@@ -105,25 +105,25 @@ User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{%
 # Replication
 
 # The replication factor for automatically created topics, and for topics created with -1 as the replication factor
-default.replication.factor=3
+default.replication.factor={{ groups['brokers'] | length }}
 
 # When a producer sets acks to "all" (or "-1"), min.insync.replicas specifies the minimum number of replicas
 # that must acknowledge a write for the write to be considered successful.
-min.insync.replicas=2
+min.insync.replicas={{ groups['brokers'] | length - 1 }}
 
 # The replication factor for the __consumer_offsets topic (set higher to ensure availability).
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
-offsets.topic.replication.factor=3
+offsets.topic.replication.factor={{ groups['brokers'] | length }}
 
 # The minimum number of replicas that must acknowledge a write to transaction topic in order to be considered successful.
-transaction.state.log.min.isr=2
+transaction.state.log.min.isr={{ groups['brokers'] | length - 1 }}
 
 #############################################################################################
 # Transactions
 
 # The replication factor for the __transaction_state topic (set higher to ensure availability).
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
-transaction.state.log.replication.factor=3
+transaction.state.log.replication.factor={{ groups['brokers'] | length }}
 
 # Number of partitions for the __transaction_state topic
 transaction.state.log.num.partitions=50
