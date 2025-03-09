@@ -1,0 +1,14 @@
+# === Certificates related =============================================================================================
+
+# false - all communication in cluster will be - plaintext
+# true - all communication in cluster will be - mTLS with single certificate
+use_certificate: false
+
+# Directory on central for certificate generation.
+storage_certificates_path: "/data/cluster/certificates"
+
+# === Certificate parameters ===========================================================================================
+
+# Password for all certificate stores (truststore, keystore, private key in keystore)
+certificate_password: "insecure"
+

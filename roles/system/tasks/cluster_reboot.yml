@@ -1,0 +1,20 @@
+---
+- name: Issue nodes reboot
+  tags:
+    - cluster_reboot
+  delegate_to: "{{ item }}"
+  ansible.builtin.reboot:
+    reboot_timeout: 60
+  register: reboot_result
+  with_items: "{{ shutdown_order }}"
+  ignore_errors: true  # Prevents playbook failure due to reboots failing
+
+- name: Display reboot results
+  tags: cluster_reboot
+  ansible.builtin.debug:
+    msg: |
+      {% if reboot_result.failed %}
+      Machine {{ inventory_hostname }} failed to reboot.
+      {% else %}
+      Machine {{ inventory_hostname }} will be rebooted in 10 seconds successfully.
+      {% endif %}

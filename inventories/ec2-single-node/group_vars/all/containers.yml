@@ -5,33 +5,21 @@ startup_order:
   - node-1
   - node-2
   - node-3
-  - node-4
-  - node-5
-  - node-6
-  - node-7
-  - node-8
-  - node-9
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - node-9
-  - node-8
-  - node-7
-  - node-6
-  - node-5
-  - node-4
   - node-3
   - node-2
   - node-1
 
 # === Nodes startup docker commands ====================================================================================
 
-heap_size_percent: 50
+heap_size_percent: 15
 
 docker_command_controllers_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
+  --name={{ hostvars[item]['hostname'] }}
+  -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
   -e KAFKA_JMX_OPTS="
@@ -53,8 +41,8 @@ docker_command_controllers_run: >
 
 docker_command_brokers_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
+  --name={{ hostvars[item]['hostname'] }} 
+  -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
   -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
   -p {{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}
@@ -78,8 +66,8 @@ docker_command_brokers_run: >
 
 docker_command_connect_run: >
   docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
+  --name={{ hostvars[item]['hostname'] }}
+  -h {{ hostvars[item]['hostname'] }}
   -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
   -e KAFKA_JMX_OPTS="
@@ -103,14 +91,14 @@ docker_command_connect_run: >
 docker_command_balancer_run: >
   docker run -d --restart=always \
     --name=kafka-connect-balancer -h kafka-connect-balancer \
-    -p {{ port_connect_rest_ext }}:{{ port_connect_rest_int }} \
-    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-0']['hostname'] }}:{{ port_connect_rest_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
+    -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} \
+    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-0']['hostname'] }}:{{ port_connect_balancer_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
     --health-timeout=10s \
     --health-retries=5 \
     --health-start-period=5s \
     -v /data:/data \
-    -v {{ node_config_path }}/kafka-connect-balancer.conf:/etc/nginx/nginx.conf:ro \
+    -v {{ hostvars['node-0']['node_config_path'] }}/kafka-connect-balancer.conf:/etc/nginx/nginx.conf:ro \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >
@@ -125,18 +113,3 @@ docker_command_data_format: >
   --cluster-id {{ cluster_id }} 
   --add-scram 'SCRAM-SHA-512=[name=admin,password=insecure]' 
   --config /mnt/shared/config/kraft.properties
-
-docker_command_portainer_run: >
-  docker run -d --restart=always
-  --name=portainer 
-  -p {{ hostvars[item]['port_portainer_ext'] }}:{{ hostvars[item]['port_portainer_int'] }}
-  --health-cmd="if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status; then echo 'Status is OK' && exit 0; else echo 'Status is NOT OK' && exit 1; fi" 
-  --health-interval=30s 
-  --health-timeout=5s 
-  --health-retries=3 
-  -v /var/run/docker.sock:/var/run/docker.sock 
-  -v {{ node_certificates_path }}:/certs 
-  -v portainer_data:/data 
-  portainer/portainer-ce:2.27.1-alpine 
-  --sslcert /certs/{{ hostvars['node-0']['hostname'] }}.crt 
-  --sslkey /certs/{{ hostvars['node-0']['hostname'] }}.key

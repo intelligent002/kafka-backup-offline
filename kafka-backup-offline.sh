@@ -1,32 +1,28 @@
 #!/usr/bin/env bash
 
-# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
-# Skips comments and empty lines while trimming whitespace from keys and values.
-# Stores the results in the global associative array "ini_data" using "section.key" as the index.
-function parse_ini_file()
+function handle_directory()
 {
-    local ini_file=$1
-    local section=$2
-    local value
-    declare -gA ini_data=()
+    # Save the original directory
+    ORIGINAL_DIR="$(pwd)"
 
-    # Read the .ini file, skipping comments and empty lines
-    while IFS="=" read -r key value; do
-        key=$(echo "$key" | tr -d '[:space:]')         # Trim whitespace from key
-        value=$(echo "$value" | tr -d '[:space:]')     # Trim whitespace from value
-        [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue # Skip comments and blank lines
-        ini_data["$section.$key"]="$value"
-    done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
+    # Change to the script's directory
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$SCRIPT_DIR" || {
+        echo "Error: Failed to change directory to $SCRIPT_DIR"
+        exit 1
+    }
+
+    # Ensure the script returns to the original directory upon exit
+    trap 'cd "$ORIGINAL_DIR"' EXIT
 }
 
 # Loads configuration settings from an INI file and stores them in global variables.
 # Validates if the configuration file exists before parsing.
 # Extracts values from the "general" and "storage" sections using `parse_ini_file`.
 # Sets log levels, file paths, and storage-related parameters.
-function load_configuration()
+function handle_configuration()
 {
-    # Accept the config file path as an argument
-    local config_file=$1
+    local config_file="$SCRIPT_DIR/config.ini"
 
     # Check if the configuration file exists
     if [[ ! -f "$config_file" ]]; then
@@ -61,6 +57,50 @@ function load_configuration()
 
     log "INFO" "Configuration loaded from '$config_file'"
     ensure_free_space $STORAGE_COLD
+}
+
+# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
+# Skips comments and empty lines while trimming whitespace from keys and values.
+# Stores the results in the global associative array "ini_data" using "section.key" as the index.
+function parse_ini_file()
+{
+    local ini_file=$1
+    local section=$2
+    local value
+    declare -gA ini_data=()
+
+    # Read the .ini file, skipping comments and empty lines
+    while IFS="=" read -r key value; do
+        key=$(echo "$key" | tr -d '[:space:]')         # Trim whitespace from key
+        value=$(echo "$value" | tr -d '[:space:]')     # Trim whitespace from value
+        [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue # Skip comments and blank lines
+        ini_data["$section.$key"]="$value"
+    done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
+}
+
+function handle_main()
+{
+    # Decide what to run
+    if [[ $# -eq 0 ]]; then
+        # No parameters provided, show the menu, but first require coffee
+        disclaimer
+        menu_main
+    else
+        # Parameter provided, assume it's a function name
+        if declare -f "$1" >/dev/null; then
+            # require coffee
+            if [[ "$1" != "help" ]]; then
+                disclaimer
+            fi
+            # Call the function by name if it exists
+            "$1"
+        else
+            # Show help if the function doesn't exist
+            log "ERROR" "Error: Function '$1' not found."
+            help
+            exit 1
+        fi
+    fi
 }
 
 # Displays a disclaimer message for the Kafka-Backup-Offline Utility.
@@ -144,54 +184,60 @@ function cluster_backup()
     ensure_free_space $STORAGE_COLD
 
     # cleanup old stuff
-    cluster_configs_rotate
-    cluster_certificates_rotate
-    cluster_credentials_rotate
-    cluster_data_rotate
+    configs_rotate
+    certificates_rotate
+    credentials_rotate
+    data_rotate
 
     # validate storage space
     ensure_free_space $STORAGE_COLD
 
     # create new stuff
-    cluster_configs_backup
-    cluster_certificates_backup
-    cluster_credentials_backup
+    configs_backup
+    certificates_backup
+    credentials_backup
 
     # offline actions to maintain data integrity
-    cluster_containers_stop
-    cluster_data_backup
-    cluster_containers_start
+    containers_stop
+    data_backup
+    containers_start
 
     # validate storage space
     ensure_free_space $STORAGE_COLD
     log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER BACKUP ]=----------------------------------------"
 }
 
+function cluster_reboot()
+{
+    run_ansible_routine "Kafka Cluster Reboot" "serial" "cluster_reboot"
+    return $?
+}
+
 function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
     # stop everything
-    cluster_containers_remove
+    containers_remove
 
     # regenerate all components
-    cluster_configs_generate
-    cluster_certificates_generate
-    cluster_credentials_generate
-    cluster_data_format
+    configs_generate
+    certificates_generate
+    credentials_generate
+    data_format
 
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
-    cluster_containers_run
-    cluster_acls_apply
+    containers_run
+    acls_apply
 
     # start containers from scratch, to: 1 - start failed nodes, 2 - wipe errors about missing ACLs.
-    cluster_containers_remove
-    cluster_containers_run
+    containers_remove
+    containers_run
     log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
 }
 
 # Creates a PID file to prevent multiple instances of the script from running.
 # If the PID file already exists, the script exits; otherwise, it writes the current PID and sets a trap to remove the file upon exit.
-function create_pid_file()
+function handle_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
         log "INFO" "The script is already running (PID: $(cat "$PID_FILE")). Exiting."
@@ -319,7 +365,7 @@ function run_ansible_routine()
 
 # Deploys SSH public keys to all cluster nodes in parallel using Ansible.
 # If SSH keys are not set up, the script will use the password provided via `--ask-pass` for all nodes.
-function cluster_ssh_keys()
+function install_ssh_keys()
 {
     run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass" "true"
     return $?
@@ -330,7 +376,7 @@ function cluster_ssh_keys()
 # Ensures /var/lib/docker is symlinked to /data/docker.
 # Installs and verifies: Docker, XZ, Java, and rsync.
 # Ensures Docker service is enabled and running.
-function cluster_prerequisites()
+function install_prerequisites()
 {
     run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
     return $?
@@ -338,7 +384,7 @@ function cluster_prerequisites()
 
 # Generates Kafka certificates on all cluster nodes in parallel using Ansible.
 # Ensures SSL/mTLS authentication files are created for secure communication.
-function cluster_certificates_generate()
+function certificates_generate()
 {
     run_ansible_routine "Kafka Certificates Generate" "parallel" "certificates_generate"
     return $?
@@ -346,7 +392,7 @@ function cluster_certificates_generate()
 
 # Backs up Kafka certificates on all cluster nodes in parallel using Ansible.
 # Ensures certificate files are preserved for recovery or migration.
-function cluster_certificates_backup()
+function certificates_backup()
 {
     run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
     return $?
@@ -354,7 +400,7 @@ function cluster_certificates_backup()
 
 # Restores Kafka certificates on all cluster nodes in parallel using Ansible.
 # Uses the specified archive file to restore certificate files.
-function cluster_certificates_restore()
+function certificates_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
@@ -362,7 +408,7 @@ function cluster_certificates_restore()
 }
 
 # Deletes old archives according to retention_policy_certificates days amount value
-function cluster_certificates_rotate()
+function certificates_rotate()
 {
     run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
     return $?
@@ -370,7 +416,7 @@ function cluster_certificates_rotate()
 
 # Deploys Kafka configuration files to all cluster nodes in parallel using Ansible.
 # Ensures all nodes have the latest configuration settings from inventory template.
-function cluster_configs_generate()
+function configs_generate()
 {
     run_ansible_routine "Kafka Configs Generate" "parallel" "configs_generate"
     return $?
@@ -378,7 +424,7 @@ function cluster_configs_generate()
 
 # Backs up Kafka configuration files from all cluster nodes in parallel using Ansible.
 # Ensures configuration settings are preserved for recovery or migration.
-function cluster_configs_backup()
+function configs_backup()
 {
     run_ansible_routine "Kafka Configs Backup" "parallel" "configs_backup"
     return $?
@@ -386,7 +432,7 @@ function cluster_configs_backup()
 
 # Restores Kafka configuration files on all cluster nodes in parallel using Ansible.
 # Uses the specified archive file to restore configuration settings.
-function cluster_configs_restore()
+function configs_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "$extra_vars"
@@ -394,7 +440,7 @@ function cluster_configs_restore()
 }
 
 # Deletes old archives according to retention_policy_configs days amount value
-function cluster_configs_rotate()
+function configs_rotate()
 {
     run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
     return $?
@@ -402,7 +448,7 @@ function cluster_configs_rotate()
 
 # Starts Kafka containers on all cluster nodes in serial using Ansible.
 # Ensures proper startup order and avoids simultaneous resource contention.
-function cluster_containers_run()
+function containers_run()
 {
     run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
     return $?
@@ -410,7 +456,7 @@ function cluster_containers_run()
 
 # Resumes existing Kafka containers on all cluster nodes in serial using Ansible.
 # Ensures a controlled startup sequence to prevent conflicts.
-function cluster_containers_start()
+function containers_start()
 {
     run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
     return $?
@@ -418,7 +464,7 @@ function cluster_containers_start()
 
 # Stops Kafka containers on all cluster nodes in serial using Ansible.
 # Ensures a controlled shutdown to prevent data corruption or inconsistencies.
-function cluster_containers_stop()
+function containers_stop()
 {
     run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
     return $?
@@ -426,22 +472,22 @@ function cluster_containers_stop()
 
 # Restarts Kafka containers on all cluster nodes in serial using Ansible.
 # Stops containers first, then starts them again in a controlled order.
-function cluster_containers_restart()
+function containers_restart()
 {
-    cluster_containers_stop
-    cluster_containers_start
+    containers_stop
+    containers_start
 }
 
 # Removes Kafka containers on all cluster nodes in serial using Ansible.
 # Ensures a controlled removal sequence to prevent dependency issues.
-function cluster_containers_remove()
+function containers_remove()
 {
     run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
     return $?
 }
 
 # Applies Kafka ACLs to enforce access control policies across the cluster.
-function cluster_acls_apply()
+function acls_apply()
 {
     run_ansible_routine "Kafka ACLs Apply" "parallel" "acls_apply"
     return $?
@@ -449,7 +495,7 @@ function cluster_acls_apply()
 
 # Generates Kafka credentials on all cluster nodes in parallel using Ansible.
 # Ensures secure authentication files are created for user access control.
-function cluster_credentials_generate()
+function credentials_generate()
 {
     run_ansible_routine "Kafka Credentials Generate" "parallel" "credentials_generate"
     return $?
@@ -457,7 +503,7 @@ function cluster_credentials_generate()
 
 # Backs up Kafka credentials on all cluster nodes in parallel using Ansible.
 # Ensures authentication data is preserved for recovery or migration.
-function cluster_credentials_backup()
+function credentials_backup()
 {
     run_ansible_routine "Kafka Credentials Backup" "parallel" "credentials_backup"
     return $?
@@ -465,7 +511,7 @@ function cluster_credentials_backup()
 
 # Restores Kafka credentials on all cluster nodes in parallel using Ansible.
 # Uses the specified archive file to restore authentication data.
-function cluster_credentials_restore()
+function credentials_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "$extra_vars"
@@ -473,7 +519,7 @@ function cluster_credentials_restore()
 }
 
 # Deletes old archives according to retention_policy_credentials days amount value
-function cluster_credentials_rotate()
+function credentials_rotate()
 {
     run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
     return $?
@@ -481,7 +527,7 @@ function cluster_credentials_rotate()
 
 # Formats Kafka data on all cluster nodes in parallel using Ansible.
 # Prepares storage for new data by ensuring a clean state.
-function cluster_data_format()
+function data_format()
 {
     run_ansible_routine "Kafka Data Format" "parallel" "data_format"
     return $?
@@ -489,7 +535,7 @@ function cluster_data_format()
 
 # Backs up Kafka data on all cluster nodes in parallel using Ansible.
 # Ensures data is preserved for recovery or migration.
-function cluster_data_backup()
+function data_backup()
 {
     run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
     return $?
@@ -497,7 +543,7 @@ function cluster_data_backup()
 
 # Restores Kafka data on all cluster nodes in parallel using Ansible.
 # Uses the specified archive file to recover data.
-function cluster_data_restore()
+function data_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
@@ -505,7 +551,7 @@ function cluster_data_restore()
 }
 
 # Deletes old archives according to retention_policy_data days amount value
-function cluster_data_rotate()
+function data_rotate()
 {
     run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
     return $?
@@ -531,19 +577,16 @@ function show_warning_message() {
 
 # Displays the main menu using Whiptail for managing Kafka backup and restore.
 # Allows navigation to submenus. Exits when the user selects "Quit" or presses ESC/cancel.
-function main_menu() {
+function menu_main() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
             --menu "Choose a section:" 16 50 8 \
             "1" "Quit" \
             "2" "Prerequisites" \
-            "3" "Certificates" \
-            "4" "Configs" \
-            "5" "Credentials" \
-            "6" "ACLs" \
-            "7" "Containers" \
-            "8" "Data" \
+            "3" "Cluster" \
+            "4" "Advanced" \
+            "5" "GUI(s)" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -557,13 +600,10 @@ function main_menu() {
         # Handle user choices
         case "$choice" in
             1) exit 0 ;;
-            2) prerequisites_menu ;;
-            3) certificates_menu ;;
-            4) configs_menu ;;
-            5) credentials_menu ;;
-            6) acls_menu ;;
-            7) containers_menu ;;
-            8) data_menu ;;
+            2) menu_prerequisites ;;
+            3) menu_cluster ;;
+            4) menu_advanced ;;
+            5) menu_gui ;;
         esac
     done
 }
@@ -571,7 +611,7 @@ function main_menu() {
 # Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
 # Provides options to deploy SSH keys and prerequisites across all nodes.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function prerequisites_menu() {
+function menu_prerequisites() {
     while true; do
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -592,29 +632,79 @@ function prerequisites_menu() {
 
         # Handle the user's menu choice
         case "$choice" in
-            # Return to the main menu if "Main menu" is selected
             1)
+               # Return to the parent menu
                return 0 ;;
-            # Deploy SSH certificate (ssh-copy-id) to all nodes
             2)
-               cluster_ssh_keys
+               install_ssh_keys
                if [[ $? -eq 0 ]]; then
-                    # Show success message if SSH key deployment is successful
                     show_success_message "SSH public key deployed successfully on all nodes!"
                else
-                    # Show failure message if SSH key deployment fails
                     show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
                fi
                ;;
-            # Deploy prerequisites (like Docker) to all nodes
             3)
-               cluster_prerequisites
+               install_prerequisites
                if [[ $? -eq 0 ]]; then
-                    # Show success message if prerequisites are deployed successfully
                     show_success_message "Prerequisites were deployed on all nodes successfully!"
                else
-                    # Show failure message if prerequisites deployment fails
                     show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
+# Provides options to deploy SSH keys and prerequisites across all nodes.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function menu_cluster() {
+    while true; do
+        # Display Whiptail menu for choosing an prerequisites-related action
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Cluster > Choose an action:" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Backup" \
+            "3" "Reboot" \
+            "4" "Wipe & Reinstall" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit the function if ESC or cancel is pressed
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        # Handle the user's menu choice
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               cluster_backup
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Cluster Backup was successful!"
+               else
+                    show_failure_message "Cluster Backup Failed!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               cluster_reboot
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Cluster reboot was issued successfully!"
+               else
+                    show_failure_message "Failed to reboot the cluster!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               cluster_reinstall
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Cluster reinstall was performed successfully!"
+               else
+                    show_failure_message "Failed to reinstall the cluster!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -624,13 +714,88 @@ function prerequisites_menu() {
 # Displays the Certificates menu using Whiptail for managing Kafka certificates.
 # Provides options to generate, backup, or restore certificates.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function certificates_menu() {
+function menu_advanced() {
     while true; do
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Certificates > Choose an action:" 16 50 8 \
+            --menu "Advanced > Choose an action:" 16 50 8 \
             "1" "Return to Main Menu" \
+            "2" "ACLs" \
+            "3" "Certificates" \
+            "4" "Configs" \
+            "5" "Containers" \
+            "6" "Credentials" \
+            "7" "Data" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of the Whiptail menu
+        local exit_status=$?
+
+        # Exit the function if ESC or cancel is pressed
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        # Handle user choices
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2) menu_acls ;;
+            3) menu_certificates ;;
+            4) menu_configs ;;
+            5) menu_containers ;;
+            6) menu_credentials ;;
+            7) menu_data ;;
+        esac
+    done
+}
+
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function menu_acls() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Advanced > ACLs > Choose an action" 16 50 8 \
+            "1" "Return to Advanced Menu" \
+            "2" "ACL Apply" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               acls_apply
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "ACLs were applied successfully!"
+               else
+                    show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Certificates menu using Whiptail for managing Kafka certificates.
+# Provides options to generate, backup, or restore certificates.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function menu_certificates() {
+    while true; do
+        # Display Whiptail menu for choosing a certificate-related action
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Advanced > Certificates > Choose an action:" 16 50 8 \
+            "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
@@ -648,41 +813,31 @@ function certificates_menu() {
         # Handle the user's menu choice
         case "$choice" in
             1)
-               # Return to the main menu if "Main menu" is selected
+               # Return to the parent menu
                return 0 ;;
             2)
-               # Trigger the certificates generation process
-               cluster_certificates_generate
+               certificates_generate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the backup is successful
                     show_success_message "Certificates were generated successfully!"
                else
-                    # Show failure message if the backup fails
                     show_failure_message "Failed to generate certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
-               # Trigger the certificates backup process
-               cluster_certificates_backup
+               certificates_backup
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the backup is successful
                     show_success_message "Certificates were backed up successfully!"
                else
-                    # Show failure message if the backup fails
                     show_failure_message "Failed to backup certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
-               # Render the certificate restore menu
-               cluster_certificates_restore_menu ;;
+               menu_certificates_restore ;;
             5)
-               # Trigger the certificates backup rotate process
-               cluster_certificates_rotate
+               certificates_rotate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the rotate is successful
                     show_success_message "Certificates backups were rotated successfully!"
                else
-                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate certificates backups!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -693,8 +848,8 @@ function certificates_menu() {
 # Displays a Whiptail menu for restoring Kafka certificates from backup files.
 # Lists available backup files with their sizes and allows the user to select one for restoration.
 # If no backups are found, shows a warning and exits.
-# Calls `cluster_certificates_restore` with the selected backup file.
-function cluster_certificates_restore_menu()
+# Calls `certificates_restore` with the selected backup file.
+function menu_certificates_restore()
 {
     local storage backup_files choice selected_backup
 
@@ -746,12 +901,10 @@ function cluster_certificates_restore_menu()
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_certificates_restore "$selected_backup"
+    certificates_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
-        # Show success message if restoration is successful
         show_success_message "Certificates restored successfully!"
     else
-        # Show failure message if restoration fails
         show_failure_message "Failed to restore certificates.\n\nExit the tool and review the logs."
     fi
 }
@@ -759,12 +912,12 @@ function cluster_certificates_restore_menu()
 # Displays the Configs menu using Whiptail for managing Kafka configurations.
 # Provides options to generate, backup, or restore configuration files.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function configs_menu() {
+function menu_configs() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Configs > Choose an action:" 16 50 8 \
-            "1" "Return to Main Menu" \
+            --menu "Advanced > Configs > Choose an action:" 16 50 8 \
+            "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
@@ -781,10 +934,10 @@ function configs_menu() {
 
         case "$choice" in
             1)
-               return 0
-               ;;
+               # Return to the parent menu
+               return 0 ;;
             2)
-               cluster_configs_generate
+               configs_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
@@ -792,7 +945,7 @@ function configs_menu() {
                fi
                ;;
             3)
-               cluster_configs_backup
+               configs_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was backed up successfully!"
                else
@@ -800,11 +953,9 @@ function configs_menu() {
                fi
                ;;
             4)
-               cluster_configs_restore_menu
-               ;;
+               menu_configs_restore;;
             5)
-               # Trigger the configuration backup rotate process
-               cluster_configs_rotate
+               configs_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
                     show_success_message "Configuration backups were rotated successfully!"
@@ -820,8 +971,8 @@ function configs_menu() {
 # Displays a Whiptail menu for restoring Kafka configuration backups.
 # Lists available backup files with their sizes and allows the user to select one for restoration.
 # If no backups are found, shows a warning and exits.
-# Calls `cluster_configs_restore` with the selected backup file.
-function cluster_configs_restore_menu()
+# Calls `configs_restore` with the selected backup file.
+function menu_configs_restore()
 {
     local storage backup_files choice selected_backup
 
@@ -872,7 +1023,7 @@ function cluster_configs_restore_menu()
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_configs_restore "$selected_backup"
+    configs_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Configuration restored successfully!"
     else
@@ -880,14 +1031,85 @@ function cluster_configs_restore_menu()
     fi
 }
 
+# Displays the Containers menu using Whiptail for managing Kafka containers.
+# Provides options to run, start, stop, restart, or remove containers.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function menu_containers() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Advanced > Containers > Choose an action" 16 50 8 \
+            "1" "Return to Advanced Menu" \
+            "2" "Run" \
+            "3" "Start" \
+            "4" "Stop" \
+            "5" "Restart" \
+            "6" "Remove" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               containers_run
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully started!\nAll services are now running."
+               else
+                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               containers_start
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+               else
+                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               containers_stop
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+               else
+                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               containers_restart
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+               else
+                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            6)
+               containers_remove
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully removed!\nResources have been freed."
+               else
+                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
 # Displays the Credentials menu using Whiptail for managing Kafka credentials.
 # Provides options to generate, backup, or restore credentials.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function credentials_menu() {
+function menu_credentials() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Credentials > Choose an action" 16 50 8 \
-            "1" "Return to Main Menu" \
+            --menu "Advanced > Credentials > Choose an action" 16 50 8 \
+            "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
             "4" "Restore" \
@@ -904,9 +1126,10 @@ function credentials_menu() {
 
         case "$choice" in
             1)
+               # Return to the parent menu
                return 0 ;;
             2)
-               cluster_credentials_generate
+               credentials_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was generated successfully!"
                else
@@ -914,7 +1137,7 @@ function credentials_menu() {
                fi
                ;;
             3)
-               cluster_credentials_backup
+               credentials_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Credentials was backed up successfully!"
                else
@@ -922,16 +1145,12 @@ function credentials_menu() {
                fi
                ;;
             4)
-               cluster_credentials_restore_menu
-               ;;
+               menu_credentials_restore;;
             5)
-               # Trigger the credentials backup rotate process
-               cluster_credentials_rotate
+               credentials_rotate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the rotate is successful
                     show_success_message "Credentials backups were rotated successfully!"
                else
-                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate credentials backups!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -942,8 +1161,8 @@ function credentials_menu() {
 # Displays a Whiptail menu for restoring Kafka credentials from backup files.
 # Lists available backup files with their sizes and allows the user to select one for restoration.
 # If no backups are found, shows a warning and exits.
-# Calls `cluster_credentials_restore` with the selected backup file.
-function cluster_credentials_restore_menu()
+# Calls `credentials_restore` with the selected backup file.
+function menu_credentials_restore()
 {
     local storage backup_files choice selected_backup
 
@@ -994,7 +1213,7 @@ function cluster_credentials_restore_menu()
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_credentials_restore "$selected_backup"
+    credentials_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Credentials restored successfully!"
     else
@@ -1002,112 +1221,15 @@ function cluster_credentials_restore_menu()
     fi
 }
 
-# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
-# Handles user input via whiptail and executes ACL application with error handling.
-function acls_menu() {
-    while true; do
-        choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "ACLs > Choose an action" 16 50 8 \
-            "1" "Return to Main Menu" \
-            "2" "ACL Apply" \
-            3>&1 1>&2 2>&3)
-
-        # Capture the exit status of whiptail
-        local exit_status=$?
-
-        # Exit on ESC or cancel
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            return 0
-        fi
-
-        case "$choice" in
-            1)
-               return 0 ;;
-            2)
-               cluster_acls_apply
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "ACLs were applied successfully!"
-               else
-                    show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
-               fi
-               ;;
-        esac
-    done
-}
-
-# Displays the Containers menu using Whiptail for managing Kafka containers.
-# Provides options to run, start, stop, restart, or remove containers.
-# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function containers_menu() {
-    while true; do
-        choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Containers > Choose an action" 16 50 8 \
-            "1" "Return to Main Menu" \
-            "2" "Run" \
-            "3" "Start" \
-            "4" "Stop" \
-            "5" "Restart" \
-            "6" "Remove" \
-            3>&1 1>&2 2>&3)
-
-        # Capture the exit status of whiptail
-        local exit_status=$?
-
-        # Exit on ESC or cancel
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            return 0
-        fi
-
-        case "$choice" in
-            1) return 0 ;;
-            2) cluster_containers_run
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully started!\nAll services are now running."
-               else
-                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
-               fi
-               ;;
-            3) cluster_containers_start
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
-               else
-                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
-               fi
-               ;;
-            4) cluster_containers_stop
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
-               else
-                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
-               fi
-               ;;
-            5)
-               cluster_containers_restart
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
-               else
-                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
-               fi
-               ;;
-            6) cluster_containers_remove
-               if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully removed!\nResources have been freed."
-               else
-                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
-               fi
-               ;;
-        esac
-    done
-}
 
 # Displays the Data menu using Whiptail for managing Kafka data.
 # Provides options to format, backup, or restore data.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function data_menu() {
+function menu_data() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Data > Choose an action:" 16 50 8 \
-            "1" "Return to Main Menu" \
+            --menu "Advanced > Data > Choose an action:" 16 50 8 \
+            "1" "Return to Advanced Menu" \
             "2" "Format" \
             "3" "Backup" \
             "4" "Restore" \
@@ -1124,12 +1246,10 @@ function data_menu() {
 
         case "$choice" in
             1)
-               # Back to main menu
-               return 0
-               ;;
+               # Return to the parent menu
+               return 0 ;;
             2)
-               # Trigger the data format process
-               cluster_data_format
+               data_format
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
                else
@@ -1137,8 +1257,7 @@ function data_menu() {
                fi
                ;;
             3)
-               # Trigger the data backup process
-               cluster_data_backup
+               data_backup
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
                else
@@ -1146,17 +1265,12 @@ function data_menu() {
                fi
                ;;
             4)
-               # Trigger the data recovery sub menu
-               cluster_data_restore_menu
-               ;;
+               menu_data_restore;;
             5)
-               # Trigger the data backup rotate process
-               cluster_data_rotate
+               data_rotate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the rotate is successful
                     show_success_message "Data backups were rotated successfully!"
                else
-                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -1167,8 +1281,8 @@ function data_menu() {
 # Displays a Whiptail menu for restoring Kafka data from backup files.
 # Lists available backup files with their sizes and allows the user to select one for restoration.
 # If no backups are found, shows a warning and exits.
-# Calls `cluster_data_restore` with the selected backup file.
-function cluster_data_restore_menu()
+# Calls `data_restore` with the selected backup file.
+function menu_data_restore()
 {
     local storage backup_files choice selected_backup
 
@@ -1219,7 +1333,7 @@ function cluster_data_restore_menu()
     log "DEBUG" "Selected backup file: $selected_backup"
 
     # Call the restore function with the selected backup file
-    cluster_data_restore "$selected_backup"
+    data_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
         show_success_message "Data restoration completed successfully!\nThe cluster has been restored to the selected backup state."
     else
@@ -1227,42 +1341,61 @@ function cluster_data_restore_menu()
     fi
 }
 
-# ===== Main Execution =====
-# Save the original directory
-ORIGINAL_DIR="$(pwd)"
 
-# Change to the script's directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR" || {
-    echo "Error: Failed to change directory to $SCRIPT_DIR"
-    exit 1
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function menu_gui() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "GUI(s) > Choose an action" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Run Portainer-CE on all nodes" \
+            "3" "Run Kafka gui 'Kafka-UI'" \
+            "4" "Run Kafka gui 'KPOW-CE'" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               gui_portainer
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer was deployed on all cluster nodes!"
+               else
+                    show_failure_message "Failed to deploy Portainer\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               gui_kafka
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Kafka GUI - 'Kafka-UI' was deployed!"
+               else
+                    show_failure_message "Failed to deploy Kafka GUI - 'Kafka-UI'\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               gui_kpow
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Kafka GUI - 'Kpow' was deployed!"
+               else
+                    show_failure_message "Failed to deploy Kafka GUI - 'Kpow'\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
 }
 
-# Ensure the script returns to the original directory upon exit
-trap 'cd "$ORIGINAL_DIR"' EXIT
-
-# Load configuration
-CONFIG_FILE="$SCRIPT_DIR/config.ini"
-load_configuration "$CONFIG_FILE"
-create_pid_file
-# Decide what to run
-if [[ $# -eq 0 ]]; then
-    # No parameters provided, show the menu, but first require coffee
-    disclaimer
-    main_menu
-else
-    # Parameter provided, assume it's a function name
-    if declare -f "$1" >/dev/null; then
-        # require coffee
-        if [[ "$1" != "help" ]]; then
-            disclaimer
-        fi
-        # Call the function by name if it exists
-        "$1"
-    else
-        # Show help if the function doesn't exist
-        log "ERROR" "Error: Function '$1' not found."
-        help
-        exit 1
-    fi
-fi
+# ===== Main Execution =====
+handle_directory
+handle_configuration
+handle_pid_file
+handle_main
