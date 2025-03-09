@@ -1351,9 +1351,9 @@ function menu_gui() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "GUI(s) > Choose an action" 16 50 8 \
             "1" "Return to Main Menu" \
-            "2" "Deploy Docker GUI - 'Portainer-CE' on all nodes" \
-            "3" "Deploy Kafka GUI - 'Kafka-UI' on node-0" \
-            "4" "Deploy Kafka GUI - 'KPOW-CE' on node-0" \
+            "2" "Docker GUI - 'Portainer-CE' on all nodes" \
+            "3" "Kafka GUI - 'Kafka-UI' on node-0" \
+            "4" "Kafka GUI - 'KPOW-CE' on node-0" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
