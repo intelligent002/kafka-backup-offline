@@ -158,16 +158,6 @@ function help()
     log "INFO" "                          6. Start up the cluster by 'docker start' all containers in defined startup order."
     log "INFO" "                          7. Validate availability of free space on backup location."
     log "INFO" ""
-    log "INFO" "-------------------------------------------------------------------------------------------------------------------"
-    log "INFO" "  cluster_reinstall     Perform a Full Kafka Cluster Reinstall:"
-    log "INFO" ""
-    log "INFO" "                          1. Generate config"
-    log "INFO" "                          2. Generate credentials"
-    log "INFO" "                          3. Generate certificates"
-    log "INFO" "                          4. Format the data storage"
-    log "INFO" "                          5. Apply ACLs"
-    log "INFO" "                          6. Start the containers"
-    log "INFO" ""
     log "INFO" "  If no function name is provided, the script will display an interactive menu."
     log "INFO" ""
     log "INFO" "==================================================================================================================="
@@ -240,13 +230,25 @@ function cluster_reinstall()
 function handle_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
-        log "INFO" "The script is already running (PID: $(cat "$PID_FILE")). Exiting."
-        exit 1
+        OLD_PID=$(cat "$PID_FILE")
+
+        # Check if the process is still running
+        if ps -p "$OLD_PID" > /dev/null 2>&1; then
+            log "INFO" "The script is already running (PID: $OLD_PID). Exiting."
+            exit 1
+        else
+            log "WARN" "Stale PID file found (PID: $OLD_PID). Removing and starting fresh."
+            rm -f "$PID_FILE"
+        fi
     fi
 
+    # Create new PID file
     echo $$ >"$PID_FILE"
+
+    # Trap to remove PID file on exit
     trap "kill 0; exit 130" SIGINT  # Kill all processes and exit gracefully when CTRL+C is pressed
     trap remove_pid_file EXIT       # Ensure the PID file is removed on any exit
+
     log "DEBUG" "PID file created with PID: $$"
 }
 
