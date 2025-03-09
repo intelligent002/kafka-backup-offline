@@ -14,7 +14,7 @@ shutdown_order:
 
 # === Nodes startup docker commands ====================================================================================
 
-heap_size_percent: 15
+heap_size_percent: 20
 
 docker_command_controllers_run: >
   docker run -d --restart=always

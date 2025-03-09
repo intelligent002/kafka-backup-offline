@@ -61,6 +61,9 @@ credentials:
       - resource_type: "group"
         resource_name: "cdc-oracledb-schemahistory"
         operation: "Read"
+      - resource_type: "group"
+        resource_name: "cdc-dev-schemahistory"
+        operation: "Read"
 
   - username: "pub"
     password: "insecure"
