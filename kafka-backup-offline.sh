@@ -626,28 +626,22 @@ function menu_prerequisites() {
 
         # Handle the user's menu choice
         case "$choice" in
-            # Return to the main menu if "Main menu" is selected
             1)
+               # Return to the parent menu
                return 0 ;;
-            # Deploy SSH certificate (ssh-copy-id) to all nodes
             2)
                install_ssh_keys
                if [[ $? -eq 0 ]]; then
-                    # Show success message if SSH key deployment is successful
                     show_success_message "SSH public key deployed successfully on all nodes!"
                else
-                    # Show failure message if SSH key deployment fails
                     show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
                fi
                ;;
-            # Deploy prerequisites (like Docker) to all nodes
             3)
                install_prerequisites
                if [[ $? -eq 0 ]]; then
-                    # Show success message if prerequisites are deployed successfully
                     show_success_message "Prerequisites were deployed on all nodes successfully!"
                else
-                    # Show failure message if prerequisites deployment fails
                     show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -680,39 +674,30 @@ function menu_cluster() {
 
         # Handle the user's menu choice
         case "$choice" in
-            # Return to the main menu if "Main menu" is selected
             1)
+               # Return to the parent menu
                return 0 ;;
-            # Perform full cluster backup
             2)
                cluster_backup
                if [[ $? -eq 0 ]]; then
-                    # Show success message if SSH key deployment is successful
                     show_success_message "Cluster Backup was successful!"
                else
-                    # Show failure message if SSH key deployment fails
                     show_failure_message "Cluster Backup Failed!\n\nExit the tool and review the logs."
                fi
                ;;
-            # Reboot the cluster nodes
             3)
                cluster_reboot
                if [[ $? -eq 0 ]]; then
-                    # Show success message if prerequisites are deployed successfully
                     show_success_message "Cluster reboot was issued successfully!"
                else
-                    # Show failure message if prerequisites deployment fails
                     show_failure_message "Failed to reboot the cluster!\n\nExit the tool and review the logs."
                fi
                ;;
-            # Reinstall the cluster totally
             4)
                cluster_reinstall
                if [[ $? -eq 0 ]]; then
-                    # Show success message if prerequisites are deployed successfully
                     show_success_message "Cluster reinstall was performed successfully!"
                else
-                    # Show failure message if prerequisites deployment fails
                     show_failure_message "Failed to reinstall the cluster!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -748,7 +733,9 @@ function menu_advanced() {
 
         # Handle user choices
         case "$choice" in
-            1) exit 0 ;;
+            1)
+               # Return to the parent menu
+               return 0 ;;
             2) menu_acls ;;
             3) menu_certificates ;;
             4) menu_configs ;;
@@ -779,6 +766,7 @@ function menu_acls() {
 
         case "$choice" in
             1)
+               # Return to the parent menu
                return 0 ;;
             2)
                acls_apply
@@ -819,41 +807,31 @@ function menu_certificates() {
         # Handle the user's menu choice
         case "$choice" in
             1)
-               # Return to the main menu if "Main menu" is selected
+               # Return to the parent menu
                return 0 ;;
             2)
-               # Trigger the certificates generation process
                certificates_generate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the backup is successful
                     show_success_message "Certificates were generated successfully!"
                else
-                    # Show failure message if the backup fails
                     show_failure_message "Failed to generate certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
-               # Trigger the certificates backup process
                certificates_backup
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the backup is successful
                     show_success_message "Certificates were backed up successfully!"
                else
-                    # Show failure message if the backup fails
                     show_failure_message "Failed to backup certificates!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
-               # Render the certificate restore menu
                menu_certificates_restore ;;
             5)
-               # Trigger the certificates backup rotate process
                certificates_rotate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the rotate is successful
                     show_success_message "Certificates backups were rotated successfully!"
                else
-                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate certificates backups!\n\nExit the tool and review the logs."
                fi
                ;;
@@ -919,10 +897,8 @@ function menu_certificates_restore()
     # Call the restore function with the selected backup file
     certificates_restore "$selected_backup"
     if [[ $? -eq 0 ]]; then
-        # Show success message if restoration is successful
         show_success_message "Certificates restored successfully!"
     else
-        # Show failure message if restoration fails
         show_failure_message "Failed to restore certificates.\n\nExit the tool and review the logs."
     fi
 }
@@ -952,8 +928,8 @@ function menu_configs() {
 
         case "$choice" in
             1)
-               return 0
-               ;;
+               # Return to the parent menu
+               return 0 ;;
             2)
                configs_generate
                if [[ $? -eq 0 ]]; then
@@ -971,10 +947,8 @@ function menu_configs() {
                fi
                ;;
             4)
-               menu_configs_restore
-               ;;
+               menu_configs_restore;;
             5)
-               # Trigger the configuration backup rotate process
                configs_rotate
                if [[ $? -eq 0 ]]; then
                     # Show success message if the rotate is successful
@@ -1075,22 +1049,27 @@ function menu_containers() {
         fi
 
         case "$choice" in
-            1) return 0 ;;
-            2) containers_run
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               containers_run
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully started!\nAll services are now running."
                else
                    show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
                fi
                ;;
-            3) containers_start
+            3)
+               containers_start
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
                else
                    show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
                fi
                ;;
-            4) containers_stop
+            4)
+               containers_stop
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully stopped!\nAll services are now inactive."
                else
@@ -1105,7 +1084,8 @@ function menu_containers() {
                    show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
                fi
                ;;
-            6) containers_remove
+            6)
+               containers_remove
                if [[ $? -eq 0 ]]; then
                    show_success_message "The containers were successfully removed!\nResources have been freed."
                else
@@ -1140,6 +1120,7 @@ function menu_credentials() {
 
         case "$choice" in
             1)
+               # Return to the parent menu
                return 0 ;;
             2)
                credentials_generate
@@ -1158,8 +1139,7 @@ function menu_credentials() {
                fi
                ;;
             4)
-               menu_credentials_restore
-               ;;
+               menu_credentials_restore;;
             5)
                credentials_rotate
                if [[ $? -eq 0 ]]; then
@@ -1260,11 +1240,9 @@ function menu_data() {
 
         case "$choice" in
             1)
-               # Back to main menu
-               return 0
-               ;;
+               # Return to the parent menu
+               return 0 ;;
             2)
-               # Trigger the data format process
                data_format
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data formatting completed successfully!\nThe cluster is now ready for initialization with fresh data."
@@ -1273,7 +1251,6 @@ function menu_data() {
                fi
                ;;
             3)
-               # Trigger the data backup process
                data_backup
                if [[ $? -eq 0 ]]; then
                    show_success_message "Data backup completed successfully!\nYou can now safely proceed with any maintenance or restore operations."
@@ -1282,17 +1259,12 @@ function menu_data() {
                fi
                ;;
             4)
-               # Trigger the data recovery sub menu
-               menu_data_restore
-               ;;
+               menu_data_restore;;
             5)
-               # Trigger the data backup rotate process
                data_rotate
                if [[ $? -eq 0 ]]; then
-                    # Show success message if the rotate is successful
                     show_success_message "Data backups were rotated successfully!"
                else
-                    # Show failure message if the rotate fails
                     show_failure_message "Failed to rotate data backups!\n\nExit the tool and review the logs."
                fi
                ;;
