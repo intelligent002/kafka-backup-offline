@@ -1,0 +1,17 @@
+---
+- name: Reboot remote machine
+  tags: cluster_reboot
+  ansible.builtin.reboot:
+    reboot_timeout: 10
+  register: reboot_result
+  ignore_errors: true  # Prevents playbook failure due to reboots failing
+
+- name: Reboot results
+  tags: cluster_reboot
+  ansible.builtin.debug:
+    msg: |
+      {% if reboot_result.failed %}
+      Machine {{ inventory_hostname }} failed to reboot.
+      {% else %}
+      Machine {{ inventory_hostname }} will be rebooted in 10 seconds successfully.
+      {% endif %}

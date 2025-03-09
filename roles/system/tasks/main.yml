@@ -9,4 +9,9 @@
   tags:
     - prerequisites
 
+- name: Reboot all nodes
+  include_tasks: cluster_reboot.yml
+  tags:
+    - cluster_reboot
+
 # do not include temp_cleanup here as it is included in playbook level as post/pre steps

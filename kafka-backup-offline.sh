@@ -207,6 +207,12 @@ function cluster_backup()
     log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER BACKUP ]=----------------------------------------"
 }
 
+function cluster_reboot()
+{
+    run_ansible_routine "Kafka Cluster Reboot" "parallel" "cluster_reboot"
+    return $?
+}
+
 function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
