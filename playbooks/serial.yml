@@ -5,3 +5,4 @@
   become: yes
   roles:
     - role: ../roles/docker # Include Docker related tasks
+    - role: ../roles/system # Include stuff like reboot

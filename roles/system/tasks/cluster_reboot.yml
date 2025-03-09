@@ -1,12 +1,15 @@
 ---
-- name: Reboot remote machine
-  tags: cluster_reboot
+- name: Issue nodes reboot
+  tags:
+    - cluster_reboot
+  delegate_to: "{{ item }}"
   ansible.builtin.reboot:
     reboot_timeout: 60
   register: reboot_result
+  with_items: "{{ shutdown_order }}"
   ignore_errors: true  # Prevents playbook failure due to reboots failing
 
-- name: Reboot results
+- name: Display reboot results
   tags: cluster_reboot
   ansible.builtin.debug:
     msg: |
