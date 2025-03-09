@@ -1,8 +1,9 @@
 ---
-- name: Issue nodes reboot
+- name: Issue nodes reboot silently
   tags:
     - cluster_reboot
   ansible.builtin.shell:
-    cmd: >
-      reboot
+    cmd: reboot
+  async: 1
+  poll: 0
   ignore_errors: true
