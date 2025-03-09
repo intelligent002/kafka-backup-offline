@@ -209,7 +209,7 @@ function cluster_backup()
 
 function cluster_reboot()
 {
-    run_ansible_routine "Kafka Cluster Reboot" "serial" "cluster_reboot"
+    run_ansible_routine "Kafka Cluster Reboot" "serial" "cluster_reboot" "" "true"
     return $?
 }
 
