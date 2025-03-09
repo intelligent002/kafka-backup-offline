@@ -6,8 +6,6 @@
   ansible.builtin.reboot:
     reboot_timeout: 0
   register: reboot_result
-  with_items: "{{ shutdown_order }}"
-  ignore_errors: true  # Prevents playbook failure due to reboots failing
 
 - name: Display reboot results
   tags: cluster_reboot
