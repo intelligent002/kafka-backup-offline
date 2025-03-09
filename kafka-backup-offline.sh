@@ -667,8 +667,8 @@ function menu_cluster_simple() {
             --cancel-button "Back" \
             --menu "Cluster Simple > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
-            "2" "Backup" \
-            "3" "Reboot" \
+            "2" "Cluster Backup" \
+            "3" "Cluster Reboot" \
             "4" "Wipe & Reinstall" \
             3>&1 1>&2 2>&3)
 
