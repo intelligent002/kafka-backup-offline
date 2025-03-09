@@ -331,6 +331,4 @@
   with_items:
     - { src: "{{ storage_certificates_path }}/users/connect/connect.jks",
         dest: "{{ node_certificates_path }}/connect.jks" }
-    - { src: "{{ storage_credentials_path }}/admin.sasl_ssl.properties",
-        dest: "{{ node_credentials_path }}/admin.sasl_ssl.properties" }
   when: "'connect' in group_names"
