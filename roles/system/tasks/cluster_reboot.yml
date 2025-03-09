@@ -5,3 +5,4 @@
   ansible.builtin.shell:
     cmd: >
       reboot
+  ignore_errors: true
