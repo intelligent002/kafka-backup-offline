@@ -334,7 +334,7 @@ function run_ansible_routine()
     # Prepare the Docker command as an array (to avoid eval issues)
     local docker_command=(
         docker run $docker_options
-        -v ~/.ssh:/root/.ssh
+        -v /data:/data
         -v "$SCRIPT_DIR":/apps
         -v /var/log/ansible:/var/log/ansible
         -w /apps
