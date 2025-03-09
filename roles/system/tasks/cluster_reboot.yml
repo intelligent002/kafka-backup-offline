@@ -7,3 +7,14 @@
   async: 1
   poll: 0
   ignore_errors: true
+
+- name: Issue node-0 reboot
+  tags:
+    - cluster_reboot
+  delegate_to: node-0
+  run_once: true
+  ansible.builtin.shell:
+    cmd: reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
