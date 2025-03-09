@@ -1,32 +1,28 @@
 #!/usr/bin/env bash
 
-# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
-# Skips comments and empty lines while trimming whitespace from keys and values.
-# Stores the results in the global associative array "ini_data" using "section.key" as the index.
-function parse_ini_file()
+function handle_directory()
 {
-    local ini_file=$1
-    local section=$2
-    local value
-    declare -gA ini_data=()
+    # Save the original directory
+    ORIGINAL_DIR="$(pwd)"
 
-    # Read the .ini file, skipping comments and empty lines
-    while IFS="=" read -r key value; do
-        key=$(echo "$key" | tr -d '[:space:]')         # Trim whitespace from key
-        value=$(echo "$value" | tr -d '[:space:]')     # Trim whitespace from value
-        [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue # Skip comments and blank lines
-        ini_data["$section.$key"]="$value"
-    done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
+    # Change to the script's directory
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    cd "$SCRIPT_DIR" || {
+        echo "Error: Failed to change directory to $SCRIPT_DIR"
+        exit 1
+    }
+
+    # Ensure the script returns to the original directory upon exit
+    trap 'cd "$ORIGINAL_DIR"' EXIT
 }
 
 # Loads configuration settings from an INI file and stores them in global variables.
 # Validates if the configuration file exists before parsing.
 # Extracts values from the "general" and "storage" sections using `parse_ini_file`.
 # Sets log levels, file paths, and storage-related parameters.
-function load_configuration()
+function handle_configuration()
 {
-    # Accept the config file path as an argument
-    local config_file=$1
+    local config_file="$SCRIPT_DIR/config.ini"
 
     # Check if the configuration file exists
     if [[ ! -f "$config_file" ]]; then
@@ -61,6 +57,50 @@ function load_configuration()
 
     log "INFO" "Configuration loaded from '$config_file'"
     ensure_free_space $STORAGE_COLD
+}
+
+# Parses a specific section of an INI file and stores its key-value pairs in an associative array.
+# Skips comments and empty lines while trimming whitespace from keys and values.
+# Stores the results in the global associative array "ini_data" using "section.key" as the index.
+function parse_ini_file()
+{
+    local ini_file=$1
+    local section=$2
+    local value
+    declare -gA ini_data=()
+
+    # Read the .ini file, skipping comments and empty lines
+    while IFS="=" read -r key value; do
+        key=$(echo "$key" | tr -d '[:space:]')         # Trim whitespace from key
+        value=$(echo "$value" | tr -d '[:space:]')     # Trim whitespace from value
+        [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue # Skip comments and blank lines
+        ini_data["$section.$key"]="$value"
+    done < <(awk -F '=' "/\[$section\]/,/^$/{if(NF==2)print}" "$ini_file")
+}
+
+function handle_main()
+{
+    # Decide what to run
+    if [[ $# -eq 0 ]]; then
+        # No parameters provided, show the menu, but first require coffee
+        disclaimer
+        menu_main
+    else
+        # Parameter provided, assume it's a function name
+        if declare -f "$1" >/dev/null; then
+            # require coffee
+            if [[ "$1" != "help" ]]; then
+                disclaimer
+            fi
+            # Call the function by name if it exists
+            "$1"
+        else
+            # Show help if the function doesn't exist
+            log "ERROR" "Error: Function '$1' not found."
+            help
+            exit 1
+        fi
+    fi
 }
 
 # Displays a disclaimer message for the Kafka-Backup-Offline Utility.
@@ -191,7 +231,7 @@ function cluster_reinstall()
 
 # Creates a PID file to prevent multiple instances of the script from running.
 # If the PID file already exists, the script exits; otherwise, it writes the current PID and sets a trap to remove the file upon exit.
-function create_pid_file()
+function handle_pid_file()
 {
     if [ -f "$PID_FILE" ]; then
         log "INFO" "The script is already running (PID: $(cat "$PID_FILE")). Exiting."
@@ -1324,41 +1364,7 @@ function menu_data_restore()
 }
 
 # ===== Main Execution =====
-# Save the original directory
-ORIGINAL_DIR="$(pwd)"
-
-# Change to the script's directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR" || {
-    echo "Error: Failed to change directory to $SCRIPT_DIR"
-    exit 1
-}
-
-# Ensure the script returns to the original directory upon exit
-trap 'cd "$ORIGINAL_DIR"' EXIT
-
-# Load configuration
-CONFIG_FILE="$SCRIPT_DIR/config.ini"
-load_configuration "$CONFIG_FILE"
-create_pid_file
-# Decide what to run
-if [[ $# -eq 0 ]]; then
-    # No parameters provided, show the menu, but first require coffee
-    disclaimer
-    menu_main
-else
-    # Parameter provided, assume it's a function name
-    if declare -f "$1" >/dev/null; then
-        # require coffee
-        if [[ "$1" != "help" ]]; then
-            disclaimer
-        fi
-        # Call the function by name if it exists
-        "$1"
-    else
-        # Show help if the function doesn't exist
-        log "ERROR" "Error: Function '$1' not found."
-        help
-        exit 1
-    fi
-fi
+handle_directory
+handle_configuration
+handle_pid_file
+handle_main
