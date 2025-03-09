@@ -296,7 +296,7 @@
     - { src: "{{ storage_certificates_path }}/shared.truststore.p12",
         dest: "{{ node_certificates_path }}/shared.truststore.p12" }
 
-- name: Distribute credentials to all nodes
+- name: Distribute admin credentials to all nodes
   tags:
     - certificates_generate
   delegate_to: node-0

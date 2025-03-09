@@ -15,3 +15,6 @@ port_consumer_sasl_ssl_ext: 9095
 
 port_connect_rest_int: 8080
 port_connect_rest_ext: 8080
+
+port_portainer_int: 9443
+port_portainer_ext: 9443
