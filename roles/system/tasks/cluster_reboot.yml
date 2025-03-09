@@ -2,7 +2,7 @@
 - name: Reboot remote machine
   tags: cluster_reboot
   ansible.builtin.reboot:
-    reboot_timeout: 10
+    reboot_timeout: 60
   register: reboot_result
   ignore_errors: true  # Prevents playbook failure due to reboots failing
 
