@@ -586,8 +586,8 @@ function menu_main() {
             --menu "Choose a section:" 16 50 8 \
             "1" "Quit" \
             "2" "Prerequisites" \
-            "3" "Cluster" \
-            "4" "Advanced" \
+            "3" "Cluster Simple" \
+            "4" "Cluster Advanced" \
             "5" "GUI(s)" \
             3>&1 1>&2 2>&3)
 
@@ -665,7 +665,7 @@ function menu_cluster() {
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster > Choose an action:" 16 50 8 \
+            --menu "Cluster Simple > Choose an action:" 16 50 8 \
             "1" "Return to Main Menu" \
             "2" "Backup" \
             "3" "Reboot" \
@@ -721,7 +721,7 @@ function menu_advanced() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Advanced > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Choose an action:" 16 50 8 \
             "1" "Return to Main Menu" \
             "2" "ACLs" \
             "3" "Certificates" \
@@ -759,7 +759,7 @@ function menu_advanced() {
 function menu_acls() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Advanced > ACLs > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > ACLs > Choose an action" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "ACL Apply" \
             3>&1 1>&2 2>&3)
@@ -796,7 +796,7 @@ function menu_certificates() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Advanced > Certificates > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Certificates > Choose an action:" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -918,7 +918,7 @@ function menu_configs() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Advanced > Configs > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Configs > Choose an action:" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -1039,7 +1039,7 @@ function menu_configs_restore()
 function menu_containers() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Advanced > Containers > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > Containers > Choose an action" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "Run" \
             "3" "Start" \
@@ -1110,7 +1110,7 @@ function menu_containers() {
 function menu_credentials() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Advanced > Credentials > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > Credentials > Choose an action" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -1230,7 +1230,7 @@ function menu_credentials_restore()
 function menu_data() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Advanced > Data > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Data > Choose an action:" 16 50 8 \
             "1" "Return to Advanced Menu" \
             "2" "Format" \
             "3" "Backup" \
@@ -1351,9 +1351,9 @@ function menu_gui() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "GUI(s) > Choose an action" 16 50 8 \
             "1" "Return to Main Menu" \
-            "2" "Run Portainer-CE on all nodes" \
-            "3" "Run Kafka gui 'Kafka-UI'" \
-            "4" "Run Kafka gui 'KPOW-CE'" \
+            "2" "Deploy Docker GUI - 'Portainer-CE' on all nodes" \
+            "3" "Deploy Kafka GUI - 'Kafka-UI' on node-0" \
+            "4" "Deploy Kafka GUI - 'KPOW-CE' on node-0" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
