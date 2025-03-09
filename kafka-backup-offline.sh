@@ -583,7 +583,7 @@ function menu_main() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose a section:" 16 50 8 \
+            --menu "Choose a section:" 18 60 8 \
             "1" "Quit" \
             "2" "Prerequisites" \
             "3" "Cluster Simple" \
@@ -618,7 +618,7 @@ function menu_prerequisites() {
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Prerequisites > Choose an action:" 16 50 8 \
+            --menu "Prerequisites > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "Deploy SSH certificate - (ssh-copy-id)" \
             "3" "Deploy prerequisites - (docker etc)" \
@@ -665,7 +665,7 @@ function menu_cluster_simple() {
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Simple > Choose an action:" 16 50 8 \
+            --menu "Cluster Simple > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "Backup" \
             "3" "Reboot" \
@@ -721,7 +721,7 @@ function menu_cluster_advanced() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Advanced > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "ACLs" \
             "3" "Certificates" \
@@ -759,7 +759,7 @@ function menu_cluster_advanced() {
 function menu_acls() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Cluster Advanced > ACLs > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > ACLs > Choose an action" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "ACL Apply" \
             3>&1 1>&2 2>&3)
@@ -796,7 +796,7 @@ function menu_certificates() {
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Advanced > Certificates > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Certificates > Choose an action:" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -918,7 +918,7 @@ function menu_configs() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Advanced > Configs > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Configs > Choose an action:" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -1039,7 +1039,7 @@ function menu_configs_restore()
 function menu_containers() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Cluster Advanced > Containers > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > Containers > Choose an action" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "Run" \
             "3" "Start" \
@@ -1110,7 +1110,7 @@ function menu_containers() {
 function menu_credentials() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Cluster Advanced > Credentials > Choose an action" 16 50 8 \
+            --menu "Cluster Advanced > Credentials > Choose an action" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "Generate" \
             "3" "Backup" \
@@ -1230,7 +1230,7 @@ function menu_credentials_restore()
 function menu_data() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Cluster Advanced > Data > Choose an action:" 16 50 8 \
+            --menu "Cluster Advanced > Data > Choose an action:" 18 60 8 \
             "1" "Return to Advanced Menu" \
             "2" "Format" \
             "3" "Backup" \
@@ -1349,7 +1349,7 @@ function menu_data_restore()
 function menu_gui() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "GUI(s) > Choose an action" 16 50 8 \
+            --menu "GUI(s) > Choose an action" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "Docker GUI - 'Portainer-CE' on all nodes" \
             "3" "Kafka GUI - 'Kafka-UI' on node-0" \
