@@ -4,7 +4,7 @@
 ansible_python_interpreter: /usr/bin/python3
 
 # Connection to cluster nodes
-ansible_user: ec2-user
+ansible_user: root
 ansible_key_pub: /root/.ssh/id_rsa.pub
 ansible_key_pri: /root/.ssh/id_rsa
 
