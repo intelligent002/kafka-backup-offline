@@ -3,16 +3,6 @@
   tags:
     - cluster_reboot
   delegate_to: "{{ item }}"
-  ansible.builtin.reboot:
-    reboot_timeout: 0
-  register: reboot_result
-
-- name: Display reboot results
-  tags: cluster_reboot
-  ansible.builtin.debug:
-    msg: |
-      {% if reboot_result.failed %}
-      Machine {{ inventory_hostname }} failed to reboot.
-      {% else %}
-      Machine {{ inventory_hostname }} was rebooted successfully.
-      {% endif %}
+  ansible.builtin.shell:
+    cmd: >
+      reboot
