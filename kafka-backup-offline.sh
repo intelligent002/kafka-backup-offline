@@ -603,8 +603,8 @@ function menu_main() {
         case "$choice" in
             1) exit 0 ;;
             2) menu_prerequisites ;;
-            3) menu_cluster ;;
-            4) menu_advanced ;;
+            3) menu_cluster_simple ;;
+            4) menu_cluster_advanced ;;
             5) menu_gui ;;
         esac
     done
@@ -660,7 +660,7 @@ function menu_prerequisites() {
 # Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
 # Provides options to deploy SSH keys and prerequisites across all nodes.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_cluster() {
+function menu_cluster_simple() {
     while true; do
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
@@ -716,7 +716,7 @@ function menu_cluster() {
 # Displays the Certificates menu using Whiptail for managing Kafka certificates.
 # Provides options to generate, backup, or restore certificates.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_advanced() {
+function menu_cluster_advanced() {
     while true; do
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
