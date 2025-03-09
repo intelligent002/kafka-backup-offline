@@ -580,7 +580,7 @@ function menu_main() {
             "2" "Prerequisites" \
             "3" "Cluster" \
             "4" "Advanced" \
-            "5" "GUIs" \
+            "5" "GUI(s)" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -1333,6 +1333,59 @@ function menu_data_restore()
     else
         show_failure_message "Data restoration failed!\n\nExit the tool and review the logs."
     fi
+}
+
+
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function menu_gui() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "GUI(s) > Choose an action" 16 50 8 \
+            "1" "Return to Main Menu" \
+            "2" "Run Portainer-CE on all nodes" \
+            "3" "Run Kafka gui 'Kafka-UI'" \
+            "4" "Run Kafka gui 'KPOW-CE'" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               gui_portainer
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer was deployed on all cluster nodes!"
+               else
+                    show_failure_message "Failed to deploy Portainer\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               gui_kafka
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Kafka GUI - 'Kafka-UI' was deployed!"
+               else
+                    show_failure_message "Failed to deploy Kafka GUI - 'Kafka-UI'\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               gui_kpow
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Kafka GUI - 'Kpow' was deployed!"
+               else
+                    show_failure_message "Failed to deploy Kafka GUI - 'Kpow'\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
 }
 
 # ===== Main Execution =====
