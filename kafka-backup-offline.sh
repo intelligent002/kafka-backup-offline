@@ -1400,4 +1400,4 @@ function menu_gui() {
 handle_directory
 handle_configuration
 handle_pid_file
-handle_main
+handle_main "$@"
