@@ -79,7 +79,7 @@ credentials:
         resource_name: "*"
         operation: "Read"
 
-  - username: "node-7.intel.r7g.org"
+  - username: "node-07.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
@@ -92,7 +92,7 @@ credentials:
         resource_name: "connect-cluster"
         operation: "Read"
 
-  - username: "node-8.intel.r7g.org"
+  - username: "node-08.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
@@ -105,7 +105,7 @@ credentials:
         resource_name: "connect-cluster"
         operation: "Read"
 
-  - username: "node-9.intel.r7g.org"
+  - username: "node-09.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
