@@ -10,9 +10,9 @@ services:
     restart: always
     mem_limit: 1g
     healthcheck:
-      interval: 60s
+      interval: 30s
       retries: 3
-      start_period: 20s
+      start_period: 10s
       test: ["CMD-SHELL", "response=$$(curl -s http://localhost:3000); if echo \"$$response\" | grep -q \"<title>Kpow for Apache Kafka\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
       timeout: 10s
     volumes:
