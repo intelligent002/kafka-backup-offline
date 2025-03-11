@@ -40,7 +40,7 @@ services:
       interval: 60s
       retries: 3
       start_period: 5s
-      test: ["CMD-SHELL", "response=$$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://node-0.intel.r7g.org/health/); if echo \"$$response\" | grep -q \":)\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
+      test: ["CMD-SHELL", "response=$$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://node-00.intel.r7g.org/health/); if echo \"$$response\" | grep -q \":)\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi"]
       timeout: 10s
     ports:
       - "80:80"
