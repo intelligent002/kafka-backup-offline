@@ -31,25 +31,25 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Ensure Config directory exists on node-0
+- name: Ensure Config directory exists on node-00
   tags:
     - configs_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
-    path: "{{ hostvars['node-0']['node_config_path'] }}"
+    path: "{{ hostvars['node-00']['node_config_path'] }}"
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy Connect Balancer config on node-0
+- name: Deploy Connect Balancer config on node-00
   tags: configs_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.template:
     src: "connect_balancer.j2"
-    dest: "{{ hostvars['node-0']['node_config_path'] }}/balancer-connect.conf"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'

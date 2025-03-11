@@ -8,10 +8,10 @@
   poll: 0
   ignore_errors: true
 
-- name: Issue node-0 reboot
+- name: Issue node-00 reboot
   tags:
     - cluster_reboot
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell:
     cmd: "nohup bash -c 'sleep 30 && reboot' >/dev/null 2>&1 &"

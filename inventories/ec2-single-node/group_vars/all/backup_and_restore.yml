@@ -67,7 +67,7 @@ central_certificates_backup_file: "{{ central_certificates_backup_path }}/{{ bac
 central_certificates_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---certificates.tar.xz"
 
 # Temporal certificates archive on central, for backup/restore operations - all certificates storage
-central_certificates_temp_archive_node_0: "{{ storage_temp_path }}/node-0---certificates.tar.xz"
+central_certificates_temp_archive_node_0: "{{ storage_temp_path }}/node-00---certificates.tar.xz"
 
 # === Central Storage Credentials section ==============================================================================
 
@@ -90,7 +90,7 @@ central_credentials_backup_file: "{{ central_credentials_backup_path }}/{{ backu
 central_credentials_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---credentials.tar.xz"
 
 # Temporal credentials archive on central, for backup/restore operations - all credentials storage
-central_credentials_temp_archive_node_0: "{{ storage_temp_path }}/node-0---credentials.tar.xz"
+central_credentials_temp_archive_node_0: "{{ storage_temp_path }}/node-00---credentials.tar.xz"
 
 # === Central Storage Config section ===================================================================================
 

@@ -2,7 +2,7 @@
 - name: Create folder for cold rotated backups
   tags:
     - certificates_backup
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_path }}"
@@ -14,7 +14,7 @@
 - name: Create folder for cold pinned backups
   tags:
     - certificates_backup
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_pinned }}"
@@ -33,7 +33,7 @@
 - name: Pull certificates archive from nodes
   tags:
     - certificates_backup
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ node_certificates_temp_archive }}"
     dest: "{{ central_certificates_temp_archive }}"
@@ -42,10 +42,10 @@
       - "--timeout=60"
       - "--checksum"
 
-- name: Add certificates archive from node-0
+- name: Add certificates archive from node-00
   tags:
     - certificates_backup
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell:
     cmd: >
@@ -54,7 +54,7 @@
 - name: Create certificates zip of zips
   tags:
     - certificates_backup
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell:
     cmd: >

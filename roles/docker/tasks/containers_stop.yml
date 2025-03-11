@@ -1,9 +1,9 @@
 ---
-- name: Stop Connect Balancer on node-0
+- name: Stop Connect Balancer on node-00
   tags:
     - containers_stop
     - containers_restart
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   shell: >
     docker stop balancer-connect

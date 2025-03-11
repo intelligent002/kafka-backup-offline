@@ -2,7 +2,7 @@
 - name: Verify archive exists
   tags:
     - configs_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   stat:
     path: "{{ restore_archive }}"
@@ -18,7 +18,7 @@
 - name: Extract configs archive to temp on central
   tags:
     - configs_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   unarchive:
     src: "{{ restore_archive }}"
@@ -35,10 +35,10 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Push node archives from node-0 to nodes
+- name: Push node archives from node-00 to nodes
   tags:
     - configs_restore
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ central_config_temp_archive }}"
     dest: "{{ node_config_temp_archive }}"
@@ -58,7 +58,7 @@
 - name: Set config permissions
   tags:
     - configs_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ node_config_path }}"

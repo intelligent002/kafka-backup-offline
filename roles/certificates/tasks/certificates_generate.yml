@@ -1,17 +1,17 @@
 ---
-- name: Delete certificates folder on node-0
+- name: Delete certificates folder on node-00
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ storage_certificates_path }}"
     state: absent
 
-- name: Create certificates folder on node-0
+- name: Create certificates folder on node-00
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ item }}"
@@ -28,7 +28,7 @@
 #- name: Generate a new CA certificate
 #  tags:
 #    - certificates_generate
-#  delegate_to: node-0
+#  delegate_to: node-00
 #  run_once: true
 #  ansible.builtin.shell: >
 #    openssl req -new -x509 -keyout {{ storage_certificates_path }}/CA/ca.key \
@@ -38,7 +38,7 @@
 - name: Generate a new CA certificate
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl req -new -x509 -newkey rsa:4096 \
@@ -55,7 +55,7 @@
 - name: Generate a shared PKCS#12 truststore with the CA certificate
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     keytool -import -trustcacerts -noprompt -alias ca \
@@ -66,7 +66,7 @@
 - name: Generate a shared JKS truststore with the CA certificate
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     keytool -import -trustcacerts -noprompt -alias ca \
@@ -77,7 +77,7 @@
 - name: Create folders for node certificates
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ groups['all'] }}"
   ansible.builtin.file:
@@ -90,7 +90,7 @@
 - name: Generate OpenSSL configuration
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.template:
     src: openssl.cnf.j2
@@ -100,7 +100,7 @@
 - name: Generate private keys
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl genpkey -algorithm RSA \
@@ -111,7 +111,7 @@
 - name: Generate node SAN CSRs
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl req -new \
@@ -124,7 +124,7 @@
 - name: Sign node SAN CSRs using the Self-Signed CA
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.csr \
@@ -139,7 +139,7 @@
 - name: Generate PKCS#12 node keystores
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ storage_certificates_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
@@ -152,7 +152,7 @@
 - name: Convert PKCS#12 node keystores to JKS format
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     keytool -importkeystore \
@@ -171,7 +171,7 @@
 - name: Create folders for user certificates
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.file:
@@ -184,7 +184,7 @@
 - name: Generate private keys for users
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
@@ -194,7 +194,7 @@
 - name: Generate user CSRs
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
@@ -205,7 +205,7 @@
 - name: Sign user CSRs using the Self-Signed CA
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl x509 -req -in {{ storage_certificates_path }}/users/{{ item }}/{{ item }}.csr \
@@ -219,7 +219,7 @@
 - name: Generate PKCS#12 user keystores
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
@@ -232,7 +232,7 @@
 - name: Convert PKCS#12 user keystores to JKS format
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   loop_control:
@@ -249,7 +249,7 @@
 - name: Set certificate folder permissions
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ storage_certificates_path }}"
@@ -272,7 +272,7 @@
 - name: Distribute required certificates to all nodes
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -299,7 +299,7 @@
 - name: Distribute admin credentials to all nodes
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -318,7 +318,7 @@
 - name: Distribute connect keystore to connect nodes only
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"

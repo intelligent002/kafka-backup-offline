@@ -2,15 +2,15 @@
 
 # Defines the order of starting cluster nodes.
 startup_order:
-  - node-1
-  - node-2
-  - node-3
+  - node-01
+  - node-02
+  - node-03
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - node-3
-  - node-2
-  - node-1
+  - node-03
+  - node-02
+  - node-01
 
 # === Nodes startup docker commands ====================================================================================
 
@@ -92,13 +92,13 @@ docker_command_connect_balancer_run: >
   docker run -d --restart=always \
     --name=balancer-connect -h balancer-connect \
     -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} \
-    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-0']['hostname'] }}:{{ port_connect_balancer_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
+    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
     --health-timeout=10s \
     --health-retries=5 \
     --health-start-period=5s \
     -v /data:/data \
-    -v {{ hostvars['node-0']['node_config_path'] }}/balancer-connect.conf:/etc/nginx/nginx.conf:ro \
+    -v {{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf:/etc/nginx/nginx.conf:ro \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >

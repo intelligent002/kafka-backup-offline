@@ -2,7 +2,7 @@
 - name: Create folder for cold rotated backups
   tags:
     - configs_rotate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ central_config_backup_path }}"
@@ -14,7 +14,7 @@
 - name: Create folder for cold pinned backups
   tags:
     - configs_rotate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ central_config_backup_pinned }}"
@@ -26,7 +26,7 @@
 - name: Rotate old config backups
   tags:
     - configs_rotate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   find:
     paths: "{{ central_config_backup_rotated }}"
@@ -38,7 +38,7 @@
 - name: Remove old config backups
   tags:
     - configs_rotate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -47,7 +47,7 @@
 
 - name: Remove empty config directories in cold storage
   tags: configs_rotate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   shell: >
     find {{ central_config_backup_rotated }} -depth -type d -empty -delete

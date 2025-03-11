@@ -2,27 +2,27 @@
 
 # Defines the order of starting cluster nodes.
 startup_order:
-  - node-1
-  - node-2
-  - node-3
-  - node-4
-  - node-5
-  - node-6
-  - node-7
-  - node-8
-  - node-9
+  - node-01
+  - node-02
+  - node-03
+  - node-04
+  - node-05
+  - node-06
+  - node-07
+  - node-08
+  - node-09
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
-  - node-9
-  - node-8
-  - node-7
-  - node-6
-  - node-5
-  - node-4
-  - node-3
-  - node-2
-  - node-1
+  - node-09
+  - node-08
+  - node-07
+  - node-06
+  - node-05
+  - node-04
+  - node-03
+  - node-02
+  - node-01
 
 # === Nodes startup docker commands ====================================================================================
 

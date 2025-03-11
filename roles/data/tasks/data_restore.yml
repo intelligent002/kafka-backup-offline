@@ -7,7 +7,7 @@
 - name: Verify archive exists
   tags:
     - data_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   stat:
     path: "{{ restore_archive }}"
@@ -23,7 +23,7 @@
 - name: Extract data archive to temp on central
   tags:
     - data_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   unarchive:
     src: "{{ restore_archive }}"
@@ -33,7 +33,7 @@
 - name: Push node archives from central into nodes
   tags:
     - data_restore
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ central_data_temp_archive }}"
     dest: "{{ node_data_temp_archive }}"
@@ -70,7 +70,7 @@
 - name: Set data permissions
   tags:
     - data_restore
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ node_data_path }}"

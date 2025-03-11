@@ -153,7 +153,7 @@
   failed_when: java_check.rc != 0 and false
   changed_when: false
   ignore_errors: true
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Notify if Java is missing
@@ -161,7 +161,7 @@
   ansible.builtin.debug:
     msg: "Java is missing on {{ inventory_hostname }}. It will be installed in a moment."
   when: java_check.rc != 0
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Ensure Java is installed
@@ -179,7 +179,7 @@
         java
       {% endif %}
   when: java_check.rc != 0
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Verify Java version
@@ -188,7 +188,7 @@
   register: java_version_check
   changed_when: false
   failed_when: java_check.rc != 0 and false
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Display installed Java version
@@ -198,7 +198,7 @@
       Java version on {{ inventory_hostname }}:
       {{ java_version_check.stdout_lines | default([]) }}
   when: java_check.rc == 0
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Set default Java version (Red Hat-based systems)
@@ -207,7 +207,7 @@
   when:
     - ansible_os_family == 'RedHat'
     - java_check.rc != 0
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Confirm default Java version
@@ -216,7 +216,7 @@
   register: java_default_check
   changed_when: false
   failed_when: java_check.rc != 0 and false
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Display default Java version
@@ -225,7 +225,7 @@
     msg: |
       Default Java version on {{ inventory_hostname }}:
       {{ java_default_check.stdout_lines | default([]) }}
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
 
 - name: Check if rsync is installed

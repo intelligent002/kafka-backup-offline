@@ -2,7 +2,7 @@
 - name: Ensure Certbot volume directory exists
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ storage_certificates_path }}"
@@ -14,7 +14,7 @@
 - name: Create Cloudflare credentials file
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.template:
     src: cloudflare.ini.j2
@@ -26,7 +26,7 @@
 - name: Run Certbot to renew certificate
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     docker run --rm 
@@ -52,7 +52,7 @@
 - name: Display Certbot output
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   debug:
     var: certbot_result.stdout
@@ -60,7 +60,7 @@
 - name: Verify certificate files exist on central
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   stat:
     path: "{{ item }}"
@@ -72,7 +72,7 @@
 - name: Fail if any certificate file is missing
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   fail:
     msg: >
@@ -83,7 +83,7 @@
 - name: Extract certificate expiration details
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   shell: |
     cert_date=$(openssl x509 -enddate -noout -in {{ cert_file_server_fullchain }} | sed 's/^notAfter=//')
@@ -97,7 +97,7 @@
 - name: Parse certificate expiration details
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   set_fact:
     certificate_expiration_date: "{{ cert_details.stdout_lines | select('search', '^expiration_date=') | map('regex_replace', '^expiration_date=', '') | first }}"
@@ -106,7 +106,7 @@
 - name: Debug certificate expiration details
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   debug:
     msg: >
@@ -116,7 +116,7 @@
 - name: Fail if certificate is expired or expires soon
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   fail:
     msg: >
@@ -132,7 +132,7 @@
 - name: Generate PKCS#12 KeyStore from full chain and private key
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     openssl pkcs12 -export
@@ -145,7 +145,7 @@
 - name: Convert PKCS#12 KeyStore to JKS KeyStore
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: |
     keytool -importkeystore \ 
@@ -161,7 +161,7 @@
 - name: Cleanup JKS TrustStore
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.file:
     path: "{{ cert_file_server_truststore }}"
@@ -170,7 +170,7 @@
 - name: Import CA certificate into JKS TrustStore
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: |
     yes | keytool -import \ 
@@ -184,7 +184,7 @@
 - name: Verify Keystore file
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     keytool -list -keystore {{ cert_file_server_keystore }} -storepass {{ certificate_password }}
@@ -193,7 +193,7 @@
 - name: Display Keystore Details
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   debug:
     var: keystore_check.stdout
@@ -201,7 +201,7 @@
 - name: Verify TrustStore file
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   ansible.builtin.shell: >
     keytool -list -keystore {{ cert_file_server_truststore }} -storepass {{ certificate_password }}
@@ -210,7 +210,7 @@
 - name: Display TrustStore Details
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   run_once: true
   debug:
     var: truststore_check.stdout
@@ -228,7 +228,7 @@
 - name: Push certificate files from central node to target nodes
   tags:
     - certificates_generate
-  delegate_to: node-0
+  delegate_to: node-00
   synchronize:
     src: "{{ item }}"
     dest: "{{ node_certificates_path }}/"
