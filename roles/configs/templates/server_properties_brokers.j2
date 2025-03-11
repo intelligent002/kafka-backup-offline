@@ -94,7 +94,7 @@ authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 # Global fallback per SASL authentication mechanisms (SCRAM-SHA-256/512 for SSL, PLAIN for plaintext, EMPTY to disable globally)
 # This is a global fallback setting.
 # Listener settings will take precedence.
-sasl.enabled.mechanisms=
+sasl.enabled.mechanisms=SCRAM-SHA-512
 
 # Specifies superusers that bypass the ACL checks
 super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) %}
