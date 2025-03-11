@@ -18,3 +18,6 @@ port_connect_rest_ext: 8081
 
 port_connect_balancer_int: 8080
 port_connect_balancer_ext: 8080
+
+port_portainer_int: 9443
+port_portainer_ext: 9443
