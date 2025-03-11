@@ -4,7 +4,7 @@ networks:
 
 services:
   kafka-console-kpow:
-    image: factorhouse/kpow-ce:93.4
+    image: factorhouse/kpow-ce:94.1
     container_name: kafka-console-kpow
     hostname: kafka-console-kpow
     restart: always
@@ -24,7 +24,7 @@ services:
     command: >
       /bin/sh -c "
       keytool -import -trustcacerts -cacerts -storepass changeit -noprompt -alias kafka-ca -file /data/cluster/certificates/CA/ca.crt;
-      exec java $JVM_OPTS -jar /opt/kpow/lib/kpow.jar
+      exec java $JVM_OPTS -jar /opt/factorhouse/lib/kpow.jar
       "
 
   kafka-gateway-kpow:
