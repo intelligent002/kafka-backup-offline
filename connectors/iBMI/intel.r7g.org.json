@@ -14,6 +14,8 @@
       "snapshot.mode":"initial",
       "table.include.list":"ESB.ADA_FIX",
       "tasks.max":1,
+      "topic.delimiter": "-",
+      "topic.naming.strategy": "io.debezium.schema.DefaultTopicNamingStrategy",
       "topic.prefix":"cdc-db2"
    }
 }

@@ -49,11 +49,12 @@
       "schema.history.internal.producer.ssl.truststore.password":"insecure",
       "schema.history.internal.producer.ssl.truststore.type":"JKS",
       "snapshot.mode":"initial",
-      "table.include.list":"DB2INST1.CUSTOMERS,DB2INST1.ORDERS,DB2INST1.PRODUCTS,DB2INST1.PRODUCTS_ON_HAND",
+      "table.include.list":"DB2INST1.CUSTOMERS,DB2INST1.ORDERS,DB2INST1.PRODUCTS,DB2INST1.PRODUCTS_ON_HAND,DB2INST1.SOME#BLA",
       "tasks.max":"1",
       "topic.creation.default.partitions":"3",
       "topic.creation.default.replication.factor":"3",
       "topic.delimiter": "-",
+      "topic.naming.strategy": "io.debezium.schema.DefaultTopicNamingStrategy",
       "topic.prefix":"cdc-db2"
    }
 }
