@@ -90,7 +90,7 @@ docker_command_connect_run: >
 
 docker_command_connect_balancer_run: >
   docker run -d --restart=always \
-    --name=kafka-connect-balancer -h kafka-connect-balancer \
+    --name=balancer-connect -h balancer-connect \
     -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} \
     --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-0']['hostname'] }}:{{ port_connect_balancer_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
@@ -98,7 +98,7 @@ docker_command_connect_balancer_run: >
     --health-retries=5 \
     --health-start-period=5s \
     -v /data:/data \
-    -v {{ hostvars['node-0']['node_config_path'] }}/kafka-connect-balancer.conf:/etc/nginx/nginx.conf:ro \
+    -v {{ hostvars['node-0']['node_config_path'] }}/balancer-connect.conf:/etc/nginx/nginx.conf:ro \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >

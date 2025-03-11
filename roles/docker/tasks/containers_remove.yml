@@ -4,7 +4,7 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    docker rm -f kafka-connect-balancer
+    docker rm -f balancer-connect
 
 - name: Remove Docker containers in shutdown order
   tags:

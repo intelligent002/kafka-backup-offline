@@ -16,4 +16,4 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    docker start kafka-connect-balancer
+    docker start balancer-connect

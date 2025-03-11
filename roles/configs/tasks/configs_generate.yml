@@ -49,7 +49,7 @@
   run_once: true
   ansible.builtin.template:
     src: "connect_balancer.j2"
-    dest: "{{ hostvars['node-0']['node_config_path'] }}/kafka-connect-balancer.conf"
+    dest: "{{ hostvars['node-0']['node_config_path'] }}/balancer-connect.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'

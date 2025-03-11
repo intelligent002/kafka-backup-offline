@@ -6,7 +6,7 @@
   delegate_to: node-0
   run_once: true
   shell: >
-    docker stop kafka-connect-balancer
+    docker stop balancer-connect
 
 - name: Stop Docker containers in shutdown order
   tags:
