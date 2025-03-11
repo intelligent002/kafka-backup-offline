@@ -43,7 +43,7 @@ rest.advertised.listener=HTTPS
 
 # HTTPS configuration
 listeners.https.ssl.client.auth=none
-listeners.https.ssl.endpoint.identification.algorithm=
+listeners.https.ssl.endpoint.identification.algorithm=HTTPS
 listeners.https.ssl.key.password={{ certificate_password }}
 listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listeners.https.ssl.keystore.password={{ certificate_password }}
@@ -61,7 +61,7 @@ connector.client.config.override.policy=All
 # SSL Configuration
 security.protocol=SSL
 ssl.enabled.protocols=TLSv1.3
-ssl.endpoint.identification.algorithm=
+ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password={{ certificate_password }}
