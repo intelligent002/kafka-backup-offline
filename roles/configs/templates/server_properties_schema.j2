@@ -1,4 +1,4 @@
-listeners=https://:{{ hostvars[inventory_hostname][port_schema_rest_int] }}
+listeners=https://:{{ port_schema_rest_int }}
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=schema-cluster
 
