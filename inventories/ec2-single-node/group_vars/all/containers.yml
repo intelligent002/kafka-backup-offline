@@ -88,7 +88,7 @@ docker_command_connect_run: >
   apache/kafka:3.9.0
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
-docker_command_connect_balancer_run: >
+docker_command_balancer_connect_run: >
   docker run -d --restart=always \
     --name=balancer-connect -h balancer-connect \
     -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} \

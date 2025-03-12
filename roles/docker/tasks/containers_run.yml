@@ -87,4 +87,4 @@
   delegate_to: node-00
   run_once: true
   shell: >
-    {{ docker_command_connect_balancer_run }}
+    {{ docker_command_balancer_connect_run }}

@@ -1,0 +1,16 @@
+listeners=https://0.0.0.0:8081
+host.name={{ hostvars[host]['hostname'] }}
+schema.registry.group.id=schema-cluster
+kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
+    SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }},
+{%- endfor -%}
+
+#SSL://broker-1:9093,SSL://broker-2:9093,SSL://broker-3:9093
+kafkastore.topic=_schemas
+kafkastore.security.protocol=SSL
+kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+kafkastore.ssl.truststore.password={{ certificate_password }}
+kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+kafkastore.ssl.keystore.password={{ certificate_password }}
+kafkastore.ssl.key.password={{ certificate_password }}
+avro.compatibility.level=BACKWARD
