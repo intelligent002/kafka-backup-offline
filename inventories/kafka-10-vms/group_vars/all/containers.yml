@@ -133,14 +133,14 @@ docker_command_schema_run: >
   -Dcom.sun.management.jmxremote.authenticate=false
   -Dcom.sun.management.jmxremote.ssl=false
   "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
+  -v {{ hostvars[item]['node_config_path'] }}/kraft.properties:/etc/schema-registry/schema-registry.properties
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
   confluentinc/cp-schema-registry:7.9.0
-  /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
+  /usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
 
 docker_command_balancer_schema_run: >
   docker run -d --restart=always \
