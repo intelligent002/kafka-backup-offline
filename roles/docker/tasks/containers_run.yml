@@ -77,6 +77,7 @@
     {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
     {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
     {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
+    {% elif 'schema' in group_roles[item] %} {{ docker_command_schema_run }}
     {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"
