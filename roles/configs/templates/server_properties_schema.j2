@@ -1,4 +1,4 @@
-listeners=https://0.0.0.0:8081
+listeners=https://0.0.0.0:{{ hostvars[inventory_hostname][port_schema_rest_int] }}
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=schema-cluster
 kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
