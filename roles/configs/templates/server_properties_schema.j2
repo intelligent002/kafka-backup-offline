@@ -5,7 +5,7 @@ kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
     SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }}{% if not loop.last %},{% endif %}
 {%- endfor -%}
 
-#SSL://broker-1:9093,SSL://broker-2:9093,SSL://broker-3:9093
+
 kafkastore.topic=_schemas
 kafkastore.security.protocol=SSL
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
