@@ -3,10 +3,7 @@ host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=schema-cluster
 kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
     SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }}{% if not loop.last %},{% endif %}
-{%- endfor -%}
-
-
-
+{% endfor %}
 
 kafkastore.topic=_schemas
 kafkastore.security.protocol=SSL
