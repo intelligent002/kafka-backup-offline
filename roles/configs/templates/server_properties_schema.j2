@@ -2,7 +2,7 @@ listeners=https://0.0.0.0:8081
 host.name={{ hostvars[host]['hostname'] }}
 schema.registry.group.id=schema-cluster
 kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
-    SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }},
+    SSL://{{ hostvars[inventory_hostname]['hostname'] }}:{{ port_consumer_mtls_ext }},
 {%- endfor -%}
 
 #SSL://broker-1:9093,SSL://broker-2:9093,SSL://broker-3:9093
