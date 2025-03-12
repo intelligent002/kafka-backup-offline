@@ -67,7 +67,7 @@ credentials:
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: ["Write", "Read"]
+        operation: [ "Write", "Read" ]
       - resource_type: "topic"
         resource_name: "*"
         operation: "Write"
@@ -127,6 +127,9 @@ credentials:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
         operation: "Describe"
+      - resource_type: "group"
+        resource_name: "schema-cluster"
+        operation: [ "read", "describe" ]
 
   - username: "node-11.intel.r7g.org"
     password: "insecure"
@@ -137,6 +140,9 @@ credentials:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
         operation: "Describe"
+      - resource_type: "group"
+        resource_name: "schema-cluster"
+        operation: [ "read", "describe" ]
 
   - username: "node-12.intel.r7g.org"
     password: "insecure"
@@ -147,3 +153,6 @@ credentials:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
         operation: "Describe"
+      - resource_type: "group"
+        resource_name: "schema-cluster"
+        operation: [ "read", "describe" ]
