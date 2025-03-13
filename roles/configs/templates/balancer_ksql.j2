@@ -10,7 +10,7 @@ stream {
 }
 
     server {
-        listen {{ kafka_ksql_backend }};
-        proxy_pass kafka_schema_backend;
+        listen {{ port_balancer_ksql_int }};
+        proxy_pass kafka_ksql_backend;
     }
 }
