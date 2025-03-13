@@ -5,7 +5,7 @@ events {
 http {
     upstream schema_registry_backend {
     {% for host in groups['schema'] %}
-        server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }};
+        server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }} resolve;
     {% endfor %}
     }
 
