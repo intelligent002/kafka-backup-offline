@@ -38,7 +38,7 @@ http {
             proxy_ssl_certificate /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt;
             proxy_ssl_certificate_key /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key;
 
-            proxy_ssl_verify on;
+            proxy_ssl_verify off;
             proxy_ssl_protocols TLSv1.3;
             proxy_ssl_trusted_certificate /data/cluster/certificates/CA/ca.crt;
 
