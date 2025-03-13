@@ -146,7 +146,7 @@ docker_command_balancer_schema_run: >
   docker run -d --restart=always \
     --name=balancer-schema -h balancer-schema \
     -p {{ port_balancer_schema_ext }}:{{ port_balancer_schema_int }} \
-    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_schema_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
+    --health-cmd="response=\$(curl --cert /data/cluster/certificates/users/admin/admin.crt --key /data/cluster/certificates/users/admin/admin.key -k https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_schema_int }}/config); if echo \"\$response\" | grep -q \"compatibilityLevel\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
     --health-timeout=10s \
     --health-retries=5 \
