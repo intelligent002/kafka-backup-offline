@@ -3,7 +3,7 @@ events {
 }
 
 stream {
-    upstream kafka_connect {
+    upstream kafka_connect_backend {
     {% for host in groups['connect'] %}
     server {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }};
     {% endfor %}
@@ -17,7 +17,7 @@ stream {
         ssl_session_cache shared:SSL:10m;
         ssl_session_timeout 10m;
 
-        proxy_pass kafka_connect;
+        proxy_pass kafka_connect_backend;
         proxy_ssl on;
         proxy_ssl_protocols TLSv1.3;
         proxy_ssl_session_reuse on;
