@@ -33,5 +33,5 @@
   tags:
     - data_format
   shell: "{{ docker_command_data_format }}"
-  when: "'connect' not in group_names and 'schema' not in group_names"
+  when: "'controllers' in group_names OR 'brokers' in group_names"
 
