@@ -1,10 +1,17 @@
 ---
-- name: Remove Connect Balancer on node-00
+- name: Remove Balancer Connect on node-00
   tags: containers_remove
   delegate_to: node-00
   run_once: true
   shell: >
     docker rm -f balancer-connect
+
+- name: Remove Balancer Schema on node-00
+  tags: containers_remove
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    docker rm -f balancer-schema
 
 - name: Remove Docker containers in shutdown order
   tags:

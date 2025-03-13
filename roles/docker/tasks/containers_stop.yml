@@ -1,5 +1,5 @@
 ---
-- name: Stop Connect Balancer on node-00
+- name: Stop Balancer Connect on node-00
   tags:
     - containers_stop
     - containers_restart
@@ -7,6 +7,15 @@
   run_once: true
   shell: >
     docker stop balancer-connect
+
+- name: Stop Balancer Schema on node-00
+  tags:
+    - containers_stop
+    - containers_restart
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    docker stop balancer-schema
 
 - name: Stop Docker containers in shutdown order
   tags:

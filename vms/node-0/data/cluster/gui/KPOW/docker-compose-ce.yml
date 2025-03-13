@@ -1,12 +1,12 @@
 networks:
-  kafka-console-kpow:
+  kpow:
     driver: bridge
 
 services:
-  kafka-console-kpow:
+  kpow-console:
     image: factorhouse/kpow-ce:94.1
-    container_name: kafka-console-kpow
-    hostname: kafka-console-kpow
+    container_name: kpow-console
+    hostname: kpow-console
     restart: always
     mem_limit: 1g
     healthcheck:
@@ -20,20 +20,20 @@ services:
     env_file:
       - /data/cluster/gui/KPOW/env-ce-mtls.env
     networks:
-      - kafka-console-kpow
+      - kpow
     command: >
       /bin/sh -c "
       keytool -import -trustcacerts -cacerts -storepass changeit -noprompt -alias kafka-ca -file /data/cluster/certificates/CA/ca.crt;
       exec java $JVM_OPTS -jar /opt/factorhouse/lib/kpow.jar
       "
 
-  kafka-gateway-kpow:
+  kpow-gateway:
     image: nginx:1.27.4-alpine3.21
-    container_name: kafka-gateway-kpow
-    hostname: kafka-gateway-kpow
+    container_name: kpow-gateway
+    hostname: kpow-gateway
     restart: always
     depends_on:
-        kafka-console-kpow:
+        kpow-console:
             condition: service_healthy
             restart: true
     healthcheck:
@@ -47,6 +47,6 @@ services:
       - "443:443"
     volumes:
       - /data:/data:ro
-      - /data/cluster/gui/KPOW/kafka-gateway-kpow.conf:/etc/nginx/nginx.conf:ro
+      - /data/cluster/gui/KPOW/kpow-gateway.conf:/etc/nginx/nginx.conf:ro
     networks:
-      - kafka-console-kpow
+      - kpow

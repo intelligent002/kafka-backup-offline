@@ -11,9 +11,15 @@ startup_order:
   - node-07
   - node-08
   - node-09
+  - node-10
+  - node-11
+  - node-12
 
 # Defines the order of shutting down cluster nodes.
 shutdown_order:
+  - node-12
+  - node-11
+  - node-10
   - node-09
   - node-08
   - node-07
@@ -100,17 +106,53 @@ docker_command_connect_run: >
   apache/kafka:3.9.0
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
-docker_command_connect_balancer_run: >
+docker_command_balancer_connect_run: >
   docker run -d --restart=always \
     --name=balancer-connect -h balancer-connect \
-    -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} \
-    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
+    -p {{ port_balancer_connect_ext }}:{{ port_balancer_connect_int }} \
+    --health-cmd="response=\$(curl -s --cacert /data/cluster/certificates/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_connect_int }}/); if echo \"\$response\" | grep -q \"kafka_cluster_id\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
     --health-timeout=10s \
     --health-retries=5 \
     --health-start-period=5s \
     -v /data:/data \
     -v {{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf:/etc/nginx/nginx.conf:ro \
+    nginx:1.27.4-alpine3.21
+
+docker_command_schema_run: >
+  docker run -d --restart=always
+  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
+  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -p {{ hostvars[item]['port_schema_rest_ext'] }}:{{ hostvars[item]['port_schema_rest_int'] }}
+  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+  -e KAFKA_JMX_OPTS="
+  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+  -Dcom.sun.management.jmxremote
+  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+  -Dcom.sun.management.jmxremote.authenticate=false
+  -Dcom.sun.management.jmxremote.ssl=false
+  "
+  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
+  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
+  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
+  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
+  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
+  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
+  confluentinc/cp-schema-registry:7.9.0
+  /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
+
+docker_command_balancer_schema_run: >
+  docker run -d --restart=always \
+    --name=balancer-schema -h balancer-schema \
+    -p {{ port_balancer_schema_ext }}:{{ port_balancer_schema_int }} \
+    --health-cmd="response=\$(curl --cert /data/cluster/certificates/users/admin/admin.crt --key /data/cluster/certificates/users/admin/admin.key -s -k https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_schema_int }}/config); if echo \"\$response\" | grep -q \"compatibilityLevel\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
+    --health-interval=60s \
+    --health-timeout=10s \
+    --health-retries=5 \
+    --health-start-period=5s \
+    -v /data:/data \
+    -v {{ hostvars['node-00']['node_config_path'] }}/balancer-schema.conf:/etc/nginx/nginx.conf:ro \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >

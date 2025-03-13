@@ -1,0 +1,38 @@
+listeners=https://0.0.0.0:{{ port_schema_rest_int }}
+host.name={{ hostvars[inventory_hostname]['hostname'] }}
+schema.registry.group.id=schema-cluster
+
+# Kafka Connection (Using SSL)
+kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
+    SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }}{% if not loop.last %},{% endif %}
+{% endfor %}
+
+kafkastore.topic=_schemas
+kafkastore.security.protocol=SSL
+kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+kafkastore.ssl.truststore.password=insecure
+kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+kafkastore.ssl.keystore.password=insecure
+kafkastore.ssl.key.password=insecure
+
+# Enable Inter-Instance Communication
+inter.instance.protocol=https
+
+# Security for Client Authentication
+ssl.client.authentication=REQUIRED
+ssl.client.auth=true
+ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ssl.keystore.password=insecure
+ssl.key.password=insecure
+ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ssl.truststore.password=insecure
+
+# Fix Hostname Verification Issue
+kafkastore.ssl.endpoint.identification.algorithm=
+ssl.endpoint.identification.algorithm=
+
+# Debugging
+debug=true
+
+# Serders
+avro.compatibility.level=BACKWARD
