@@ -3,6 +3,8 @@ events {
 }
 
 http {
+    resolver 10.1.2.1 10.1.2.2 valid=30s ipv6=off;
+
     upstream schema_registry_backend {
         zone schema_registry_zone 64k;
         {% for host in groups['schema'] %}
