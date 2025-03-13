@@ -152,7 +152,7 @@ docker_command_balancer_schema_run: >
     --health-retries=5 \
     --health-start-period=5s \
     -v /data:/data \
-    -v {{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf:/etc/nginx/nginx.conf:ro \
+    -v {{ hostvars['node-00']['node_config_path'] }}/balancer-schema.conf:/etc/nginx/nginx.conf:ro \
     nginx:1.27.4-alpine3.21
 
 docker_command_data_format: >
