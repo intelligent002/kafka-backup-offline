@@ -13,7 +13,6 @@
   shell: >
     docker rm -f balancer-schema
 
-
 - name: Remove Balancer Connect on node-00
   tags: containers_remove
   delegate_to: node-00
