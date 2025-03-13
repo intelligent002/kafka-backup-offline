@@ -43,17 +43,6 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy Balancer Connect config on node-00
-  tags: configs_generate
-  delegate_to: node-00
-  run_once: true
-  ansible.builtin.template:
-    src: "balancer_connect.j2"
-    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf"
-    owner: "{{ owner_user_data }}"
-    group: "{{ owner_group_data }}"
-    mode: '{{ chmod_configs }}'
-
 - name: Deploy Balancer Schema config on node-00
   tags: configs_generate
   delegate_to: node-00
@@ -61,6 +50,17 @@
   ansible.builtin.template:
     src: "balancer_schema.j2"
     dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-schema.conf"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Deploy Balancer Connect config on node-00
+  tags: configs_generate
+  delegate_to: node-00
+  run_once: true
+  ansible.builtin.template:
+    src: "balancer_connect.j2"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-connect.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
