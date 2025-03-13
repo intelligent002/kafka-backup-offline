@@ -211,8 +211,8 @@ function cluster_reinstall()
 
     # regenerate all components
     configs_generate
-    certificates_generate
     credentials_generate
+    certificates_generate
     data_format
 
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
