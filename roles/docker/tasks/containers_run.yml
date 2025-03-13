@@ -84,19 +84,19 @@
   with_items: "{{ startup_order }}"
   when: group_roles[item] is defined
 
-- name: Deploy Balancer Connect on node-00
-  tags: containers_run
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    {{ docker_command_balancer_connect_run }}
-
 - name: Deploy Balancer Schema on node-00
   tags: containers_run
   delegate_to: node-00
   run_once: true
   shell: >
     {{ docker_command_balancer_schema_run }}
+
+- name: Deploy Balancer Connect on node-00
+  tags: containers_run
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    {{ docker_command_balancer_connect_run }}
 
 - name: Deploy Balancer KSQL on node-00
   tags: containers_run
