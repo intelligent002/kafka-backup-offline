@@ -15,11 +15,11 @@
       "database.history.kafka.topic": "cdc-mssql-schema-history",
       "database.hostname":"kafka-mssql.intel.r7g.org",
       "database.names":"FHIR",
-      "database.password":"StrongPassword123!",
+      "database.password":"$rfv5tgb",
       "database.port":"1433",
       "database.sslmode":"require",
       "database.trustServerCertificate":"true",
-      "database.user":"debezium_user",
+      "database.user":"FHIR_READER",
       "include.schema.changes":"true",
       "inconsistent.schema.handling.mode":"fail",
       "producer.override.security.protocol":"SSL",
@@ -60,6 +60,10 @@
       "topic.creation.default.retention.ms":"5259600000",
       "topic.delimiter": "-",
       "topic.naming.strategy": "io.debezium.schema.TopicNamingStrategy",
-      "topic.prefix":"cdc-mssql"
+      "topic.prefix":"cdc-assuta"
    }
 }
+
+?????: FHIR_READER
+?????: 
+$rfv5tgb
