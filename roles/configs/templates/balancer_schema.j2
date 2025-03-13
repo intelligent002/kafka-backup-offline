@@ -3,14 +3,14 @@ events {
 }
 
 stream {
-    upstream kafka_schema_registry {
-        {% for host in groups['schema'] %}
-            server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }};
-        {% endfor %}
-    }
+    upstream kafka_schema_backend {
+    {% for host in groups['schema'] %}
+        server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }};
+    {% endfor %}
+}
 
     server {
         listen {{ port_balancer_schema_int }};
-        proxy_pass kafka_schema_registry;
+        proxy_pass kafka_schema_backend;
     }
 }
