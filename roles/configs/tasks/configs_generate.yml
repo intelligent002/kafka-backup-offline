@@ -7,11 +7,6 @@
   when: item not in ['all', 'cluster', 'central']
   run_once: false
 
-- name: Determine the template dynamically based on the group
-  tags: configs_generate
-  set_fact:
-    selected_template: "server_properties_{{ relevant_group }}.j2"
-
 - name: Ensure Config directory exists on nodes
   tags:
     - configs_generate
@@ -21,6 +16,11 @@
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
+
+- name: Determine the template dynamically based on the group
+  tags: configs_generate
+  set_fact:
+    selected_template: "server_properties_{{ relevant_group }}.j2"
 
 - name: Deploy Config files to nodes
   tags: configs_generate
@@ -61,6 +61,17 @@
   ansible.builtin.template:
     src: "balancer_schema.j2"
     dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-schema.conf"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Deploy Balancer KSQL config on node-00
+  tags: configs_generate
+  delegate_to: node-00
+  run_once: true
+  ansible.builtin.template:
+    src: "balancer_ksql.j2"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-ksql.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'

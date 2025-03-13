@@ -1,0 +1,16 @@
+events {
+    worker_connections 1024;
+}
+
+stream {
+    upstream kafka_ksql_backend {
+    {% for host in groups['ksql'] %}
+        server {{ hostvars[host]['hostname'] }}:{{ port_ksql_rest_ext }};
+    {% endfor %}
+}
+
+    server {
+        listen {{ kafka_ksql_backend }};
+        proxy_pass kafka_schema_backend;
+    }
+}

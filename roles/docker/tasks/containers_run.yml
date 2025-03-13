@@ -78,6 +78,7 @@
     {% elif 'brokers'   in group_roles[item] %} {{ docker_command_brokers_run }}
     {% elif 'connect'   in group_roles[item] %} {{ docker_command_connect_run }}
     {% elif 'schema'    in group_roles[item] %} {{ docker_command_schema_run }}
+    {% elif 'ksql'      in group_roles[item] %} {{ docker_command_ksql_run }}
     {% else %} echo 'Undefined group, no command executed'
     {% endif %}
   with_items: "{{ startup_order }}"
@@ -96,3 +97,10 @@
   run_once: true
   shell: >
     {{ docker_command_balancer_schema_run }}
+
+- name: Deploy Balancer KSQL on node-00
+  tags: containers_run
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    {{ docker_command_balancer_ksql_run }}

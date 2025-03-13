@@ -1,0 +1,65 @@
+# Bootstrap servers - list of brokers for connecting to Kafka
+bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# Unique service ID for ksqlDB
+ksql.service.id=ksql-cluster
+
+# ksqlDB REST API listener
+listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
+
+# Advertised listener - this should be routable from other servers
+ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
+
+# Kafka topic replication settings
+ksql.internal.topic.replicas={{ ((groups['brokers'] | default([])) | length) }}
+ksql.streams.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
+ksql.sink.replicas={{ ((groups['brokers'] | default([])) | length) }}
+
+# Schema Registry configuration (needed if using Avro, JSON Schema, or Protobuf)
+ksql.schema.registry.url=https://{{ hostvars[inventory_hostname]['schema_registry_host'] }}:{{ hostvars[inventory_hostname]['port_schema_rest_ext'] }}
+
+# Kafka Connect integration (optional, only required if using connectors)
+ksql.connect.url=https://{{ hostvars[inventory_hostname]['connect_host'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
+
+# Log processing settings
+ksql.logging.processing.stream.auto.create=true
+ksql.logging.processing.topic.auto.create=true
+
+# Processing settings
+ksql.streams.cache.max.bytes.buffering=10485760
+ksql.streams.num.stream.threads=4
+
+# Enable metric reporting
+ksql.metric.reporters=io.confluent.metrics.reporter.ConfluentMetricsReporter
+
+# JMX monitoring
+ksql.jmx.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+ksql.jmx.host={{ hostvars[inventory_hostname]['ansible_host'] }}
+
+# Security settings for HTTPS
+listeners.https.ssl.client.auth=none
+listeners.https.ssl.endpoint.identification.algorithm=HTTPS
+listeners.https.ssl.key.password={{ certificate_password }}
+listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+listeners.https.ssl.keystore.password={{ certificate_password }}
+listeners.https.ssl.keystore.type=JKS
+listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listeners.https.ssl.truststore.password={{ certificate_password }}
+listeners.https.ssl.truststore.type=JKS
+
+# SSL settings for Kafka connection
+security.protocol=SSL
+ssl.enabled.protocols=TLSv1.3
+ssl.endpoint.identification.algorithm=HTTPS
+ssl.key.password={{ certificate_password }}
+ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ssl.keystore.password={{ certificate_password }}
+ssl.keystore.type=JKS
+ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ssl.truststore.password={{ certificate_password }}
+ssl.truststore.type=JKS
+
+# SASL Configuration (Uncomment for SASL_SSL, Comment for mTLS)
+# sasl.mechanism=SCRAM-SHA-512
+# sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
