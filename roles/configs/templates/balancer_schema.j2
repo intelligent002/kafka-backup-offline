@@ -22,11 +22,21 @@ http {
         ssl_session_cache shared:SSL:10m;
         ssl_session_timeout 10m;
 
+        # Require client certificates for authentication
+        ssl_client_certificate /data/cluster/certificates/CA/ca.crt;
+        ssl_verify_client on;  # Accept any valid certificate
+
         location / {
             proxy_pass https://schema_registry_backend;
+
+            # Nginx authenticates to Schema Registry with its own certificate
+            proxy_ssl_certificate /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt;
+            proxy_ssl_certificate_key /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key;
+
             proxy_ssl_verify on;
             proxy_ssl_protocols TLSv1.3;
             proxy_ssl_trusted_certificate /data/cluster/certificates/CA/ca.crt;
+
             proxy_set_header Host $host;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         }
