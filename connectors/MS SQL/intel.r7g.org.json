@@ -15,7 +15,7 @@
       "database.history.kafka.topic": "cdc-mssql-schema-history",
       "database.hostname":"kafka-mssql.intel.r7g.org",
       "database.names":"FHIR",
-      "database.password":"debezium_pass",
+      "database.password":"StrongPassword123!",
       "database.port":"1433",
       "database.sslmode":"require",
       "database.trustServerCertificate":"true",
