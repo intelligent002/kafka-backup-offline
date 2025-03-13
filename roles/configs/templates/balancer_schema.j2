@@ -4,9 +4,10 @@ events {
 
 http {
     upstream schema_registry_backend {
-    {% for host in groups['schema'] %}
-        server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }} resolve;
-    {% endfor %}
+        zone schema_registry_zone 64k;
+        {% for host in groups['schema'] %}
+            server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }} resolve;
+        {% endfor %}
     }
 
     server {
