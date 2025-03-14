@@ -1,4 +1,5 @@
 # CONNECT CONFIG
+########################################################################################################################
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
 {{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}

@@ -1,4 +1,5 @@
 # SCHEMA CONFIG
+########################################################################################################################
 listeners=https://0.0.0.0:{{ port_schema_rest_int }}
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=schema-cluster
@@ -12,7 +13,7 @@ kafkastore.topic=_schemas
 kafkastore.security.protocol=SSL
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 kafkastore.ssl.truststore.password=insecure
-kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+kafkastore.ssl.keystore.location=/etc/kafka/secrets/schema.jks
 kafkastore.ssl.keystore.password=insecure
 kafkastore.ssl.key.password=insecure
 
@@ -22,7 +23,7 @@ inter.instance.protocol=https
 # Security for Client Authentication
 ssl.client.authentication=REQUIRED
 ssl.client.auth=true
-ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ssl.keystore.location=/etc/kafka/secrets/schema.jks
 ssl.keystore.password=insecure
 ssl.key.password=insecure
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
