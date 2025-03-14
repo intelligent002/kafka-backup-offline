@@ -178,9 +178,9 @@ docker_command_ksql_run: >
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
-  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
+  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/ksql
+  -v {{ hostvars[item]['node_meta_path'] }}:/tmp/schema-registry
+  -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
   confluentinc/ksqldb-server:latest
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
 
