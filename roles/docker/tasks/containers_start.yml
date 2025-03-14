@@ -9,6 +9,15 @@
   with_items: "{{ startup_order }}"
   run_once: true  # Ensure task runs only once on localhost
 
+- name: Start Balancer Schema on node-00
+  tags:
+    - containers_start
+    - containers_restart
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    docker start balancer-schema
+
 - name: Start Balancer Connect on node-00
   tags:
     - containers_start
@@ -18,11 +27,11 @@
   shell: >
     docker start balancer-connect
 
-- name: Start Balancer Schema on node-00
+- name: Start Balancer KSQL on node-00
   tags:
     - containers_start
     - containers_restart
   delegate_to: node-00
   run_once: true
   shell: >
-    docker start balancer-schema
+    docker start balancer-ksql
