@@ -293,8 +293,24 @@
         dest: "{{ node_certificates_path }}/admin.jks" }
     - { src: "{{ storage_certificates_path }}/shared.truststore.jks",
         dest: "{{ node_certificates_path }}/shared.truststore.jks" }
-    - { src: "{{ storage_certificates_path }}/shared.truststore.p12",
-        dest: "{{ node_certificates_path }}/shared.truststore.p12" }
+
+- name: Distribute schema keystore to schema nodes only
+  tags:
+    - certificates_generate
+  delegate_to: node-00
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+  loop_control:
+    label: "{{ item.dest }}"
+  with_items:
+    - { src: "{{ storage_certificates_path }}/users/schema/schema.jks",
+        dest: "{{ node_certificates_path }}/schema.jks" }
+  when: "'schema' in group_names"
 
 - name: Distribute connect keystore to connect nodes only
   tags:
@@ -313,3 +329,21 @@
     - { src: "{{ storage_certificates_path }}/users/connect/connect.jks",
         dest: "{{ node_certificates_path }}/connect.jks" }
   when: "'connect' in group_names"
+
+- name: Distribute ksql keystore to ksql nodes only
+  tags:
+    - certificates_generate
+  delegate_to: node-00
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: push
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+  loop_control:
+    label: "{{ item.dest }}"
+  with_items:
+    - { src: "{{ storage_certificates_path }}/users/ksql/ksql.jks",
+        dest: "{{ node_certificates_path }}/ksql.jks" }
+  when: "'ksql' in group_names"
