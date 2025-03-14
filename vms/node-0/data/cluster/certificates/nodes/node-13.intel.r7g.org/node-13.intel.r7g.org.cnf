@@ -1,0 +1,25 @@
+[ req ]
+default_bits       = 4096
+default_keyfile    = kafka.key
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+x509_extensions    = v3_ca
+prompt             = no
+encrypt_key        = no
+
+[ req_distinguished_name ]
+CN = node-13.intel.r7g.org
+
+[ v3_req ]
+subjectAltName = @alt_names
+keyUsage = keyEncipherment, dataEncipherment, digitalSignature
+extendedKeyUsage = serverAuth, clientAuth
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer
+basicConstraints=CA:true
+
+[ alt_names ]
+DNS.1 = node-13.intel.r7g.org
+IP.1  = 10.1.10.51

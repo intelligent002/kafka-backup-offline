@@ -13,17 +13,17 @@ port_consumer_mtls_ext: 9093
 port_consumer_sasl_ssl_int: 9095
 port_consumer_sasl_ssl_ext: 9095
 
-port_connect_rest_int: 8081
-port_connect_rest_ext: 8081
-
-port_balancer_connect_int: 8080
-port_balancer_connect_ext: 8080
-
 port_schema_rest_int: 8088
 port_schema_rest_ext: 8088
 
 port_balancer_schema_int: 8089
 port_balancer_schema_ext: 8089
+
+port_connect_rest_int: 8081
+port_connect_rest_ext: 8081
+
+port_balancer_connect_int: 8080
+port_balancer_connect_ext: 8080
 
 port_ksql_rest_int: 8088
 port_ksql_rest_ext: 8088
