@@ -31,6 +31,19 @@ credentials:
         resource_name: "*"
         operation: "all"
 
+  - username: "schema"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: "all"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: ["create","describe"]
+      - resource_type: "group"
+        resource_name: "schema-cluster"
+        operation: [ "read", "describe" ]
+
   - username: "connect"
     password: "insecure"
     permissions:
@@ -62,6 +75,19 @@ credentials:
         resource_name: "cdc-oracledb-schemahistory"
         operation: "read"
 
+  - username: "ksql"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: "all"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: ["create","describe"]
+      - resource_type: "group"
+        resource_name: "schema-cluster"
+        operation: [ "read", "describe" ]
+
   - username: "pub"
     password: "insecure"
     permissions:
@@ -75,81 +101,3 @@ credentials:
       - resource_type: "topic"
         resource_name: "*"
         operation: "read"
-
-  - username: "node-07.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "*"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
-      - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
-
-  - username: "node-08.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "*"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
-      - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
-
-  - username: "node-09.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "*"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
-      - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
-
-  - username: "node-10.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: ["create","describe"]
-      - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
-
-  - username: "node-11.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: ["create","describe"]
-      - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
-
-  - username: "node-12.intel.r7g.org"
-    password: "insecure"
-    permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
-      - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: ["create","describe"]
-      - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
