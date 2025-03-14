@@ -47,7 +47,7 @@ rest.advertised.listener=HTTPS
 listeners.https.ssl.client.auth=none
 listeners.https.ssl.endpoint.identification.algorithm=HTTPS
 listeners.https.ssl.key.password={{ certificate_password }}
-listeners.https.ssl.keystore.location=/etc/kafka/secrets/connect.jks
+listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listeners.https.ssl.keystore.password={{ certificate_password }}
 listeners.https.ssl.keystore.type=JKS
 listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
@@ -77,23 +77,31 @@ ssl.truststore.type=JKS
 # sasl.mechanism=SCRAM-SHA-512
 # sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
 
+########################################################################################################################
 # SSL Configuration for source connectors:
-#producer.bootstrap.servers=
-#producer.security.protocol=SSL
-#producer.ssl.key.password=test1234
-#producer.ssl.keystore.location=/var/private/ssl/kafka.client.keystore.jks
-#producer.ssl.keystore.password=test1234
-#producer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
-#producer.ssl.truststore.password=test1234
+producer.bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
+
+producer.security.protocol=SSL
+producer.ssl.key.password={{ certificate_password }}
+producer.ssl.keystore.location=/etc/kafka/secrets/connect.jks
+producer.ssl.keystore.password={{ certificate_password }}
+producer.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+producer.ssl.truststore.password={{ certificate_password }}
+
+########################################################################################################################
 # SSL Configuration for sink connectors:
-#consumer.bootstrap.servers=
-#consumer.security.protocol=SSL
-#consumer.ssl.key.password=test1234
-#consumer.ssl.keystore.location=/var/private/ssl/kafka.client.keystore.jks
-#consumer.ssl.keystore.password=test1234
-#consumer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
-#consumer.ssl.truststore.password=test1234
+consumer.bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+
+consumer.security.protocol=SSL
+consumer.ssl.key.password={{ certificate_password }}
+consumer.ssl.keystore.location=/etc/kafka/secrets/connect.jks
+consumer.ssl.keystore.password={{ certificate_password }}
+consumer.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+consumer.ssl.truststore.password={{ certificate_password }}
 
 # Externalize Secrets
 config.providers=file
