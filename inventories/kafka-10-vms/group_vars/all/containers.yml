@@ -60,7 +60,7 @@ docker_command_controllers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  apache/kafka:3.9.0
+  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 docker_command_brokers_run: >
@@ -85,7 +85,7 @@ docker_command_brokers_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  apache/kafka:3.9.0
+  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
   /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
 
 docker_command_connect_run: >
@@ -109,7 +109,7 @@ docker_command_connect_run: >
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
   -v {{ hostvars[item]['node_plugins_path'] }}:/usr/share/java
-  apache/kafka:3.9.0
+  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
 docker_command_balancer_connect_run: >
@@ -145,7 +145,7 @@ docker_command_schema_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  confluentinc/cp-schema-registry:7.9.0
+  docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0
   /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_schema_run: >
@@ -181,7 +181,7 @@ docker_command_ksql_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/ksql
   -v {{ hostvars[item]['node_meta_path'] }}:/tmp/schema-registry
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
-  confluentinc/ksqldb-server:latest
+  docker.artifactory.intel.r7g.org/confluentinc/ksqldb-server:latest
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_ksql_run: >
