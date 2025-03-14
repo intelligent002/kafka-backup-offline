@@ -1,3 +1,4 @@
+# KSQL CONFIG
 # Bootstrap servers - list of brokers for connecting to Kafka
 bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
 {{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
