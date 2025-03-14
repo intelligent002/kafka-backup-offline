@@ -57,8 +57,8 @@ listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls
 ########################################################################################################################
 # Listener - Consumers (client-broker via SASL_SSL)
 
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.type=JKS

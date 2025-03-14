@@ -80,20 +80,20 @@ ssl.truststore.type=JKS
 # SSL Configuration for source connectors:
 #producer.bootstrap.servers=
 #producer.security.protocol=SSL
-#producer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
-#producer.ssl.truststore.password=test1234
+#producer.ssl.key.password=test1234
 #producer.ssl.keystore.location=/var/private/ssl/kafka.client.keystore.jks
 #producer.ssl.keystore.password=test1234
-#producer.ssl.key.password=test1234
+#producer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
+#producer.ssl.truststore.password=test1234
 
 # SSL Configuration for sink connectors:
 #consumer.bootstrap.servers=
 #consumer.security.protocol=SSL
-#consumer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
-#consumer.ssl.truststore.password=test1234
+#consumer.ssl.key.password=test1234
 #consumer.ssl.keystore.location=/var/private/ssl/kafka.client.keystore.jks
 #consumer.ssl.keystore.password=test1234
-#consumer.ssl.key.password=test1234
+#consumer.ssl.truststore.location=/var/private/ssl/kafka.client.truststore.jks
+#consumer.ssl.truststore.password=test1234
 
 # Externalize Secrets
 config.providers=file

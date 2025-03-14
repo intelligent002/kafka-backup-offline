@@ -9,23 +9,23 @@ kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
     SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }}{% if not loop.last %},{% endif %}
 {% endfor %}
 
-kafkastore.topic=_schemas
 kafkastore.security.protocol=SSL
-kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-kafkastore.ssl.truststore.password=insecure
+kafkastore.ssl.key.password=insecure
 kafkastore.ssl.keystore.location=/etc/kafka/secrets/schema.jks
 kafkastore.ssl.keystore.password=insecure
-kafkastore.ssl.key.password=insecure
+kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+kafkastore.ssl.truststore.password=insecure
+kafkastore.topic=_schemas
 
 # Enable Inter-Instance Communication
 inter.instance.protocol=https
 
 # Security for Client Authentication
-ssl.client.authentication=REQUIRED
 ssl.client.auth=true
+ssl.client.authentication=REQUIRED
+ssl.key.password=insecure
 ssl.keystore.location=/etc/kafka/secrets/schema.jks
 ssl.keystore.password=insecure
-ssl.key.password=insecure
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 ssl.truststore.password=insecure
 
