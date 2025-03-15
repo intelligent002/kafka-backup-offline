@@ -1,13 +1,15 @@
+########################################################################################################################
 # CONNECT CONFIG
 ########################################################################################################################
 # A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
 bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
 {{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
-
 # unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
 group.id=connect-cluster
 
+########################################################################################################################
+# Converters / Serders
 # The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
 # need to configure these based on the format they want their data in when loaded from or stored into Kafka
 key.converter=org.apache.kafka.connect.json.JsonConverter
@@ -17,7 +19,9 @@ value.converter=org.apache.kafka.connect.json.JsonConverter
 key.converter.schemas.enable=true
 value.converter.schemas.enable=true
 
-# Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
+########################################################################################################################
+# Connect System Topics
+# Topic to use for storing offsets. This topic should have many partitions, be replicated and compacted.
 offset.storage.topic=__connect_offset
 offset.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 offset.storage.partitions=25
@@ -32,17 +36,28 @@ status.storage.replication.factor={{ ((groups['brokers'] | default([])) | length
 # better to keep at 5
 status.storage.partitions=5
 
+########################################################################################################################
+# Flushing
 offset.flush.interval.ms=60000
 
+########################################################################################################################
+# Transactions
+# Whether to enable exactly-once support for source connectors in the cluster by using transactions to write source
+# records and their source offsets, and by proactively fencing out old task generations before bringing up new ones.
+exactly.once.source.support=ENABLED
+
+########################################################################################################################
+# REST API
 # List of comma-separated URIs the REST API will listen on. The supported protocols are HTTP and HTTPS.
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}
 
 # The Hostname & Port that will be given out to other workers to connect to i.e. URLs that are routable from other servers.
-# If not set, it uses the value for "listeners" if configured.
+# If not set, the value for "listeners" if used
 rest.advertised.host.name={{ hostvars[inventory_hostname]['hostname'] }}
 rest.advertised.port={{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}
 rest.advertised.listener=HTTPS
 
+########################################################################################################################
 # HTTPS configuration
 listeners.https.ssl.client.auth=none
 listeners.https.ssl.endpoint.identification.algorithm=HTTPS
@@ -54,12 +69,7 @@ listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 listeners.https.ssl.truststore.password={{ certificate_password }}
 listeners.https.ssl.truststore.type=JKS
 
-# Set to a list of filesystem paths separated by commas (,) to enable class loading isolation for plugins
-# plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins,/opt/connectors,
-plugin.path=/usr/share/java
-
-connector.client.config.override.policy=All
-
+########################################################################################################################
 # SSL Configuration
 security.protocol=SSL
 ssl.enabled.protocols=TLSv1.3
@@ -72,10 +82,23 @@ ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 ssl.truststore.password={{ certificate_password }}
 ssl.truststore.type=JKS
 
+########################################################################################################################
 # SASL Configuration
 # uncomment for SASL_SSL , comment for mTLS
 # sasl.mechanism=SCRAM-SHA-512
 # sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
+
+########################################################################################################################
+# Connectors related
+# `All`, meaning connector configurations can override all client properties. The other possible policies in
+# the framework include `None` to disallow connectors from overriding client properties, and `Principal` to
+# allow connectors to override only client principals.
+connector.client.config.override.policy=All
+
+########################################################################################################################
+# Set to a list of filesystem paths separated by commas (,) to enable class loading isolation for plugins
+# plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins,/opt/connectors,
+plugin.path=/usr/share/java
 
 ########################################################################################################################
 # SSL Configuration for source connectors:
@@ -102,17 +125,3 @@ consumer.ssl.keystore.location=/etc/kafka/secrets/connect.jks
 consumer.ssl.keystore.password={{ certificate_password }}
 consumer.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 consumer.ssl.truststore.password={{ certificate_password }}
-
-# Externalize Secrets
-config.providers=file
-config.providers.file.class=org.apache.kafka.common.config.provider.FileConfigProvider
-# Additional properties added to the connector configuration
-# connection.url=${file:/opt/connect-secrets.properties:productsdb-url}
-# connection.user=${file:/opt/connect-secrets.properties:productsdb-username}
-# connection.password=${file:/opt/connect-secrets.properties:productsdb-password}
-# productsdb-url=jdbc:oracle:thin:@myhost:1521:orcl
-# productsdb-username=scott
-# productsdb-password=my-secret-password
-# other-connector-url=jdbc:oracle:thin:@myhost:1521:orcl
-# other-connector-username=customers
-# other-connector-password=superSecret!
