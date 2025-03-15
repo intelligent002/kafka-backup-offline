@@ -112,7 +112,7 @@ credentials:
         resource_name: "kafka-cluster"
         operation: ["create","describe"]
       - resource_type: "group"
-        resource_name: "ksql-cluster"
+        resource_name: "*"
         operation: [ "all" ]
       - resource_type: "transactional-id"
         resource_name: "*"
@@ -128,7 +128,7 @@ credentials:
         resource_name: "kafka-cluster"
         operation: ["create","describe"]
       - resource_type: "group"
-        resource_name: "ksql-cluster"
+        resource_name: "*"
         operation: [ "all" ]
       - resource_type: "transactional-id"
         resource_name: "*"
@@ -144,7 +144,7 @@ credentials:
         resource_name: "kafka-cluster"
         operation: ["create","describe"]
       - resource_type: "group"
-        resource_name: "ksql-cluster"
+        resource_name: "*"
         operation: [ "all" ]
       - resource_type: "transactional-id"
         resource_name: "*"
