@@ -9,6 +9,25 @@ ksql.service.id=ksql-cluster
 
 # ksqlDB REST API listener
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
+security.protocol=SSL
+ssl.enabled.protocols=TLSv1.3
+ssl.endpoint.identification.algorithm=HTTPS
+ssl.key.password={{ certificate_password }}
+ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ssl.keystore.password={{ certificate_password }}
+ssl.keystore.type=JKS
+ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ssl.truststore.password={{ certificate_password }}
+ssl.truststore.type=JKS
+listeners.https.ssl.client.auth=none
+listeners.https.ssl.endpoint.identification.algorithm=HTTPS
+listeners.https.ssl.key.password={{ certificate_password }}
+listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+listeners.https.ssl.keystore.password={{ certificate_password }}
+listeners.https.ssl.keystore.type=JKS
+listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listeners.https.ssl.truststore.password={{ certificate_password }}
+listeners.https.ssl.truststore.type=JKS
 
 # Advertised listener - this should be routable from other servers
 ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
@@ -39,28 +58,10 @@ ksql.metric.reporters=io.confluent.metrics.reporter.ConfluentMetricsReporter
 ksql.jmx.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
 ksql.jmx.host={{ hostvars[inventory_hostname]['ansible_host'] }}
 
-# Security settings for HTTPS
-listeners.https.ssl.client.auth=none
-listeners.https.ssl.endpoint.identification.algorithm=HTTPS
-listeners.https.ssl.key.password={{ certificate_password }}
-listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-listeners.https.ssl.keystore.password={{ certificate_password }}
-listeners.https.ssl.keystore.type=JKS
-listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listeners.https.ssl.truststore.password={{ certificate_password }}
-listeners.https.ssl.truststore.type=JKS
+
 
 # SSL settings for Kafka connection
-security.protocol=SSL
-ssl.enabled.protocols=TLSv1.3
-ssl.endpoint.identification.algorithm=HTTPS
-ssl.key.password={{ certificate_password }}
-ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-ssl.keystore.password={{ certificate_password }}
-ssl.keystore.type=JKS
-ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-ssl.truststore.password={{ certificate_password }}
-ssl.truststore.type=JKS
+
 
 # SASL Configuration (Uncomment for SASL_SSL, Comment for mTLS)
 # sasl.mechanism=SCRAM-SHA-512

@@ -101,3 +101,51 @@ credentials:
       - resource_type: "topic"
         resource_name: "*"
         operation: "read"
+
+  - username: "node-13.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "all" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: ["create","describe"]
+      - resource_type: "group"
+        resource_name: "ksql-cluster"
+        operation: [ "all" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "all"
+
+  - username: "node-14.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "all" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: ["create","describe"]
+      - resource_type: "group"
+        resource_name: "ksql-cluster"
+        operation: [ "all" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "all"
+
+  - username: "node-15.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "all" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: ["create","describe"]
+      - resource_type: "group"
+        resource_name: "ksql-cluster"
+        operation: [ "all" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "all"
