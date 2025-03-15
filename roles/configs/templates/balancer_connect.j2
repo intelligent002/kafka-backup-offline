@@ -5,7 +5,7 @@ events {
 stream {
     upstream kafka_connect_backend {
     {% for host in groups['connect'] %}
-        server {{ hostvars[host]['hostname'] }}:{{ port_schema_rest_ext }};
+        server {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }};
     {% endfor %}
 }
 
