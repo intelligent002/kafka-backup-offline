@@ -9,6 +9,9 @@ bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['b
 # Unique service ID for ksqlDB
 ksql.service.id=ksql-cluster
 
+# consumer group id
+ksql.streams.consumer.group.id=ksql-cluster
+
 # ksqlDB REST API listener
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
 security.protocol=SSL
