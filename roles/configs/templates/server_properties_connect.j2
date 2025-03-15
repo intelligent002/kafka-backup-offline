@@ -59,7 +59,7 @@ rest.advertised.listener=HTTPS
 
 ########################################################################################################################
 # HTTPS configuration
-listeners.https.ssl.client.auth=none
+listeners.https.ssl.client.auth=required
 listeners.https.ssl.endpoint.identification.algorithm=HTTPS
 listeners.https.ssl.key.password={{ certificate_password }}
 listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
