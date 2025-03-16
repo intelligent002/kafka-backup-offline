@@ -155,7 +155,7 @@ credentials:
 
       - resource_type: "topic"
         resource_name: "*"
-        operation: ["Describe", "Write", "Read", "Alter"]
+        operation: ["All"]
 
       - resource_type: "group"
         resource_name: "cluster-connect"
@@ -214,7 +214,7 @@ credentials:
 
       - resource_type: "topic"
         resource_name: "*"
-        operation: ["Describe", "Write", "Read", "Alter"]
+        operation: ["All"]
 
       - resource_type: "group"
         resource_name: "cluster-connect"
@@ -273,7 +273,7 @@ credentials:
 
       - resource_type: "topic"
         resource_name: "*"
-        operation: ["Describe", "Write", "Read", "Alter"]
+        operation: ["All"]
 
       - resource_type: "group"
         resource_name: "cluster-connect"
