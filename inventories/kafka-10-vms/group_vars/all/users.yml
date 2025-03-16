@@ -186,8 +186,8 @@ credentials:
         operation: ["Describe", "Read"]
 
       - resource_type: "transactional-id"
-        resource_name: "cluster-connect"
-        operation: ["Describe", "Write"]
+        resource_name: "*"
+        operation: ["All"]
 
   - username: "node-11.intel.r7g.org"
     password: "insecure"
@@ -245,8 +245,8 @@ credentials:
         operation: ["Describe", "Read"]
 
       - resource_type: "transactional-id"
-        resource_name: "cluster-connect"
-        operation: ["Describe", "Write"]
+        resource_name: "*"
+        operation: ["All"]
 
   - username: "node-12.intel.r7g.org"
     password: "insecure"
@@ -304,8 +304,8 @@ credentials:
         operation: ["Describe", "Read"]
 
       - resource_type: "transactional-id"
-        resource_name: "cluster-connect"
-        operation: ["Describe", "Write"]
+        resource_name: "*"
+        operation: ["All"]
 
   - username: "node-13.intel.r7g.org"
     password: "insecure"
