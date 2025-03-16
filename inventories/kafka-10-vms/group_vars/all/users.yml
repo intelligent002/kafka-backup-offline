@@ -39,69 +39,69 @@ credentials:
         operation: "all"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: ["Create","Describe"]
       - resource_type: "group"
         resource_name: "cluster-schema"
-        operation: [ "read", "describe" ]
+        operation: [ "Read", "Describe" ]
 
   - username: "connect"
     password: "insecure"
     permissions:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create", "describe", "alter", "idempotent_write"]
+        operation: ["Create", "Describe", "Alter", "IdempotentWrite"]
 
       - resource_type: "topic"
         resource_name: "cluster-connect-configs"
-        operation: ["create", "describe", "write", "read", "delete", "alter"]
+        operation: ["Create", "Describe", "Write", "Read", "Delete", "Alter"]
 
       - resource_type: "topic"
         resource_name: "cluster-connect-offsets"
-        operation: ["create", "describe", "write", "read", "delete", "alter"]
+        operation: ["Create", "Describe", "Write", "Read", "Delete", "Alter"]
 
       - resource_type: "topic"
         resource_name: "cluster-connect-status"
-        operation: ["create", "describe", "write", "read", "delete", "alter"]
+        operation: ["Create", "Describe", "Write", "Read", "Delete", "Alter"]
 
       - resource_type: "topic"
         resource_name: "_schemas"
-        operation: ["create", "describe", "write", "read"]
+        operation: ["Create", "Describe", "Write", "Read"]
 
       - resource_type: "topic"
         resource_name: "*"
-        operation: ["describe", "write", "read", "alter"]
+        operation: ["Describe", "Write", "Read", "Alter"]
 
       - resource_type: "group"
         resource_name: "cluster-connect"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-mysql-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-db2-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-mssql-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-mongodb-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-postgresql-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "group"
         resource_name: "cdc-oracledb-schemahistory"
-        operation: ["describe", "read"]
+        operation: ["Describe", "Read"]
 
       - resource_type: "transactional-id"
         resource_name: "cluster-connect"
-        operation: ["describe", "write"]
+        operation: ["Describe", "Write"]
 
   - username: "ksql"
     password: "insecure"
@@ -111,24 +111,24 @@ credentials:
         operation: "all"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: ["Create","Describe"]
       - resource_type: "group"
         resource_name: "cluster-schema"
-        operation: [ "read", "describe" ]
+        operation: [ "Read", "Describe" ]
 
   - username: "pub"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: [ "write", "read" ]
+        operation: [ "Write", "Read" ]
 
   - username: "sub"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: "read"
+        operation: "Read"
 
   - username: "node-13.intel.r7g.org"
     password: "insecure"
@@ -138,7 +138,7 @@ credentials:
         operation: [ "all" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: ["Create","Describe"]
       - resource_type: "group"
         resource_name: "*"
         operation: [ "all" ]
@@ -154,7 +154,7 @@ credentials:
         operation: [ "all" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: ["Create","Describe"]
       - resource_type: "group"
         resource_name: "*"
         operation: [ "all" ]
@@ -170,7 +170,7 @@ credentials:
         operation: [ "all" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: ["Create","Describe"]
       - resource_type: "group"
         resource_name: "*"
         operation: [ "all" ]
