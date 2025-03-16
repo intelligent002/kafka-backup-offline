@@ -99,7 +99,7 @@ credentials:
         resource_name: "cdc-oracledb-schemahistory"
         operation: ["describe", "read"]
 
-      - resource_type: "transactional_id"
+      - resource_type: "transactional-id"
         resource_name: "cluster-connect"
         operation: ["describe", "write"]
 
