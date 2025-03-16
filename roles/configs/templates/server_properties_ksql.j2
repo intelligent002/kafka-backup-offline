@@ -7,10 +7,10 @@ bootstrap.servers={% for host in (groups['combined'] | default([])) + (groups['b
 {{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 # Unique service ID for ksqlDB
-ksql.service.id=ksql-cluster
+ksql.service.id=cluster-ksql
 
 # consumer group id
-ksql.streams.consumer.group.id=ksql-cluster
+ksql.streams.consumer.group.id=cluster-ksql
 
 # ksqlDB REST API listener
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
