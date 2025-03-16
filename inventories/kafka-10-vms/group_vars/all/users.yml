@@ -17,29 +17,29 @@ credentials:
     permissions:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: "all"
+        operation: "All"
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "group"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "transactional-id"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "delegation-token"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
 
   - username: "schema"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "_schemas"
-        operation: "all"
+        operation: "All"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create","Describe"]
+        operation: ["Create", "Describe"]
       - resource_type: "group"
         resource_name: "cluster-schema"
         operation: [ "Read", "Describe" ]
@@ -49,7 +49,7 @@ credentials:
     permissions:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create", "Describe", "Alter", "IdempotentWrite"]
+        operation: ["Create", "Describe", "AlterConfigs", "IdempotentWrite"]
 
       - resource_type: "topic"
         resource_name: "cluster-connect-configs"
@@ -108,10 +108,10 @@ credentials:
     permissions:
       - resource_type: "topic"
         resource_name: "_schemas"
-        operation: "all"
+        operation: "All"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create","Describe"]
+        operation: ["Create", "Describe"]
       - resource_type: "group"
         resource_name: "cluster-schema"
         operation: [ "Read", "Describe" ]
@@ -135,45 +135,45 @@ credentials:
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create","Describe"]
+        operation: ["Create", "Describe"]
       - resource_type: "group"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "transactional-id"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
 
   - username: "node-14.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create","Describe"]
+        operation: ["Create", "Describe"]
       - resource_type: "group"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "transactional-id"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
 
   - username: "node-15.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["Create","Describe"]
+        operation: ["Create", "Describe"]
       - resource_type: "group"
         resource_name: "*"
-        operation: [ "all" ]
+        operation: [ "All" ]
       - resource_type: "transactional-id"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
