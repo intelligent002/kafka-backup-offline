@@ -100,8 +100,8 @@ credentials:
         operation: ["Describe", "Read"]
 
       - resource_type: "transactional-id"
-        resource_name: "cluster-connect"
-        operation: ["Describe", "Write"]
+        resource_name: "*"
+        operation: ["All"]
 
   - username: "ksql"
     password: "insecure"
