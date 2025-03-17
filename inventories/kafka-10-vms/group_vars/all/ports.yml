@@ -13,22 +13,22 @@ port_consumer_sasl_ssl_int: 9095
 port_replication_ext: 9092
 port_replication_int: 9092
 
-port_schema_balancer_admin_ext: 9901
-port_schema_balancer_admin_int: 9901
+port_schema_balancer_admin_ext: 9930
+port_schema_balancer_admin_int: 9930
 port_schema_balancer_ext: 9030
 port_schema_balancer_int: 9030
 port_schema_rest_ext: 9031
 port_schema_rest_int: 9031
 
-port_connect_balancer_admin_ext: 9902
-port_connect_balancer_admin_int: 9902
+port_connect_balancer_admin_ext: 9940
+port_connect_balancer_admin_int: 9940
 port_connect_balancer_ext: 9040
 port_connect_balancer_int: 9040
 port_connect_rest_ext: 9041
 port_connect_rest_int: 9041
 
-port_ksql_balancer_admin_ext: 9903
-port_ksql_balancer_admin_int: 9903
+port_ksql_balancer_admin_ext: 9950
+port_ksql_balancer_admin_int: 9950
 port_ksql_balancer_ext: 9050
 port_ksql_balancer_int: 9050
 port_ksql_rest_ext: 9051
