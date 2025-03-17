@@ -1,0 +1,16 @@
+events {
+    worker_connections 1024;
+}
+
+stream {
+    upstream kafka_connect_backend {
+    {% for host in groups['connect'] %}
+        server {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }};
+    {% endfor %}
+}
+
+    server {
+        listen {{ port_balancer_connect_int }};
+        proxy_pass kafka_connect_backend;
+    }
+}

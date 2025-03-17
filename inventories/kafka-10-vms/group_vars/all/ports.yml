@@ -25,6 +25,9 @@ port_connect_rest_ext: 8081
 port_balancer_connect_int: 8080
 port_balancer_connect_ext: 8080
 
+port_balancer_connect_admin_int: 9901
+port_balancer_connect_admin_ext: 9901
+
 port_ksql_rest_int: 8088
 port_ksql_rest_ext: 8088
 
