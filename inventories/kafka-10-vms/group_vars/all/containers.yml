@@ -154,7 +154,7 @@ docker_command_balancer_connect_run: >
     -p {{ port_balancer_connect_ext }}:{{ port_balancer_connect_int }} \
     -p {{ port_balancer_connect_admin_ext }}:{{ port_balancer_connect_admin_int }} \
     -v /data:/data:ro \
-    -v /data/cluster/config/balancer-connect.yml:/etc/envoy/envoy.yaml:ro \
+    -v /data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro \
     --health-cmd="response=\$(curl -s https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_connect_admin_int }}/ready); if echo \"\$response\" | grep -q \"LIVE\"; then echo \"Status is OK\" && exit 0; else echo \"Status is not OK\" && exit 1; fi" \
     --health-interval=60s \
     --health-timeout=10s \
