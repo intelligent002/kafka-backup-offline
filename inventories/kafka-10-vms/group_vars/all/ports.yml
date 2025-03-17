@@ -15,24 +15,24 @@ port_replication_int: 9092
 
 port_schema_balancer_admin_ext: 9901
 port_schema_balancer_admin_int: 9901
-port_schema_balancer_ext: 8089
-port_schema_balancer_int: 8089
-port_schema_rest_ext: 8088
-port_schema_rest_int: 8088
+port_schema_balancer_ext: 8030
+port_schema_balancer_int: 8030
+port_schema_rest_ext: 8031
+port_schema_rest_int: 8031
 
 port_connect_balancer_admin_ext: 9902
 port_connect_balancer_admin_int: 9902
-port_connect_balancer_ext: 8080
-port_connect_balancer_int: 8080
-port_connect_rest_ext: 8081
-port_connect_rest_int: 8081
+port_connect_balancer_ext: 8040
+port_connect_balancer_int: 8040
+port_connect_rest_ext: 8041
+port_connect_rest_int: 8041
 
 port_ksql_balancer_admin_ext: 9903
 port_ksql_balancer_admin_int: 9903
-port_ksql_balancer_ext: 8090
-port_ksql_balancer_int: 8090
-port_ksql_rest_ext: 8088
-port_ksql_rest_int: 8088
+port_ksql_balancer_ext: 8050
+port_ksql_balancer_int: 8050
+port_ksql_rest_ext: 8051
+port_ksql_rest_int: 8051
 
 port_jmx_monitoring_ext: 9999
 port_jmx_monitoring_int: 9999
