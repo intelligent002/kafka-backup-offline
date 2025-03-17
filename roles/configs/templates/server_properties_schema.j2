@@ -10,11 +10,16 @@ kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
 {% endfor %}
 
 kafkastore.security.protocol=SSL
+kafkastore.ssl.enabled.protocols=TLSv1.3
+kafkastore.ssl.endpoint.identification.algorithm=HTTPS
 kafkastore.ssl.key.password=insecure
 kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 kafkastore.ssl.keystore.password=insecure
+kafkastore.ssl.keystore.type=JKS
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 kafkastore.ssl.truststore.password=insecure
+kafkastore.ssl.truststore.type=JKS
+kafkastore.topic.replication.factor=3
 kafkastore.topic=_schemas
 
 # Enable Inter-Instance Communication
@@ -23,18 +28,18 @@ inter.instance.protocol=HTTPS
 # Security for Client Authentication
 ssl.client.auth=true
 ssl.client.authentication=REQUIRED
+ssl.enabled.protocols=TLSv1.3
+ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password=insecure
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password=insecure
+ssl.keystore.type=JKS
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 ssl.truststore.password=insecure
-
-# Fix Hostname Verification Issue
-kafkastore.ssl.endpoint.identification.algorithm=HTTPS
-ssl.endpoint.identification.algorithm=HTTPS
+ssl.truststore.type=JKS
 
 # Debugging
 debug=true
 
 # Serders
-avro.compatibility.level=BACKWARD
+schema.compatibility.level=BACKWARD
