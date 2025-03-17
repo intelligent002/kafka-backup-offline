@@ -68,15 +68,13 @@ static_resources:
       cluster_name: kafka_connect_cluster
       endpoints:
       - lb_endpoints:
-        {% for host in groups['connect'] %}
+{% for host in groups['connect'] %}
         - endpoint:
             address:
               socket_address:
                 address: {{ hostvars[host]['hostname'] }}
                 port_value: {{ port_connect_rest_ext }}
-        {% endfor %}
-
-
+{% endfor %}
     transport_socket:
       name: envoy.transport_sockets.tls
       typed_config:
