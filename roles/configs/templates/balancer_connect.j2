@@ -75,6 +75,8 @@ static_resources:
                 address: {{ hostvars[host]['hostname'] }}
                 port_value: {{ port_connect_rest_ext }}
         {% endfor %}
+
+
     transport_socket:
       name: envoy.transport_sockets.tls
       typed_config:
