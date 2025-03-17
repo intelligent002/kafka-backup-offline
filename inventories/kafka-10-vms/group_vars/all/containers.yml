@@ -153,7 +153,7 @@ docker_command_balancer_connect_run: >
     --name balancer-connect \
     -p {{ port_balancer_connect_ext }}:{{ port_balancer_connect_int }} \
     -p {{ port_balancer_connect_admin_ext }}:{{ port_balancer_connect_admin_int }} \
-    --health-cmd "sh -c 'exec 3<>/dev/tcp/localhost/{{ port_balancer_connect_admin_int }} && echo -e \"GET /ready HTTP/1.1\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" \
+    --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_balancer_connect_admin_int }} && echo -e \"GET /ready HTTP/1.1\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" \
     --health-interval=30s \
     --health-timeout=5s \
     --health-retries=3 \
