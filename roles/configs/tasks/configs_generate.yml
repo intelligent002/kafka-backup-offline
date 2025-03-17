@@ -49,7 +49,7 @@
   run_once: true
   ansible.builtin.template:
     src: "balancer_schema.j2"
-    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-schema.conf"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-schema.yaml"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
@@ -71,7 +71,7 @@
   run_once: true
   ansible.builtin.template:
     src: "balancer_ksql.j2"
-    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-ksql.conf"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/balancer-ksql.yaml"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'

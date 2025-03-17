@@ -3,7 +3,7 @@ admin:
   address:
     socket_address:
       address: 0.0.0.0
-      port_value: {{ port_balancer_connect_admin_int }}
+      port_value: {{ port_connect_balancer_admin_int }}
 
 static_resources:
   listeners:
@@ -11,7 +11,7 @@ static_resources:
     address:
       socket_address:
         address: 0.0.0.0
-        port_value: {{ port_balancer_connect_int }}
+        port_value: {{ port_connect_balancer_int }}
     filter_chains:
     - filters:
       - name: envoy.filters.network.http_connection_manager
@@ -81,7 +81,7 @@ static_resources:
         "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
         common_tls_context:
           tls_params:
-            tls_minimum_protocol_version: TLSv1_2
+            tls_minimum_protocol_version: TLSv1_3
             tls_maximum_protocol_version: TLSv1_3
           validation_context:
             trusted_ca:

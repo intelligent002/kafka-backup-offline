@@ -43,10 +43,10 @@ ksql.streams.replication.factor={{ ((groups['brokers'] | default([])) | length) 
 ksql.sink.replicas={{ ((groups['brokers'] | default([])) | length) }}
 
 # Schema Registry configuration (needed if using Avro, JSON Schema, or Protobuf)
-ksql.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_schema_ext }}
+ksql.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
 
 # Kafka Connect integration (optional, only required if using connectors)
-ksql.connect.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_balancer_connect_ext }}
+ksql.connect.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
 
 # Log processing settings
 ksql.logging.processing.stream.auto.create=true

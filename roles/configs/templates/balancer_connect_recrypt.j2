@@ -10,7 +10,7 @@ stream {
 }
 
     server {
-        listen {{ port_balancer_connect_int }} ssl;
+        listen {{ port_connect_balancer_int }} ssl;
         ssl_certificate /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt;
         ssl_certificate_key /data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key;
         ssl_protocols TLSv1.3;

@@ -10,7 +10,7 @@ stream {
 }
 
     server {
-        listen {{ port_balancer_connect_int }};
+        listen {{ port_connect_balancer_int }};
         proxy_pass kafka_connect_backend;
     }
 }
