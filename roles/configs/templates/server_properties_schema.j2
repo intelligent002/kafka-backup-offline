@@ -1,14 +1,12 @@
+########################################################################################################################
 # SCHEMA CONFIG
 ########################################################################################################################
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
-schema.registry.group.id=cluster-schema
-
 listeners=https://0.0.0.0:{{ port_schema_rest_int }}
+advertised.listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ port_schema_rest_ext }}
 
-rest.servlet.initializor.classes=io.confluent.rest.auth.security.AuthenticationHandler
-authentication.method=TLS
-
-# Kafka Connection (Using SSL)
+# Kafka Store Configuration
+schema.registry.group.id=cluster-schema
 kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
     SSL://{{ hostvars[host]['hostname'] }}:{{ port_consumer_mtls_ext }}{% if not loop.last %},{% endif %}
 {% endfor %}
@@ -44,6 +42,7 @@ ssl.truststore.type=JKS
 
 # Debugging
 debug=true
+log4j.rootLogger=DEBUG, stdout
 log4j.logger.org.apache.kafka.common.network.SslTransportLayer=DEBUG
 log4j.logger.io.confluent.rest=DEBUG
 log4j.logger.org.eclipse.jetty=DEBUG
