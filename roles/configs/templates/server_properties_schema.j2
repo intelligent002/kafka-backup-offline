@@ -28,10 +28,11 @@ kafkastore.topic=_schemas
 inter.instance.protocol=HTTPS
 
 # Security for Client Authentication
-ssl.client.auth=true
 ssl.client.authentication=REQUIRED
+ssl.protocol=TLSv1.3
 ssl.enabled.protocols=TLSv1.3
-ssl.endpoint.identification.algorithm=HTTPS
+# this should stay empty, otherwise not working
+ssl.endpoint.identification.algorithm=
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password={{ certificate_password }}
