@@ -99,7 +99,7 @@ authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 sasl.enabled.mechanisms=SCRAM-SHA-512
 
 # Specifies superusers that bypass the ACL checks
-super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) %}
+super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) + groups['schema'] | default([]) + groups['connect'] | default([]) + groups['ksql'] | default([])  %}
 User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{% if not loop.last %};{% endif %}{% endfor %};User:CN=admin;User:admin;
 
 
