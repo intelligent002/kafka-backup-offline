@@ -11,27 +11,27 @@ kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
 
 kafkastore.security.protocol=SSL
 kafkastore.ssl.key.password=insecure
-kafkastore.ssl.keystore.location=/etc/kafka/secrets/schema.jks
+kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 kafkastore.ssl.keystore.password=insecure
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 kafkastore.ssl.truststore.password=insecure
 kafkastore.topic=_schemas
 
 # Enable Inter-Instance Communication
-inter.instance.protocol=https
+inter.instance.protocol=HTTPS
 
 # Security for Client Authentication
 ssl.client.auth=true
 ssl.client.authentication=REQUIRED
 ssl.key.password=insecure
-ssl.keystore.location=/etc/kafka/secrets/schema.jks
+ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password=insecure
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 ssl.truststore.password=insecure
 
 # Fix Hostname Verification Issue
-kafkastore.ssl.endpoint.identification.algorithm=
-ssl.endpoint.identification.algorithm=
+kafkastore.ssl.endpoint.identification.algorithm=HTTPS
+ssl.endpoint.identification.algorithm=HTTPS
 
 # Debugging
 debug=true
