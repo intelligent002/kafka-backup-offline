@@ -1,8 +1,18 @@
 # SCHEMA CONFIG
 ########################################################################################################################
-listeners=https://0.0.0.0:{{ port_schema_rest_int }}
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=cluster-schema
+
+listeners=https://0.0.0.0:{{ port_schema_rest_int }}
+
+listener.name.https.ssl.client.auth=required
+listener.name.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+listener.name.https.ssl.keystore.password={{ certificate_password }}
+listener.name.https.ssl.keystore.type=JKS
+listener.name.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+listener.name.https.ssl.truststore.password={{ certificate_password }}
+listener.name.https.ssl.truststore.type=JKS
+
 
 # Kafka Connection (Using SSL)
 kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
