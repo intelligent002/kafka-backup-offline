@@ -1,6 +1,6 @@
 # SCHEMA CONFIG
 ########################################################################################################################
-listeners=https://0.0.0.0:{{ port_schema_rest_int }}
+listeners=https://:{{ port_schema_rest_int }}
 host.name={{ hostvars[inventory_hostname]['hostname'] }}
 schema.registry.group.id=cluster-schema
 
@@ -12,12 +12,12 @@ kafkastore.bootstrap.servers={%- for host in groups['brokers'] -%}
 kafkastore.security.protocol=SSL
 kafkastore.ssl.enabled.protocols=TLSv1.3
 kafkastore.ssl.endpoint.identification.algorithm=HTTPS
-kafkastore.ssl.key.password=insecure
+kafkastore.ssl.key.password={{ certificate_password }}
 kafkastore.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-kafkastore.ssl.keystore.password=insecure
+kafkastore.ssl.keystore.password={{ certificate_password }}
 kafkastore.ssl.keystore.type=JKS
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-kafkastore.ssl.truststore.password=insecure
+kafkastore.ssl.truststore.password={{ certificate_password }}
 kafkastore.ssl.truststore.type=JKS
 kafkastore.topic.replication.factor=3
 kafkastore.topic=_schemas
@@ -30,12 +30,12 @@ ssl.client.auth=true
 ssl.client.authentication=REQUIRED
 ssl.enabled.protocols=TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
-ssl.key.password=insecure
+ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-ssl.keystore.password=insecure
+ssl.keystore.password={{ certificate_password }}
 ssl.keystore.type=JKS
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-ssl.truststore.password=insecure
+ssl.truststore.password={{ certificate_password }}
 ssl.truststore.type=JKS
 
 # Debugging
