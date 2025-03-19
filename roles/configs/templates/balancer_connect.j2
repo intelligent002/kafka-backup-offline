@@ -64,17 +64,36 @@ static_resources:
     type: STRICT_DNS
     connect_timeout: 5s
     dns_lookup_family: V4_ONLY
-    load_assignment:
-      cluster_name: kafka_connect_cluster
-      endpoints:
-      - lb_endpoints:
-{% for host in groups['connect'] %}
-        - endpoint:
-            address:
-              socket_address:
-                address: {{ hostvars[host]['hostname'] }}
-                port_value: {{ port_connect_rest_ext }}
-{% endfor %}
+    lb_policy: LEAST_REQUEST
+    max_requests_per_connection: 1
+    common_lb_config:
+      close_connections_on_host_set_change: true
+    circuit_breakers:
+      thresholds:
+        - priority: DEFAULT
+          max_connections: 100
+          max_pending_requests: 50
+          max_requests: 100
+          max_retries: 3
+    health_checks:
+      - timeout: 2s
+        interval: 5s
+        unhealthy_threshold: 2
+        healthy_threshold: 2
+        http_health_check:
+          path: "/connectors"
+          expected_statuses:
+            - start: 200
+              end: 299
+    per_connection_buffer_limit_bytes: 32768
+    upstream_connection_options:
+      tcp_keepalive:
+        keepalive_time: 3  # Prevents idle connections from staying open
+    outlier_detection:
+      consecutive_5xx: 3
+      interval: 10s
+      base_ejection_time: 30s
+      max_ejection_percent: 50
     transport_socket:
       name: envoy.transport_sockets.tls
       typed_config:
@@ -87,3 +106,14 @@ static_resources:
             trusted_ca:
               filename: "/data/cluster/certificates/CA/ca.crt"
           alpn_protocols: ["h2", "http/1.1"]
+    load_assignment:
+      cluster_name: kafka_connect_cluster
+      endpoints:
+      - lb_endpoints:
+{% for host in groups['connect'] %}
+        - endpoint:
+            address:
+              socket_address:
+                address: {{ hostvars[host]['hostname'] }}
+                port_value: {{ port_connect_rest_ext }}
+{% endfor %}
