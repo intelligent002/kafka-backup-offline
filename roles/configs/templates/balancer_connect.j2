@@ -88,7 +88,7 @@ static_resources:
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
-        keepalive_time: 3  # Prevents idle connections from staying open
+        keepalive_time: 3
     outlier_detection:
       consecutive_5xx: 3
       interval: 10s
@@ -102,6 +102,11 @@ static_resources:
           tls_params:
             tls_minimum_protocol_version: TLSv1_3
             tls_maximum_protocol_version: TLSv1_3
+          tls_certificates:
+            - certificate_chain:
+                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.crt"
+              private_key:
+                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.key"
           validation_context:
             trusted_ca:
               filename: "/data/cluster/certificates/CA/ca.crt"
