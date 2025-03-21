@@ -64,6 +64,53 @@ static_resources:
     type: STRICT_DNS
     connect_timeout: 5s
     dns_lookup_family: V4_ONLY
+    lb_policy: LEAST_REQUEST
+    max_requests_per_connection: 1
+    common_lb_config:
+      close_connections_on_host_set_change: true
+    circuit_breakers:
+      thresholds:
+        - priority: DEFAULT
+          max_connections: 100
+          max_pending_requests: 50
+          max_requests: 100
+          max_retries: 3
+    health_checks:
+      - timeout: 2s
+        interval: 5s
+        unhealthy_threshold: 2
+        healthy_threshold: 2
+        http_health_check:
+          path: "/connectors"
+          expected_statuses:
+            - start: 200
+              end: 299
+    per_connection_buffer_limit_bytes: 32768
+    upstream_connection_options:
+      tcp_keepalive:
+        keepalive_time: 3
+    outlier_detection:
+      consecutive_5xx: 3
+      interval: 10s
+      base_ejection_time: 30s
+      max_ejection_percent: 50
+    transport_socket:
+      name: envoy.transport_sockets.tls
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+        common_tls_context:
+          tls_params:
+            tls_minimum_protocol_version: TLSv1_3
+            tls_maximum_protocol_version: TLSv1_3
+          tls_certificates:
+            - certificate_chain:
+                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.crt"
+              private_key:
+                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.key"
+          validation_context:
+            trusted_ca:
+              filename: "/data/cluster/certificates/CA/ca.crt"
+          alpn_protocols: ["h2", "http/1.1"]
     load_assignment:
       cluster_name: kafka_ksql_cluster
       endpoints:
@@ -75,15 +122,3 @@ static_resources:
                 address: {{ hostvars[host]['hostname'] }}
                 port_value: {{ port_ksql_rest_ext }}
 {% endfor %}
-    transport_socket:
-      name: envoy.transport_sockets.tls
-      typed_config:
-        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-        common_tls_context:
-          tls_params:
-            tls_minimum_protocol_version: TLSv1_3
-            tls_maximum_protocol_version: TLSv1_3
-          validation_context:
-            trusted_ca:
-              filename: "/data/cluster/certificates/CA/ca.crt"
-          alpn_protocols: ["h2", "http/1.1"]
