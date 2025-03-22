@@ -1,0 +1,87 @@
+CREATE STREAM iot_meta_stream_raw (
+  payload STRUCT<
+    after STRUCT<
+      device_id INT,
+      address STRING,
+      display_name STRING
+    >
+  >
+) WITH (
+  KAFKA_TOPIC='cdc-mysql-iot-iot_metadata',
+  VALUE_FORMAT='JSON'
+);
+
+CREATE STREAM iot_meta_stream_clean
+  WITH (
+    KAFKA_TOPIC='iot_meta_stream_clean',
+    VALUE_FORMAT='AVRO',
+    PARTITIONS=3
+  ) AS
+SELECT
+  payload->after->device_id AS device_id,
+  payload->after->address AS address,
+  payload->after->display_name AS display_name
+FROM iot_meta_stream_raw
+WHERE payload->after IS NOT NULL
+PARTITION BY payload->after->device_id
+EMIT CHANGES;
+
+CREATE TABLE iot_meta_table (
+  device_id INT PRIMARY KEY,
+  address STRING,
+  display_name STRING
+) WITH (
+  KAFKA_TOPIC='iot_meta_stream_clean',
+  VALUE_FORMAT='AVRO'
+);
+
+CREATE STREAM iot_temp_stream_raw (
+  payload STRUCT<
+    after STRUCT<
+      id INT,
+      ts BIGINT,
+      device_id INT,
+      temperature DOUBLE
+    >,
+    op STRING,
+    ts_ms BIGINT
+  >
+) WITH (
+  KAFKA_TOPIC='cdc-mysql-iot-iot_temp',
+  VALUE_FORMAT='JSON'
+);
+
+CREATE STREAM iot_temp_stream_clean
+  WITH (
+    KAFKA_TOPIC='iot_temp_stream_clean',
+    VALUE_FORMAT='AVRO',
+    PARTITIONS=3
+  ) AS
+SELECT
+  payload->after->id AS id,
+  payload->after->device_id AS device_id,
+  payload->after->ts AS ts,
+  payload->after->temperature AS temperature
+FROM iot_temp_stream_raw
+WHERE payload->after IS NOT NULL
+PARTITION BY payload->after->device_id
+EMIT CHANGES;
+
+CREATE STREAM iot_temp_stream_enriched
+  WITH (
+    KAFKA_TOPIC='iot_temp_stream_enriched',
+    VALUE_FORMAT='AVRO',
+    PARTITIONS=3
+  ) AS
+SELECT
+  c.device_id,
+  c.temperature,
+  c.ts AS ts_raw,
+  TIMESTAMPTOSTRING(c.ts, 'yyyy-MM-dd HH:mm:ss', 'UTC') AS ts_str,
+  m.address,
+  m.display_name
+FROM iot_temp_stream_clean c
+LEFT JOIN iot_meta_table m
+  ON c.device_id = m.device_id
+  PARTITION BY c.device_id
+EMIT CHANGES;
