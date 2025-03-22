@@ -80,11 +80,7 @@ static_resources:
         interval: 30s
         unhealthy_threshold: 2
         healthy_threshold: 2
-        http_health_check:
-          path: "/info"
-          expected_statuses:
-            - start: 200
-              end: 299
+        tcp_health_check: {}
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
