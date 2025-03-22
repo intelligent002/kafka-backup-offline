@@ -25,7 +25,7 @@ listeners.https.ssl.truststore.password={{ certificate_password }}
 listeners.https.ssl.truststore.type=JKS
 
 security.protocol=SSL
-ssl.enabled.protocols=TLSv1.3
+ssl.enabled.protocols=TLSv1.2,TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
