@@ -33,7 +33,7 @@ ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{
 
 
 security.protocol=SSL
-ssl.enabled.protocols=TLSv1.3
+ssl.enabled.protocols=TLSv1.2,TLSv1.3
 ssl.protocol=TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
