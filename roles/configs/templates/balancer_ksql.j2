@@ -40,6 +40,7 @@ static_resources:
             max_concurrent_streams: 100
             initial_stream_window_size: 65536
             initial_connection_window_size: 1048576
+
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
@@ -84,23 +85,6 @@ static_resources:
           expected_statuses:
             - start: 200
               end: 299
-        transport_socket:
-          name: envoy.transport_sockets.tls
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-            common_tls_context:
-              tls_params:
-                tls_minimum_protocol_version: TLSv1_3
-                tls_maximum_protocol_version: TLSv1_3
-              tls_certificates:
-                - certificate_chain:
-                    filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.crt"
-                  private_key:
-                    filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.key"
-              validation_context:
-                trusted_ca:
-                  filename: "/data/cluster/certificates/CA/ca.crt"
-              alpn_protocols: ["http/1.1"]
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
