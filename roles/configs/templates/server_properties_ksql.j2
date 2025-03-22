@@ -34,7 +34,7 @@ listener.security.protocol.map=https:SSL,https_internal:SSL
 # 🌐 External Listener for other nodes
 ########################################################################################################################
 listener.name.https.ssl.client.auth=required
-listener.name.https.ssl.enabled.protocols=TLSv1.3
+listener.name.https.ssl.enabled.protocols=TLSv1.2,TLSv1.3
 listener.name.https.ssl.endpoint.identification.algorithm=HTTPS
 listener.name.https.ssl.key.password={{ certificate_password }}
 listener.name.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
