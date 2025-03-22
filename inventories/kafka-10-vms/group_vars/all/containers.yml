@@ -116,7 +116,7 @@ docker_command_balancer_schema_run: >
   --name balancer-schema 
   -p {{ port_schema_balancer_ext }}:{{ port_schema_balancer_int }} 
   -p {{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
   --health-interval=60s 
   --health-timeout=10s 
   --health-retries=5 
@@ -154,7 +154,7 @@ docker_command_balancer_connect_run: >
   --name balancer-connect 
   -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} 
   -p {{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
   --health-interval=60s 
   --health-timeout=10s 
   --health-retries=5 
@@ -192,7 +192,7 @@ docker_command_balancer_ksql_run: >
   --name balancer-ksql 
   -p {{ port_ksql_balancer_ext }}:{{ port_ksql_balancer_int }} 
   -p {{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
   --health-interval=60s 
   --health-timeout=10s 
   --health-retries=5 
