@@ -33,6 +33,8 @@ port_ksql_balancer_ext: 9050
 port_ksql_balancer_int: 9050
 port_ksql_rest_ext: 9051
 port_ksql_rest_int: 9051
+port_ksql_sync_ext: 9052
+port_ksql_sync_int: 9052
 
 port_jmx_monitoring_ext: 9999
 port_jmx_monitoring_int: 9999
