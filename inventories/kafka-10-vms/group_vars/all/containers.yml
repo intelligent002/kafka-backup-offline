@@ -169,7 +169,7 @@ docker_command_ksql_run: >
   -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
   -p {{ hostvars[item]['port_ksql_rest_ext'] }}:{{ hostvars[item]['port_ksql_rest_int'] }}
   -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e JAVA_OPTS "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3"
+  -e JAVA_OPTS="-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3"
   -e KAFKA_JMX_OPTS="
   -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
   -Dcom.sun.management.jmxremote
