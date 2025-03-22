@@ -60,7 +60,7 @@ listener.name.https_internal.ssl.truststore.type=JKS
 
 security.protocol=SSL
 ssl.enabled.protocols=TLSv1.3
-ssl.protocol=TLSv1.3
+ssl.protocol=TLS
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
