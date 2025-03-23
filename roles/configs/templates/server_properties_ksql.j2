@@ -15,7 +15,7 @@ ksql.streams.consumer.group.id=cluster-ksql
 ########################################################################################################################
 # 🌐 External Listener for other nodes
 ########################################################################################################################
-listener.name.https.ssl.client.auth=required
+listener.name.https.ssl.client.auth=REQUIRED
 listener.name.https.ssl.enabled.protocols=TLSv1.2,TLSv1.3
 listener.name.https.ssl.endpoint.identification.algorithm=HTTPS
 listener.name.https.ssl.key.password={{ certificate_password }}
@@ -29,7 +29,7 @@ listener.name.https.ssl.truststore.type=JKS
 ########################################################################################################################
 # 🔁 Internal Listener for KSQLDB nodes
 ########################################################################################################################
-listener.name.https_internal.ssl.client.auth=required
+listener.name.https_internal.ssl.client.auth=REQUIRED
 listener.name.https_internal.ssl.enabled.protocols=TLSv1.2,TLSv1.3
 listener.name.https_internal.ssl.endpoint.identification.algorithm=HTTPS
 listener.name.https_internal.ssl.key.password={{ certificate_password }}
@@ -47,13 +47,13 @@ listener.name.https_internal.ssl.truststore.type=JKS
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 
 # Advertised listener - this should be routable from non ksql servers - external ports
-ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
+ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
 
 # Internal listener - this should be routable from ksql only servers - external ports
-ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
+ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 
-# Listener name mapping for internal ksqlDB communication
-ksql.internal.listener.name=HTTPS_INTERNAL
+# This enables mutual auth checking for the internal listener
+ksql.internal.ssl.client.authentication=REQUIRED
 
 # Map each listener to its advertised name
 listener.security.protocol.map=HTTPS:SSL,HTTPS_INTERNAL:SSL
@@ -62,6 +62,7 @@ security.protocol=SSL
 ssl.enabled.protocols=TLSv1.2,TLSv1.3
 ssl.protocol=TLS
 ssl.endpoint.identification.algorithm=HTTPS
+ssl.client.authentication=REQUIRED
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password={{ certificate_password }}
