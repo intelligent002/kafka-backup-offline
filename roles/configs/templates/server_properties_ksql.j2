@@ -13,32 +13,6 @@ ksql.service.id=cluster-ksql
 ksql.streams.consumer.group.id=cluster-ksql
 
 ########################################################################################################################
-# 🌐 External Listener for other nodes
-########################################################################################################################
-listeners.https.ssl.client.auth=required
-listeners.https.ssl.endpoint.identification.algorithm=HTTPS
-listeners.https.ssl.key.password={{ certificate_password }}
-listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-listeners.https.ssl.keystore.password={{ certificate_password }}
-listeners.https.ssl.keystore.type=JKS
-listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listeners.https.ssl.truststore.password={{ certificate_password }}
-listeners.https.ssl.truststore.type=JKS
-
-########################################################################################################################
-# 🔁 Internal Listener for KSQLDB nodes
-########################################################################################################################
-listeners.https_internal.ssl.client.auth=required
-listeners.https_internal.ssl.endpoint.identification.algorithm=HTTPS
-listeners.https_internal.ssl.key.password={{ certificate_password }}
-listeners.https_internal.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-listeners.https_internal.ssl.keystore.password={{ certificate_password }}
-listeners.https_internal.ssl.keystore.type=JKS
-listeners.https_internal.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-listeners.https_internal.ssl.truststore.password={{ certificate_password }}
-listeners.https_internal.ssl.truststore.type=JKS
-
-########################################################################################################################
 # 🔐 ksqlDB listeners
 ########################################################################################################################
 # actually listened ports internally
@@ -54,12 +28,13 @@ ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{
 ksql.internal.ssl.client.authentication=REQUIRED
 
 # Map each listener to its advertised name
-listener.security.protocol.map=HTTPS:SSL,HTTPS_INTERNAL:SSL
+listener.security.protocol.map=HTTPS:SSL
 
 security.protocol=SSL
-ssl.enabled.protocols=TLSv1.2,TLSv1.3
-ssl.protocol=TLS
+ssl.enabled.protocols=TLSv1.3
+ssl.protocol=TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
+ssl.client.auth=true
 ssl.client.authentication=REQUIRED
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
