@@ -67,6 +67,46 @@ WHERE payload->after IS NOT NULL
 PARTITION BY payload->after->device_id
 EMIT CHANGES;
 
+CREATE STREAM iot_temp_stream_clean
+  WITH (
+    KAFKA_TOPIC='iot_temp_stream_clean',
+    VALUE_FORMAT='AVRO',
+    PARTITIONS=3
+  ) AS
+SELECT
+  payload->after->id AS id,
+  payload->after->device_id AS device_id,
+  payload->after->ts AS ts,
+  payload->after->temperature AS temperature
+FROM iot_temp_stream_raw
+WHERE payload->after IS NOT NULL
+  AND payload->after->id IS NOT NULL
+  AND payload->after->device_id IS NOT NULL
+  AND payload->after->ts IS NOT NULL
+  AND payload->after->temperature IS NOT NULL
+  AND payload->after->temperature >= -50
+  AND payload->after->temperature <= 100
+PARTITION BY payload->after->device_id
+EMIT CHANGES;
+
+CREATE STREAM iot_temp_stream_rejected
+  WITH (
+    KAFKA_TOPIC='iot_temp_stream_rejected',
+    VALUE_FORMAT='AVRO',
+    PARTITIONS=3
+  ) AS
+SELECT *
+FROM iot_temp_stream_raw
+WHERE payload->after IS NULL
+   OR payload->after->id IS NULL
+   OR payload->after->device_id IS NULL
+   OR payload->after->ts IS NULL
+   OR payload->after->temperature IS NULL
+   OR payload->after->temperature < -50
+   OR payload->after->temperature > 100
+EMIT CHANGES;
+
+
 CREATE STREAM iot_temp_stream_enriched
   WITH (
     KAFKA_TOPIC='iot_temp_stream_enriched',
