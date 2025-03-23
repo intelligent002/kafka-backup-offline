@@ -17,9 +17,8 @@ ksql.streams.consumer.group.id=cluster-ksql
 ########################################################################################################################
 # actually listened ports internally
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
-listeners.https.ssl.client.auth=true
 listeners.https.ssl.client.auth=REQUIRED
-listeners.https.ssl.enabled.protocols=TLSv1.2,TLSv1.3
+listeners.https.ssl.enabled.protocols=TLSv1.3
 listeners.https.ssl.endpoint.identification.algorithm=HTTPS
 listeners.https.ssl.key.password={{ certificate_password }}
 listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
@@ -30,8 +29,20 @@ listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 listeners.https.ssl.truststore.password={{ certificate_password }}
 listeners.https.ssl.truststore.type=JKS
 
+
 # Advertised listener - this should be routable from non ksql servers - external ports
 ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
+ksql.ssl.client.auth=REQUIRED
+ksql.ssl.enabled.protocols=TLSv1.3
+ksql.ssl.endpoint.identification.algorithm=HTTPS
+ksql.ssl.key.password={{ certificate_password }}
+ksql.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ksql.ssl.keystore.password={{ certificate_password }}
+ksql.ssl.keystore.type=JKS
+ksql.ssl.protocol=TLS
+ksql.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ksql.ssl.truststore.password={{ certificate_password }}
+ksql.ssl.truststore.type=JKS
 
 # Internal listener - this should be routable from ksql only servers - external ports
 ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
@@ -43,9 +54,8 @@ ksql.internal.ssl.client.authentication=REQUIRED
 listener.security.protocol.map=HTTPS:SSL
 
 security.protocol=SSL
-ssl.client.auth=true
 ssl.client.authentication=REQUIRED
-ssl.enabled.protocols=TLSv1.2,TLSv1.3
+ssl.enabled.protocols=TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
