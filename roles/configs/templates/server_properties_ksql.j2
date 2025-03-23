@@ -85,6 +85,17 @@ ksql.sink.replicas={{ ((groups['brokers'] | default([])) | length) }}
 
 # Schema Registry configuration (needed if using Avro, JSON Schema, or Protobuf)
 ksql.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
+ksql.schema.registry.ssl.client.authentication=REQUIRED
+ksql.schema.registry.ssl.enabled.protocols=TLSv1.3
+ksql.schema.registry.ssl.endpoint.identification.algorithm=HTTPS
+ksql.schema.registry.ssl.key.password={{ certificate_password }}
+ksql.schema.registry.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ksql.schema.registry.ssl.keystore.password={{ certificate_password }}
+ksql.schema.registry.ssl.keystore.type=JKS
+ksql.schema.registry.ssl.protocol=TLS
+ksql.schema.registry.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ksql.schema.registry.ssl.truststore.password={{ certificate_password }}
+ksql.schema.registry.ssl.truststore.type=JKS
 
 # Kafka Connect integration (optional, only required if using connectors)
 ksql.connect.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
