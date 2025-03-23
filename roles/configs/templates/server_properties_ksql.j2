@@ -49,6 +49,18 @@ ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{
 
 # This enables mutual auth checking for the internal listener
 ksql.internal.ssl.client.authentication=REQUIRED
+ksql.internal.ssl.client.auth=REQUIRED
+ksql.internal.ssl.enabled.protocols=TLSv1.3
+ksql.internal.ssl.endpoint.identification.algorithm=HTTPS
+ksql.internal.ssl.key.password={{ certificate_password }}
+ksql.internal.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ksql.internal.ssl.keystore.password={{ certificate_password }}
+ksql.internal.ssl.keystore.type=JKS
+ksql.internal.ssl.protocol=TLS
+ksql.internal.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ksql.internal.ssl.truststore.password={{ certificate_password }}
+ksql.internal.ssl.truststore.type=JKS
+
 
 # Map each listener to its advertised name
 listener.security.protocol.map=HTTPS:SSL
