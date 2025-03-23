@@ -107,6 +107,17 @@ ksql.logging.processing.topic.auto.create=true
 # Processing settings
 ksql.streams.cache.max.bytes.buffering=10485760
 ksql.streams.num.stream.threads=4
+ksql.streams.ssl.client.authentication=REQUIRED
+ksql.streams.ssl.enabled.protocols=TLSv1.3
+ksql.streams.ssl.endpoint.identification.algorithm=HTTPS
+ksql.streams.ssl.key.password={{ certificate_password }}
+ksql.streams.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
+ksql.streams.ssl.keystore.password={{ certificate_password }}
+ksql.streams.ssl.keystore.type=JKS
+ksql.streams.ssl.protocol=TLS
+ksql.streams.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+ksql.streams.ssl.truststore.password={{ certificate_password }}
+ksql.streams.ssl.truststore.type=JKS
 
 # Enable metric reporting
 ksql.metric.reporters=io.confluent.metrics.reporter.ConfluentMetricsReporter
