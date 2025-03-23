@@ -47,10 +47,10 @@ listener.name.https_internal.ssl.truststore.type=JKS
 listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 
 # Advertised listener - this should be routable from non ksql servers - external ports
-ksql.advertised.listener=HTTPS://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
+ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
 
 # Internal listener - this should be routable from ksql only servers - external ports
-ksql.internal.listener=HTTPS_INTERNAL://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
+ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
 
 # Listener name mapping for internal ksqlDB communication
 ksql.internal.listener.name=HTTPS_INTERNAL
