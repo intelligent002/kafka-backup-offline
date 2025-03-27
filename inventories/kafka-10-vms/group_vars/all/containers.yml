@@ -185,7 +185,7 @@ docker_command_ksql_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/ksql
   -v {{ hostvars[item]['node_meta_path'] }}:/tmp/schema-registry
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
-  docker.artifactory.intel.r7g.org/confluentinc/ksqldb-server:latest
+  docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:latest
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_ksql_run: >
