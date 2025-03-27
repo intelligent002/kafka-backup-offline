@@ -22,7 +22,7 @@ ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.internal.ssl.client.authentication=REQUIRED
 ksql.ssl.client.authentication=REQUIRED
 
-ssl.enabled.protocols=TLSv1.2,TLSv1.3
+# ssl.enabled.protocols=TLSv1.2,TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
