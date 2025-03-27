@@ -108,7 +108,7 @@ docker_command_schema_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.8.2
+  docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0
   /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_schema_run: >
@@ -185,7 +185,7 @@ docker_command_ksql_run: >
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/ksql
   -v {{ hostvars[item]['node_meta_path'] }}:/tmp/schema-registry
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
-  docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.8.2
+  docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_ksql_run: >
