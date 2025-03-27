@@ -182,8 +182,7 @@ docker_command_ksql_run: >
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/ksql
-  -v {{ hostvars[item]['node_meta_path'] }}:/tmp/schema-registry
+  -v {{ hostvars[item]['node_data_path'] }}:/ksql/data
   -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
   docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties

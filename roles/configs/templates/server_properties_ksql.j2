@@ -72,8 +72,8 @@ ksql.jmx.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
 ksql.jmx.host={{ hostvars[inventory_hostname]['ansible_host'] }}
 
 # SSL settings for Kafka connection
-
-
 # SASL Configuration (Uncomment for SASL_SSL, Comment for mTLS)
 # sasl.mechanism=SCRAM-SHA-512
 # sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
+
+ksql.streams.state.dir=/ksql/data
