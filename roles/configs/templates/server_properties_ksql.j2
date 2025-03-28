@@ -18,26 +18,25 @@ ksql.streams.consumer.group.id=cluster-ksql
 ########################################################################################################################
 
 ksql.listeners=EXTERNAL:https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},INTERNAL:https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
-listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 
 ########################################################################################################################
 # listener external
 ########################################################################################################################
 
 # Advertised listener - this should be routable from other servers
-ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
 ksql.advertised.listener.name=EXTERNAL
+ksql.external.ssl.client.authentication=REQUIRED
+
+ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 
 ########################################################################################################################
 # listener internal
 ########################################################################################################################
 
-ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 ksql.internal.listener.name=INTERNAL
-
-ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
-ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.internal.ssl.client.authentication=REQUIRED
+
+ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.ssl.client.authentication=REQUIRED
 
 ########################################################################################################################
