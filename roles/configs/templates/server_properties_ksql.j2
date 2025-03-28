@@ -1,3 +1,4 @@
+########################################################################################################################
 # KSQL CONFIG
 ########################################################################################################################
 # no extra metrics and mess in logs
@@ -12,68 +13,102 @@ ksql.service.id=cluster-ksql
 # consumer group id
 ksql.streams.consumer.group.id=cluster-ksql
 
-# ksqlDB REST API listener
-listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
-ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
-security.protocol=SSL
+########################################################################################################################
+# listeners settings
+########################################################################################################################
 
+listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
+
+########################################################################################################################
+# listener external
+########################################################################################################################
+
+# Advertised listener - this should be routable from other servers
+ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
+
+########################################################################################################################
+# listener internal
+########################################################################################################################
+
+ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
 ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.internal.ssl.client.authentication=REQUIRED
 ksql.ssl.client.authentication=REQUIRED
 
+########################################################################################################################
+# SSL settings for Kafka connection
+########################################################################################################################
+
+security.protocol=SSL
+ssl.client.auth=REQUIRED
 ssl.enabled.protocols=TLSv1.3
 ssl.endpoint.identification.algorithm=HTTPS
 ssl.key.password={{ certificate_password }}
 ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 ssl.keystore.password={{ certificate_password }}
 ssl.keystore.type=JKS
+ssl.protocol=TLS
 ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 ssl.truststore.password={{ certificate_password }}
 ssl.truststore.type=JKS
-# listeners.https.ssl.client.auth=required
-# listeners.https.ssl.enabled.protocols=TLSv1.2,TLSv1.3
-# listeners.https.ssl.endpoint.identification.algorithm=HTTPS
-# listeners.https.ssl.key.password={{ certificate_password }}
-# listeners.https.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
-# listeners.https.ssl.keystore.password={{ certificate_password }}
-# listeners.https.ssl.keystore.type=JKS
-# listeners.https.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
-# listeners.https.ssl.truststore.password={{ certificate_password }}
-# listeners.https.ssl.truststore.type=JKS
 
-# Advertised listener - this should be routable from other servers
-ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
-
+########################################################################################################################
 # Kafka topic replication settings
+########################################################################################################################
+
 ksql.internal.topic.replicas={{ ((groups['brokers'] | default([])) | length) }}
 ksql.streams.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 ksql.sink.replicas={{ ((groups['brokers'] | default([])) | length) }}
 
+########################################################################################################################
 # Schema Registry configuration (needed if using Avro, JSON Schema, or Protobuf)
+########################################################################################################################
+
 ksql.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
 
+########################################################################################################################
 # Kafka Connect integration (optional, only required if using connectors)
+########################################################################################################################
+
 ksql.connect.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
 
+########################################################################################################################
 # Log processing settings
+########################################################################################################################
+
 ksql.logging.processing.stream.auto.create=true
 ksql.logging.processing.topic.auto.create=true
 
+########################################################################################################################
 # Processing settings
+########################################################################################################################
+
 ksql.streams.cache.max.bytes.buffering=10485760
 ksql.streams.num.stream.threads=4
 
+########################################################################################################################
 # Enable metric reporting
+########################################################################################################################
+
 ksql.metric.reporters=io.confluent.metrics.reporter.ConfluentMetricsReporter
 
+########################################################################################################################
 # JMX monitoring
+########################################################################################################################
+
 ksql.jmx.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
 ksql.jmx.host={{ hostvars[inventory_hostname]['ansible_host'] }}
 
-# SSL settings for Kafka connection
+########################################################################################################################
 # SASL Configuration (Uncomment for SASL_SSL, Comment for mTLS)
+########################################################################################################################
+
 # sasl.mechanism=SCRAM-SHA-512
 # sasl.jaas.config="org.apache.kafka.common.security.scram.ScramLoginModule required username=\"######\" password=\"#####\";"
+
+########################################################################################################################
+# DATA
+########################################################################################################################
 
 ksql.streams.state.dir=/ksql/data
