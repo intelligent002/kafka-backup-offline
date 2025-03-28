@@ -24,15 +24,15 @@ listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inv
 ########################################################################################################################
 
 ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
+ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 
 ########################################################################################################################
 # listener internal
 ########################################################################################################################
 
 ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
-
-ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
+
 ksql.internal.ssl.client.authentication=REQUIRED
 ksql.ssl.client.authentication=REQUIRED
 
