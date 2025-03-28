@@ -23,7 +23,6 @@ listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inv
 # listener external
 ########################################################################################################################
 
-# Advertised listener - this should be routable from other servers
 ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
 
 ########################################################################################################################
