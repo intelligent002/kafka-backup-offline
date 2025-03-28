@@ -17,13 +17,12 @@ ksql.streams.consumer.group.id=cluster-ksql
 # listeners settings
 ########################################################################################################################
 
-listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }},https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}
+listeners=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}
 
 ########################################################################################################################
 # listener external
 ########################################################################################################################
 
-ksql.advertised.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}
 ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 
 ########################################################################################################################
@@ -31,9 +30,8 @@ ksql.ssl.keystore.alias.external={{ hostvars[inventory_hostname]['hostname'] }}
 ########################################################################################################################
 
 ksql.internal.listener=https://{{ hostvars[inventory_hostname]['hostname'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}
-ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
-
 ksql.internal.ssl.client.authentication=REQUIRED
+ksql.ssl.keystore.alias.internal={{ hostvars[inventory_hostname]['hostname'] }}
 ksql.ssl.client.authentication=REQUIRED
 
 ########################################################################################################################
