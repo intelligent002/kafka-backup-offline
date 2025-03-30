@@ -57,6 +57,9 @@ central_certificates_backup_pinned: "{{ central_certificates_backup_base }}/pinn
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
 central_certificates_backup_rotated: "{{ central_certificates_backup_base }}/rotated"
 
+# Pattern of stored backups, that is being searched for delete during rotation
+central_certificates_backup_rotate_pattern: "*certificates.tar*"
+
 # Folder that should be created during backup operation, including year/month/day folders.
 central_certificates_backup_path: "{{ central_certificates_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
@@ -79,6 +82,9 @@ central_credentials_backup_pinned: "{{ central_credentials_backup_base }}/pinned
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
 central_credentials_backup_rotated: "{{ central_credentials_backup_base }}/rotated"
+
+# Pattern of stored backups, that is being searched for delete during rotation
+central_credentials_backup_rotate_pattern: "*credentials.tar*"
 
 # Folder that should be created during backup operation, including year/month/day folders.
 central_credentials_backup_path: "{{ central_credentials_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
@@ -103,6 +109,9 @@ central_config_backup_pinned: "{{ central_config_backup_base }}/pinned"
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
 central_config_backup_rotated: "{{ central_config_backup_base }}/rotated"
 
+# Pattern of stored backups, that is being searched for delete during rotation
+central_config_backup_rotate_pattern: "*config.tar*"
+
 # Folder that should be created during backup operation, including year/month/day folders.
 central_config_backup_path: "{{ central_config_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
 
@@ -122,6 +131,9 @@ central_data_backup_pinned: "{{ central_data_backup_base }}/pinned"
 
 # Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
 central_data_backup_rotated: "{{ central_data_backup_base }}/rotated"
+
+# Pattern of stored backups, that is being searched for delete during rotation
+central_data_backup_rotate_pattern: "*data.tar*"
 
 # Folder that should be created during backup operation, including year/month/day folders.
 central_data_backup_path: "{{ central_data_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"

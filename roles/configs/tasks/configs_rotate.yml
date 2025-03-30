@@ -32,7 +32,7 @@
     paths: "{{ central_config_backup_rotated }}"
     age: "{{ retention_policy_configs }}d"
     recurse: yes
-    patterns: "*configs.tar.*"
+    patterns: "{{ central_config_backup_rotate_pattern }}"
   register: old_configs_backups
 
 - name: Remove old config backups

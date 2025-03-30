@@ -32,7 +32,7 @@
     paths: "{{ central_certificates_backup_rotated }}"
     age: "{{ retention_policy_certificates }}d"
     recurse: yes
-    patterns: "*certificate.tar.*"
+    patterns: "{{ central_certificates_backup_rotate_pattern }}"
   register: old_certificates_backups
 
 - name: Remove old certificate backups
