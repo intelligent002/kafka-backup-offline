@@ -1,29 +1,40 @@
-port_jmx_monitoring_int: 9999
-port_jmx_monitoring_ext: 9999
-
-port_control_plane_int: 9091
-port_control_plane_ext: 9091
-
-port_replication_int: 9092
-port_replication_ext: 9092
-
-port_consumer_mtls_int: 9093
-port_consumer_mtls_ext: 9093
-
-port_consumer_sasl_ssl_int: 9095
-port_consumer_sasl_ssl_ext: 9095
-
-port_connect_rest_int: 8081
-port_connect_rest_ext: 8081
-
-port_balancer_connect_int: 8080
-port_balancer_connect_ext: 8080
-
-port_schema_rest_int: 8088
-port_schema_rest_ext: 8088
-
-port_balancer_schema_int: 8089
-port_balancer_schema_ext: 8089
-
-port_portainer_int: 9443
 port_portainer_ext: 9443
+port_portainer_int: 9443
+
+port_control_plane_ext: 9091
+port_control_plane_int: 9091
+
+port_consumer_mtls_ext: 9093
+port_consumer_mtls_int: 9093
+
+port_consumer_sasl_ssl_ext: 9095
+port_consumer_sasl_ssl_int: 9095
+
+port_replication_ext: 9092
+port_replication_int: 9092
+
+port_schema_balancer_admin_ext: 9930
+port_schema_balancer_admin_int: 9930
+port_schema_balancer_ext: 9030
+port_schema_balancer_int: 9030
+port_schema_rest_ext: 9031
+port_schema_rest_int: 9031
+
+port_connect_balancer_admin_ext: 9940
+port_connect_balancer_admin_int: 9940
+port_connect_balancer_ext: 9040
+port_connect_balancer_int: 9040
+port_connect_rest_ext: 9041
+port_connect_rest_int: 9041
+
+port_ksql_balancer_admin_ext: 9950
+port_ksql_balancer_admin_int: 9950
+port_ksql_balancer_ext: 9050
+port_ksql_balancer_int: 9050
+port_ksql_rest_ext: 9051
+port_ksql_rest_int: 9051
+port_ksql_sync_ext: 9052
+port_ksql_sync_int: 9052
+
+port_jmx_monitoring_ext: 9999
+port_jmx_monitoring_int: 9999

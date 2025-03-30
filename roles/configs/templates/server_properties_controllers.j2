@@ -1,4 +1,6 @@
-#############################################################################################
+########################################################################################################################
+# CONTROLLER CONFIG
+########################################################################################################################
 # Node ID
 node.id={{ node_id }}
 
@@ -8,7 +10,7 @@ cluster.id={{ cluster_id }}
 # Define the roles for this node (controller/broker/connect)
 process.roles=controller
 
-#############################################################################################
+########################################################################################################################
 # Controller KRaft Quorum Configuration
 
 # Specify the name of the listener used for controller communication
@@ -22,20 +24,20 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 # Maximum time in milliseconds to wait without being able to fetch from the leader before triggering a new election
 controller.quorum.election.timeout.ms=30000
 
-#############################################################################################
+########################################################################################################################
 # Control Plane listener
 
 #listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
 #listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
+listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.keystore.type=JKS
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password={{ certificate_password }}
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.type=JKS
-listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
 
-#############################################################################################
+########################################################################################################################
 # Common listener configuration
 
 # Map listeners to their respective security protocols
@@ -44,7 +46,7 @@ listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['por
 # Controller listeners
 listeners=CONTROLPLANE-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}://:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}
 
-#############################################################################################
+########################################################################################################################
 # Authorization
 
 # Hostname verification in SSL certificates (HTTPS - enable, empty - disable)
@@ -63,7 +65,7 @@ super.users={% for host in groups['controllers'] | default([]) + groups['brokers
 User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{% if not loop.last %};{% endif %}{% endfor %};User:CN=admin;User:admin;
 
 
-#############################################################################################
+########################################################################################################################
 # Replication
 
 # The replication factor for automatically created topics, and for topics created with -1 as the replication factor
@@ -80,7 +82,7 @@ offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length)
 # The minimum number of replicas that must acknowledge a write to transaction topic in order to be considered successful.
 transaction.state.log.min.isr={{ ((groups['brokers'] | default([])) | length) }}
 
-#############################################################################################
+########################################################################################################################
 # Transactions
 
 # The replication factor for the __transaction_state topic (set higher to ensure availability).
@@ -93,7 +95,7 @@ transaction.state.log.num.partitions=50
 # The interval at which to rollback transactions that have timed out
 transaction.abort.timed.out.transaction.cleanup.interval.ms=300000
 
-#############################################################################################
+########################################################################################################################
 # Performance Settings
 
 # The number of threads that the server uses for receiving requests from the network and sending responses to the network.
@@ -106,7 +108,7 @@ num.io.threads=8
 # The number of threads per data directory to be used for log recovery at startup and flushing at shutdown
 num.recovery.threads.per.data.dir=2
 
-#############################################################################################
+########################################################################################################################
 # Log Flush Policy
 
 # The number of messages accumulated on a log partition before messages are flushed to disk.
@@ -116,7 +118,7 @@ log.flush.interval.messages=10000
 # If not set, the value in log.flush.scheduler.interval.ms is used
 log.flush.interval.ms=1000
 
-#############################################################################################
+########################################################################################################################
 # Security Settings
 
 # Enable/Disable automatic topic creation (recommended to disable for production)
@@ -125,7 +127,7 @@ auto.create.topics.enable=true
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
 
-#############################################################################################
+########################################################################################################################
 # Data and Metadata Storage
 
 # Directory where the broker data are stored

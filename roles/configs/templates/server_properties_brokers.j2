@@ -1,4 +1,6 @@
-#############################################################################################
+########################################################################################################################
+# BROKER CONFIG
+########################################################################################################################
 # Node ID
 node.id={{ node_id }}
 
@@ -8,7 +10,7 @@ cluster.id={{ cluster_id }}
 # Define the roles for this node (controller/broker/connect)
 process.roles=broker
 
-#############################################################################################
+########################################################################################################################
 # Controller KRaft Quorum Configuration
 
 # Specify the name of the listener used for controller communication
@@ -19,7 +21,7 @@ controller.quorum.voters={% for host in (groups['combined'] | default([])) + (gr
 {{ hostvars[host]['node_id'] }}@{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_control_plane_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
 
 
-#############################################################################################
+########################################################################################################################
 # Listener - Control Plane (controller-broker via mTLS)
 
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.client.auth=required
@@ -30,7 +32,7 @@ listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_i
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.password={{ certificate_password }}
 listener.name.controlplane-{{ hostvars[inventory_hostname]['port_control_plane_int'] }}.ssl.truststore.type=JKS
 
-#############################################################################################
+########################################################################################################################
 # Listener - Replication (broker-broker via mTLS)
 
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.client.auth=required
@@ -41,7 +43,7 @@ listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.password={{ certificate_password }}
 listener.name.replication-{{ hostvars[inventory_hostname]['port_replication_int'] }}.ssl.truststore.type=JKS
 
-#############################################################################################
+########################################################################################################################
 # Listener - Consumers (client-broker via mTLS)
 
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.client.auth=required
@@ -52,11 +54,11 @@ listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.password={{ certificate_password }}
 listener.name.consumers-mtls-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}.ssl.truststore.type=JKS
 
-#############################################################################################
+########################################################################################################################
 # Listener - Consumers (client-broker via SASL_SSL)
 
-listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.sasl.enabled.mechanisms=SCRAM-SHA-512
+listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="{{ credentials | selectattr('username', 'equalto', 'admin') | map(attribute='password') | first }}";
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.location=/etc/kafka/secrets/{{ hostvars[inventory_hostname]['hostname'] }}.jks
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.password={{ certificate_password }}
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.keystore.type=JKS
@@ -64,7 +66,7 @@ listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.truststore.password={{ certificate_password }}
 listener.name.consumers-sasl-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}.ssl.truststore.type=JKS
 
-#############################################################################################
+########################################################################################################################
 # Common listener configuration
 
 # Specify the SSL protocols enabled for communication. This should match the supported protocols of your clients.
@@ -82,7 +84,7 @@ listener.security.protocol.map=CONTROLPLANE-{{ hostvars[inventory_hostname]['por
 # Broker listeners
 listeners=REPLICATION-{{ hostvars[inventory_hostname]['port_replication_int'] }}://:{{ hostvars[inventory_hostname]['port_replication_int'] }},CONSUMERS-MTLS-{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }},CONSUMERS-SASL-{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}://:{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}
 
-#############################################################################################
+########################################################################################################################
 # Authorization
 
 # Hostname verification in SSL certificates (HTTPS - enable, empty - disable)
@@ -97,11 +99,11 @@ authorizer.class.name=org.apache.kafka.metadata.authorizer.StandardAuthorizer
 sasl.enabled.mechanisms=SCRAM-SHA-512
 
 # Specifies superusers that bypass the ACL checks
-super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) %}
+super.users={% for host in groups['controllers'] | default([]) + groups['brokers'] | default([]) + groups['schema'] | default([]) + groups['connect'] | default([]) + groups['ksql'] | default([])  %}
 User:CN={{ hostvars[host]['hostname'] }};User:{{ hostvars[host]['hostname'] }}{% if not loop.last %};{% endif %}{% endfor %};User:CN=admin;User:admin;
 
 
-#############################################################################################
+########################################################################################################################
 # Replication
 
 # The replication factor for automatically created topics, and for topics created with -1 as the replication factor
@@ -118,7 +120,7 @@ offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length)
 # The minimum number of replicas that must acknowledge a write to transaction topic in order to be considered successful.
 transaction.state.log.min.isr={{ ((groups['brokers'] | default([])) | length) }}
 
-#############################################################################################
+########################################################################################################################
 # Transactions
 
 # The replication factor for the __transaction_state topic (set higher to ensure availability).
@@ -131,7 +133,7 @@ transaction.state.log.num.partitions=50
 # The interval at which to rollback transactions that have timed out
 transaction.abort.timed.out.transaction.cleanup.interval.ms=300000
 
-#############################################################################################
+########################################################################################################################
 # Performance Settings
 
 # The number of threads that the server uses for receiving requests from the network and sending responses to the network.
@@ -144,7 +146,7 @@ num.io.threads=8
 # The number of threads per data directory to be used for log recovery at startup and flushing at shutdown
 num.recovery.threads.per.data.dir=2
 
-#############################################################################################
+########################################################################################################################
 # Log Flush Policy
 
 # The number of messages accumulated on a log partition before messages are flushed to disk.
@@ -154,7 +156,7 @@ log.flush.interval.messages=10000
 # If not set, the value in log.flush.scheduler.interval.ms is used
 log.flush.interval.ms=1000
 
-#############################################################################################
+########################################################################################################################
 # Security Settings
 
 # Enable/Disable automatic topic creation (recommended to disable for production)
@@ -163,7 +165,7 @@ auto.create.topics.enable=true
 # Enforce re-authentication every 24 hours
 connections.max.reauth.ms=86400000
 
-#############################################################################################
+########################################################################################################################
 # Data and Metadata Storage
 
 # Directory where the broker data are stored

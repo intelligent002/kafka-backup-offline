@@ -1,4 +1,13 @@
 ---
+- name: Stop Balancer KSQL on node-00
+  tags:
+    - containers_stop
+    - containers_restart
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    docker stop balancer-ksql
+
 - name: Stop Balancer Connect on node-00
   tags:
     - containers_stop

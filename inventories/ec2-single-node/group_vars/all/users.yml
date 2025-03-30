@@ -41,7 +41,7 @@ credentials:
         resource_name: "*"
         operation: "All"
       - resource_type: "group"
-        resource_name: "connect-cluster"
+        resource_name: "cluster-connect"
         operation: "Read"
       - resource_type: "group"
         resource_name: "cdc-mysql-schemahistory"
@@ -89,6 +89,6 @@ credentials:
         resource_name: "kafka-cluster"
         operation: "Create"
       - resource_type: "group"
-        resource_name: "connect-cluster"
+        resource_name: "cluster-connect"
         operation: "Read"
 

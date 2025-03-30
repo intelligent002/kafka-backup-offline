@@ -32,7 +32,7 @@
     paths: "{{ central_data_backup_rotated }}"
     age: "{{ retention_policy_data }}d"
     recurse: yes
-    patterns: "*data.tar*"
+    patterns: "{{ central_data_backup_rotate_pattern }}"
   register: old_data_backups
 
 - name: Remove old data backups
