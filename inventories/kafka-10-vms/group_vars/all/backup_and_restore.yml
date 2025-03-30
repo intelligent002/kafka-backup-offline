@@ -1,16 +1,16 @@
 # === Retention policy =================================================================================================
 
 # Number of days to retain config backups.
-retention_policy_certificates: 4
+retention_policy_certificates: 365
 
 # Number of days to retain credentials backups.
-retention_policy_credentials: 4
+retention_policy_credentials: 365
 
 # Number of days to retain config backups.
-retention_policy_configs: 4
+retention_policy_configs: 365
 
 # Number of days to retain data backups.
-retention_policy_data: 4
+retention_policy_data: 7
 
 # === Node Permissions =================================================================================================
 
