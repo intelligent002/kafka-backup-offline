@@ -444,7 +444,7 @@ function configs_restore()
 # Deletes old archives according to retention_policy_configs days amount value
 function configs_rotate()
 {
-    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
+    run_ansible_routine "Kafka Configs Rotate" "serial" "configs_rotate"
     return $?
 }
 
@@ -523,7 +523,7 @@ function credentials_restore()
 # Deletes old archives according to retention_policy_credentials days amount value
 function credentials_rotate()
 {
-    run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
+    run_ansible_routine "Kafka Credentials Rotate" "serial" "credentials_rotate"
     return $?
 }
 
@@ -555,7 +555,7 @@ function data_restore()
 # Deletes old archives according to retention_policy_data days amount value
 function data_rotate()
 {
-    run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
+    run_ansible_routine "Kafka Data Rotate" "serial" "data_rotate"
     return $?
 }
 
