@@ -412,7 +412,7 @@ function certificates_restore()
 # Deletes old archives according to retention_policy_certificates days amount value
 function certificates_rotate()
 {
-    run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
+    run_ansible_routine "Kafka Certificates Rotate" "serial" "certificates_rotate"
     return $?
 }
 

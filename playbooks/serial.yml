@@ -4,4 +4,9 @@
   serial: 1
   become: yes
   roles:
-    - role: ../roles/docker # Include Docker related tasks
+    - role: ../roles/docker        # Include Docker related tasks
+    - role: ../roles/certificates  # Include Certificates related tasks
+    - role: ../roles/credentials   # Include Credentials related tasks
+    - role: ../roles/configs       # Include Configs related tasks
+    - role: ../roles/data          # Include Data related tasks
+
