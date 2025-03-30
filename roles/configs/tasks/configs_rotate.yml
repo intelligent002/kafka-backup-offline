@@ -44,9 +44,12 @@
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ old_configs_backups.files }}"
+  loop_control:
+    label: "Removed - {{ item.path }}"
 
 - name: Remove empty config directories in cold storage
-  tags: configs_rotate
+  tags:
+    - configs_rotate
   delegate_to: node-00
   run_once: true
   shell: >

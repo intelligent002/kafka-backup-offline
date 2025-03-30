@@ -44,9 +44,12 @@
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ old_certificates_backups.files }}"
+  loop_control:
+    label: "Removed - {{ item.path }}"
 
 - name: Remove empty certificates directories in cold storage
-  tags: certificates_rotate
+  tags:
+    - certificates_rotate
   delegate_to: node-00
   run_once: true
   shell: >
