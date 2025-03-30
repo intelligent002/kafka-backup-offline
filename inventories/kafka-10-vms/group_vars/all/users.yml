@@ -17,139 +17,379 @@ credentials:
     permissions:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: "all"
+        operation: "All"
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "group"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "transactional-id"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "delegation-token"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
 
-  - username: "connect"
+  - username: "schema"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: "All"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: [ "Create", "Describe" ]
+      - resource_type: "group"
+        resource_name: "cluster-schema"
+        operation: [ "Read", "Describe" ]
+
+  - username: "connector"
     password: "insecure"
     permissions:
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create", "describe"]
+        operation: [ "Create", "Describe", "AlterConfigs", "IdempotentWrite" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-configs"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-offsets"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-status"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: [ "Create", "Describe", "Write", "Read" ]
+
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: [ "Describe", "Write", "Read", "Alter" ]
+
       - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
+        resource_name: "cluster-connect"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-mysql-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-db2-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-mssql-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-mongodb-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-postgresql-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
       - resource_type: "group"
         resource_name: "cdc-oracledb-schemahistory"
-        operation: "read"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: [ "All" ]
+
+  - username: "ksql"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: "All"
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: [ "Create", "Describe" ]
+      - resource_type: "group"
+        resource_name: "cluster-schema"
+        operation: [ "Read", "Describe" ]
 
   - username: "pub"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: [ "write", "read" ]
+        operation: [ "Write", "Read" ]
 
   - username: "sub"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: "read"
+        operation: "Read"
 
   - username: "node-07.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
+        resource_name: "*"
+        operation: "All"
       - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
+        resource_name: "*"
+        operation: "All"
 
   - username: "node-08.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
+        resource_name: "*"
+        operation: "All"
       - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
+        resource_name: "*"
+        operation: "All"
 
   - username: "node-09.intel.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
         resource_name: "*"
-        operation: "all"
+        operation: "All"
       - resource_type: "cluster"
-        resource_name: "kafka-cluster"
-        operation: "Create"
+        resource_name: "*"
+        operation: "All"
       - resource_type: "group"
-        resource_name: "connect-cluster"
-        operation: "read"
+        resource_name: "*"
+        operation: "All"
 
   - username: "node-10.intel.r7g.org"
     password: "insecure"
     permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: [ "Create", "Describe", "AlterConfigs", "IdempotentWrite" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-configs"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-offsets"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-status"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: [ "Create", "Describe", "Write", "Read" ]
+
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+
       - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
+        resource_name: "cluster-connect"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mysql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-db2-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mssql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mongodb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-postgresql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-oracledb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: [ "All" ]
 
   - username: "node-11.intel.r7g.org"
     password: "insecure"
     permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: [ "Create", "Describe", "AlterConfigs", "IdempotentWrite" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-configs"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-offsets"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-status"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: [ "Create", "Describe", "Write", "Read" ]
+
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+
       - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
+        resource_name: "cluster-connect"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mysql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-db2-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mssql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mongodb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-postgresql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-oracledb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: [ "All" ]
 
   - username: "node-12.intel.r7g.org"
     password: "insecure"
     permissions:
-      - resource_type: "topic"
-        resource_name: "_schemas"
-        operation: "all"
       - resource_type: "cluster"
         resource_name: "kafka-cluster"
-        operation: ["create","describe"]
+        operation: [ "Create", "Describe", "AlterConfigs", "IdempotentWrite" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-configs"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-offsets"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "cluster-connect-status"
+        operation: [ "Create", "Describe", "Write", "Read", "Delete", "Alter" ]
+
+      - resource_type: "topic"
+        resource_name: "_schemas"
+        operation: [ "Create", "Describe", "Write", "Read" ]
+
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+
       - resource_type: "group"
-        resource_name: "schema-cluster"
-        operation: [ "read", "describe" ]
+        resource_name: "cluster-connect"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mysql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-db2-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mssql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-mongodb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-postgresql-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "group"
+        resource_name: "cdc-oracledb-schemahistory"
+        operation: [ "Describe", "Read" ]
+
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: [ "All" ]
+
+  - username: "node-13.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: [ "Create", "Describe" ]
+      - resource_type: "group"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "All"
+
+  - username: "node-14.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: [ "Create", "Describe" ]
+      - resource_type: "group"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "All"
+
+  - username: "node-15.intel.r7g.org"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "cluster"
+        resource_name: "kafka-cluster"
+        operation: [ "Create", "Describe" ]
+      - resource_type: "group"
+        resource_name: "*"
+        operation: [ "All" ]
+      - resource_type: "transactional-id"
+        resource_name: "*"
+        operation: "All"

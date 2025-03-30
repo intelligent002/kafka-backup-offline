@@ -211,8 +211,8 @@ function cluster_reinstall()
 
     # regenerate all components
     configs_generate
-    certificates_generate
     credentials_generate
+    certificates_generate
     data_format
 
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
@@ -412,7 +412,7 @@ function certificates_restore()
 # Deletes old archives according to retention_policy_certificates days amount value
 function certificates_rotate()
 {
-    run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
+    run_ansible_routine "Kafka Certificates Rotate" "serial" "certificates_rotate"
     return $?
 }
 
@@ -444,7 +444,7 @@ function configs_restore()
 # Deletes old archives according to retention_policy_configs days amount value
 function configs_rotate()
 {
-    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
+    run_ansible_routine "Kafka Configs Rotate" "serial" "configs_rotate"
     return $?
 }
 
@@ -523,7 +523,7 @@ function credentials_restore()
 # Deletes old archives according to retention_policy_credentials days amount value
 function credentials_rotate()
 {
-    run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
+    run_ansible_routine "Kafka Credentials Rotate" "serial" "credentials_rotate"
     return $?
 }
 
@@ -555,7 +555,7 @@ function data_restore()
 # Deletes old archives according to retention_policy_data days amount value
 function data_rotate()
 {
-    run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
+    run_ansible_routine "Kafka Data Rotate" "serial" "data_rotate"
     return $?
 }
 
@@ -586,8 +586,8 @@ function menu_main() {
             --menu "Choose a section:" 18 60 8 \
             "1" "Quit" \
             "2" "Prerequisites" \
-            "3" "Cluster Simple" \
-            "4" "Cluster Advanced" \
+            "3" "Cluster" \
+            "4" "Components" \
             "5" "GUI(s)" \
             3>&1 1>&2 2>&3)
 
@@ -603,8 +603,8 @@ function menu_main() {
         case "$choice" in
             1) exit 0 ;;
             2) menu_prerequisites ;;
-            3) menu_cluster_simple ;;
-            4) menu_cluster_advanced ;;
+            3) menu_cluster ;;
+            4) menu_components ;;
             5) menu_gui ;;
         esac
     done
@@ -660,12 +660,12 @@ function menu_prerequisites() {
 # Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
 # Provides options to deploy SSH keys and prerequisites across all nodes.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_cluster_simple() {
+function menu_cluster() {
     while true; do
         # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Simple > Choose an action:" 18 60 8 \
+            --menu "Cluster > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "Cluster Backup" \
             "3" "Cluster Reboot" \
@@ -716,12 +716,12 @@ function menu_cluster_simple() {
 # Displays the Certificates menu using Whiptail for managing Kafka certificates.
 # Provides options to generate, backup, or restore certificates.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_cluster_advanced() {
+function menu_components() {
     while true; do
         # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Advanced > Choose an action:" 18 60 8 \
+            --menu "Components > Choose an action:" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "ACLs" \
             "3" "Certificates" \

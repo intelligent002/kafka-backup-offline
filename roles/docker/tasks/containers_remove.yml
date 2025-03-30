@@ -1,4 +1,11 @@
 ---
+- name: Remove Balancer KSQL on node-00
+  tags: containers_remove
+  delegate_to: node-00
+  run_once: true
+  shell: >
+    docker rm -f balancer-ksql
+
 - name: Remove Balancer Connect on node-00
   tags: containers_remove
   delegate_to: node-00
