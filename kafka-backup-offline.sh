@@ -559,6 +559,13 @@ function data_rotate()
     return $?
 }
 
+# Deploy portainer on all nodes
+function gui_portainer()
+{
+    run_ansible_routine "Deploy GUI - Portainer" "parallel" "gui_portainer"
+    return $?
+}
+
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {

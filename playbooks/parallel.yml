@@ -23,6 +23,7 @@
     - role: ../roles/configs       # Include Configs related tasks
     - role: ../roles/data          # Include Data related tasks
     - role: ../roles/system        # Include stuff like Prerequisites, temp folder cleanup etc.
+    - role: ../roles/gui           # Include stuff like Portainer, KPOW, Kafka-UI
 
   post_tasks:
     - name: Cleanup temp folders after execution

@@ -1,0 +1,3 @@
+---
+- include_tasks: gui_portainer.yml
+  tags: gui_portainer

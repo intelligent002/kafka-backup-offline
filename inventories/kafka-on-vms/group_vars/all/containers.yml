@@ -225,6 +225,6 @@ docker_command_portainer_run: >
   -v /var/run/docker.sock:/var/run/docker.sock 
   -v {{ node_certificates_path }}:/certs 
   -v portainer_data:/data 
-  portainer/portainer-ce:2.27.1-alpine 
+  portainer/portainer-ce:2.33.3-alpine 
   --sslcert /certs/{{ hostvars['node-0']['hostname'] }}.crt 
   --sslkey /certs/{{ hostvars['node-0']['hostname'] }}.key
