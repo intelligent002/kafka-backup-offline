@@ -8,6 +8,3 @@
   tags: gui_portainer
   shell: >
     {{ docker_command_portainer_run }}
-  loop: "{{ groups['all'] }}"
-  loop_control:
-    loop_var: item
