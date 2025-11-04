@@ -1384,7 +1384,7 @@ function menu_gui() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "GUI(s) > Choose an action" 18 60 8 \
             "1" "Return to Main Menu" \
-            "2" "Docker GUI - 'Portainer-CE' on all nodes" \
+            "2" "Docker GUI - Portainer-CE on all nodes" \
             "3" "Kafka GUI - 'Kafka-UI' on node-0" \
             "4" "Kafka GUI - 'KPOW-CE' on node-0" \
             3>&1 1>&2 2>&3)
@@ -1429,11 +1429,11 @@ function menu_gui_portainer() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "GUI(s) > Choose an action" 18 60 8 \
             "1" "Return to Gui Menu" \
-            "2" "GUI 'Portainer-CE' - Install on all nodes" \
-            "3" "GUI 'Portainer-CE' - Restart on all nodes" \
-            "4" "GUI 'Portainer-CE' - Start on all nodes" \
-            "5" "GUI 'Portainer-CE' - Stop on all nodes" \
-            "6" "GUI 'Portainer-CE' - Uninstall on all nodes" \
+            "2" "Portainer-CE - Install on all nodes" \
+            "3" "Portainer-CE - Start on all nodes" \
+            "4" "Portainer-CE - Stop on all nodes" \
+            "5" "Portainer-CE - Restart on all nodes" \
+            "6" "Portainer-CE - Uninstall on all nodes" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -1457,14 +1457,6 @@ function menu_gui_portainer() {
                fi
                ;;
             3)
-               gui_portainer_restart
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Portainer-CE was restarted on all nodes!"
-               else
-                    show_failure_message "Failed to restart Portainer-CE\n\nExit the tool and review the logs."
-               fi
-               ;;
-            4)
                gui_portainer_start
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was started on all nodes!"
@@ -1472,12 +1464,20 @@ function menu_gui_portainer() {
                     show_failure_message "Failed to start Portainer-CE\n\nExit the tool and review the logs."
                fi
                ;;
-            5)
+            4)
                gui_portainer_stop
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was stopped on all nodes!"
                else
                     show_failure_message "Failed to stop Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               gui_portainer_restart
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was restarted on all nodes!"
+               else
+                    show_failure_message "Failed to restart Portainer-CE\n\nExit the tool and review the logs."
                fi
                ;;
             6)
