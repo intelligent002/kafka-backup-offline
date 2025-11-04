@@ -223,5 +223,8 @@ docker_command_portainer_run: >
   --health-timeout=5s 
   --health-retries=3 
   -v /var/run/docker.sock:/var/run/docker.sock 
+  -v /etc/ssl/certs:/certs 
   -v portainer_data:/data 
-  portainer/portainer-ce:2.33.3-alpine 
+  portainer/portainer-ee:2.33.3-alpine 
+  --sslcert /certs/{{ hostvars[inventory_hostname]['hostname'] }}.crt 
+  --sslkey /certs/{{ hostvars[inventory_hostname]['hostname'] }}.key
