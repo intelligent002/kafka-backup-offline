@@ -2,6 +2,7 @@
 - name: Remove Portainer on all nodes
   tags: gui_portainer
   shell: >
+    docker volume rm portainer_data
     docker rm -f portainer
 
 - name: Deploy Portainer on all nodes
