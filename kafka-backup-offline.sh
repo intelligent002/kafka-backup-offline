@@ -338,7 +338,7 @@ function run_ansible_routine()
         -v "$SCRIPT_DIR":/apps
         -v /var/log/ansible:/var/log/ansible
         -w /apps
-        alpine/ansible:2.18.1 ansible-playbook -vvv
+        alpine/ansible:2.18.1 ansible-playbook
         -i "inventories/$INVENTORY/hosts.yml"
         "playbooks/$playbook.yml"
         --tags "$tag"
