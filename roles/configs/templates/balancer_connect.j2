@@ -80,7 +80,15 @@ static_resources:
         interval: 10s
         unhealthy_threshold: 1
         healthy_threshold: 3
-        tcp_health_check: {}
+        transport_socket_match_criteria:
+          protocol: tls
+        http_health_check:
+          path: /
+          expected_statuses:
+            - start: 200
+              end: 201
+          codec_client_type: HTTP1
+          use_tls: true
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
