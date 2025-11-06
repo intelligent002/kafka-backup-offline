@@ -1,5 +1,9 @@
 admin:
-  access_log_path: "/dev/stdout"
+  access_log:
+    - name: envoy.access_loggers.file
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+        path: /dev/stdout
   address:
     socket_address:
       address: 0.0.0.0
@@ -65,7 +69,6 @@ static_resources:
     connect_timeout: 5s
     dns_lookup_family: V4_ONLY
     lb_policy: LEAST_REQUEST
-    max_requests_per_connection: 100
     common_lb_config:
       close_connections_on_host_set_change: true
     circuit_breakers:
