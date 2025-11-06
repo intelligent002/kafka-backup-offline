@@ -86,9 +86,6 @@ static_resources:
             - start: 200
               end: 201
           codec_client_type: HTTP1
-          use_tls: true
-        transport_socket_match_criteria:
-          protocol: tls
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
