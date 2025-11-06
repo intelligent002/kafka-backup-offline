@@ -65,7 +65,7 @@ static_resources:
     connect_timeout: 5s
     dns_lookup_family: V4_ONLY
     lb_policy: LEAST_REQUEST
-    max_requests_per_connection: 1
+    max_requests_per_connection: 100
     common_lb_config:
       close_connections_on_host_set_change: true
     circuit_breakers:
