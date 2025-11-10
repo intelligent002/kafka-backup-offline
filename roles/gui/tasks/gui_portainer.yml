@@ -3,6 +3,8 @@
   tags: gui_portainer_install
   shell: >
     {{ docker_command_portainer_run }}
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
 
 - name: Start Portainer on all nodes
   tags: gui_portainer_start

@@ -223,8 +223,8 @@ docker_command_portainer_run: >
   --health-timeout=5s 
   --health-retries=3 
   -v /var/run/docker.sock:/var/run/docker.sock 
-  -v /etc/ssl/certs:/certs 
+  -v {{ node_certificates_path }}:/certs 
   -v portainer_data:/data 
   portainer/portainer-ee:2.33.3-alpine 
-  --tlscert /certs/wildcard.intel.r7g.org-ACME.crt 
-  --tlskey /certs/wildcard.intel.r7g.org-ACME.key
+  --tlscert /certs/{{ hostvars[item]['hostname'] }}.crt 
+  --tlskey /certs/{{ hostvars[item]['hostname'] }}.key
