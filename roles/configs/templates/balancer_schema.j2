@@ -1,5 +1,9 @@
 admin:
-  access_log_path: "/dev/stdout"
+  access_log:
+    - name: envoy.access_loggers.file
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+        path: /dev/stdout
   address:
     socket_address:
       address: 0.0.0.0
@@ -65,7 +69,6 @@ static_resources:
     connect_timeout: 5s
     dns_lookup_family: V4_ONLY
     lb_policy: LEAST_REQUEST
-    max_requests_per_connection: 1
     common_lb_config:
       close_connections_on_host_set_change: true
     circuit_breakers:
@@ -77,19 +80,19 @@ static_resources:
           max_retries: 3
     health_checks:
       - timeout: 2s
-        interval: 30s
-        unhealthy_threshold: 2
-        healthy_threshold: 2
-        tcp_health_check: {}
+        interval: 15s
+        unhealthy_threshold: 1
+        healthy_threshold: 3
+        http_health_check:
+          path: /
+          expected_statuses:
+            - start: 200
+              end: 201
+          codec_client_type: HTTP1
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
       tcp_keepalive:
         keepalive_time: 3
-    outlier_detection:
-      consecutive_5xx: 3
-      interval: 10s
-      base_ejection_time: 30s
-      max_ejection_percent: 50
     transport_socket:
       name: envoy.transport_sockets.tls
       typed_config:

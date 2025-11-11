@@ -1,5 +1,5 @@
 ---
-- name: Install Portainer on all nodes
+- name: Install Portainer on all other nodes
   tags: gui_portainer_install
   run_once: true
   loop: "{{ groups['all'] }}"
