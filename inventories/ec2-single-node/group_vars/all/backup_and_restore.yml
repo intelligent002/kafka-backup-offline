@@ -178,6 +178,9 @@ node_data_path: "{{ node_data_store }}/logs"
 # Folder for meta files in the data folder on each node
 node_meta_path: "{{ node_data_store }}/meta"
 
+# Folder for secret files in the data folder on each node
+node_secrets_path: "{{ node_data_store }}/secrets"
+
 # Temporal data archive on node, for backup/restore operations
 node_data_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---data.tar.xz"
 
