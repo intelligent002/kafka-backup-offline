@@ -105,7 +105,7 @@ docker_command_schema_run: >
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_secrets_path'] }}:/etc/schema-registry/secrets
+  -v {{ hostvars[item]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
