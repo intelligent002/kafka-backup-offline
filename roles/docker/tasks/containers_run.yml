@@ -69,6 +69,10 @@
     recurse: true
 
 - name: Show docker command
+  tags:
+    - containers_run
+  delegate_to: "{{ item }}"
+  run_once: true
   debug:
     msg: |
       {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
