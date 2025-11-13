@@ -103,9 +103,9 @@ static_resources:
             tls_maximum_protocol_version: TLSv1_3
           tls_certificates:
             - certificate_chain:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.org.crt"
+                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.org.key"
+                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
           validation_context:
             trusted_ca:
               filename: "/data/cluster/certificates/CA/ca.crt"
