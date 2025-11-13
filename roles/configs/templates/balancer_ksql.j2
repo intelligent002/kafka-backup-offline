@@ -84,10 +84,14 @@ static_resources:
         unhealthy_threshold: 1
         healthy_threshold: 3
         http_health_check:
-          path: /
+          path: /info
           expected_statuses:
             - start: 200
               end: 201
+          response_match:
+            safe_regex:
+              google_re2: {}
+              regex: "\"serverStatus\"\\s*:\\s*\"RUNNING\""
           codec_client_type: HTTP1
     per_connection_buffer_limit_bytes: 32768
     upstream_connection_options:
@@ -103,9 +107,9 @@ static_resources:
             tls_maximum_protocol_version: TLSv1_3
           tls_certificates:
             - certificate_chain:
-                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.crt"
+                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.org.crt"
               private_key:
-                filename: "/data/cluster/certificates/nodes/node-00.intel.r7g.org/node-00.intel.r7g.org.key"
+                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.org.key"
           validation_context:
             trusted_ca:
               filename: "/data/cluster/certificates/CA/ca.crt"
