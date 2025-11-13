@@ -559,6 +559,40 @@ function data_rotate()
     return $?
 }
 
+# Deploy portainer on all nodes
+function gui_portainer_install()
+{
+    run_ansible_routine "GUI Portainer - Install" "parallel" "gui_portainer_install"
+    return $?
+}
+
+# Start portainer on all nodes
+function gui_portainer_start()
+{
+    run_ansible_routine "GUI Portainer - Start" "parallel" "gui_portainer_start"
+    return $?
+}
+
+# Stop portainer on all nodes
+function gui_portainer_stop()
+{
+    run_ansible_routine "GUI Portainer - Stop" "parallel" "gui_portainer_stop"
+    return $?
+}
+
+# Restart portainer on all nodes
+function gui_portainer_restart()
+{
+    run_ansible_routine "GUI Portainer - Restart" "parallel" "gui_portainer_restart"
+    return $?
+}
+# Uninstall portainer on all nodes
+function gui_portainer_uninstall()
+{
+    run_ansible_routine "GUI Portainer - Uninstall" "parallel" "gui_portainer_uninstall"
+    return $?
+}
+
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
@@ -1343,7 +1377,6 @@ function menu_data_restore()
     fi
 }
 
-
 # Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
 # Handles user input via whiptail and executes ACL application with error handling.
 function menu_gui() {
@@ -1351,7 +1384,7 @@ function menu_gui() {
         choice=$(whiptail --title "Kafka Backup Offline" \
             --menu "GUI(s) > Choose an action" 18 60 8 \
             "1" "Return to Main Menu" \
-            "2" "Docker GUI - 'Portainer-CE' on all nodes" \
+            "2" "Docker GUI - Portainer-CE on all nodes" \
             "3" "Kafka GUI - 'Kafka-UI' on node-0" \
             "4" "Kafka GUI - 'KPOW-CE' on node-0" \
             3>&1 1>&2 2>&3)
@@ -1368,14 +1401,7 @@ function menu_gui() {
             1)
                # Return to the parent menu
                return 0 ;;
-            2)
-               gui_portainer
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Portainer was deployed on all cluster nodes!"
-               else
-                    show_failure_message "Failed to deploy Portainer\n\nExit the tool and review the logs."
-               fi
-               ;;
+            2) menu_gui_portainer ;;
             3)
                gui_kafka
                if [[ $? -eq 0 ]]; then
@@ -1395,6 +1421,77 @@ function menu_gui() {
         esac
     done
 }
+
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function menu_gui_portainer() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "GUI(s) > Choose an action" 18 60 8 \
+            "1" "Return to Gui Menu" \
+            "2" "Portainer-CE - Install on all nodes" \
+            "3" "Portainer-CE - Start on all nodes" \
+            "4" "Portainer-CE - Stop on all nodes" \
+            "5" "Portainer-CE - Restart on all nodes" \
+            "6" "Portainer-CE - Uninstall on all nodes" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               gui_portainer_install
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was installed on all nodes!"
+               else
+                    show_failure_message "Failed to install Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               gui_portainer_start
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was started on all nodes!"
+               else
+                    show_failure_message "Failed to start Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               gui_portainer_stop
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was stopped on all nodes!"
+               else
+                    show_failure_message "Failed to stop Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               gui_portainer_restart
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was restarted on all nodes!"
+               else
+                    show_failure_message "Failed to restart Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            6)
+               gui_portainer_uninstall
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Portainer-CE was uninstalled on all nodes!"
+               else
+                    show_failure_message "Failed to uninstall Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
 
 # ===== Main Execution =====
 handle_directory

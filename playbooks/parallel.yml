@@ -37,3 +37,10 @@
         - data_backup
         - data_restore
         - temp_cleanup
+
+- name: Cluster Backup Offline - Parallel execution
+  hosts: all
+  become: yes
+  roles:
+    - role: ../roles/gui           # Include stuff like Portainer, KPOW, Kafka-UI
+

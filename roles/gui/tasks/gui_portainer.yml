@@ -1,0 +1,29 @@
+---
+- name: Install Portainer on all other nodes
+  tags: gui_portainer_install
+  run_once: true
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
+  shell: >
+    {{ docker_command_portainer_run }}
+
+- name: Start Portainer on all nodes
+  tags: gui_portainer_start
+  shell: >
+    docker start portainer
+
+- name: Restart Portainer on all nodes
+  tags: gui_portainer_restart
+  shell: >
+    docker restart portainer
+
+- name: Stop Portainer on all nodes
+  tags: gui_portainer_stop
+  shell: >
+    docker stop portainer
+
+- name: Remove Portainer on all nodes
+  tags: gui_portainer_uninstall
+  shell: |
+    docker rm -f portainer
+    docker volume rm portainer_data

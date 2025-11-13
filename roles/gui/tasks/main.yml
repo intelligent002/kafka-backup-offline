@@ -1,0 +1,9 @@
+---
+- include_tasks: gui_portainer.yml
+  tags:
+    - gui_portainer_install
+    - gui_portainer_start
+    - gui_portainer_restart
+    - gui_portainer_stop
+    - gui_portainer_uninstall
+

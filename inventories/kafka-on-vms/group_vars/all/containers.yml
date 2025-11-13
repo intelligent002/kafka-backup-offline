@@ -217,7 +217,7 @@ docker_command_data_format: >
 docker_command_portainer_run: >
   docker run -d --restart=always
   --name=portainer 
-  -p {{ hostvars[item]['port_portainer_ext'] }}:{{ hostvars[item]['port_portainer_int'] }}
+  -p {{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}
   --health-cmd="if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status; then echo 'Status is OK' && exit 0; else echo 'Status is NOT OK' && exit 1; fi" 
   --health-interval=30s 
   --health-timeout=5s 
@@ -225,6 +225,6 @@ docker_command_portainer_run: >
   -v /var/run/docker.sock:/var/run/docker.sock 
   -v {{ node_certificates_path }}:/certs 
   -v portainer_data:/data 
-  portainer/portainer-ce:2.27.1-alpine 
-  --sslcert /certs/{{ hostvars['node-0']['hostname'] }}.crt 
-  --sslkey /certs/{{ hostvars['node-0']['hostname'] }}.key
+  portainer/portainer-ee:2.33.3-alpine 
+  --tlscert /certs/{{ hostvars[item]['hostname'] }}.crt 
+  --tlskey /certs/{{ hostvars[item]['hostname'] }}.key
