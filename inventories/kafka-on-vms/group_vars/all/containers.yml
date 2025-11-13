@@ -105,6 +105,7 @@ docker_command_schema_run: >
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
+  -v {{ hostvars[item]['node_data_path'] }}:/etc/schema-registry/secrets
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
@@ -215,6 +216,21 @@ docker_command_data_format: >
   --config /mnt/shared/config/kraft.properties
 
 docker_command_portainer_run: >
+  docker run -d --restart=always
+  --name=portainer 
+  -p {{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}
+  --health-cmd="if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status; then echo 'Status is OK' && exit 0; else echo 'Status is NOT OK' && exit 1; fi" 
+  --health-interval=30s 
+  --health-timeout=5s 
+  --health-retries=3 
+  -v /var/run/docker.sock:/var/run/docker.sock 
+  -v {{ node_certificates_path }}:/certs 
+  -v portainer_data:/data 
+  portainer/portainer-ee:2.33.3-alpine 
+  --tlscert /certs/{{ hostvars[item]['hostname'] }}.crt 
+  --tlskey /certs/{{ hostvars[item]['hostname'] }}.key
+
+docker_command_kpow_run: >
   docker run -d --restart=always
   --name=portainer 
   -p {{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}
