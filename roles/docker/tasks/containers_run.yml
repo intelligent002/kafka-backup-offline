@@ -72,10 +72,10 @@
   debug:
     msg: |
       {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
-      {% elif 'brokers' in group_roles[item] %} {{ docker_command_brokers_run }}
-      {% elif 'connect' in group_roles[item] %} {{ docker_command_connect_run }}
-      {% elif 'schema' in group_roles[item] %} {{ docker_command_schema_run }}
-      {% elif 'ksql' in group_roles[item] %} {{ docker_command_ksql_run }}
+      {% elif 'brokers'   in group_roles[item] %} {{ docker_command_brokers_run }}
+      {% elif 'connect'   in group_roles[item] %} {{ docker_command_connect_run }}
+      {% elif 'schema'    in group_roles[item] %} {{ docker_command_schema_run }}
+      {% elif 'ksql'      in group_roles[item] %} {{ docker_command_ksql_run }}
       {% else %} Undefined group
       {% endif %}
   with_items: "{{ startup_order }}"
