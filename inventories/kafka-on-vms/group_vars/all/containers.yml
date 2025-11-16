@@ -233,7 +233,8 @@ docker_command_portainer_run: >
 docker_command_kpow_ce_run: >
   docker run -d --restart=always 
   --name=kpow_ce
-  --hostname=kpow_ce 
+  --hostname=kpow_ce
+  -p {{ hostvars[inventory_hostname]['port_kpow_ce_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_int'] }}
   --memory="1g" 
   -v /data:/data:ro 
   --env-file={{ node_config_path }}/kpow_ce.env 
