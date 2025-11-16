@@ -1,0 +1,26 @@
+---
+- name: Install KPOW-CE on node-00
+  tags: gui_kpow_ce_install
+  shell: >
+    {{ docker_command_kpow_ce_run }}
+
+- name: Start KPOW-CE on node-00
+  tags: gui_kpow_ce_start
+  shell: >
+    docker start kpow_ce
+
+- name: Restart KPOW-CE on node-00
+  tags: gui_kpow_ce_restart
+  shell: >
+    docker restart kpow_ce
+
+- name: Stop KPOW-CE on node-00
+  tags: gui_kpow_ce_stop
+  shell: >
+    docker stop kpow_ce
+
+- name: Remove KPOW-CE on node-00
+  tags: gui_kpow_ce_uninstall
+  shell: >
+    docker rm -f kpow_ce
+    docker volume rm kpow_ce_data

@@ -1,3 +1,6 @@
+port_kpow_ce_ext: 3000
+port_kpow_ce_int: 3000
+
 port_portainer_ext: 9443
 port_portainer_int: 9443
 
