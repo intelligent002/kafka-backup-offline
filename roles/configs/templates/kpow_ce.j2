@@ -1,0 +1,99 @@
+# Your license details.
+LICENSE_ID={{ KPOW_CE_LICENSE_ID }}
+LICENSE_CODE={{ KPOW_CE_LICENSE_CODE }}
+LICENSEE={{ KPOW_CE_LICENSEE }}
+LICENSE_EXPIRY={{ KPOW_CE_LICENSE_EXPIRY }}
+LICENSE_SIGNATURE={{ KPOW_CE_LICENSE_SIGNATURE }}
+
+# cluster definition
+ENVIRONMENT_NAME={{ KPOW_CE_ENVIRONMENT_NAME }}
+BOOTSTRAP={% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}
+SSL://{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# cluster connection
+SECURITY_PROTOCOL=SSL
+SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=
+SSL_PROTOCOL=TLSv1.3
+SSL_KEYSTORE_LOCATION={{ storage_certificates_path }}/users/admin/admin.jks
+SSL_KEYSTORE_PASSWORD={{ certificate_password }}
+SSL_KEY_PASSWORD={{ certificate_password }}
+SSL_TRUSTSTORE_LOCATION={{ storage_certificates_path }}/shared.truststore.jks
+SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
+
+# Schema Registry Configuration
+SCHEMA_REGISTRY_NAME={{ KPOW_CE_SCHEMA_REGISTRY_NAME }}
+SCHEMA_REGISTRY_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
+SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION={{ storage_certificates_path }}/users/admin/admin.jks
+SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD={{ certificate_password }}
+SCHEMA_REGISTRY_SSL_KEYSTORE_TYPE=JKS
+SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION={{ storage_certificates_path }}/shared.truststore.jks
+SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
+SCHEMA_REGISTRY_SSL_TRUSTSTORE_TYPE=JKS
+
+# connect
+CONNECT_NAME={{ KPOW_CE_CONNECT_NAME }}
+CONNECT_AUTO_RESTART="*"
+CONNECT_REST_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
+CONNECT_PERMISSIVE_SSL=false
+CONNECT_SSL_KEYSTORE_LOCATION={{ storage_certificates_path }}/users/admin/admin.jks
+CONNECT_SSL_KEYSTORE_PASSWORD={{ certificate_password }}
+CONNECT_SSL_KEYSTORE_TYPE=JKS
+CONNECT_SSL_TRUSTSTORE_LOCATION={{ storage_certificates_path }}/shared.truststore.jks
+CONNECT_SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
+CONNECT_SSL_TRUSTSTORE_TYPE=JKS
+
+# KSQL Configuration
+KSQLDB_NAME={{ KPOW_CE_KSQLDB_NAME }}
+KSQLDB_HOST={{ hostvars['node-00']['hostname'] }}
+KSQLDB_PORT={{ port_ksql_balancer_ext }}
+KSQLDB_USE_TLS=true
+KSQLDB_SSL_PROTOCOL=TLSv1.3
+KSQLDB_USE_ALPN=true
+KSQLDB_VERIFY_HOST=true
+KSQLDB_TRUSTSTORE={{ storage_certificates_path }}/shared.truststore.jks
+KSQLDB_TRUSTSTORE_PASSWORD={{ certificate_password }}
+KSQLDB_KEYSTORE={{ storage_certificates_path }}/users/admin/admin.jks
+KSQLDB_KEYSTORE_PASSWORD={{ certificate_password }}
+KSQLDB_KEY_PASSWORD={{ certificate_password }}
+
+# default serders
+DEFAULT_HEADERS_SERDES=JSON
+DEFAULT_KEY_SERDES=JSON
+DEFAULT_VALUE_SERDES=JSON
+
+# cluster permissions
+ALLOW_ACL_EDIT=true
+ALLOW_ADMIN=true
+ALLOW_BROKER_EDIT=true
+ALLOW_BROKER_UNREGISTER=true
+ALLOW_BULK_ACTION=true
+ALLOW_CONNECT_ALTER_STATE=true
+ALLOW_CONNECT_CREATE=true
+ALLOW_CONNECT_DELETE=true
+ALLOW_CONNECT_EDIT=true
+ALLOW_CONNECT_EDIT_CONFIG=true
+ALLOW_CONNECT_INSPECT=true
+ALLOW_GROUP_DELETE=true
+ALLOW_GROUP_EDIT=true
+ALLOW_KPOW_ADMIN=true
+ALLOW_KSQLDB_EXECUTE=true
+ALLOW_KSQLDB_INSERT=true
+ALLOW_KSQLDB_QUERY=true
+ALLOW_KSQLDB_TERMINATE_QUERY=true
+ALLOW_PRODUCER_EDIT=true
+ALLOW_QUOTA_EDIT=true
+ALLOW_SCHEMA_CREATE=true
+ALLOW_SCHEMA_DELETE=true
+ALLOW_SCHEMA_EDIT=true
+ALLOW_SCHEMA_EDIT_VERSION=true
+ALLOW_SCHEMA_VERSION_EDIT=true
+ALLOW_TOPIC_ALTER_REASSIGNMENTS=true
+ALLOW_TOPIC_CREATE=true
+ALLOW_TOPIC_DATA_DOWNLOAD=true
+ALLOW_TOPIC_DATA_QUERY=true
+ALLOW_TOPIC_DELETE=true
+ALLOW_TOPIC_EDIT=true
+ALLOW_TOPIC_ELECT_LEADER=true
+ALLOW_TOPIC_INSPECT=true
+ALLOW_TOPIC_PRODUCE=true
+ALLOW_TOPIC_TRUNCATE=true

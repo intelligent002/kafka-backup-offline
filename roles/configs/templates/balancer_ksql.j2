@@ -55,12 +55,12 @@ static_resources:
               tls_maximum_protocol_version: TLSv1_3
             tls_certificates:
               certificate_chain:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
             validation_context:
               trusted_ca:
-                filename: "/data/cluster/certificates/CA/ca.crt"
+                filename: "{{ storage_certificates_path }}/CA/ca.crt"
             alpn_protocols: ["h2", "http/1.1"]
 
   clusters:
@@ -103,12 +103,12 @@ static_resources:
             tls_maximum_protocol_version: TLSv1_3
           tls_certificates:
             - certificate_chain:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "/data/cluster/certificates/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
           validation_context:
             trusted_ca:
-              filename: "/data/cluster/certificates/CA/ca.crt"
+              filename: "{{ storage_certificates_path }}/CA/ca.crt"
           alpn_protocols: ["http/1.1"]
     load_assignment:
       cluster_name: kafka_ksql_cluster

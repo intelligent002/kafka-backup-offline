@@ -75,3 +75,14 @@
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
+
+- name: Deploy KPOW-CE config on node-00
+  tags: configs_generate
+  delegate_to: node-00
+  run_once: true
+  ansible.builtin.template:
+    src: "kpow_ce.j2"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/kpow_ce.env"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
