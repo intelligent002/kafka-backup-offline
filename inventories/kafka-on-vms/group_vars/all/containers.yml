@@ -236,7 +236,7 @@ docker_command_kpow_ce_run: >
   --hostname=kpow_ce 
   --memory="1g" 
   -v /data:/data:ro 
-  --env-file={{ node_config_path }}/env-ce-mtls.env 
+  --env-file={{ node_config_path }}/kpow_ce.env 
   -e JVM_OPTS="
   -Djava.awt.headless=true 
   -Djavax.net.ssl.trustStore={{ storage_certificates_path }}/shared.truststore.jks 
