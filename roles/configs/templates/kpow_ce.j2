@@ -32,7 +32,7 @@ SCHEMA_REGISTRY_SSL_TRUSTSTORE_TYPE=JKS
 
 # connect
 CONNECT_NAME={{ KPOW_CE_CONNECT_NAME }}
-CONNECT_AUTO_RESTART="*"
+CONNECT_AUTO_RESTART=*
 CONNECT_REST_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
 CONNECT_PERMISSIVE_SSL=false
 CONNECT_SSL_KEYSTORE_LOCATION={{ storage_certificates_path }}/users/admin/admin.jks
