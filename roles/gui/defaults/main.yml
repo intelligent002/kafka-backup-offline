@@ -26,8 +26,10 @@ kpow_gui_containers:
         - >
           response=$(curl -s http://localhost:3000);
           if echo "$response" | grep -q "<title>Kpow for Apache Kafka"; then
+            echo "OK";
             exit 1;
           else
+            echo "Unhealthy";
             exit 0;
           fi
       interval: "30s"
@@ -51,8 +53,10 @@ kpow_gui_containers:
         - >
           response=$(curl -s --cacert {{ storage_certificates_path }}/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health);
           if echo "$response" | grep -q "OK"; then
+            echo "OK";
             exit 1;
           else
+            echo "Unhealthy";
             exit 0;
           fi
       interval: "30s"
