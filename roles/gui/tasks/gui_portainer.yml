@@ -14,7 +14,7 @@
     volumes: "{{ container.volumes | default([]) }}"
     env_file: "{{ container.env_file | default(omit) }}"
     env: "{{ container.env | default({}) }}"
-    command: "{{ container.command }}"
+    command: "{{ container.command | default(omit) }}"
     healthcheck: "{{ container.healthcheck | default(omit) }}"
     state: started
 
