@@ -19,8 +19,8 @@ http {
         listen 443 ssl;
         server_name {{ hostvars['node-00']['hostname'] }};
 
-        ssl_certificate {{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.crt;
-        ssl_certificate_key {{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.key;
+        ssl_certificate {{ storage_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.crt;
+        ssl_certificate_key {{ storage_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.key;
         ssl_protocols TLSv1.3;
         ssl_ciphers HIGH:!aNULL:!MD5;
 
