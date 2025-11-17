@@ -41,6 +41,7 @@ http {
         }
 
         location = /health {
+            default_type text/plain;
             return 200 "OK";
         }
 

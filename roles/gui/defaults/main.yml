@@ -21,10 +21,15 @@ kpow_gui_containers:
         -XX:MaxInlineLevel=15
         -XX:MaxRAMPercentage=70
     healthcheck:
-      test: >
-        ["CMD-SHELL",
-         "response=$(curl -s http://localhost:3000);
-          if echo \"$response\" | grep -q \"<title>Kpow for Apache Kafka\"; then exit 0; else exit 1; fi"]
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -s http://localhost:3000);
+          if echo "$response" | grep -q "<title>Kpow for Apache Kafka"; then
+            exit 0;
+          else
+            exit 1;
+          fi
       interval: "30s"
       retries: 3
       start_period: "10s"
