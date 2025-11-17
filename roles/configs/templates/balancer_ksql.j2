@@ -55,9 +55,9 @@ static_resources:
               tls_maximum_protocol_version: TLSv1_3
             tls_certificates:
               certificate_chain:
-                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.key"
             validation_context:
               trusted_ca:
                 filename: "{{ storage_certificates_path }}/CA/ca.crt"
@@ -103,9 +103,9 @@ static_resources:
             tls_maximum_protocol_version: TLSv1_3
           tls_certificates:
             - certificate_chain:
-                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}.key"
           validation_context:
             trusted_ca:
               filename: "{{ storage_certificates_path }}/CA/ca.crt"
