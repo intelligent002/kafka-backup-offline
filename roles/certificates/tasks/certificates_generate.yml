@@ -154,7 +154,6 @@
     -alias {{ hostvars[item].hostname }} -noprompt
   loop: "{{ groups['all'] }}"
   register: keystore_conversion
-  changed_when: "'importing keystore' in keystore_conversion.stdout"
   args:
     creates: "{{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks"
 
