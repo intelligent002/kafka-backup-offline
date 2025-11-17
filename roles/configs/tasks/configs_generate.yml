@@ -34,7 +34,7 @@
 - name: Ensure Config directory exists
   tags:
     - configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.file:
     path: "{{ hostvars['node-00']['node_config_path'] }}"
@@ -45,7 +45,7 @@
 
 - name: Deploy Balancer Schema config
   tags: configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.template:
     src: "balancer_schema.j2"
@@ -56,7 +56,7 @@
 
 - name: Deploy Balancer Connect config
   tags: configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.template:
     src: "balancer_connect.j2"
@@ -67,7 +67,7 @@
 
 - name: Deploy Balancer KSQL config
   tags: configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.template:
     src: "balancer_ksql.j2"
@@ -78,7 +78,7 @@
 
 - name: Deploy KPOW-CE console config
   tags: configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.template:
     src: "kpow_ce_console.j2"
@@ -89,7 +89,7 @@
 
 - name: Deploy KPOW-CE proxy config
   tags: configs_generate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.template:
     src: "kpow_ce_proxy.j2"
