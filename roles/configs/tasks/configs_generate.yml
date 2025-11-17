@@ -17,6 +17,7 @@
 
 - name: Deploy Config files to nodes
   tags: configs_generate
+  when: "'central' not in group_names"
   ansible.builtin.template:
     src: "{{ selected_template }}"
     dest: "{{ node_config_file }}"
