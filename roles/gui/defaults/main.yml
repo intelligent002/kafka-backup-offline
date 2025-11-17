@@ -46,10 +46,15 @@ kpow_gui_containers:
       - "{{ node_config_path }}/kpow_ce_proxy.conf:/etc/nginx/nginx.conf:ro"
       - "/data:/data:ro"
     healthcheck:
-      test: >
-        ["CMD-SHELL",
-         "response=$(curl -sk https://{{ hostvars['node-00']['hostname'] }}/health);
-          if echo \"$response\" | grep -q \"OK\"; then exit 0; else exit 1; fi"]
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -sk https://{{ hostvars['node-00']['hostname'] }}/health);
+          if echo "$response" | grep -q "OK"; then
+            exit "OK";
+          else
+            exit "Unhealthy";
+          fi
       interval: "30s"
       retries: 3
       start_period: "10s"
