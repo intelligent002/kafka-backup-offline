@@ -26,9 +26,9 @@ kpow_gui_containers:
         - >
           response=$(curl -s http://localhost:3000);
           if echo "$response" | grep -q "<title>Kpow for Apache Kafka"; then
-            exit 0;
+            exit "OK";
           else
-            exit 1;
+            exit "Unhealthy";
           fi
       interval: "30s"
       retries: 3
