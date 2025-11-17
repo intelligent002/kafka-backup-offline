@@ -262,6 +262,7 @@
 - name: Distribute required certificates to all nodes
   tags:
     - certificates_generate
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -286,6 +287,7 @@
 - name: Distribute schema keystore to schema nodes only
   tags:
     - certificates_generate
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -303,6 +305,7 @@
 - name: Distribute connect keystore to connect nodes only
   tags:
     - certificates_generate
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -320,6 +323,7 @@
 - name: Distribute ksql keystore to ksql nodes only
   tags:
     - certificates_generate
+  delegate_to: node-00
   synchronize:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
