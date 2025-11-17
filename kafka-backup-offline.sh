@@ -444,7 +444,7 @@ function configs_restore()
 # Deletes old archives according to retention_policy_configs days amount value
 function configs_rotate()
 {
-    run_ansible_routine "Kafka Configs Rotate" "serial" "configs_rotate"
+    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
     return $?
 }
 
