@@ -4,33 +4,35 @@
   when: inventory_hostname == "node-00"
   run_once: true
   shell: >
-    {{ docker_command_kpow_ce_run }}
+    {{ docker_command_kpow_ce_console_run }}
 
 - name: Start KPOW-CE on node-00
   tags: gui_kpow_ce_start
   when: inventory_hostname == "node-00"
   run_once: true
   shell: >
-    docker start kpow_ce
+    docker start kpow_ce_console
 
 - name: Restart KPOW-CE on node-00
   tags: gui_kpow_ce_restart
   when: inventory_hostname == "node-00"
   run_once: true
   shell: >
-    docker restart kpow_ce
+    docker restart kpow_ce_console
 
 - name: Stop KPOW-CE on node-00
   tags: gui_kpow_ce_stop
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: >
-    docker stop kpow_ce
+  shell: |
+    docker stop kpow_ce_console || true
+    docker stop kpow_ce_proxy || true
 
 - name: Remove KPOW-CE on node-00
   tags: gui_kpow_ce_uninstall
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: >
-    docker rm -f kpow_ce
-    docker volume rm kpow_ce_data
+  shell: |
+    docker rm -f kpow_ce_proxy || true
+    docker rm -f kpow_ce_console || true
+    docker volume rm kpow_ce_data || true

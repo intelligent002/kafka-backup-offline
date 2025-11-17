@@ -31,7 +31,7 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Ensure Config directory exists on node-00
+- name: Ensure Config directory exists
   tags:
     - configs_generate
   delegate_to: node-00
@@ -43,7 +43,7 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy Balancer Schema config on node-00
+- name: Deploy Balancer Schema config
   tags: configs_generate
   delegate_to: node-00
   run_once: true
@@ -54,7 +54,7 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy Balancer Connect config on node-00
+- name: Deploy Balancer Connect config
   tags: configs_generate
   delegate_to: node-00
   run_once: true
@@ -65,7 +65,7 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy Balancer KSQL config on node-00
+- name: Deploy Balancer KSQL config
   tags: configs_generate
   delegate_to: node-00
   run_once: true
@@ -76,13 +76,24 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Deploy KPOW-CE config on node-00
+- name: Deploy KPOW-CE console config
   tags: configs_generate
   delegate_to: node-00
   run_once: true
   ansible.builtin.template:
-    src: "kpow_ce.j2"
-    dest: "{{ hostvars['node-00']['node_config_path'] }}/kpow_ce.env"
+    src: "kpow_ce_console.j2"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/kpow_ce_console.env"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: '{{ chmod_configs }}'
+
+- name: Deploy KPOW-CE proxy config
+  tags: configs_generate
+  delegate_to: node-00
+  run_once: true
+  ansible.builtin.template:
+    src: "kpow_ce_proxy.j2"
+    dest: "{{ hostvars['node-00']['node_config_path'] }}/kpow_ce_proxy.conf"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'

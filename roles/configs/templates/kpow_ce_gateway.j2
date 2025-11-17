@@ -1,0 +1,57 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream kpow_ce_console {
+        server {{ hostvars['node-00']['hostname'] }}:{{ port_kpow_ce_console_ext }};
+    }
+
+    # Redirect HTTP:80 to HTTPS
+    server {
+        listen 80;
+        server_name {{ hostvars['node-00']['hostname'] }};
+
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name {{ hostvars['node-00']['hostname'] }};
+
+        ssl_certificate {{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt;
+        ssl_certificate_key {{ storage_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key;
+        ssl_protocols TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+        location / {
+            proxy_pass http://kpow_ce_console;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            # WebSocket support
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+
+            proxy_read_timeout 86400;
+            proxy_send_timeout 86400;
+        }
+
+        location = /health {
+            return 200 "OK";
+        }
+
+        location /healthz/ {
+            alias /data/cluster/gui/KPOW/health/;
+            index index.html;
+            default_type text/plain;
+            autoindex off;
+
+            # Disable access logs for this location
+            access_log off;
+        }
+    }
+}
