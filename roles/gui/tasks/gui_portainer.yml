@@ -2,7 +2,6 @@
 # INSTALL
 - name: Install Portainer on all nodes
   tags: gui_portainer_install
-  run_once: true
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
