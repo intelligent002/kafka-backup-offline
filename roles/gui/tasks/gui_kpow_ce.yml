@@ -4,7 +4,18 @@
   tags: gui_kpow_ce_install
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: "{{ item.cmd }}"
+  docker_container:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    hostname: "{{ item.hostname }}"
+    restart_policy: "{{ item.restart_policy | default('always') }}"
+    published_ports: "{{ item.published_ports | default([]) }}"
+    memory: "{{ item.memory | default(omit) }}"
+    volumes: "{{ item.volumes | default([]) }}"
+    env_file: "{{ item.env_file | default(omit) }}"
+    env: "{{ item.env | default({}) }}"
+    healthcheck: "{{ item.healthcheck | default(omit) }}"
+    state: started
   loop: "{{ kpow_gui_containers }}"
 
 # START
@@ -12,15 +23,20 @@
   tags: gui_kpow_ce_start
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: "docker start {{ item.name }}"
+  docker_container:
+    name: "{{ item.name }}"
+    state: started
   loop: "{{ kpow_gui_containers }}"
+
 
 # RESTART
 - name: Restart KPOW GUI containers
   tags: gui_kpow_ce_restart
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: "docker restart {{ item.name }}"
+  docker_container:
+    name: "{{ item.name }}"
+    state: restarted
   loop: "{{ kpow_gui_containers }}"
 
 # STOP
@@ -28,20 +44,18 @@
   tags: gui_kpow_ce_stop
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: "docker stop {{ item.name }} || true"
+  docker_container:
+    name: "{{ item.name }}"
+    state: stopped
   loop: "{{ kpow_gui_containers }}"
+
 
 # UNINSTALL
 - name: Remove KPOW GUI containers
   tags: gui_kpow_ce_uninstall
   when: inventory_hostname == "node-00"
   run_once: true
-  shell: "docker rm -f {{ item.name }} || true"
+  docker_container:
+    name: "{{ item.name }}"
+    state: absent
   loop: "{{ kpow_gui_containers }}"
-
-# OPTIONAL: delete volume for console
-- name: Remove KPOW CE volume
-  tags: gui_kpow_ce_uninstall
-  when: inventory_hostname == "node-00"
-  run_once: true
-  shell: "docker volume rm kpow_ce_data || true"
