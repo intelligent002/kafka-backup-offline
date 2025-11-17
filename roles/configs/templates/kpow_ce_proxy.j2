@@ -43,12 +43,6 @@ http {
         location = /health {
             default_type text/plain;
             return 200 "OK";
-        }
-
-        location /healthz/ {
-            alias /data/cluster/gui/KPOW/health/;
-            index index.html;
-            default_type text/plain;
             autoindex off;
 
             # Disable access logs for this location
