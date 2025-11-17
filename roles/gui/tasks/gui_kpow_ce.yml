@@ -38,3 +38,10 @@
   run_once: true
   shell: "docker rm -f {{ item.name }} || true"
   loop: "{{ kpow_gui_containers }}"
+
+# OPTIONAL: delete volume for console
+- name: Remove KPOW CE volume
+  tags: gui_kpow_ce_uninstall
+  when: inventory_hostname == "node-00"
+  run_once: true
+  shell: "docker volume rm kpow_ce_data || true"
