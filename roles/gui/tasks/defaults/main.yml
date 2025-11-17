@@ -1,0 +1,5 @@
+kpow_gui_containers:
+  - name: kpow_ce_console
+    cmd: "{{ docker_command_kpow_ce_console_run }}"
+  - name: kpow_ce_proxy
+    cmd: "{{ docker_command_kpow_ce_proxy_run }}"
