@@ -46,7 +46,7 @@
     name: "portainer"
     state: absent
 
-- name: Remove Portainer on all nodes
+- name: Remove portainer_data volume on all nodes
   tags: gui_portainer_uninstall
   docker_volume:
     name: "portainer_datas"
