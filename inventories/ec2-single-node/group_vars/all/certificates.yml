@@ -5,7 +5,7 @@
 use_certificate: false
 
 # Directory on central for certificate generation.
-storage_certificates_path: "/data/cluster/certificates"
+certificates_store_path: "/data/cluster/certificates"
 
 # === Certificate parameters ===========================================================================================
 
