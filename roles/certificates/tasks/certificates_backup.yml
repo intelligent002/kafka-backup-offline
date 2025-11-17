@@ -42,6 +42,16 @@
       - "--timeout=60"
       - "--checksum"
 
+- name: Add certificates-store archive to the backup scope
+  tags:
+    - certificates_backup
+  when: inventory_hostname == "node-00"
+  run_once: true
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ certificates_store_path }} ./ | xz > {{ central_certificates_temp_archive }}
+
+
 - name: Create certificates zip of zips
   tags:
     - certificates_backup
