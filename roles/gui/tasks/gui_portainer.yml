@@ -1,29 +1,68 @@
 ---
-- name: Install Portainer on all other nodes
+# INSTALL
+- name: Install Portainer on all nodes
   tags: gui_portainer_install
   run_once: true
   loop: "{{ groups['all'] }}"
   delegate_to: "{{ item }}"
-  shell: >
-    {{ docker_command_portainer_run }}
+  vars:
+    container: "{{ gui_portainer[0] }}"
+  docker_container:
+    name: "{{ container.name }}"
+    image: "{{ container.image }}"
+    hostname: "{{ container.hostname }}"
+    restart_policy: "{{ container.restart_policy | default('always') }}"
+    published_ports: "{{ container.published_ports | default([]) }}"
+    memory: "{{ container.memory | default(omit) }}"
+    volumes: "{{ container.volumes | default([]) }}"
+    env_file: "{{ container.env_file | default(omit) }}"
+    env: "{{ container.env | default({}) }}"
+    command: "{{ container.command }}"
+    healthcheck: "{{ container.healthcheck | default(omit) }}"
+    state: started
 
+# START
 - name: Start Portainer on all nodes
   tags: gui_portainer_start
-  shell: >
-    docker start portainer
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
+  run_once: true
+  docker_container:
+    name: "portainer"
+    state: started
 
+# RESTART
 - name: Restart Portainer on all nodes
   tags: gui_portainer_restart
-  shell: >
-    docker restart portainer
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
+  run_once: true
+  docker_container:
+    name: "portainer"
+    state: restarted
 
+# STOP
 - name: Stop Portainer on all nodes
   tags: gui_portainer_stop
-  shell: >
-    docker stop portainer
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
+  run_once: true
+  docker_container:
+    name: "portainer"
+    state: stopped
+
+# UNINSTALL
+- name: Uninstall Portainer on all nodes
+  tags: gui_portainer_uninstall
+  loop: "{{ groups['all'] }}"
+  delegate_to: "{{ item }}"
+  run_once: true
+  docker_container:
+    name: "portainer"
+    state: absent
 
 - name: Remove Portainer on all nodes
   tags: gui_portainer_uninstall
-  shell: |
-    docker rm -f portainer
-    docker volume rm portainer_data
+  docker_volume:
+    name: "portainer_datas"
+    state: absent

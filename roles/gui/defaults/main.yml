@@ -1,6 +1,36 @@
-gui_portainer_containers:
+gui_portainer:
+  - name: portainer
+    image: "portainer/portainer-ee:2.33.3-alpine"
+    hostname: "portainer"
+    restart_policy: "always"
+    published_ports:
+      - "{{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ node_certificates_path }}:/certs"
+      - "portainer_data:/data"
+    command:
+      [
+        "--tlscert", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.crt",
+        "--tlskey", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.key"
+      ]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status;
+          then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
 
-gui_kpow_containers:
+gui_kpow:
   - name: kpow_ce_console
     image: "factorhouse/kpow-ce:94.6"
     hostname: "kpow_ce_console"

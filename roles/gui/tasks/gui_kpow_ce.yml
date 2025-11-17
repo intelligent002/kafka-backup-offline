@@ -4,6 +4,7 @@
   tags: gui_kpow_ce_install
   when: inventory_hostname == "node-00"
   run_once: true
+  loop: "{{ gui_kpow }}"
   docker_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"
@@ -14,9 +15,9 @@
     volumes: "{{ item.volumes | default([]) }}"
     env_file: "{{ item.env_file | default(omit) }}"
     env: "{{ item.env | default({}) }}"
+    command: "{{ item.command }}"
     healthcheck: "{{ item.healthcheck | default(omit) }}"
     state: started
-  loop: "{{ gui_kpow_containers }}"
 
 # START
 - name: Start KPOW GUI containers
@@ -26,7 +27,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: started
-  loop: "{{ gui_kpow_containers }}"
+  loop: "{{ gui_kpow }}"
 
 # RESTART
 - name: Restart KPOW GUI containers
@@ -36,7 +37,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: restarted
-  loop: "{{ gui_kpow_containers }}"
+  loop: "{{ gui_kpow }}"
 
 # STOP
 - name: Stop KPOW GUI containers
@@ -46,7 +47,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: stopped
-  loop: "{{ gui_kpow_containers }}"
+  loop: "{{ gui_kpow }}"
 
 # UNINSTALL
 - name: Remove KPOW GUI containers
@@ -56,4 +57,4 @@
   docker_container:
     name: "{{ item.name }}"
     state: absent
-  loop: "{{ gui_kpow_containers }}"
+  loop: "{{ gui_kpow }}"
