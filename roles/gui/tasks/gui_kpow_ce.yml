@@ -16,7 +16,7 @@
     env: "{{ item.env | default({}) }}"
     healthcheck: "{{ item.healthcheck | default(omit) }}"
     state: started
-  loop: "{{ kpow_gui_containers }}"
+  loop: "{{ gui_kpow_containers }}"
 
 # START
 - name: Start KPOW GUI containers
@@ -26,8 +26,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: started
-  loop: "{{ kpow_gui_containers }}"
-
+  loop: "{{ gui_kpow_containers }}"
 
 # RESTART
 - name: Restart KPOW GUI containers
@@ -37,7 +36,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: restarted
-  loop: "{{ kpow_gui_containers }}"
+  loop: "{{ gui_kpow_containers }}"
 
 # STOP
 - name: Stop KPOW GUI containers
@@ -47,8 +46,7 @@
   docker_container:
     name: "{{ item.name }}"
     state: stopped
-  loop: "{{ kpow_gui_containers }}"
-
+  loop: "{{ gui_kpow_containers }}"
 
 # UNINSTALL
 - name: Remove KPOW GUI containers
@@ -58,4 +56,4 @@
   docker_container:
     name: "{{ item.name }}"
     state: absent
-  loop: "{{ kpow_gui_containers }}"
+  loop: "{{ gui_kpow_containers }}"

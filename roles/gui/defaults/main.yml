@@ -1,4 +1,6 @@
-kpow_gui_containers:
+gui_portainer_containers:
+
+gui_kpow_containers:
   - name: kpow_ce_console
     image: "factorhouse/kpow-ce:94.6"
     hostname: "kpow_ce_console"
@@ -24,8 +26,8 @@ kpow_gui_containers:
       test:
         - CMD-SHELL
         - >
-          response=$(curl -s http://localhost:3000);
-          if echo "$response" | grep -q "<title>Kpow for Apache Kafka"; then
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/healthy);
+          if [ "$response" -eq 200 ]; then
             echo "OK";
             exit 0;
           else
