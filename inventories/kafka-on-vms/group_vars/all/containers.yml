@@ -263,7 +263,7 @@ docker_command_kpow_ce_proxy_run: >
   --memory="256m"
   -v {{ node_config_path }}/kpow_ce_proxy.conf:/etc/nginx/nginx.conf:ro
   -v /data:/data:ro
-  --health-cmd='response=$(curl -s --cacert {{ storage_certificates_path }}/CA/ca.crt https://localhost/health); if echo "$response" | grep -q "OK"; then echo "Status OK"; exit 0; else echo "Status NOT OK"; exit 1; fi'
+  --health-cmd='response=$(curl -s --cacert {{ storage_certificates_path }}/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health); if echo "$response" | grep -q "OK"; then echo "Status OK"; exit 0; else echo "Status NOT OK"; exit 1; fi'
   --health-interval=30s
   --health-retries=3
   --health-start-period=10s
