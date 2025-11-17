@@ -21,9 +21,6 @@
 # START
 - name: Start Portainer on all nodes
   tags: gui_portainer_start
-  loop: "{{ groups['all'] }}"
-  delegate_to: "{{ item }}"
-  run_once: true
   docker_container:
     name: "portainer"
     state: started
@@ -31,9 +28,6 @@
 # RESTART
 - name: Restart Portainer on all nodes
   tags: gui_portainer_restart
-  loop: "{{ groups['all'] }}"
-  delegate_to: "{{ item }}"
-  run_once: true
   docker_container:
     name: "portainer"
     state: restarted
@@ -41,9 +35,6 @@
 # STOP
 - name: Stop Portainer on all nodes
   tags: gui_portainer_stop
-  loop: "{{ groups['all'] }}"
-  delegate_to: "{{ item }}"
-  run_once: true
   docker_container:
     name: "portainer"
     state: stopped
@@ -51,9 +42,6 @@
 # UNINSTALL
 - name: Uninstall Portainer on all nodes
   tags: gui_portainer_uninstall
-  loop: "{{ groups['all'] }}"
-  delegate_to: "{{ item }}"
-  run_once: true
   docker_container:
     name: "portainer"
     state: absent
