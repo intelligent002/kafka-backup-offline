@@ -7,3 +7,11 @@
     - gui_portainer_stop
     - gui_portainer_uninstall
 
+- include_tasks: gui_kpow_ce.yml
+  tags:
+    - gui_kpow_ce_install
+    - gui_kpow_ce_start
+    - gui_kpow_ce_restart
+    - gui_kpow_ce_stop
+    - gui_kpow_ce_uninstall
+

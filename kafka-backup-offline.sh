@@ -593,6 +593,40 @@ function gui_portainer_uninstall()
     return $?
 }
 
+# Deploy portainer on all nodes
+function gui_kpow_ce_install()
+{
+    run_ansible_routine "GUI KPOW-CE - Install" "parallel" "gui_kpow_ce_install"
+    return $?
+}
+
+# Start portainer on all nodes
+function gui_kpow_ce_start()
+{
+    run_ansible_routine "GUI KPOW-CE - Start" "parallel" "gui_kpow_ce_start"
+    return $?
+}
+
+# Stop portainer on all nodes
+function gui_kpow_ce_stop()
+{
+    run_ansible_routine "GUI KPOW-CE - Stop" "parallel" "gui_kpow_ce_stop"
+    return $?
+}
+
+# Restart portainer on all nodes
+function gui_kpow_ce_restart()
+{
+    run_ansible_routine "GUI KPOW-CE - Restart" "parallel" "gui_kpow_ce_restart"
+    return $?
+}
+# Uninstall portainer on all nodes
+function gui_kpow_ce_uninstall()
+{
+    run_ansible_routine "GUI KPOW-CE - Uninstall" "parallel" "gui_kpow_ce_uninstall"
+    return $?
+}
+
 # Displays a failure message using a Whiptail dialog box.
 # Accepts a message string as an argument and shows it in a 10x60 box.
 function show_failure_message() {
@@ -1385,8 +1419,7 @@ function menu_gui() {
             --menu "GUI(s) > Choose an action" 18 60 8 \
             "1" "Return to Main Menu" \
             "2" "Docker GUI - Portainer-CE on all nodes" \
-            "3" "Kafka GUI - 'Kafka-UI' on node-0" \
-            "4" "Kafka GUI - 'KPOW-CE' on node-0" \
+            "3" "Kafka GUI - 'KPOW-CE' on node-0" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of whiptail
@@ -1402,22 +1435,7 @@ function menu_gui() {
                # Return to the parent menu
                return 0 ;;
             2) menu_gui_portainer ;;
-            3)
-               gui_kafka
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Kafka GUI - 'Kafka-UI' was deployed!"
-               else
-                    show_failure_message "Failed to deploy Kafka GUI - 'Kafka-UI'\n\nExit the tool and review the logs."
-               fi
-               ;;
-            4)
-               gui_kpow
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Kafka GUI - 'Kpow' was deployed!"
-               else
-                    show_failure_message "Failed to deploy Kafka GUI - 'Kpow'\n\nExit the tool and review the logs."
-               fi
-               ;;
+            3) menu_gui_kpow_ce ;;
         esac
     done
 }
@@ -1486,6 +1504,76 @@ function menu_gui_portainer() {
                     show_success_message "Portainer-CE was uninstalled on all nodes!"
                else
                     show_failure_message "Failed to uninstall Portainer-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays a menu for managing Kafka ACLs, allowing users to apply ACL configurations.
+# Handles user input via whiptail and executes ACL application with error handling.
+function menu_gui_kpow_ce() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "GUI(s) > Choose an action" 18 60 8 \
+            "1" "Return to Gui Menu" \
+            "2" "KPOW-CE - Install on node-00" \
+            "3" "KPOW-CE - Start on node-00" \
+            "4" "KPOW-CE - Stop on node-00" \
+            "5" "KPOW-CE - Restart on node-00" \
+            "6" "KPOW-CE - Uninstall on node-00" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               # Return to the parent menu
+               return 0 ;;
+            2)
+               gui_kpow_ce_install
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "KPOW-CE was installed on all nodes!"
+               else
+                    show_failure_message "Failed to install KPOW-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               gui_kpow_ce_start
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "KPOW-CE was started on all nodes!"
+               else
+                    show_failure_message "Failed to start KPOW-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               gui_kpow_ce_stop
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "KPOW-CE was stopped on all nodes!"
+               else
+                    show_failure_message "Failed to stop KPOW-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               gui_kpow_ce_restart
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "KPOW-CE was restarted on all nodes!"
+               else
+                    show_failure_message "Failed to restart KPOW-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+            6)
+               gui_kpow_ce_uninstall
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "KPOW-CE was uninstalled on all nodes!"
+               else
+                    show_failure_message "Failed to uninstall KPOW-CE\n\nExit the tool and review the logs."
                fi
                ;;
         esac

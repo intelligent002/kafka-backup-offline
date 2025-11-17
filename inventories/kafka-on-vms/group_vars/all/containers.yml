@@ -105,6 +105,7 @@ docker_command_schema_run: >
   -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
   -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
   -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
+  -v {{ hostvars[item]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets
   -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
   -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
   -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
@@ -112,17 +113,17 @@ docker_command_schema_run: >
   /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_schema_run: >
-  docker run -d --restart=always 
-  --name balancer-schema 
-  -p {{ port_schema_balancer_ext }}:{{ port_schema_balancer_int }} 
-  -p {{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
-  --health-interval=60s 
-  --health-timeout=10s 
-  --health-retries=5 
-  --health-start-period=5s 
-  -v /data:/data:ro 
-  -v /data/cluster/config/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro 
+  docker run -d --restart=always
+  --name balancer-schema
+  -p {{ port_schema_balancer_ext }}:{{ port_schema_balancer_int }}
+  -p {{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }}
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
+  --health-interval=60s
+  --health-timeout=10s
+  --health-retries=5
+  --health-start-period=5s
+  -v /data:/data:ro
+  -v /data/cluster/config/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro
   envoyproxy/envoy:v1.33.0
 
 docker_command_connect_run: >
@@ -150,17 +151,17 @@ docker_command_connect_run: >
   /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
 
 docker_command_balancer_connect_run: >
-  docker run -d --restart=always 
-  --name balancer-connect 
-  -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }} 
-  -p {{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
-  --health-interval=60s 
-  --health-timeout=10s 
-  --health-retries=5 
-  --health-start-period=5s 
-  -v /data:/data:ro 
-  -v /data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro 
+  docker run -d --restart=always
+  --name balancer-connect
+  -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }}
+  -p {{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }}
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
+  --health-interval=60s
+  --health-timeout=10s
+  --health-retries=5
+  --health-start-period=5s
+  -v /data:/data:ro
+  -v /data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro
   envoyproxy/envoy:v1.33.0
 
 docker_command_ksql_run: >
@@ -188,43 +189,43 @@ docker_command_ksql_run: >
   /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
 
 docker_command_balancer_ksql_run: >
-  docker run -d --restart=always 
-  --name balancer-ksql 
-  -p {{ port_ksql_balancer_ext }}:{{ port_ksql_balancer_int }} 
-  -p {{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }} 
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'" 
-  --health-interval=60s 
-  --health-timeout=10s 
-  --health-retries=5 
-  --health-start-period=5s 
-  -v /data:/data:ro 
-  -v /data/cluster/config/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro 
+  docker run -d --restart=always
+  --name balancer-ksql
+  -p {{ port_ksql_balancer_ext }}:{{ port_ksql_balancer_int }}
+  -p {{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }}
+  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
+  --health-interval=60s
+  --health-timeout=10s
+  --health-retries=5
+  --health-start-period=5s
+  -v /data:/data:ro
+  -v /data/cluster/config/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro
   envoyproxy/envoy:v1.33.0
 
 docker_command_data_format: >
   docker run --rm
-  -v {{ node_config_path }}/:/mnt/shared/config 
-  -v {{ node_data_path }}:/var/lib/kafka/data 
-  -v {{ node_meta_path }}:/var/lib/kafka/meta 
-  -v {{ node_logs_path }}:/opt/kafka/logs 
-  -v {{ node_certificates_path }}/:/etc/kafka/secrets 
-  apache/kafka:3.9.0 
-  /opt/kafka/bin/kafka-storage.sh format 
-  --cluster-id {{ cluster_id }} 
-  --add-scram 'SCRAM-SHA-512=[name=admin,password=insecure]' 
+  -v {{ node_config_path }}/:/mnt/shared/config
+  -v {{ node_data_path }}:/var/lib/kafka/data
+  -v {{ node_meta_path }}:/var/lib/kafka/meta
+  -v {{ node_logs_path }}:/opt/kafka/logs
+  -v {{ node_certificates_path }}/:/etc/kafka/secrets
+  apache/kafka:3.9.0
+  /opt/kafka/bin/kafka-storage.sh format
+  --cluster-id {{ cluster_id }}
+  --add-scram 'SCRAM-SHA-512=[name=admin,password=insecure]'
   --config /mnt/shared/config/kraft.properties
 
 docker_command_portainer_run: >
   docker run -d --restart=always
-  --name=portainer 
+  --name=portainer
   -p {{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}
-  --health-cmd="if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status; then echo 'Status is OK' && exit 0; else echo 'Status is NOT OK' && exit 1; fi" 
-  --health-interval=30s 
-  --health-timeout=5s 
-  --health-retries=3 
-  -v /var/run/docker.sock:/var/run/docker.sock 
-  -v {{ node_certificates_path }}:/certs 
-  -v portainer_data:/data 
-  portainer/portainer-ee:2.33.3-alpine 
-  --tlscert /certs/{{ hostvars[item]['hostname'] }}.crt 
+  --health-cmd="if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status; then echo 'Status is OK' && exit 0; else echo 'Status is NOT OK' && exit 1; fi"
+  --health-interval=30s
+  --health-timeout=5s
+  --health-retries=3
+  -v /var/run/docker.sock:/var/run/docker.sock
+  -v {{ node_certificates_path }}:/certs
+  -v portainer_data:/data
+  portainer/portainer-ee:2.33.3-alpine
+  --tlscert /certs/{{ hostvars[item]['hostname'] }}.crt
   --tlskey /certs/{{ hostvars[item]['hostname'] }}.key

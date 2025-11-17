@@ -156,6 +156,11 @@ node_credentials_path: "{{ node_storage_base }}/credentials"
 # Temporal credentials archive on node, for backup/restore operations
 node_credentials_temp_archive: "{{ node_temp_path }}/{{ inventory_hostname }}---credentials.tar.xz"
 
+# === Node Schema Secrets section ======================================================================================
+
+# Folder for credentials files on each node
+node_schema_secrets_path: "{{ node_storage_base }}/schema_secrets"
+
 # === Node Storage Config section ======================================================================================
 
 # Folder for config files on each node
