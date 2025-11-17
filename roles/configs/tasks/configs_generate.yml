@@ -1,12 +1,4 @@
 ---
-- name: Determine the group for the host dynamically
-  tags: configs_generate
-  set_fact:
-    relevant_group: "{{ item }}"
-  with_items: "{{ group_names }}"
-  when: item not in ['all', 'cluster', 'central']
-  run_once: false
-
 - name: Ensure Config directory exists on nodes
   tags:
     - configs_generate
@@ -17,10 +9,11 @@
     group: "{{ owner_group_data }}"
     mode: '{{ chmod_configs }}'
 
-- name: Determine the template dynamically based on the group
+- name: Determine template dynamically
   tags: configs_generate
+  when: "'central' not in group_names"
   set_fact:
-    selected_template: "server_properties_{{ relevant_group }}.j2"
+    selected_template: "server_properties_{{ (group_names | difference(['all','cluster','central']))[0] }}.j2"
 
 - name: Deploy Config files to nodes
   tags: configs_generate
