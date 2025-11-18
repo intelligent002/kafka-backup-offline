@@ -44,7 +44,7 @@ gui_kpow:
     env:
       JVM_OPTS: |
         -Djava.awt.headless=true
-        -Djavax.net.ssl.trustStore={{ certificates_store_path }}/shared.truststore.jks
+        -Djavax.net.ssl.trustStore={{ node_config_path }}/shared.truststore.jks
         -Djavax.net.ssl.trustStorePassword={{ certificate_password }}
         -Dorg.xerial.snappy.tempdir=/opt/factorhouse/tmp
         -server
@@ -83,7 +83,7 @@ gui_kpow:
       test:
         - CMD-SHELL
         - >
-          response=$(curl -s --cacert {{ certificates_store_path }}/CA/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health);
+          response=$(curl -s --cacert {{ node_config_path }}/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health);
           if echo "$response" | grep -q "OK"; then
             echo "OK";
             exit 0;
