@@ -126,6 +126,22 @@
     -extfile {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['all'] }}"
 
+- name: Generate full-chain certificates (node.crt + ca.crt)
+  tags:
+    - certificates_generate
+  when: inventory_hostname == "node-00"
+  run_once: true
+  ansible.builtin.shell: >
+    cat 
+      {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt
+      {{ certificates_store_path }}/CA/ca.crt
+    > {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem
+  loop: "{{ groups['all'] }}"
+  loop_control:
+    label: "{{ hostvars[item].hostname }}"
+  args:
+    creates: "{{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem"
+
 - name: Generate PKCS#12 node keystores
   tags:
     - certificates_generate
