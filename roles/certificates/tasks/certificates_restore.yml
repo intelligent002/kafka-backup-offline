@@ -54,6 +54,7 @@
 - name: Restore certificates folder on nodes
   tags:
     - certificates_restore
+  when: inventory_hostname != 'node-00'
   unarchive:
     src: "{{ node_certificates_temp_archive }}"
     dest: "{{ node_certificates_path }}"
