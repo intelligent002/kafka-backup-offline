@@ -33,7 +33,8 @@
     label: "{{ item.role }}"
 
 - name: Run Envoy Balancers on node-00
-  tags: containers_run
+  tags:
+    - containers_run
   when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"

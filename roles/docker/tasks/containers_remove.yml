@@ -1,6 +1,7 @@
 ---
 - name: Remove all Envoy balancers on node-00
-  tags: containers_remove
+  tags:
+    - containers_remove
   when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"
@@ -12,8 +13,7 @@
 
 - name: Remove Kafka containers
   tags:
-    - containers_stop
-    - containers_restart
+    - containers_remove
   when:
     - "'cluster' in group_names"
     - "item.role in group_names"
