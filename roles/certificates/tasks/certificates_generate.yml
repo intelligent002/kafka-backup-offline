@@ -294,6 +294,8 @@
         dest: "{{ node_certificates_path }}/{{ hostvars[inventory_hostname].hostname }}.key" }
     - { src: "{{ certificates_store_path }}/nodes/{{ hostvars[inventory_hostname].hostname }}/{{ hostvars[inventory_hostname].hostname }}.crt",
         dest: "{{ node_certificates_path }}/{{ hostvars[inventory_hostname].hostname }}.crt" }
+    - { src: "{{ certificates_store_path }}/nodes/{{ hostvars[inventory_hostname].hostname }}/{{ hostvars[inventory_hostname].hostname }}.fullchain.pem",
+        dest: "{{ node_certificates_path }}/{{ hostvars[inventory_hostname].hostname }}.fullchain.pem" }
     - { src: "{{ certificates_store_path }}/CA/ca.crt",
         dest: "{{ node_certificates_path }}/ca.crt" }
     - { src: "{{ certificates_store_path }}/users/admin/admin.jks",
