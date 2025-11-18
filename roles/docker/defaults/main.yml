@@ -1,5 +1,6 @@
 kafka_nodes:
-  - name: "controllers"
+  - role: "controllers"
+    name: "{{ hostvars[item]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
     hostname: "{{ hostvars[item]['hostname'] }}"
     restart_policy: "always"
@@ -7,7 +8,7 @@ kafka_nodes:
       - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -28,7 +29,8 @@ kafka_nodes:
         "/mnt/shared/config/kraft.properties"
       ]
 
-  - name: "brokers"
+  - role: "brokers"
+    name: "{{ hostvars[item]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
     hostname: "{{ hostvars[item]['hostname'] }}"
     restart_policy: "always"
@@ -38,7 +40,7 @@ kafka_nodes:
       - "{{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}"
       - "{{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -59,7 +61,8 @@ kafka_nodes:
         "/mnt/shared/config/kraft.properties"
       ]
 
-  - name: "schema"
+  - role: "schema"
+    name: "{{ hostvars[item]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0"
     hostname: "{{ hostvars[item]['hostname'] }}"
     restart_policy: "always"
@@ -67,7 +70,7 @@ kafka_nodes:
       - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[item]['port_schema_rest_ext'] }}:{{ hostvars[item]['port_schema_rest_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -97,7 +100,7 @@ kafka_nodes:
       - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -128,7 +131,7 @@ kafka_nodes:
       - "{{ hostvars[item]['port_ksql_rest_ext'] }}:{{ hostvars[item]['port_ksql_rest_int'] }}"
       - "{{ hostvars[item]['port_ksql_sync_ext'] }}:{{ hostvars[item]['port_ksql_sync_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
+      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
