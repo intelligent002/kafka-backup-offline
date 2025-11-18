@@ -1,65 +1,24 @@
 ---
-- name: Get RAM size of each node
-  tags:
-    - containers_run
-  delegate_to: "{{ item }}"
-  shell: "awk '/MemTotal/ {print $2}' /proc/meminfo"
-  register: ram_output
-  with_items: "{{ startup_order }}"
-
-- name: Compute RAM in MB
-  tags:
-    - containers_run
+- name: Compute Heap size on cluster nodes
+  tags: containers_run
+  when: "'cluster' in group_names"
   set_fact:
-    node_ram_mb: "{{ node_ram_mb | default({}) | combine({ item.item: (item.stdout | int / 1024) | round | int }) }}"
-  with_items: "{{ ram_output.results }}"
-  run_once: true
-  delegate_to: localhost
-  no_log: true  # Suppress detailed logs
-
-- name: Compute Heap Size
-  tags:
-    - containers_run
-  set_fact:
-    node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
-  vars:
-    heap_size: "{{ (item.value / 100 * ( heap_size_percent | default(50) | int) ) | int }}M"
-  with_dict: "{{ node_ram_mb }}"
-  loop_control:
-    label: "{{ item.key }}"  # Show only node names in output
-  run_once: true
-  delegate_to: localhost
-
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_run
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
+    node_heap: >-
+      {{ lookup(
+        'pipe',
+        "awk -v p={{ heap_size_percent|default(50) }} '/MemTotal/ {printf \"%dM\", ($2/1024*p/100)}' /proc/meminfo"
+      ) }}
 
 - name: Debug Node Configurations Before Running Containers
   tags:
     - containers_run
   debug:
-    msg: "RAM: {{ node_ram_mb[item] | default('Unknown') }} MB, Heap: {{ node_heap[item] | default('Unknown') }} MB, Role: {{ group_roles[item] | default('No role assigned') }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
+    msg: "Heap: {{ node_heap[inventory_hostname] | default('Unknown') }} MB, Role: {{ group_roles[inventory_hostname] | default('No role assigned') }}"
 
 - name: Create folder for application logs
   tags:
     - containers_run
-  with_items: "{{ startup_order }}"
-  delegate_to: "{{ item }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ node_logs_path }}"
     state: directory
@@ -68,25 +27,26 @@
     mode: "{{ chmod_logs }}"
     recurse: true
 
-- name: Run Kafka containers on each node
+- name: Run Kafka containers on each cluster node
   tags:
     - containers_run
-  delegate_to: "{{ inventory_hostname }}"
   docker_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"
     hostname: "{{ item.hostname }}"
     restart_policy: "{{ item.restart_policy }}"
-    ports: "{{ item.ports | default([]) }}"
+    ports: "{{ item.published_ports | default([]) }}"
     volumes: "{{ item.volumes | default([]) }}"
     env_file: "{{ item.env_file | default(omit) }}"
     env: "{{ item.env | default(omit) }}"
     command: "{{ item.command | default(omit) }}"
     state: started
   loop: "{{ kafka_services }}"
-  when: item.role in group_roles[inventory_hostname]
   loop_control:
     label: "{{ item.role }}"
+  when:
+    - "'cluster' in group_names"
+    - "item.role in group_names"
 
 - name: Run Envoy Balancers on node-00
   tags: containers_run

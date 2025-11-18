@@ -452,7 +452,7 @@ function configs_rotate()
 # Ensures proper startup order and avoids simultaneous resource contention.
 function containers_run()
 {
-    run_ansible_routine "Kafka Containers Run" "serial" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "parallel" "containers_run"
     return $?
 }
 
