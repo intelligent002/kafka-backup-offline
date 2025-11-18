@@ -5,24 +5,24 @@ kafka_services:
     hostname: "{{ inventory_hostname }}"
     restart_policy: "always"
     published_ports:
-      - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
-      - "{{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}"
     env:
       KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
-        -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[item]['node_config_path'] }}:/mnt/shared/config"
-      - "{{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets"
-      - "{{ hostvars[item]['node_credentials_path'] }}:/credentials"
-      - "{{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data"
-      - "{{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta"
-      - "{{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
     command:
       [
         "/opt/kafka/bin/kafka-server-start.sh",
@@ -35,26 +35,26 @@ kafka_services:
     hostname: "{{ inventory_hostname }}"
     restart_policy: "always"
     published_ports:
-      - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
-      - "{{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}"
-      - "{{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}"
-      - "{{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_replication_ext'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_consumer_mtls_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}"
     env:
       KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
-        -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[item]['node_config_path'] }}:/mnt/shared/config"
-      - "{{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets"
-      - "{{ hostvars[item]['node_credentials_path'] }}:/credentials"
-      - "{{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data"
-      - "{{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta"
-      - "{{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
     command:
       [
         "/opt/kafka/bin/kafka-server-start.sh",
@@ -67,25 +67,25 @@ kafka_services:
     hostname: "{{ inventory_hostname }}"
     restart_policy: "always"
     published_ports:
-      - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
-      - "{{ hostvars[item]['port_schema_rest_ext'] }}:{{ hostvars[item]['port_schema_rest_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_schema_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_schema_rest_int'] }}"
     env:
       KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
-        -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[item]['node_config_path'] }}:/mnt/shared/config"
-      - "{{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets"
-      - "{{ hostvars[item]['node_credentials_path'] }}:/credentials"
-      - "{{ hostvars[item]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets"
-      - "{{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data"
-      - "{{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta"
-      - "{{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
     command:
       [
         "/usr/bin/schema-registry-start",
@@ -98,25 +98,25 @@ kafka_services:
     hostname: "{{ inventory_hostname }}"
     restart_policy: "always"
     published_ports:
-      - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
-      - "{{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}"
     env:
       KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KAFKA_JMX_OPTS: |
-        -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[item]['node_config_path'] }}:/mnt/shared/config"
-      - "{{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets"
-      - "{{ hostvars[item]['node_credentials_path'] }}:/credentials"
-      - "{{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data"
-      - "{{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta"
-      - "{{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs"
-      - "{{ hostvars[item]['node_plugins_path'] }}:/usr/share/java"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
+      - "{{ hostvars[inventory_hostname]['node_plugins_path'] }}:/usr/share/java"
     command:
       [
         "/opt/kafka/bin/connect-distributed.sh",
@@ -129,25 +129,25 @@ kafka_services:
     hostname: "{{ inventory_hostname }}"
     restart_policy: "always"
     published_ports:
-      - "{{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}"
-      - "{{ hostvars[item]['port_ksql_rest_ext'] }}:{{ hostvars[item]['port_ksql_rest_int'] }}"
-      - "{{ hostvars[item]['port_ksql_sync_ext'] }}:{{ hostvars[item]['port_ksql_sync_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}"
     env:
       KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
       KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
       KAFKA_JMX_OPTS: |
-        -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[item]['node_config_path'] }}:/mnt/shared/config"
-      - "{{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets"
-      - "{{ hostvars[item]['node_credentials_path'] }}:/credentials"
-      - "{{ hostvars[item]['node_data_path'] }}:/ksql/data"
-      - "{{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/ksql/data"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/var/log/ksqldb"
     command:
       [
         "/usr/bin/ksql-server-start",
@@ -155,9 +155,9 @@ kafka_services:
       ]
 
 kafka_data_format:
-  - name: "kafka-storage-format-{{ hostvars[item]['hostname'] }}"
+  - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "apache/kafka:3.9.0"
-    hostname: "{{ hostvars[item]['hostname'] }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     rm: true
     volumes:
       - "{{ node_config_path }}/:/mnt/shared/config"
