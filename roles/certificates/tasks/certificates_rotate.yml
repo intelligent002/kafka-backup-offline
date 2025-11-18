@@ -2,7 +2,7 @@
 - name: Create folder for cold rotated backups
   tags:
     - certificates_rotate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_path }}"
@@ -14,7 +14,7 @@
 - name: Create folder for cold pinned backups
   tags:
     - certificates_rotate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_pinned }}"
@@ -26,7 +26,7 @@
 - name: Rotate old certificate backups
   tags:
     - certificates_rotate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   find:
     paths: "{{ central_certificates_backup_rotated }}"
@@ -38,7 +38,7 @@
 - name: Remove old certificate backups
   tags:
     - certificates_rotate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   ansible.builtin.file:
     path: "{{ item.path }}"
@@ -50,7 +50,7 @@
 - name: Remove empty certificates directories in cold storage
   tags:
     - certificates_rotate
-  delegate_to: node-00
+  when: inventory_hostname == "node-00"
   run_once: true
   shell: >
     find {{ central_certificates_backup_rotated }} -depth -type d -empty -delete

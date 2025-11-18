@@ -20,7 +20,7 @@
   shell: >
     docker rm -f balancer-schema
 
-- name: Remove Docker containers in shutdown order
+- name: Remove Kafka containers in shutdown order
   tags:
     - containers_remove
   delegate_to: "{{ item }}"

@@ -1,6 +1,6 @@
 ---
 - name: Cluster Backup Offline - Parallel execution
-  hosts: cluster
+  hosts: all
   become: yes
   pre_tasks:
     - name: Cleanup temp folders before execution
@@ -23,6 +23,7 @@
     - role: ../roles/configs       # Include Configs related tasks
     - role: ../roles/data          # Include Data related tasks
     - role: ../roles/system        # Include stuff like Prerequisites, temp folder cleanup etc.
+    - role: ../roles/gui           # Include stuff like Portainer, KPOW, Kafka-UI
 
   post_tasks:
     - name: Cleanup temp folders after execution
@@ -37,10 +38,3 @@
         - data_backup
         - data_restore
         - temp_cleanup
-
-- name: Cluster Backup Offline - Parallel execution
-  hosts: all
-  become: yes
-  roles:
-    - role: ../roles/gui           # Include stuff like Portainer, KPOW, Kafka-UI
-

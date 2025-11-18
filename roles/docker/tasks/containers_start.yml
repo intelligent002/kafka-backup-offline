@@ -1,5 +1,5 @@
 ---
-- name: Start Docker containers in startup order
+- name: Start Kafka containers in startup order
   tags:
     - containers_start
     - containers_restart
