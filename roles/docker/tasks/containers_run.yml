@@ -1,20 +1,4 @@
 ---
-- name: Compute Heap size on cluster nodes
-  tags: containers_run
-  when: "'cluster' in group_names"
-  set_fact:
-    node_heap: >-
-      {{ lookup(
-        'pipe',
-        "awk -v p={{ heap_size_percent|default(50) }} '/MemTotal/ {printf \"%dM\", ($2/1024*p/100)}' /proc/meminfo"
-      ) }}
-
-- name: Debug Node Configurations Before Running Containers
-  tags:
-    - containers_run
-  debug:
-    msg: "Heap: {{ node_heap[inventory_hostname] | default('Unknown') }} MB, Role: {{ group_roles[inventory_hostname] | default('No role assigned') }}"
-
 - name: Create folder for application logs
   tags:
     - containers_run
@@ -27,9 +11,12 @@
     mode: "{{ chmod_logs }}"
     recurse: true
 
-- name: Run Kafka containers on each cluster node
+- name: Run Kafka containers
   tags:
     - containers_run
+  when:
+    - "'cluster' in group_names"
+    - "item.role in group_names"
   docker_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"
@@ -44,14 +31,10 @@
   loop: "{{ kafka_services }}"
   loop_control:
     label: "{{ item.role }}"
-  when:
-    - "'cluster' in group_names"
-    - "item.role in group_names"
 
 - name: Run Envoy Balancers on node-00
   tags: containers_run
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"

@@ -1,14 +1,16 @@
 kafka_services:
   - role: "controllers"
-    name: "{{ inventory_hostname }}"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     published_ports:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -30,9 +32,9 @@ kafka_services:
       ]
 
   - role: "brokers"
-    name: "{{ inventory_hostname }}"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     published_ports:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
@@ -40,7 +42,9 @@ kafka_services:
       - "{{ hostvars[inventory_hostname]['port_consumer_mtls_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -62,15 +66,17 @@ kafka_services:
       ]
 
   - role: "schema"
-    name: "{{ inventory_hostname }}"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0"
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     published_ports:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_schema_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_schema_rest_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -93,15 +99,17 @@ kafka_services:
       ]
 
   - role: "connect"
-    name: "{{ inventory_hostname }}"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     published_ports:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -124,16 +132,18 @@ kafka_services:
       ]
 
   - role: "ksql"
-    name: "{{ inventory_hostname }}"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
-    hostname: "{{ inventory_hostname }}"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     published_ports:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}"
     env:
-      KAFKA_HEAP_OPTS: "-Xms{{ node_heap[inventory_hostname] }} -Xmx{{ node_heap[inventory_hostname] }}"
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}

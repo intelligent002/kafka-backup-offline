@@ -460,7 +460,7 @@ function containers_run()
 # Ensures a controlled startup sequence to prevent conflicts.
 function containers_start()
 {
-    run_ansible_routine "Kafka Containers Start" "serial" "containers_start"
+    run_ansible_routine "Kafka Containers Start" "parallel" "containers_start"
     return $?
 }
 
@@ -468,7 +468,7 @@ function containers_start()
 # Ensures a controlled shutdown to prevent data corruption or inconsistencies.
 function containers_stop()
 {
-    run_ansible_routine "Kafka Containers Stop" "serial" "containers_stop"
+    run_ansible_routine "Kafka Containers Stop" "parallel" "containers_stop"
     return $?
 }
 
@@ -484,7 +484,7 @@ function containers_restart()
 # Ensures a controlled removal sequence to prevent dependency issues.
 function containers_remove()
 {
-    run_ansible_routine "Kafka Containers Remove" "serial" "containers_remove"
+    run_ansible_routine "Kafka Containers Remove" "parallel" "containers_remove"
     return $?
 }
 

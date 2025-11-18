@@ -3,8 +3,7 @@
   tags:
     - containers_stop
     - containers_restart
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"
     state: stopped
@@ -12,13 +11,16 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Stop Docker containers in shutdown order
+- name: Stop Kafka containers
   tags:
     - containers_stop
     - containers_restart
-  shell: >
-    docker stop {{ hostvars[item]['hostname'] }}
-  delegate_to: "{{ item }}"
-  with_items: "{{ shutdown_order }}"
-  run_once: true  # Ensure task runs only once on localhost
-
+  when:
+    - "'cluster' in group_names"
+    - "item.role in group_names"
+  docker_container:
+    name: "{{ item.name }}"
+    state: stopped
+  loop: "{{ kafka_services }}"
+  loop_control:
+    label: "{{ item.role }}"
