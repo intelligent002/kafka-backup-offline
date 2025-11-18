@@ -117,7 +117,7 @@ min.insync.replicas={{ ((groups['brokers'] | default([])) | length) }}
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
 offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 offsets.topic.num.partitions=50
-offsets.retention.minutes=-1
+offsets.retention.minutes=10080
 
 # The minimum number of replicas that must acknowledge a write to transaction topic in order to be considered successful.
 transaction.state.log.min.isr={{ [(groups['brokers'] | length) - 1, 1] | max }}
