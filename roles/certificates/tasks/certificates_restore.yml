@@ -39,7 +39,6 @@
 - name: Push node archives from node-00 to nodes
   tags:
     - certificates_restore
-  when: inventory_hostname != 'node-00'
   delegate_to: node-00
   synchronize:
     src: "{{ central_certificates_temp_archive }}"
@@ -54,7 +53,6 @@
 - name: Restore certificates folder on nodes
   tags:
     - certificates_restore
-  when: inventory_hostname != 'node-00'
   unarchive:
     src: "{{ node_certificates_temp_archive }}"
     dest: "{{ node_certificates_path }}"
