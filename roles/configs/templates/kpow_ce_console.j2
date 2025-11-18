@@ -14,19 +14,19 @@ SSL://{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext
 SECURITY_PROTOCOL=SSL
 SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=
 SSL_PROTOCOL=TLSv1.3
-SSL_KEYSTORE_LOCATION={{ certificates_store_path }}/users/admin/admin.jks
+SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/admin.jks
 SSL_KEYSTORE_PASSWORD={{ certificate_password }}
 SSL_KEY_PASSWORD={{ certificate_password }}
-SSL_TRUSTSTORE_LOCATION={{ certificates_store_path }}/shared.truststore.jks
+SSL_TRUSTSTORE_LOCATION={{ node_certificates_path }}/shared.truststore.jks
 SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
 
 # Schema Registry Configuration
 SCHEMA_REGISTRY_NAME={{ KPOW_CE_SCHEMA_REGISTRY_NAME }}
 SCHEMA_REGISTRY_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
-SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION={{ certificates_store_path }}/users/admin/admin.jks
+SCHEMA_REGISTRY_SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/admin.jks
 SCHEMA_REGISTRY_SSL_KEYSTORE_PASSWORD={{ certificate_password }}
 SCHEMA_REGISTRY_SSL_KEYSTORE_TYPE=JKS
-SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION={{ certificates_store_path }}/shared.truststore.jks
+SCHEMA_REGISTRY_SSL_TRUSTSTORE_LOCATION={{ node_certificates_path }}/shared.truststore.jks
 SCHEMA_REGISTRY_SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
 SCHEMA_REGISTRY_SSL_TRUSTSTORE_TYPE=JKS
 
@@ -35,10 +35,10 @@ CONNECT_NAME={{ KPOW_CE_CONNECT_NAME }}
 CONNECT_AUTO_RESTART=*
 CONNECT_REST_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
 CONNECT_PERMISSIVE_SSL=false
-CONNECT_SSL_KEYSTORE_LOCATION={{ certificates_store_path }}/users/admin/admin.jks
+CONNECT_SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/admin.jks
 CONNECT_SSL_KEYSTORE_PASSWORD={{ certificate_password }}
 CONNECT_SSL_KEYSTORE_TYPE=JKS
-CONNECT_SSL_TRUSTSTORE_LOCATION={{ certificates_store_path }}/shared.truststore.jks
+CONNECT_SSL_TRUSTSTORE_LOCATION={{ node_certificates_path }}/shared.truststore.jks
 CONNECT_SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
 CONNECT_SSL_TRUSTSTORE_TYPE=JKS
 
@@ -50,9 +50,9 @@ KSQLDB_USE_TLS=true
 KSQLDB_SSL_PROTOCOL=TLSv1.3
 KSQLDB_USE_ALPN=true
 KSQLDB_VERIFY_HOST=true
-KSQLDB_TRUSTSTORE={{ certificates_store_path }}/shared.truststore.jks
+KSQLDB_TRUSTSTORE={{ node_certificates_path }}/shared.truststore.jks
 KSQLDB_TRUSTSTORE_PASSWORD={{ certificate_password }}
-KSQLDB_KEYSTORE={{ certificates_store_path }}/users/admin/admin.jks
+KSQLDB_KEYSTORE={{ node_certificates_path }}/admin.jks
 KSQLDB_KEYSTORE_PASSWORD={{ certificate_password }}
 KSQLDB_KEY_PASSWORD={{ certificate_password }}
 

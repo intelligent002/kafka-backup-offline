@@ -55,12 +55,12 @@ static_resources:
               tls_maximum_protocol_version: TLSv1_3
             tls_certificates:
               certificate_chain:
-                filename: "{{ certificates_store_path }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "{{ certificates_store_path }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.key"
             validation_context:
               trusted_ca:
-                filename: "{{ certificates_store_path }}/CA/ca.crt"
+                filename: "{{ node_certificates_path }}/ca.crt"
             alpn_protocols: ["h2", "http/1.1"]
 
   clusters:
@@ -103,12 +103,12 @@ static_resources:
             tls_maximum_protocol_version: TLSv1_3
           tls_certificates:
             - certificate_chain:
-                filename: "{{ certificates_store_path }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.crt"
               private_key:
-                filename: "{{ certificates_store_path }}/{{ hostvars['node-00']['hostname'] }}.key"
+                filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.key"
           validation_context:
             trusted_ca:
-              filename: "{{ certificates_store_path }}/CA/ca.crt"
+              filename: "{{ node_certificates_path }}/ca.crt"
           alpn_protocols: ["http/1.1"]
     load_assignment:
       cluster_name: kafka_schema_cluster
