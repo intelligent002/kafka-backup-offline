@@ -44,7 +44,7 @@ credentials:
         resource_name: "cluster-schema"
         operation: [ "Read", "Describe" ]
 
-  - username: "connector"
+  - username: "connect"
     password: "insecure"
     permissions:
       - resource_type: "cluster"

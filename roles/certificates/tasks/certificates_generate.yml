@@ -317,8 +317,8 @@
   loop_control:
     label: "{{ item.dest }}"
   with_items:
-    - { src: "{{ certificates_store_path }}/users/connector/connector.jks",
-        dest: "{{ node_certificates_path }}/connector.jks" }
+    - { src: "{{ certificates_store_path }}/users/connect/connect.jks",
+        dest: "{{ node_certificates_path }}/connect.jks" }
   when: "'connect' in group_names"
 
 - name: Distribute ksql keystore to ksql nodes only
