@@ -46,7 +46,6 @@
   tags:
     - certificates_backup
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell:
     cmd: >
       tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_certificates_backup_file }}"

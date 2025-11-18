@@ -2,6 +2,7 @@
 - name: Validate containers status
   tags:
     - data_restore
+  when: "'cluster' in group_names"
   include_tasks: ../../docker/tasks/containers_validation.yml
 
 - name: Verify archive exists

@@ -2,11 +2,13 @@
 - name: Validate containers status
   tags:
     - data_format
+  when: "'cluster' in group_names"
   include_tasks: ../../docker/tasks/containers_validation.yml
 
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -17,6 +19,7 @@
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
