@@ -98,7 +98,7 @@ producer.bootstrap.servers={% for host in (groups['combined'] | default([])) + (
 
 producer.security.protocol=SSL
 producer.ssl.key.password={{ certificate_password }}
-producer.ssl.keystore.location=/etc/kafka/secrets/connect.jks
+producer.ssl.keystore.location=/etc/kafka/secrets/connector.jks
 producer.ssl.keystore.password={{ certificate_password }}
 producer.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 producer.ssl.truststore.password={{ certificate_password }}
@@ -111,7 +111,7 @@ consumer.bootstrap.servers={% for host in (groups['combined'] | default([])) + (
 
 consumer.security.protocol=SSL
 consumer.ssl.key.password={{ certificate_password }}
-consumer.ssl.keystore.location=/etc/kafka/secrets/connect.jks
+consumer.ssl.keystore.location=/etc/kafka/secrets/connector.jks
 consumer.ssl.keystore.password={{ certificate_password }}
 consumer.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 consumer.ssl.truststore.password={{ certificate_password }}
