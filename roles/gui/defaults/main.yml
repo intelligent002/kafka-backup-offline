@@ -11,7 +11,7 @@ gui_portainer:
       - "portainer_data:/data"
     command:
       [
-        "--tlscert", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.crt",
+        "--tlscert", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.fullchain.pem",
         "--tlskey", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.key"
       ]
     healthcheck:
