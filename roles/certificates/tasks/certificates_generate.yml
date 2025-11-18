@@ -136,8 +136,6 @@
   loop: "{{ groups['all'] }}"
   loop_control:
     label: "{{ hostvars[item].hostname }}"
-  args:
-    creates: "{{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem"
 
 - name: Generate PKCS#12 node keystores
   tags:
