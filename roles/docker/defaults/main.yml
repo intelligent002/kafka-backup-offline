@@ -184,7 +184,7 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\n\n" >&3 &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
         timeout 9 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
@@ -206,7 +206,7 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\n\n" >&3 &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
         timeout 9 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
@@ -228,7 +228,7 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\n\n" >&3 &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
         timeout 9 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
