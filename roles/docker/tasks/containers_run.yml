@@ -1,65 +1,8 @@
 ---
-- name: Get RAM size of each node
-  tags:
-    - containers_run
-  delegate_to: "{{ item }}"
-  shell: "awk '/MemTotal/ {print $2}' /proc/meminfo"
-  register: ram_output
-  with_items: "{{ startup_order }}"
-
-- name: Compute RAM in MB
-  tags:
-    - containers_run
-  set_fact:
-    node_ram_mb: "{{ node_ram_mb | default({}) | combine({ item.item: (item.stdout | int / 1024) | round | int }) }}"
-  with_items: "{{ ram_output.results }}"
-  run_once: true
-  delegate_to: localhost
-  no_log: true  # Suppress detailed logs
-
-- name: Compute Heap Size
-  tags:
-    - containers_run
-  set_fact:
-    node_heap: "{{ node_heap | default({}) | combine({ item.key: heap_size }) }}"
-  vars:
-    heap_size: "{{ (item.value / 100 * ( heap_size_percent | default(50) | int) ) | int }}M"
-  with_dict: "{{ node_ram_mb }}"
-  loop_control:
-    label: "{{ item.key }}"  # Show only node names in output
-  run_once: true
-  delegate_to: localhost
-
-- name: Assign node roles based on inventory group
-  tags:
-    - containers_run
-  set_fact:
-    group_roles: "{{ group_roles | default({}) | combine({item: hostvars[item]['group_names'] | difference(['cluster'])}) }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
-
-- name: Debug Node Configurations Before Running Containers
-  tags:
-    - containers_run
-  debug:
-    msg: "RAM: {{ node_ram_mb[item] | default('Unknown') }} MB, Heap: {{ node_heap[item] | default('Unknown') }} MB, Role: {{ group_roles[item] | default('No role assigned') }}"
-  with_items: "{{ startup_order }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
-
 - name: Create folder for application logs
   tags:
     - containers_run
-  with_items: "{{ startup_order }}"
-  delegate_to: "{{ item }}"
-  loop_control:
-    label: "{{ item }}"
-  run_once: true
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ node_logs_path }}"
     state: directory
@@ -68,57 +11,40 @@
     mode: "{{ chmod_logs }}"
     recurse: true
 
-- name: Debug docker command
+- name: Run Kafka containers
   tags:
     - containers_run
-  debug:
-    msg: |
-      {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
-      {% elif 'brokers'   in group_roles[item] %} {{ docker_command_brokers_run }}
-      {% elif 'connect'   in group_roles[item] %} {{ docker_command_connect_run }}
-      {% elif 'schema'    in group_roles[item] %} {{ docker_command_schema_run }}
-      {% elif 'ksql'      in group_roles[item] %} {{ docker_command_ksql_run }}
-      {% else %} Undefined group
-      {% endif %}
-  with_items: "{{ startup_order }}"
+  when:
+    - "'cluster' in group_names"
+    - "item.role in group_names"
+  docker_container:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    hostname: "{{ item.hostname }}"
+    restart_policy: "{{ item.restart_policy }}"
+    ports: "{{ item.published_ports | default([]) }}"
+    volumes: "{{ item.volumes | default([]) }}"
+    env_file: "{{ item.env_file | default(omit) }}"
+    env: "{{ item.env | default(omit) }}"
+    command: "{{ item.command | default(omit) }}"
+    state: started
+  loop: "{{ kafka_services }}"
   loop_control:
-    label: "{{ item }}"
-  run_once: true
-  delegate_to: localhost
+    label: "{{ item.role }}"
 
-- name: Run containers according to assigned roles
+- name: Run Envoy Balancers on node-00
   tags:
     - containers_run
-  delegate_to: "{{ item }}"
-  run_once: true
-  shell: >
-    {% if 'controllers' in group_roles[item] %} {{ docker_command_controllers_run }}
-    {% elif 'brokers'   in group_roles[item] %} {{ docker_command_brokers_run }}
-    {% elif 'connect'   in group_roles[item] %} {{ docker_command_connect_run }}
-    {% elif 'schema'    in group_roles[item] %} {{ docker_command_schema_run }}
-    {% elif 'ksql'      in group_roles[item] %} {{ docker_command_ksql_run }}
-    {% else %} echo 'Undefined group, no command executed'
-    {% endif %}
-  with_items: "{{ startup_order }}"
-  when: group_roles[item] is defined
-
-- name: Deploy Balancer Schema on node-00
-  tags: containers_run
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    {{ docker_command_balancer_schema_run }}
-
-- name: Deploy Balancer Connect on node-00
-  tags: containers_run
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    {{ docker_command_balancer_connect_run }}
-
-- name: Deploy Balancer KSQL on node-00
-  tags: containers_run
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    {{ docker_command_balancer_ksql_run }}
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    hostname: "{{ item.hostname }}"
+    restart_policy: "{{ item.restart_policy }}"
+    ports: "{{ item.ports }}"
+    volumes: "{{ item.volumes }}"
+    healthcheck: "{{ item.healthcheck }}"
+    state: started
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"

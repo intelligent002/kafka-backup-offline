@@ -1,40 +1,34 @@
 ---
-- name: Remove Balancer KSQL on node-00
-  tags: containers_remove
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    docker rm -f balancer-ksql
-
-- name: Remove Balancer Connect on node-00
-  tags: containers_remove
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    docker rm -f balancer-connect
-
-- name: Remove Balancer Schema on node-00
-  tags: containers_remove
-  delegate_to: node-00
-  run_once: true
-  shell: >
-    docker rm -f balancer-schema
-
-- name: Remove Kafka containers in shutdown order
+- name: Remove all Envoy balancers on node-00
   tags:
     - containers_remove
-  delegate_to: "{{ item }}"
-  with_items: "{{ shutdown_order }}"
-  run_once: true
-  shell: >
-    docker rm -f {{ hostvars[item]['hostname'] }}
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    state: absent
+    force_kill: true
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Remove Kafka containers
+  tags:
+    - containers_remove
+  when:
+    - "'cluster' in group_names"
+    - "item.role in group_names"
+  docker_container:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ kafka_services }}"
+  loop_control:
+    label: "{{ item.role }}"
 
 - name: Remove folder for application logs
   tags:
     - containers_remove
-  delegate_to: "{{ item }}"
-  with_items: "{{ shutdown_order }}"
-  run_once: true  # Ensure task runs only once on localhost
+  when:
+    - "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ node_logs_path }}"
     state: absent

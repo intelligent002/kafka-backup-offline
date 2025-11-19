@@ -3,7 +3,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ certificates_store_path }}"
     state: absent
@@ -12,7 +11,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -29,7 +27,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl req -new -x509 -newkey rsa:4096 \
     -keyout {{ certificates_store_path }}/CA/ca.key \
@@ -46,7 +43,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     keytool -import -trustcacerts -noprompt -alias ca \
     -file {{ certificates_store_path }}/CA/ca.crt \
@@ -57,7 +53,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     keytool -import -trustcacerts -noprompt -alias ca \
     -file {{ certificates_store_path }}/CA/ca.crt \
@@ -68,7 +63,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ groups['all'] }}"
   ansible.builtin.file:
     path: "{{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}"
@@ -81,7 +75,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.template:
     src: openssl.cnf.j2
     dest: "{{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf"
@@ -91,7 +84,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl genpkey -algorithm RSA \
     -out {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
@@ -102,7 +94,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl req -new \
     -subj   "/CN={{ hostvars[item].hostname }}" \
@@ -115,7 +106,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl x509 -req -in {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.csr \
     -CA {{ certificates_store_path }}/CA/ca.crt \
@@ -130,7 +120,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     cat {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt {{ certificates_store_path }}/CA/ca.crt > {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem
   loop: "{{ groups['all'] }}"
@@ -141,7 +130,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
     -inkey {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
@@ -154,7 +142,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     keytool -importkeystore \
     -destkeystore {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.jks \
@@ -172,7 +159,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.file:
     path: "{{ certificates_store_path }}/users/{{ item }}"
@@ -185,7 +171,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
     openssl genpkey -algorithm RSA -out {{ certificates_store_path }}/users/{{ item }}/{{ item }}.key \
@@ -195,7 +180,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
     openssl req -new -key {{ certificates_store_path }}/users/{{ item }}/{{ item }}.key \
@@ -206,7 +190,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.shell: >
     openssl x509 -req -in {{ certificates_store_path }}/users/{{ item }}/{{ item }}.csr \
     -CA {{ certificates_store_path }}/CA/ca.crt \
@@ -220,7 +203,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   ansible.builtin.shell: >
     openssl pkcs12 -export -in {{ certificates_store_path }}/users/{{ item }}/{{ item }}.crt \
@@ -233,7 +215,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   loop: "{{ credentials | map(attribute='username') | list }}"
   loop_control:
     label: "{{ item }}"
@@ -250,7 +231,6 @@
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ certificates_store_path }}"
     owner: "{{ owner_user_data }}"

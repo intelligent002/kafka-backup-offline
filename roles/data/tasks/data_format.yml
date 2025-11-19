@@ -2,21 +2,29 @@
 - name: Validate containers status
   tags:
     - data_format
+  # all of them, not only controllers and brokers, lets be on the safe side
+  when: "'cluster' in group_names"
   include_tasks: ../../docker/tasks/containers_validation.yml
 
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
+  when: "'controllers' in group_names or 'brokers' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
     - "{{ node_data_store }}"
     - "{{ node_logs_path }}"
+    #  those two are under "{{ node_data_store }}"
+    #- "{{ node_meta_path }}"
+    #- "{{ node_data_path }}"
+
 
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format
+  when: "'controllers' in group_names or 'brokers' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -25,13 +33,14 @@
     mode: "{{ chmod_data }}"
   loop:
     - "{{ node_data_store }}"
-    - "{{ node_data_path }}"
     - "{{ node_meta_path }}"
+    - "{{ node_data_path }}"
     - "{{ node_logs_path }}"
 
 - name: Format Data on nodes
   tags:
     - data_format
-  shell: "{{ docker_command_data_format }}"
   when: "'controllers' in group_names or 'brokers' in group_names"
+  shell: "{{ docker_command_data_format }}"
+
 

@@ -2,13 +2,14 @@
 - name: Validate containers status
   tags:
     - data_restore
+  # all of them, not only controllers and brokers, lets be on the safe side
+  when: "'cluster' in group_names"
   include_tasks: ../../docker/tasks/containers_validation.yml
 
 - name: Verify archive exists
   tags:
     - data_restore
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   stat:
     path: "{{ restore_archive }}"
   register: archive_stat
@@ -16,15 +17,17 @@
 - name: Fail if archive does not exist
   tags:
     - data_restore
+  when:
+    - inventory_hostname == "node-00"
+    - not archive_stat.stat.exists
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
-  when: not archive_stat.stat.exists
+
 
 - name: Extract data archive to temp on central
   tags:
     - data_restore
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   unarchive:
     src: "{{ restore_archive }}"
     dest: "{{ storage_temp_path }}"
@@ -33,6 +36,7 @@
 - name: Push node archives from central into nodes
   tags:
     - data_restore
+  when: "'controllers' in group_names or 'brokers' in group_names"
   delegate_to: node-00
   synchronize:
     src: "{{ central_data_temp_archive }}"
@@ -45,6 +49,7 @@
 - name: Remove data folder on nodes
   tags:
     - data_restore
+  when: "'controllers' in group_names or 'brokers' in group_names"
   ansible.builtin.file:
     path: "{{ node_data_store }}"
     state: absent
@@ -52,16 +57,18 @@
 - name: Create data folder on nodes
   tags:
     - data_restore
+  when: "'controllers' in group_names or 'brokers' in group_names"
   ansible.builtin.file:
     path: "{{ node_data_store }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
+    state: directory
 
 - name: Restore data on nodes
   tags:
     - data_restore
+  when: "'controllers' in group_names or 'brokers' in group_names"
   unarchive:
     src: "{{ node_data_temp_archive }}"
     dest: "{{ node_data_store }}"
@@ -70,8 +77,7 @@
 - name: Set data permissions
   tags:
     - data_restore
-  delegate_to: node-00
-  run_once: true
+  when: "'controllers' in group_names or 'brokers' in group_names"
   ansible.builtin.file:
     path: "{{ node_data_path }}"
     owner: "{{ owner_user_data }}"
