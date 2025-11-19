@@ -3,31 +3,28 @@
   tags:
     - certificates_rotate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_path }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificates }}"
+    state: directory
 
 - name: Create folder for cold pinned backups
   tags:
     - certificates_rotate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ central_certificates_backup_pinned }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_certificates }}"
+    state: directory
 
 - name: Rotate old certificate backups
   tags:
     - certificates_rotate
   when: inventory_hostname == "node-00"
-  run_once: true
   find:
     paths: "{{ central_certificates_backup_rotated }}"
     age: "{{ retention_policy_certificates }}d"
@@ -39,7 +36,6 @@
   tags:
     - certificates_rotate
   when: inventory_hostname == "node-00"
-  run_once: true
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -51,6 +47,5 @@
   tags:
     - certificates_rotate
   when: inventory_hostname == "node-00"
-  run_once: true
   shell: >
     find {{ central_certificates_backup_rotated }} -depth -type d -empty -delete
