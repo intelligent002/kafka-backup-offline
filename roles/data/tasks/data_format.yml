@@ -9,6 +9,7 @@
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
+  # all the cluster uses /data/cluster/data folders, but only controller and broker should be formatted
   when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
@@ -24,6 +25,7 @@
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format
+  # all the cluster uses /data/cluster/data folders, but only controller and broker should be formatted
   when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
@@ -40,6 +42,7 @@
 - name: Format Data on nodes
   tags:
     - data_format
+  # all the cluster uses /data/cluster/data folders, but only controller and broker should be formatted
   when: "'controllers' in group_names or 'brokers' in group_names"
   shell: "{{ docker_command_data_format }}"
 

@@ -31,7 +31,7 @@
 - name: Create data archive on nodes
   tags:
     - data_backup
-  when: "'controllers' in group_names or 'brokers' in group_names"
+  when: "'cluster' in group_names"
   ansible.builtin.shell:
     cmd: >
       tar -cf - -C {{ node_data_store }} ./ | xz > {{ node_data_temp_archive }}
@@ -39,7 +39,7 @@
 - name: Pull data archive from nodes
   tags:
     - data_backup
-  when: "'controllers' in group_names or 'brokers' in group_names"
+  when: "'cluster' in group_names"
   delegate_to: node-00
   synchronize:
     src: "{{ node_data_temp_archive }}"
