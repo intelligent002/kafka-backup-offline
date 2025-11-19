@@ -9,7 +9,7 @@
 - name: Remove Cluster Data Folders on nodes
   tags:
     - data_format
-  when: "'controllers' in group_names or 'brokers' in group_names"
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -24,7 +24,7 @@
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format
-  when: "'controllers' in group_names or 'brokers' in group_names"
+  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
