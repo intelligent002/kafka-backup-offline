@@ -2,32 +2,29 @@
 - name: Create folder for cold rotated backups
   tags:
     - data_rotate
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   ansible.builtin.file:
     path: "{{ central_data_backup_path }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
+    state: directory
 
 - name: Create folder for cold pinned backups
   tags:
     - data_rotate
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   ansible.builtin.file:
     path: "{{ central_data_backup_pinned }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
+    state: directory
 
 - name: Rotate old data backups
   tags:
     - data_rotate
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   find:
     paths: "{{ central_data_backup_rotated }}"
     age: "{{ retention_policy_data }}d"
@@ -38,8 +35,7 @@
 - name: Remove old data backups
   tags:
     - data_rotate
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -50,7 +46,6 @@
 - name: Remove empty data directories in cold storage
   tags:
     - data_rotate
-  delegate_to: node-00
-  run_once: true
+  when: inventory_hostname == "node-00"
   shell: >
     find {{ central_data_backup_rotated }} -depth -type d -empty -delete
