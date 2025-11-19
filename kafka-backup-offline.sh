@@ -339,7 +339,7 @@ function run_ansible_routine()
         -w /apps
         alpine/ansible:2.18.1 ansible-playbook
         -i "inventories/$INVENTORY/hosts.yml"
-        "playbooks/$playbook.yml"
+        "playbooks/parallel.yml"
         --tags "$tag"
     )
 
@@ -363,44 +363,40 @@ function run_ansible_routine()
     return 1
 }
 
-
-# Deploys SSH public keys to all cluster nodes in parallel using Ansible.
-# If SSH keys are not set up, the script will use the password provided via `--ask-pass` for all nodes.
+# Deploys SSH public keys to all cluster nodes using Ansible.
+# Falls back to password authentication when keys are not yet installed.
 function install_ssh_keys()
 {
     run_ansible_routine "Deploy SSH Public Key on all nodes" "ssh_keys" "--ask-pass" "true"
     return $?
 }
 
-# Deploys prerequisites to all cluster nodes in parallel using Ansible.
-# Validates if /data is mounted and has at least 40GB free space.
-# Ensures /var/lib/docker is symlinked to /data/docker.
-# Installs and verifies: Docker, XZ, Java, and rsync.
-# Ensures Docker service is enabled and running.
+# Deploys required system prerequisites to all cluster nodes using Ansible.
+# Verifies storage, installs dependencies, and ensures Docker is operational.
 function install_prerequisites()
 {
     run_ansible_routine "Deploy prerequisites on all nodes" "prerequisites"
     return $?
 }
 
-# Generates Kafka certificates on all cluster nodes in parallel using Ansible.
-# Ensures SSL/mTLS authentication files are created for secure communication.
+# Generates Kafka certificates across all cluster nodes using Ansible.
+# Creates all SSL and mTLS assets required for secure cluster communication.
 function certificates_generate()
 {
     run_ansible_routine "Kafka Certificates Generate" "certificates_generate"
     return $?
 }
 
-# Backs up Kafka certificates on all cluster nodes in parallel using Ansible.
-# Ensures certificate files are preserved for recovery or migration.
+# Backs up Kafka certificates across all cluster nodes using Ansible.
+# Preserves all SSL and mTLS assets for recovery or migration.
 function certificates_backup()
 {
     run_ansible_routine "Kafka Certificates Backup" "certificates_backup"
     return $?
 }
 
-# Restores Kafka certificates on all cluster nodes in parallel using Ansible.
-# Uses the specified archive file to restore certificate files.
+# Restores Kafka certificates across all cluster nodes using Ansible.
+# Loads the specified archive to recreate all SSL and mTLS certificate files.
 function certificates_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
@@ -415,24 +411,24 @@ function certificates_rotate()
     return $?
 }
 
-# Deploys Kafka configuration files to all cluster nodes in parallel using Ansible.
-# Ensures all nodes have the latest configuration settings from inventory template.
+# Deploys Kafka configuration files across all cluster nodes using Ansible.
+# Applies the latest inventory-based settings to ensure consistent cluster configuration.
 function configs_generate()
 {
     run_ansible_routine "Kafka Configs Generate" "configs_generate"
     return $?
 }
 
-# Backs up Kafka configuration files from all cluster nodes in parallel using Ansible.
-# Ensures configuration settings are preserved for recovery or migration.
+# Backs up Kafka configuration files from all cluster nodes using Ansible.
+# Preserves current configuration settings for recovery or migration.
 function configs_backup()
 {
     run_ansible_routine "Kafka Configs Backup" "configs_backup"
     return $?
 }
 
-# Restores Kafka configuration files on all cluster nodes in parallel using Ansible.
-# Uses the specified archive file to restore configuration settings.
+# Restores Kafka configuration files across all cluster nodes using Ansible.
+# Loads the specified archive to reinstate consistent configuration settings.
 function configs_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
@@ -447,40 +443,40 @@ function configs_rotate()
     return $?
 }
 
-# Starts Kafka containers on all cluster nodes in serial using Ansible.
-# Ensures proper startup order and avoids simultaneous resource contention.
+# Starts Kafka containers across all cluster nodes using Ansible.
+# Ensures each node is initialized according to its defined service role.
 function containers_run()
 {
     run_ansible_routine "Kafka Containers Run" "containers_run"
     return $?
 }
 
-# Resumes existing Kafka containers on all cluster nodes in serial using Ansible.
-# Ensures a controlled startup sequence to prevent conflicts.
+# Starts Kafka containers across all cluster nodes using Ansible automation.
+# Ensures the cluster is brought online consistently according to node configuration.
 function containers_start()
 {
     run_ansible_routine "Kafka Containers Start" "containers_start"
     return $?
 }
 
-# Stops Kafka containers on all cluster nodes in serial using Ansible.
-# Ensures a controlled shutdown to prevent data corruption or inconsistencies.
+# Stops Kafka containers across all cluster nodes using Ansible.
+# Ensures a clean and consistent shutdown to protect data integrity.
 function containers_stop()
 {
     run_ansible_routine "Kafka Containers Stop" "containers_stop"
     return $?
 }
 
-# Restarts Kafka containers on all cluster nodes in serial using Ansible.
-# Stops containers first, then starts them again in a controlled order.
+# Restarts Kafka containers across all cluster nodes using Ansible.
+# Performs a clean stop followed by a coordinated start to ensure stability.
 function containers_restart()
 {
     containers_stop
     containers_start
 }
 
-# Removes Kafka containers on all cluster nodes in serial using Ansible.
-# Ensures a controlled removal sequence to prevent dependency issues.
+# Removes Kafka containers across all cluster nodes using Ansible.
+# Ensures each node is cleaned up consistently without leaving residual state.
 function containers_remove()
 {
     run_ansible_routine "Kafka Containers Remove" "containers_remove"
@@ -494,24 +490,24 @@ function acls_apply()
     return $?
 }
 
-# Generates Kafka credentials on all cluster nodes in parallel using Ansible.
-# Ensures secure authentication files are created for user access control.
+# Generates Kafka credentials across all cluster nodes using Ansible.
+# Creates secure authentication files required for user and service access control.
 function credentials_generate()
 {
     run_ansible_routine "Kafka Credentials Generate" "credentials_generate"
     return $?
 }
 
-# Backs up Kafka credentials on all cluster nodes in parallel using Ansible.
-# Ensures authentication data is preserved for recovery or migration.
+# Backs up Kafka credentials across all cluster nodes using Ansible.
+# Preserves authentication files to support recovery or migration.
 function credentials_backup()
 {
     run_ansible_routine "Kafka Credentials Backup" "credentials_backup"
     return $?
 }
 
-# Restores Kafka credentials on all cluster nodes in parallel using Ansible.
-# Uses the specified archive file to restore authentication data.
+# Restores Kafka credentials across all cluster nodes using Ansible.
+# Loads the specified archive to recreate all authentication files.
 function credentials_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
@@ -526,24 +522,24 @@ function credentials_rotate()
     return $?
 }
 
-# Formats Kafka data on all cluster nodes in parallel using Ansible.
-# Prepares storage for new data by ensuring a clean state.
+# Formats Kafka data across all cluster nodes using Ansible.
+# Prepares storage by ensuring a clean and consistent state for new data.
 function data_format()
 {
     run_ansible_routine "Kafka Data Format" "data_format"
     return $?
 }
 
-# Backs up Kafka data on all cluster nodes in parallel using Ansible.
-# Ensures data is preserved for recovery or migration.
+# Backs up Kafka data across all cluster nodes using Ansible.
+# Produces consistent archives suitable for recovery or migration.
 function data_backup()
 {
     run_ansible_routine "Kafka Data Backup" "data_backup"
     return $?
 }
 
-# Restores Kafka data on all cluster nodes in parallel using Ansible.
-# Uses the specified archive file to recover data.
+# Restores Kafka data on all cluster nodes using Ansible.
+# Uses the provided archive file to recover the cluster's persistent state.
 function data_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
