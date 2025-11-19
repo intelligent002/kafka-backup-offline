@@ -36,7 +36,8 @@
   run_once: true
   docker_container:
     name: "{{ item.name }}"
-    state: restarted
+    state: started
+    restart: true
   loop: "{{ gui_kpow }}"
 
 # STOP

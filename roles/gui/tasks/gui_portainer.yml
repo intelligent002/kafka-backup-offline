@@ -30,7 +30,8 @@
   tags: gui_portainer_restart
   docker_container:
     name: "portainer"
-    state: restarted
+    state: started
+    restart: true
 
 # STOP
 - name: Stop Portainer on all nodes
