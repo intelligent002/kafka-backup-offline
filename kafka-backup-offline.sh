@@ -199,7 +199,7 @@ function cluster_backup()
 
 function cluster_reboot()
 {
-    run_ansible_routine "Kafka Cluster Reboot" "parallel" "cluster_reboot" "" "true"
+    run_ansible_routine "Kafka Cluster Reboot" "cluster_reboot" "" "true"
     return $?
 }
 
@@ -320,10 +320,9 @@ function ensure_free_space()
 function run_ansible_routine()
 {
     local routine=$1
-    local playbook=$2
-    local tag=$3
-    local extra_vars=${4:-""}  # Ensure extra_vars is always set
-    local interactive_mode=${5:-false}  # Default to false if not provided
+    local tag=$2
+    local extra_vars=${3:-""}  # Ensure extra_vars is always set
+    local interactive_mode=${4:-false}  # Default to false if not provided
     local attempt=1
     local max_attempts=${ANSIBLE_ATTEMPTS:-3}  # Use ANSIBLE_ATTEMPTS if set, otherwise default to 3
 
@@ -369,7 +368,7 @@ function run_ansible_routine()
 # If SSH keys are not set up, the script will use the password provided via `--ask-pass` for all nodes.
 function install_ssh_keys()
 {
-    run_ansible_routine "Deploy SSH Public Key on all nodes" "parallel" "ssh_keys" "--ask-pass" "true"
+    run_ansible_routine "Deploy SSH Public Key on all nodes" "ssh_keys" "--ask-pass" "true"
     return $?
 }
 
@@ -380,7 +379,7 @@ function install_ssh_keys()
 # Ensures Docker service is enabled and running.
 function install_prerequisites()
 {
-    run_ansible_routine "Deploy prerequisites on all nodes" "parallel" "prerequisites"
+    run_ansible_routine "Deploy prerequisites on all nodes" "prerequisites"
     return $?
 }
 
@@ -388,7 +387,7 @@ function install_prerequisites()
 # Ensures SSL/mTLS authentication files are created for secure communication.
 function certificates_generate()
 {
-    run_ansible_routine "Kafka Certificates Generate" "parallel" "certificates_generate"
+    run_ansible_routine "Kafka Certificates Generate" "certificates_generate"
     return $?
 }
 
@@ -396,7 +395,7 @@ function certificates_generate()
 # Ensures certificate files are preserved for recovery or migration.
 function certificates_backup()
 {
-    run_ansible_routine "Kafka Certificates Backup" "parallel" "certificates_backup"
+    run_ansible_routine "Kafka Certificates Backup" "certificates_backup"
     return $?
 }
 
@@ -405,14 +404,14 @@ function certificates_backup()
 function certificates_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
-    run_ansible_routine "Kafka Certificates Restore" "parallel" "certificates_restore" "$extra_vars"
+    run_ansible_routine "Kafka Certificates Restore" "certificates_restore" "$extra_vars"
     return $?
 }
 
 # Deletes old archives according to retention_policy_certificates days amount value
 function certificates_rotate()
 {
-    run_ansible_routine "Kafka Certificates Rotate" "parallel" "certificates_rotate"
+    run_ansible_routine "Kafka Certificates Rotate" "certificates_rotate"
     return $?
 }
 
@@ -420,7 +419,7 @@ function certificates_rotate()
 # Ensures all nodes have the latest configuration settings from inventory template.
 function configs_generate()
 {
-    run_ansible_routine "Kafka Configs Generate" "parallel" "configs_generate"
+    run_ansible_routine "Kafka Configs Generate" "configs_generate"
     return $?
 }
 
@@ -428,7 +427,7 @@ function configs_generate()
 # Ensures configuration settings are preserved for recovery or migration.
 function configs_backup()
 {
-    run_ansible_routine "Kafka Configs Backup" "parallel" "configs_backup"
+    run_ansible_routine "Kafka Configs Backup" "configs_backup"
     return $?
 }
 
@@ -437,14 +436,14 @@ function configs_backup()
 function configs_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
-    run_ansible_routine "Kafka Configs Restore" "parallel" "configs_restore" "$extra_vars"
+    run_ansible_routine "Kafka Configs Restore" "configs_restore" "$extra_vars"
     return $?
 }
 
 # Deletes old archives according to retention_policy_configs days amount value
 function configs_rotate()
 {
-    run_ansible_routine "Kafka Configs Rotate" "parallel" "configs_rotate"
+    run_ansible_routine "Kafka Configs Rotate" "configs_rotate"
     return $?
 }
 
@@ -452,7 +451,7 @@ function configs_rotate()
 # Ensures proper startup order and avoids simultaneous resource contention.
 function containers_run()
 {
-    run_ansible_routine "Kafka Containers Run" "parallel" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "containers_run"
     return $?
 }
 
@@ -460,7 +459,7 @@ function containers_run()
 # Ensures a controlled startup sequence to prevent conflicts.
 function containers_start()
 {
-    run_ansible_routine "Kafka Containers Start" "parallel" "containers_start"
+    run_ansible_routine "Kafka Containers Start" "containers_start"
     return $?
 }
 
@@ -468,7 +467,7 @@ function containers_start()
 # Ensures a controlled shutdown to prevent data corruption or inconsistencies.
 function containers_stop()
 {
-    run_ansible_routine "Kafka Containers Stop" "parallel" "containers_stop"
+    run_ansible_routine "Kafka Containers Stop" "containers_stop"
     return $?
 }
 
@@ -484,14 +483,14 @@ function containers_restart()
 # Ensures a controlled removal sequence to prevent dependency issues.
 function containers_remove()
 {
-    run_ansible_routine "Kafka Containers Remove" "parallel" "containers_remove"
+    run_ansible_routine "Kafka Containers Remove" "containers_remove"
     return $?
 }
 
 # Applies Kafka ACLs to enforce access control policies across the cluster.
 function acls_apply()
 {
-    run_ansible_routine "Kafka ACLs Apply" "parallel" "acls_apply"
+    run_ansible_routine "Kafka ACLs Apply" "acls_apply"
     return $?
 }
 
@@ -499,7 +498,7 @@ function acls_apply()
 # Ensures secure authentication files are created for user access control.
 function credentials_generate()
 {
-    run_ansible_routine "Kafka Credentials Generate" "parallel" "credentials_generate"
+    run_ansible_routine "Kafka Credentials Generate" "credentials_generate"
     return $?
 }
 
@@ -507,7 +506,7 @@ function credentials_generate()
 # Ensures authentication data is preserved for recovery or migration.
 function credentials_backup()
 {
-    run_ansible_routine "Kafka Credentials Backup" "parallel" "credentials_backup"
+    run_ansible_routine "Kafka Credentials Backup" "credentials_backup"
     return $?
 }
 
@@ -516,14 +515,14 @@ function credentials_backup()
 function credentials_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
-    run_ansible_routine "Kafka Credentials Restore" "parallel" "credentials_restore" "$extra_vars"
+    run_ansible_routine "Kafka Credentials Restore" "credentials_restore" "$extra_vars"
     return $?
 }
 
 # Deletes old archives according to retention_policy_credentials days amount value
 function credentials_rotate()
 {
-    run_ansible_routine "Kafka Credentials Rotate" "parallel" "credentials_rotate"
+    run_ansible_routine "Kafka Credentials Rotate" "credentials_rotate"
     return $?
 }
 
@@ -531,7 +530,7 @@ function credentials_rotate()
 # Prepares storage for new data by ensuring a clean state.
 function data_format()
 {
-    run_ansible_routine "Kafka Data Format" "parallel" "data_format"
+    run_ansible_routine "Kafka Data Format" "data_format"
     return $?
 }
 
@@ -539,7 +538,7 @@ function data_format()
 # Ensures data is preserved for recovery or migration.
 function data_backup()
 {
-    run_ansible_routine "Kafka Data Backup" "parallel" "data_backup"
+    run_ansible_routine "Kafka Data Backup" "data_backup"
     return $?
 }
 
@@ -548,82 +547,82 @@ function data_backup()
 function data_restore()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
-    run_ansible_routine "Kafka Data Restore" "parallel" "data_restore" "$extra_vars"
+    run_ansible_routine "Kafka Data Restore" "data_restore" "$extra_vars"
     return $?
 }
 
 # Deletes old archives according to retention_policy_data days amount value
 function data_rotate()
 {
-    run_ansible_routine "Kafka Data Rotate" "parallel" "data_rotate"
+    run_ansible_routine "Kafka Data Rotate" "data_rotate"
     return $?
 }
 
 # Deploy portainer on all nodes
 function gui_portainer_install()
 {
-    run_ansible_routine "GUI Portainer - Install" "parallel" "gui_portainer_install"
+    run_ansible_routine "GUI Portainer - Install" "gui_portainer_install"
     return $?
 }
 
 # Start portainer on all nodes
 function gui_portainer_start()
 {
-    run_ansible_routine "GUI Portainer - Start" "parallel" "gui_portainer_start"
+    run_ansible_routine "GUI Portainer - Start" "gui_portainer_start"
     return $?
 }
 
 # Stop portainer on all nodes
 function gui_portainer_stop()
 {
-    run_ansible_routine "GUI Portainer - Stop" "parallel" "gui_portainer_stop"
+    run_ansible_routine "GUI Portainer - Stop" "gui_portainer_stop"
     return $?
 }
 
 # Restart portainer on all nodes
 function gui_portainer_restart()
 {
-    run_ansible_routine "GUI Portainer - Restart" "parallel" "gui_portainer_restart"
+    run_ansible_routine "GUI Portainer - Restart" "gui_portainer_restart"
     return $?
 }
 # Uninstall portainer on all nodes
 function gui_portainer_uninstall()
 {
-    run_ansible_routine "GUI Portainer - Uninstall" "parallel" "gui_portainer_uninstall"
+    run_ansible_routine "GUI Portainer - Uninstall" "gui_portainer_uninstall"
     return $?
 }
 
 # Deploy portainer on all nodes
 function gui_kpow_ce_install()
 {
-    run_ansible_routine "GUI KPOW-CE - Install" "parallel" "gui_kpow_ce_install"
+    run_ansible_routine "GUI KPOW-CE - Install" "gui_kpow_ce_install"
     return $?
 }
 
 # Start portainer on all nodes
 function gui_kpow_ce_start()
 {
-    run_ansible_routine "GUI KPOW-CE - Start" "parallel" "gui_kpow_ce_start"
+    run_ansible_routine "GUI KPOW-CE - Start" "gui_kpow_ce_start"
     return $?
 }
 
 # Stop portainer on all nodes
 function gui_kpow_ce_stop()
 {
-    run_ansible_routine "GUI KPOW-CE - Stop" "parallel" "gui_kpow_ce_stop"
+    run_ansible_routine "GUI KPOW-CE - Stop" "gui_kpow_ce_stop"
     return $?
 }
 
 # Restart portainer on all nodes
 function gui_kpow_ce_restart()
 {
-    run_ansible_routine "GUI KPOW-CE - Restart" "parallel" "gui_kpow_ce_restart"
+    run_ansible_routine "GUI KPOW-CE - Restart" "gui_kpow_ce_restart"
     return $?
 }
 # Uninstall portainer on all nodes
 function gui_kpow_ce_uninstall()
 {
-    run_ansible_routine "GUI KPOW-CE - Uninstall" "parallel" "gui_kpow_ce_uninstall"
+    run_ansible_routine "GUI KPOW-CE - Uninstall" "gui_kpow_ce_uninstall"
     return $?
 }
 
