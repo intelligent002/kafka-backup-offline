@@ -1,6 +1,6 @@
 gui_portainer:
   - name: portainer
-    image: "portainer/portainer-ee:2.33.3-alpine"
+    image: "portainer/portainer-ee:2.33.4-alpine"
     hostname: "portainer"
     restart_policy: "always"
     published_ports:

@@ -471,8 +471,7 @@ function containers_stop()
 # Performs a clean stop followed by a coordinated start to ensure stability.
 function containers_restart()
 {
-    containers_stop
-    containers_start
+    run_ansible_routine "Kafka Containers Restart" "containers_restart"
 }
 
 # Removes Kafka containers across all cluster nodes using Ansible.
