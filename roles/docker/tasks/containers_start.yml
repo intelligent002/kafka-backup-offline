@@ -2,9 +2,7 @@
 - name: Start Kafka containers on each cluster node
   tags:
     - containers_start
-    - containers_restart
   when:
-    - "'cluster' in group_names"
     - "item.role in group_names"
   docker_container:
     name: "{{ item.name }}"
@@ -16,7 +14,6 @@
 - name: Start Envoy balancers on node-00
   tags:
     - containers_start
-    - containers_restart
   when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"

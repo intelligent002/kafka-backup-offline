@@ -3,8 +3,6 @@
 - name: Install KPOW GUI containers
   tags: gui_kpow_ce_install
   when: inventory_hostname == "node-00"
-  run_once: true
-  loop: "{{ gui_kpow }}"
   docker_container:
     name: "{{ item.name }}"
     image: "{{ item.image }}"
@@ -18,43 +16,52 @@
     command: "{{ item.command | default(omit) }}"
     healthcheck: "{{ item.healthcheck | default(omit) }}"
     state: started
+  loop: "{{ gui_kpow }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 # START
 - name: Start KPOW GUI containers
   tags: gui_kpow_ce_start
   when: inventory_hostname == "node-00"
-  run_once: true
   docker_container:
     name: "{{ item.name }}"
     state: started
   loop: "{{ gui_kpow }}"
-
-# RESTART
-- name: Restart KPOW GUI containers
-  tags: gui_kpow_ce_restart
-  when: inventory_hostname == "node-00"
-  run_once: true
-  docker_container:
-    name: "{{ item.name }}"
-    state: restarted
-  loop: "{{ gui_kpow }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 # STOP
 - name: Stop KPOW GUI containers
   tags: gui_kpow_ce_stop
   when: inventory_hostname == "node-00"
-  run_once: true
   docker_container:
     name: "{{ item.name }}"
     state: stopped
   loop: "{{ gui_kpow }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# RESTART
+- name: Restart KPOW GUI containers
+  tags: gui_kpow_ce_restart
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    state: started
+    restart: true
+  loop: "{{ gui_kpow }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 # UNINSTALL
 - name: Remove KPOW GUI containers
   tags: gui_kpow_ce_uninstall
   when: inventory_hostname == "node-00"
-  run_once: true
   docker_container:
     name: "{{ item.name }}"
     state: absent
+    force_kill: true
   loop: "{{ gui_kpow }}"
+  loop_control:
+    label: "{{ item.name }}"

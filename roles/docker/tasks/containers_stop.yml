@@ -1,8 +1,19 @@
 ---
+- name: Stop Kafka containers
+  tags:
+    - containers_stop
+  when:
+    - "item.role in group_names"
+  docker_container:
+    name: "{{ item.name }}"
+    state: stopped
+  loop: "{{ kafka_services }}"
+  loop_control:
+    label: "{{ item.role }}"
+
 - name: Stop Envoy balancers on node-00
   tags:
     - containers_stop
-    - containers_restart
   when: inventory_hostname == "node-00"
   docker_container:
     name: "{{ item.name }}"
@@ -11,16 +22,4 @@
   loop_control:
     label: "{{ item.name }}"
 
-- name: Stop Kafka containers
-  tags:
-    - containers_stop
-    - containers_restart
-  when:
-    - "'cluster' in group_names"
-    - "item.role in group_names"
-  docker_container:
-    name: "{{ item.name }}"
-    state: stopped
-  loop: "{{ kafka_services }}"
-  loop_control:
-    label: "{{ item.role }}"
+
