@@ -3,7 +3,6 @@
   tags:
     - configs_restore
   when: inventory_hostname == "node-00"
-  run_once: true
   stat:
     path: "{{ restore_archive }}"
   register: archive_stat
@@ -11,9 +10,9 @@
 - name: Fail if archive does not exist
   tags:
     - configs_restore
+  when: inventory_hostname == "node-00" and not archive_stat.stat.exists
   fail:
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
-  when: not archive_stat.stat.exists
 
 - name: Extract configs archive to temp on central
   tags:
