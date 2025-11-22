@@ -1,4 +1,11 @@
 ---
+- name: Validate containers status
+  tags:
+    - cluster_restore
+  # all of them, not only controllers and brokers, lets be on the safe side
+  when: "'cluster' in group_names"
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
 - name: Verify archive exists
   tags:
     - cluster_restore
