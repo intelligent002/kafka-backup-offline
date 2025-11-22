@@ -709,7 +709,7 @@ function menu_components() {
             "3" "Regenerate Certificates" \
             "4" "Regenerate Configs" \
             "5" "Regenerate Credentials" \
-            "6" "Containers" \
+            "6" "Containers Kafka" \
             3>&1 1>&2 2>&3)
 
         # Capture the exit status of the Whiptail menu
@@ -751,7 +751,8 @@ function menu_components() {
                     show_failure_message "Failed to generate credentials!\n\nExit the tool and review the logs."
                fi
                ;;
-            6) menu_containers ;;
+            6) menu_containers_kafka ;;
+            7) menu_containers_balancers ;;
         esac
     done
 }
@@ -759,10 +760,80 @@ function menu_components() {
 # Displays the Containers menu using Whiptail for managing Kafka containers.
 # Provides options to run, start, stop, restart, or remove containers.
 # Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_containers() {
+function menu_containers_kafka() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Components > Containers > Choose an action" 18 60 8 \
+            --menu "Components > Containers Kafka > Choose an action" 18 60 8 \
+            "1" "Return to Components Menu" \
+            "2" "Install" \
+            "3" "Start" \
+            "4" "Stop" \
+            "5" "Restart" \
+            "6" "Uninstall" \
+            3>&1 1>&2 2>&3)
+
+        # Capture the exit status of whiptail
+        local exit_status=$?
+
+        # Exit on ESC or cancel
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               return 0 ;;
+            2)
+               containers_run
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully started!\nAll services are now running."
+               else
+                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               containers_start
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+               else
+                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            4)
+               containers_stop
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+               else
+                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               containers_restart
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+               else
+                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            6)
+               containers_remove
+               if [[ $? -eq 0 ]]; then
+                   show_success_message "The containers were successfully removed!\nResources have been freed."
+               else
+                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Displays the Containers menu using Whiptail for managing Kafka containers.
+# Provides options to run, start, stop, restart, or remove containers.
+# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+function menu_containers_balancers() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --menu "Components > Containers Balancers > Choose an action" 18 60 8 \
             "1" "Return to Components Menu" \
             "2" "Install" \
             "3" "Start" \

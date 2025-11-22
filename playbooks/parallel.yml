@@ -6,8 +6,16 @@
     - name: Cleanup temp folders before execution
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
       tags:
+        - certificates_backup
+        - certificates_restore
         - cluster_backup
         - cluster_restore
+        - configs_backup
+        - configs_restore
+        - credentials_backup
+        - credentials_restore
+        - data_backup
+        - data_restore
         - temp_cleanup
 
   roles:
@@ -25,6 +33,14 @@
     - name: Cleanup temp folders after execution
       include_tasks: ../roles/system/tasks/temp_cleanup.yml
       tags:
+        - certificates_backup
+        - certificates_restore
         - cluster_backup
         - cluster_restore
+        - configs_backup
+        - configs_restore
+        - credentials_backup
+        - credentials_restore
+        - data_backup
+        - data_restore
         - temp_cleanup
