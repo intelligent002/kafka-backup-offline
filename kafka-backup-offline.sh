@@ -257,6 +257,7 @@ function cluster_backup()
 
     # offline actions to maintain data integrity
     containers_stop
+    cluster_rotate
     cluster_backup_run
     containers_start
 
@@ -265,6 +266,13 @@ function cluster_backup()
     log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER BACKUP ]=----------------------------------------"
 }
 
+# Executes the Ansible playbook responsible for performing the Kafka cluster backup.
+# Returns the exit code from run_ansible_routine.
+function cluster_rotate()
+{
+    run_ansible_routine "Kafka Cluster Backup" "cluster_rotate"
+    return $?
+}
 # Executes the Ansible playbook responsible for performing the Kafka cluster backup.
 # Returns the exit code from run_ansible_routine.
 function cluster_backup_run()
