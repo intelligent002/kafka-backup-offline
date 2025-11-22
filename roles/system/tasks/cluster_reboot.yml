@@ -7,20 +7,3 @@
   async: 1
   poll: 0
   ignore_errors: true
-
-- name: Issue node-00 reboot
-  tags:
-    - cluster_reboot
-  delegate_to: node-00
-  run_once: true
-  ansible.builtin.shell:
-    cmd: "nohup bash -c 'sleep 30 && reboot' >/dev/null 2>&1 &"
-  async: 1
-  poll: 0
-  ignore_errors: true
-
-- name: Debug Kafka ACL commands batch
-  run_once: true
-  tags: cluster_reboot
-  debug:
-    msg: "Reboot issued, machines will reboot in 30 seconds"

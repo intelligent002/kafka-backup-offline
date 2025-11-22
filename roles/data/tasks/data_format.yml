@@ -21,7 +21,6 @@
     #- "{{ node_meta_path }}"
     #- "{{ node_data_path }}"
 
-
 - name: Create Cluster Data Folders on nodes
   tags:
     - data_format

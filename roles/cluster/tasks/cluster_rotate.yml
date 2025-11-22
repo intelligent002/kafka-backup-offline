@@ -1,0 +1,46 @@
+---
+- name: Ensure snapshot rotated backup folder exists
+  tags: cluster_rotate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ central_cluster_backup_rotated }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    state: directory
+
+- name: Ensure snapshot pinned backup folder exists
+  tags: cluster_rotate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ central_cluster_backup_pinned }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+
+- name: Find old cluster snapshots to rotate out
+  tags: cluster_rotate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.find:
+    paths: "{{ central_cluster_backup_rotated }}"
+    age: "{{ retention_policy_cluster }}d"
+    recurse: yes
+    patterns: "{{ central_cluster_backup_rotate_pattern }}"
+  register: old_cluster_snapshots
+
+- name: Remove old cluster snapshots
+  tags: cluster_rotate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ old_cluster_snapshots.files }}"
+  loop_control:
+    label: "Removed snapshot {{ item.path }}"
+
+- name: Remove empty directories under rotated backup
+  tags: cluster_rotate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell: >
+    find {{ central_cluster_backup_rotated }} -depth -type d -empty -delete

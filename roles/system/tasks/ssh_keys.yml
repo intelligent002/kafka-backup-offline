@@ -39,7 +39,7 @@
   failed_when: ssh_test_output.rc != 0
 
 - name: Display SSH test output
-  tags: ssh_keys
+  tags: ssh_keys_off
   ansible.builtin.debug:
     msg: |
       Host: {{ ansible_host }}

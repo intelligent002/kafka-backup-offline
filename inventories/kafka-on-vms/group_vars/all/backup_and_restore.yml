@@ -12,6 +12,9 @@ retention_policy_configs: 365
 # Number of days to retain data backups.
 retention_policy_data: 7
 
+# Number of days to retain full cluster backups.
+retention_policy_cluster: 7
+
 # === Node Permissions =================================================================================================
 
 # Service user
@@ -143,6 +146,29 @@ central_data_backup_file: "{{ central_data_backup_path }}/{{ backup_date }}---da
 
 # Temporal data archive on central, for backup/restore operations
 central_data_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---data.tar.xz"
+
+# === Central Storage Data section =====================================================================================
+
+# Folder dedicated for data backups on cold storage
+central_cluster_backup_base: "{{ storage_cold_path }}/cluster"
+
+# Folder dedicated for pinned backups, that will be excluded from rotation
+central_cluster_backup_pinned: "{{ central_cluster_backup_base }}/pinned"
+
+# Folder dedicated for rotated backups, that will be cleaned up from old backups during rotation
+central_cluster_backup_rotated: "{{ central_cluster_backup_base }}/rotated"
+
+# Pattern of stored backups, that is being searched for delete during rotation
+central_cluster_backup_rotate_pattern: "*cluster.tar*"
+
+# Folder that should be created during backup operation, including year/month/day folders.
+central_cluster_backup_path: "{{ central_cluster_backup_rotated }}/{{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }}"
+
+# Full path for the backup archive, named with a timestamp.
+central_cluster_backup_file: "{{ central_cluster_backup_path }}/{{ backup_date }}---cluster.tar.xz"
+
+# Temporal data archive on central, for backup/restore operations
+central_cluster_temp_archive: "{{ storage_temp_path }}/{{ inventory_hostname }}---cluster.tar.xz"
 
 # === Node Storage Base  ===============================================================================================
 
