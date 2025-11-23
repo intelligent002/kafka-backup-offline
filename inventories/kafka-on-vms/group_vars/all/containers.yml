@@ -1,7 +1,6 @@
 # === Nodes startup docker commands ====================================================================================
 heap_size_percent: 50
 
-
 kafka_services:
   - role: "controllers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
@@ -168,20 +167,6 @@ kafka_services:
         "/mnt/shared/config/kraft.properties"
       ]
 
-
-docker_command_data_format: >
-  docker run --rm
-  -v {{ node_config_path }}/:/mnt/shared/config
-  -v {{ node_data_path }}:/var/lib/kafka/data
-  -v {{ node_meta_path }}:/var/lib/kafka/meta
-  -v {{ node_logs_path }}:/opt/kafka/logs
-  -v {{ node_certificates_path }}/:/etc/kafka/secrets
-  apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-storage.sh format
-  --cluster-id {{ cluster_id }}
-  --add-scram 'SCRAM-SHA-512=[name=admin,password=insecure]'
-  --config /mnt/shared/config/kraft.properties
-
 kafka_data_format:
   - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "apache/kafka:3.9.0"
@@ -269,3 +254,101 @@ balancers:
       timeout: 10s
       retries: 5
       start_period: 5s
+
+gui_portainer:
+  - name: portainer
+    image: "portainer/portainer-ee:2.33.4-alpine"
+    hostname: "portainer"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ node_certificates_path }}:/certs"
+      - "portainer_data:/data"
+    command:
+      [
+        "--tlscert", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.fullchain.pem",
+        "--tlskey", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.key"
+      ]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status;
+          then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+
+gui_kpow:
+  - name: kpow_ce_console
+    image: "factorhouse/kpow-ce:94.6"
+    hostname: "kpow_ce_console"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_kpow_ce_console_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_console_int'] }}"
+    memory: "1g"
+    volumes:
+      - "/data:/data:ro"
+    env_file: "{{ node_config_path }}/kpow_ce_console.env"
+    env:
+      JVM_OPTS: |
+        -Djava.awt.headless=true
+        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.jks
+        -Djavax.net.ssl.trustStorePassword={{ certificate_password }}
+        -Dorg.xerial.snappy.tempdir=/opt/factorhouse/tmp
+        -server
+        -Xmx512m -Xms256m
+        -XX:InitialRAMPercentage=70
+        -XX:MaxInlineLevel=15
+        -XX:MaxRAMPercentage=70
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/healthy);
+          if [ "$response" -eq 200 ]; then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      retries: 3
+      start_period: "10s"
+      timeout: "10s"
+
+  - name: kpow_ce_proxy
+    image: "nginx:1.27-alpine"
+    hostname: "kpow_ce_proxy"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_int'] }}"
+    memory: "256m"
+    volumes:
+      - "{{ node_config_path }}/kpow_ce_proxy.conf:/etc/nginx/nginx.conf:ro"
+      - "/data:/data:ro"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -s --cacert {{ node_certificates_path }}/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health);
+          if echo "$response" | grep -q "OK"; then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      retries: 3
+      start_period: "10s"
+      timeout: "10s"
