@@ -1,0 +1,12 @@
+---
+- name: Envoy balancers Restart on node-00
+  tags:
+    - balancers_restart
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    state: started
+    restart: true
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"

@@ -1,11 +1,11 @@
 ---
-- include_tasks: gui_portainer.yml
+- include_tasks: gui_portainer_ce.yml
   tags:
-    - gui_portainer_install
-    - gui_portainer_start
-    - gui_portainer_restart
-    - gui_portainer_stop
-    - gui_portainer_uninstall
+    - gui_portainer_ce_install
+    - gui_portainer_ce_start
+    - gui_portainer_ce_restart
+    - gui_portainer_ce_stop
+    - gui_portainer_ce_uninstall
 
 - include_tasks: gui_kpow_ce.yml
   tags:

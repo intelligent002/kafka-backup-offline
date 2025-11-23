@@ -1,0 +1,13 @@
+---
+- name: Envoy balancers Stop on node-00
+  tags:
+    - balancers_stop
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    state: stopped
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+

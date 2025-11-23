@@ -1,0 +1,17 @@
+---
+- name: Envoy Balancers Install on node-00
+  tags:
+    - balancers_install
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    hostname: "{{ item.hostname }}"
+    restart_policy: "{{ item.restart_policy }}"
+    ports: "{{ item.ports }}"
+    volumes: "{{ item.volumes }}"
+    healthcheck: "{{ item.healthcheck }}"
+    state: started
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"

@@ -1,0 +1,16 @@
+---
+- include_tasks: balancers_install.yml
+  tags: balancers_install
+
+- include_tasks: balancers_start.yml
+  tags: balancers_start
+
+- include_tasks: balancers_stop.yml
+  tags: balancers_stop
+
+- include_tasks: balancers_restart.yml
+  tags: balancers_restart
+
+- include_tasks: balancers_uninstall.yml
+  tags: balancers_uninstall
+
