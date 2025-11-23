@@ -543,7 +543,7 @@ function menu_main() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose a section:" 18 60 10 \
+            --menu "Main > Choose a section:" 18 80 10 \
             "1" "Quit" \
             "2" "Cluster Operations" \
             "3" "Cluster Configurations" \
@@ -570,9 +570,9 @@ function menu_main() {
 # Cluster Operations menu
 function menu_cluster_operations() {
     while true; do
-        choice=$(whiptail --title "Cluster Operations" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Operations > Choose an action:" 18 60 10 \
+            --menu "Main > Cluster Operations > Choose an action:" 18 80 10 \
             "1" "Back to Main Menu" \
             "2" "Backup" \
             "3" "Restore" \
@@ -645,7 +645,7 @@ function menu_cluster_restore()
     # Display the menu and capture the user's choice
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Cluster > Restore > Choose a backup file to restore:" 40 140 32 \
+        --menu "Main > Cluster Operations > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
     local exit_status=$?
@@ -674,9 +674,9 @@ function menu_cluster_restore()
 # Cluster Configurations menu
 function menu_cluster_configurations() {
     while true; do
-        choice=$(whiptail --title "Cluster Configurations" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Cluster Configurations > Choose an action:" 20 70 12 \
+            --menu "Main > Cluster Configurations > Choose an action:" 18 80 10 \
             "1" "Back to Main Menu" \
             "2" "Apply Default ACLs" \
             "3" "Regenerate Certificates" \
@@ -742,9 +742,9 @@ function menu_cluster_configurations() {
 # Service Containers – Kafka, Envoy Balancers, GUI
 function menu_service_containers() {
     while true; do
-        choice=$(whiptail --title "Service Containers" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Service Containers > Choose a group:" 18 60 10 \
+            --menu "Main > Service Containers > Choose a group:" 18 80 10 \
             "1" "Back to Main Menu" \
             "2" "Kafka Services" \
             "3" "Envoy Balancers" \
@@ -769,9 +769,9 @@ function menu_service_containers() {
 # Kafka Services containers menu
 function menu_containers_kafka() {
     while true; do
-        choice=$(whiptail --title "Kafka Services" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Kafka Services > Choose an action" 18 60 10 \
+            --menu "Main > Service Containers > Kafka Services > Choose an action" 18 80 10 \
             "1" "Back" \
             "2" "Install" \
             "3" "Start" \
@@ -837,9 +837,9 @@ function menu_containers_kafka() {
 # Envoy Balancers containers menu
 function menu_balancers() {
     while true; do
-        choice=$(whiptail --title "Envoy Balancers" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Envoy Balancers > Choose an action" 18 60 10 \
+            --menu "Main > Service Containers > Envoy Balancers > Choose an action" 18 80 10 \
             "1" "Back" \
             "2" "Install" \
             "3" "Start" \
@@ -905,9 +905,9 @@ function menu_balancers() {
 # GUI Services top-level menu (Portainer & KPow)
 function menu_gui() {
     while true; do
-        choice=$(whiptail --title "GUI Services" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "GUI Services > Choose an action" 18 60 8 \
+            --menu "Main > Service Containers > GUI Services > Choose an action" 18 80 10 \
             "1" "Back" \
             "2" "Portainer-CE" \
             "3" "KPow-CE" \
@@ -930,9 +930,9 @@ function menu_gui() {
 # Portainer GUI menu
 function menu_gui_portainer() {
     while true; do
-        choice=$(whiptail --title "Portainer-CE" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "GUI > Portainer-CE > Choose an action" 18 60 8 \
+            --menu "Main > Service Containers > GUI Services > Portainer-CE > Choose an action" 18 80 10 \
             "1" "Back" \
             "2" "Install" \
             "3" "Start" \
@@ -997,9 +997,9 @@ function menu_gui_portainer() {
 # KPOW-CE GUI menu
 function menu_gui_kpow_ce() {
     while true; do
-        choice=$(whiptail --title "KPow-CE" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "GUI > KPow-CE > Choose an action" 18 60 8 \
+            --menu "Main > Service Containers > GUI Services > KPow-CE > Choose an action" 18 80 10 \
             "1" "Back" \
             "2" "Install" \
             "3" "Start" \
@@ -1064,9 +1064,9 @@ function menu_gui_kpow_ce() {
 # Prerequisites menu
 function menu_prerequisites() {
     while true; do
-        choice=$(whiptail --title "Prerequisites" \
+        choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Prerequisites > Choose an action:" 18 60 8 \
+            --menu "Main > Prerequisites > Choose an action:" 18 80 10 \
             "1" "Back to Main Menu" \
             "2" "Deploy SSH Keys (ssh-copy-id)" \
             "3" "Deploy System Prerequisites (Docker etc.)" \
