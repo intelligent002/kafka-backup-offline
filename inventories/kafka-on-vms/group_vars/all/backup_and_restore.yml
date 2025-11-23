@@ -13,7 +13,7 @@ retention_policy_configs: 365
 retention_policy_data: 7
 
 # Number of days to retain full cluster backups.
-retention_policy_cluster: 7
+retention_policy_cluster: 1
 
 # === Node Permissions =================================================================================================
 

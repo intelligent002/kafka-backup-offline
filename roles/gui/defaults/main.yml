@@ -3,7 +3,7 @@ gui_portainer:
     image: "portainer/portainer-ee:2.33.4-alpine"
     hostname: "portainer"
     restart_policy: "always"
-    published_ports:
+    ports:
       - "{{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -35,7 +35,7 @@ gui_kpow:
     image: "factorhouse/kpow-ce:94.6"
     hostname: "kpow_ce_console"
     restart_policy: "always"
-    published_ports:
+    ports:
       - "{{ hostvars[inventory_hostname]['port_kpow_ce_console_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_console_int'] }}"
     memory: "1g"
     volumes:
@@ -73,7 +73,7 @@ gui_kpow:
     image: "nginx:1.27-alpine"
     hostname: "kpow_ce_proxy"
     restart_policy: "always"
-    published_ports:
+    ports:
       - "{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_int'] }}"
     memory: "256m"
     volumes:

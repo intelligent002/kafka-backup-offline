@@ -1,7 +1,7 @@
 ---
 - name: Remove Kafka containers
   tags:
-    - containers_remove
+    - containers_uninstall
   when:
     - "'cluster' in group_names"
     - "item.role in group_names"
@@ -14,7 +14,7 @@
 
 - name: Remove folder for application logs
   tags:
-    - containers_remove
+    - containers_uninstall
   when:
     - "'cluster' in group_names"
   ansible.builtin.file:

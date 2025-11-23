@@ -288,26 +288,22 @@ function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
     # stop everything
-    containers_remove
+    containers_uninstall
     # regenerate all components
     configs_generate
     credentials_generate
     certificates_generate
     data_format
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
-    containers_run
+    containers_install
     acls_apply
     # start containers from scratch, to: 1 - start failed nodes, 2 - wipe errors about missing ACLs.
-    containers_remove
-    containers_run
+    containers_uninstall
+    containers_install
+    balancers_install
     log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
 }
 
-# Cron-oriented function for automated Kafka cluster backups.
-# 1. Stops all Kafka containers to ensure data consistency.
-# 2. Rotates old backups according to policy.
-# 3. Backs up involved /data/cluster folders to a unified snapshot on cold storage.
-# 4. Starts all Kafka containers after the backup process completes.
 function cluster_restore()
 {
     log "INFO" "---------------------------------------=[ INITIATING FULL CLUSTER RESTORE ]=----------------------------------------"
@@ -382,9 +378,9 @@ function data_format()
 
 # Starts Kafka containers across all cluster nodes using Ansible.
 # Ensures each node is initialized according to its defined service role.
-function containers_run()
+function containers_install()
 {
-    run_ansible_routine "Kafka Containers Run" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "containers_install"
     return $?
 }
 
@@ -413,9 +409,9 @@ function containers_restart()
 
 # Removes Kafka containers across all cluster nodes using Ansible.
 # Ensures each node is cleaned up consistently without leaving residual state.
-function containers_remove()
+function containers_uninstall()
 {
-    run_ansible_routine "Kafka Containers Remove" "containers_remove"
+    run_ansible_routine "Kafka Containers Remove" "containers_uninstall"
     return $?
 }
 
@@ -795,7 +791,7 @@ function menu_containers_kafka() {
                return 0
                ;;
             2)
-               containers_run
+               containers_install
                if [[ $? -eq 0 ]]; then
                    show_success_message "Kafka containers were successfully installed and started!"
                else
@@ -827,7 +823,7 @@ function menu_containers_kafka() {
                fi
                ;;
             6)
-               containers_remove
+               containers_uninstall
                if [[ $? -eq 0 ]]; then
                    show_success_message "Kafka containers were successfully removed!"
                else

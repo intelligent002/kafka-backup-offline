@@ -6,17 +6,18 @@
     container: "{{ gui_portainer[0] }}"
   docker_container:
     name: "{{ container.name }}"
-    image: "{{ container.image }}"
     hostname: "{{ container.hostname }}"
-    restart_policy: "{{ container.restart_policy | default('always') }}"
-    published_ports: "{{ container.published_ports | default([]) }}"
-    memory: "{{ container.memory | default(omit) }}"
-    volumes: "{{ container.volumes | default([]) }}"
-    env_file: "{{ container.env_file | default(omit) }}"
-    env: "{{ container.env | default({}) }}"
+    image: "{{ container.image }}"
     command: "{{ container.command | default(omit) }}"
-    healthcheck: "{{ container.healthcheck | default(omit) }}"
     state: started
+    restart_policy: "{{ container.restart_policy | default('always') }}"
+    rm: "{{ container.rm | default(omit) }}"
+    memory: "{{ container.memory | default(omit) }}"
+    ports: "{{ container.ports | default(omit) }}"
+    env: "{{ container.env | default(omit) }}"
+    env_file: "{{ container.env_file | default(omit) }}"
+    volumes: "{{ container.volumes | default(omit) }}"
+    healthcheck: "{{ container.healthcheck | default(omit) }}"
 
 # START
 - name: Start Portainer on all nodes
