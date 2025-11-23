@@ -1,0 +1,121 @@
+---
+- name: Validate containers status
+  tags:
+    - cluster_backup
+  when: "'cluster' in group_names"
+  include_tasks: ../../docker/tasks/containers_validation.yml
+
+# -------------------------------------------------------------------
+# Discover folders under /data/cluster on each node
+# -------------------------------------------------------------------
+- name: Discover cluster folders on nodes
+  tags: cluster_backup
+  when: "'cluster' in group_names"
+  ansible.builtin.find:
+    paths: "{{ node_storage_base }}"
+    file_type: directory
+    depth: 1
+  register: cluster_dirs
+
+# -------------------------------------------------------------------
+# Create per-folder archives on each node
+#   Example: /data/tmp/node-04/node-04-data.tar.xz
+# -------------------------------------------------------------------
+- name: Create archives per discovered folder on nodes
+  tags: cluster_backup
+  when: "'cluster' in group_names"
+  loop: "{{ cluster_dirs.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  ansible.builtin.shell:
+    cmd: >
+      folder="{{ item.path | basename }}";
+      cd "{{ node_storage_base }}";
+      tar -cf - "$folder" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-$folder.tar.xz"
+
+# -------------------------------------------------------------------
+# Pull node archives into node-00
+#   Final layout on node-00:
+#   /data/tmp/node-04/*.tar.xz
+# -------------------------------------------------------------------
+- name: Pull node snapshot archives to central
+  tags: cluster_backup
+  when: "'cluster' in group_names"
+  delegate_to: node-00
+  synchronize:
+    src: "{{ node_temp_path }}/"
+    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}/"
+    mode: pull
+    rsync_opts:
+      - "--timeout=60"
+      - "--checksum"
+
+# -------------------------------------------------------------------
+# Prepare backup directory in cold storage
+# -------------------------------------------------------------------
+- name: Ensure backup folder exists in rotated folder
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ central_cluster_backup_path }}"
+    state: directory
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+
+# -------------------------------------------------------------------
+# Build final "zip-of-zips" on node-00
+# -------------------------------------------------------------------
+- name: Create cluster snapshot zip-of-zips
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell:
+    cmd: >
+      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_cluster_backup_file }}"
+
+# -------------------------------------------------------------------
+# Manifest & checksum
+# -------------------------------------------------------------------
+- name: Build manifest structure
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.set_fact:
+    cluster_backup_manifest:
+      snapshot_file: "{{ central_cluster_backup_file }}"
+      created_at: "{{ backup_date }}"
+      cluster_id: "{{ cluster_id | default('unknown') }}"
+      nodes: "{{ groups['cluster'] | default([]) }}"
+
+- name: Write snapshot manifest.json
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.copy:
+    dest: "{{ central_cluster_backup_file }}.manifest.json"
+    content: "{{ cluster_backup_manifest | to_nice_json }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "0640"
+
+- name: Write snapshot sha256 checksum
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell:
+    cmd: >
+      sha256sum "{{ central_cluster_backup_file }}" > "{{ central_cluster_backup_file }}.sha256"
+
+# -------------------------------------------------------------------
+# Prepare backup directory in cold storage
+# -------------------------------------------------------------------
+- name: Ensure backup folder permissions
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ central_cluster_backup_path }}"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    state: directory
+    recurse: true
+
+# (optional) You can add cleanup of temp dirs if you like
+# I’d keep them for debug until you’re happy with the flow.

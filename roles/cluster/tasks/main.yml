@@ -1,0 +1,12 @@
+---
+- name: Run cluster backup
+  include_tasks: cluster_backup.yml
+  tags: cluster_backup
+
+- name: Run cluster restore
+  include_tasks: cluster_restore.yml
+  tags: cluster_restore
+
+- name: Rotate old cluster backups
+  include_tasks: cluster_rotate.yml
+  tags: cluster_rotate
