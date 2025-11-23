@@ -70,7 +70,7 @@
   tags:
     - acls_apply
   debug:
-    msg: "Please be patient; this process may take a few minutes. It sequentially applies all ACLs from the inventory file to the Kafka cluster, ensuring proper access control. This idempotent process can be safely re-applied without causing issues." # {{ kafka_acl_commands }}"
+    msg: "Please be patient; this process will take a few minutes. It sequentially applies all ACLs from the inventory file to the Kafka cluster, ensuring proper access control. This idempotent process can be safely re-applied without causing issues." # {{ kafka_acl_commands }}"
 
 - name: Apply Kafka ACL commands batch
   tags:

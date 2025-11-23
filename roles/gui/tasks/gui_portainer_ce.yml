@@ -1,26 +1,27 @@
 ---
 # INSTALL
 - name: Install Portainer on all nodes
-  tags: gui_portainer_install
+  tags: gui_portainer_ce_install
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
     name: "{{ container.name }}"
-    image: "{{ container.image }}"
     hostname: "{{ container.hostname }}"
-    restart_policy: "{{ container.restart_policy | default('always') }}"
-    published_ports: "{{ container.published_ports | default([]) }}"
-    memory: "{{ container.memory | default(omit) }}"
-    volumes: "{{ container.volumes | default([]) }}"
-    env_file: "{{ container.env_file | default(omit) }}"
-    env: "{{ container.env | default({}) }}"
+    image: "{{ container.image }}"
     command: "{{ container.command | default(omit) }}"
-    healthcheck: "{{ container.healthcheck | default(omit) }}"
     state: started
+    restart_policy: "{{ container.restart_policy | default('always') }}"
+    rm: "{{ container.rm | default(omit) }}"
+    memory: "{{ container.memory | default(omit) }}"
+    ports: "{{ container.ports | default(omit) }}"
+    env: "{{ container.env | default(omit) }}"
+    env_file: "{{ container.env_file | default(omit) }}"
+    volumes: "{{ container.volumes | default(omit) }}"
+    healthcheck: "{{ container.healthcheck | default(omit) }}"
 
 # START
 - name: Start Portainer on all nodes
-  tags: gui_portainer_start
+  tags: gui_portainer_ce_start
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
@@ -29,7 +30,7 @@
 
 # RESTART
 - name: Restart Portainer on all nodes
-  tags: gui_portainer_restart
+  tags: gui_portainer_ce_restart
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
@@ -39,7 +40,7 @@
 
 # STOP
 - name: Stop Portainer on all nodes
-  tags: gui_portainer_stop
+  tags: gui_portainer_ce_stop
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
@@ -48,7 +49,7 @@
 
 # UNINSTALL
 - name: Uninstall Portainer on all nodes
-  tags: gui_portainer_uninstall
+  tags: gui_portainer_ce_uninstall
   vars:
     container: "{{ gui_portainer[0] }}"
   docker_container:
@@ -57,7 +58,7 @@
     force_kill: true
 
 - name: Remove portainer_data volume on all nodes
-  tags: gui_portainer_uninstall
+  tags: gui_portainer_ce_uninstall
   docker_volume:
     name: "portainer_datas"
     state: absent

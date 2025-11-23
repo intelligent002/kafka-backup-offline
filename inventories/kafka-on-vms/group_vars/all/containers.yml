@@ -1,217 +1,354 @@
-# === Nodes startup and shutdown order =================================================================================
-
-# Defines the order of starting cluster nodes.
-startup_order:
-  - node-01
-  - node-02
-  - node-03
-  - node-04
-  - node-05
-  - node-06
-  - node-07
-  - node-08
-  - node-09
-  - node-10
-  - node-11
-  - node-12
-  - node-13
-  - node-14
-  - node-15
-
-# Defines the order of shutting down cluster nodes.
-shutdown_order:
-  - node-15
-  - node-14
-  - node-13
-  - node-12
-  - node-11
-  - node-10
-  - node-09
-  - node-08
-  - node-07
-  - node-06
-  - node-05
-  - node-04
-  - node-03
-  - node-02
-  - node-01
-
 # === Nodes startup docker commands ====================================================================================
-
 heap_size_percent: 50
 
-docker_command_controllers_run: >
-  docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_control_plane_ext'] }}:{{ hostvars[item]['port_control_plane_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false
-  -Dcom.sun.management.jmxremote.ssl=false
-  "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
-  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
+kafka_services:
+  - role: "controllers"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_control_plane_ext'] }}:{{ hostvars[inventory_hostname]['port_control_plane_int'] }}"
+    env:
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+      KAFKA_JMX_OPTS: |
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+    volumes:
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
+    command:
+      [
+        "/opt/kafka/bin/kafka-server-start.sh",
+        "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_brokers_run: >
-  docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_replication_ext'] }}:{{ hostvars[item]['port_replication_int'] }}
-  -p {{ hostvars[item]['port_consumer_mtls_ext'] }}:{{ hostvars[item]['port_consumer_mtls_int'] }}
-  -p {{ hostvars[item]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[item]['port_consumer_sasl_ssl_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false
-  -Dcom.sun.management.jmxremote.ssl=false
-  "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
-  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-server-start.sh /mnt/shared/config/kraft.properties
+  - role: "brokers"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_replication_ext'] }}:{{ hostvars[inventory_hostname]['port_replication_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_consumer_mtls_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_mtls_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_ext'] }}:{{ hostvars[inventory_hostname]['port_consumer_sasl_ssl_int'] }}"
+    env:
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+      KAFKA_JMX_OPTS: |
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+    volumes:
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
+    command:
+      [
+        "/opt/kafka/bin/kafka-server-start.sh",
+        "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_schema_run: >
-  docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_schema_rest_ext'] }}:{{ hostvars[item]['port_schema_rest_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false
-  -Dcom.sun.management.jmxremote.ssl=false
-  "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
-  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0
-  /usr/bin/schema-registry-start /mnt/shared/config/kraft.properties
+  - role: "schema"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_schema_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_schema_rest_int'] }}"
+    env:
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+      KAFKA_JMX_OPTS: |
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+    volumes:
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_schema_secrets_path'] }}:/etc/schema-registry/secrets"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
+    command:
+      [
+        "/usr/bin/schema-registry-start",
+        "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_balancer_schema_run: >
-  docker run -d --restart=always
-  --name balancer-schema
-  -p {{ port_schema_balancer_ext }}:{{ port_schema_balancer_int }}
-  -p {{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }}
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
-  --health-interval=60s
-  --health-timeout=10s
-  --health-retries=5
-  --health-start-period=5s
-  -v /data:/data:ro
-  -v /data/cluster/config/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro
-  envoyproxy/envoy:v1.33.0
+  - role: "connect"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}"
+    env:
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+      KAFKA_JMX_OPTS: |
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+    volumes:
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/var/lib/kafka/data"
+      - "{{ hostvars[inventory_hostname]['node_meta_path'] }}:/var/lib/kafka/meta"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/opt/kafka/logs"
+      - "{{ hostvars[inventory_hostname]['node_plugins_path'] }}:/usr/share/java"
+    command:
+      [
+        "/opt/kafka/bin/connect-distributed.sh",
+        "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_connect_run: >
-  docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_connect_rest_ext'] }}:{{ hostvars[item]['port_connect_rest_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false
-  -Dcom.sun.management.jmxremote.ssl=false
-  "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/var/lib/kafka/data
-  -v {{ hostvars[item]['node_meta_path'] }}:/var/lib/kafka/meta
-  -v {{ hostvars[item]['node_logs_path'] }}:/opt/kafka/logs
-  -v {{ hostvars[item]['node_plugins_path'] }}:/usr/share/java
-  docker.artifactory.intel.r7g.org/apache/kafka:3.9.0
-  /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties
+  - role: "ksql"
+    name: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_ksql_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_rest_int'] }}"
+      - "{{ hostvars[inventory_hostname]['port_ksql_sync_ext'] }}:{{ hostvars[inventory_hostname]['port_ksql_sync_int'] }}"
+    env:
+      KAFKA_HEAP_OPTS: >-
+        -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+        -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
+      KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
+      KAFKA_JMX_OPTS: |
+        -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+    volumes:
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
+      - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
+      - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/ksql/data"
+      - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/var/log/ksqldb"
+    command:
+      [
+        "/usr/bin/ksql-server-start",
+        "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_balancer_connect_run: >
-  docker run -d --restart=always
-  --name balancer-connect
-  -p {{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }}
-  -p {{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }}
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
-  --health-interval=60s
-  --health-timeout=10s
-  --health-retries=5
-  --health-start-period=5s
-  -v /data:/data:ro
-  -v /data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro
-  envoyproxy/envoy:v1.33.0
+kafka_data_format:
+  - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
+    image: "apache/kafka:3.9.0"
+    hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
+    restart_policy: "never"
+    rm: true
+    volumes:
+      - "{{ node_config_path }}/:/mnt/shared/config"
+      - "{{ node_data_path }}:/var/lib/kafka/data"
+      - "{{ node_meta_path }}:/var/lib/kafka/meta"
+      - "{{ node_logs_path }}:/opt/kafka/logs"
+      - "{{ node_certificates_path }}/:/etc/kafka/secrets"
+    command:
+      [
+        "/opt/kafka/bin/kafka-storage.sh",
+        "format",
+        "--cluster-id", "{{ cluster_id }}",
+        "--add-scram", "SCRAM-SHA-512=[name=admin,password=insecure]",
+        "--config", "/mnt/shared/config/kraft.properties"
+      ]
 
-docker_command_ksql_run: >
-  docker run -d --restart=always
-  --name={{ hostvars[item]['hostname'] }} -h {{ hostvars[item]['hostname'] }}
-  -p {{ hostvars[item]['port_jmx_monitoring_ext'] }}:{{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -p {{ hostvars[item]['port_ksql_rest_ext'] }}:{{ hostvars[item]['port_ksql_rest_int'] }}
-  -p {{ hostvars[item]['port_ksql_sync_ext'] }}:{{ hostvars[item]['port_ksql_sync_int'] }}
-  -e KAFKA_HEAP_OPTS="-Xmx{{ node_heap[item] }} -Xms{{ node_heap[item] }}"
-  -e KSQL_OPTS="-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
-  -e KAFKA_JMX_OPTS="
-  -Djava.rmi.server.hostname={{ hostvars[item]['ansible_host'] }}
-  -Dcom.sun.management.jmxremote
-  -Dcom.sun.management.jmxremote.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.rmi.port={{ hostvars[item]['port_jmx_monitoring_int'] }}
-  -Dcom.sun.management.jmxremote.authenticate=false
-  -Dcom.sun.management.jmxremote.ssl=false
-  "
-  -v {{ hostvars[item]['node_config_path'] }}:/mnt/shared/config
-  -v {{ hostvars[item]['node_certificates_path'] }}:/etc/kafka/secrets
-  -v {{ hostvars[item]['node_credentials_path'] }}:/credentials
-  -v {{ hostvars[item]['node_data_path'] }}:/ksql/data
-  -v {{ hostvars[item]['node_logs_path'] }}:/var/log/ksqldb
-  docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0
-  /usr/bin/ksql-server-start /mnt/shared/config/kraft.properties
+balancers:
+  - role: "balancer-ksql"
+    name: "balancer-ksql"
+    image: "envoyproxy/envoy:v1.33.0"
+    hostname: "balancer-ksql"
+    restart_policy: "always"
+    ports:
+      - "{{ port_ksql_balancer_ext }}:{{ port_ksql_balancer_int }}"
+      - "{{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }}"
+    volumes:
+      - "/data:/data:ro"
+      - "/data/cluster/config/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro"
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
+        timeout 9 cat <&3 | grep -q LIVE &&
+        { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
-docker_command_balancer_ksql_run: >
-  docker run -d --restart=always
-  --name balancer-ksql
-  -p {{ port_ksql_balancer_ext }}:{{ port_ksql_balancer_int }}
-  -p {{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }}
-  --health-cmd "bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} && echo -e \"GET /ready HTTP/1.1\nHost: localhost\n\n\" >&3 && timeout 1 cat <&3 | grep -q LIVE; exec 3<&-; exec 3>&-'"
-  --health-interval=60s
-  --health-timeout=10s
-  --health-retries=5
-  --health-start-period=5s
-  -v /data:/data:ro
-  -v /data/cluster/config/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro
-  envoyproxy/envoy:v1.33.0
+  - role: "balancer-connect"
+    name: "balancer-connect"
+    image: "envoyproxy/envoy:v1.33.0"
+    hostname: "balancer-connect"
+    restart_policy: "always"
+    ports:
+      - "{{ port_connect_balancer_ext }}:{{ port_connect_balancer_int }}"
+      - "{{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }}"
+    volumes:
+      - "/data:/data:ro"
+      - "/data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro"
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
+        timeout 9 cat <&3 | grep -q LIVE &&
+        { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
-docker_command_data_format: >
-  docker run --rm
-  -v {{ node_config_path }}/:/mnt/shared/config
-  -v {{ node_data_path }}:/var/lib/kafka/data
-  -v {{ node_meta_path }}:/var/lib/kafka/meta
-  -v {{ node_logs_path }}:/opt/kafka/logs
-  -v {{ node_certificates_path }}/:/etc/kafka/secrets
-  apache/kafka:3.9.0
-  /opt/kafka/bin/kafka-storage.sh format
-  --cluster-id {{ cluster_id }}
-  --add-scram 'SCRAM-SHA-512=[name=admin,password=insecure]'
-  --config /mnt/shared/config/kraft.properties
+  - role: "balancer-schema"
+    name: "balancer-schema"
+    image: "envoyproxy/envoy:v1.33.0"
+    hostname: "balancer-schema"
+    restart_policy: "always"
+    ports:
+      - "{{ port_schema_balancer_ext }}:{{ port_schema_balancer_int }}"
+      - "{{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }}"
+    volumes:
+      - "/data:/data:ro"
+      - "/data/cluster/config/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro"
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} &&
+        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
+        timeout 9 cat <&3 | grep -q LIVE &&
+        { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
+gui_portainer:
+  - name: portainer
+    image: "portainer/portainer-ee:2.33.4-alpine"
+    hostname: "portainer"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_portainer_ext'] }}:{{ hostvars[inventory_hostname]['port_portainer_int'] }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ node_certificates_path }}:/certs"
+      - "portainer_data:/data"
+    command:
+      [
+        "--tlscert", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.fullchain.pem",
+        "--tlskey", "/certs/{{ hostvars[inventory_hostname]['hostname'] }}.key"
+      ]
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          if wget --spider --no-check-certificate -q https://localhost:9443/api/system/status;
+          then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      timeout: "5s"
+      retries: 3
+
+gui_kpow:
+  - name: kpow_ce_console
+    image: "factorhouse/kpow-ce:94.6"
+    hostname: "kpow_ce_console"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_kpow_ce_console_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_console_int'] }}"
+    memory: "1g"
+    volumes:
+      - "/data:/data:ro"
+    env_file: "{{ node_config_path }}/kpow_ce_console.env"
+    env:
+      JVM_OPTS: |
+        -Djava.awt.headless=true
+        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.jks
+        -Djavax.net.ssl.trustStorePassword={{ certificate_password }}
+        -Dorg.xerial.snappy.tempdir=/opt/factorhouse/tmp
+        -server
+        -Xmx512m -Xms256m
+        -XX:InitialRAMPercentage=70
+        -XX:MaxInlineLevel=15
+        -XX:MaxRAMPercentage=70
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/healthy);
+          if [ "$response" -eq 200 ]; then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      retries: 3
+      start_period: "10s"
+      timeout: "10s"
+
+  - name: kpow_ce_proxy
+    image: "nginx:1.27-alpine"
+    hostname: "kpow_ce_proxy"
+    restart_policy: "always"
+    ports:
+      - "{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_ext'] }}:{{ hostvars[inventory_hostname]['port_kpow_ce_proxy_int'] }}"
+    memory: "256m"
+    volumes:
+      - "{{ node_config_path }}/kpow_ce_proxy.conf:/etc/nginx/nginx.conf:ro"
+      - "/data:/data:ro"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          response=$(curl -s --cacert {{ node_certificates_path }}/ca.crt https://{{ hostvars['node-00']['hostname'] }}/health);
+          if echo "$response" | grep -q "OK"; then
+            echo "OK";
+            exit 0;
+          else
+            echo "Unhealthy";
+            exit 1;
+          fi
+      interval: "30s"
+      retries: 3
+      start_period: "10s"
+      timeout: "10s"

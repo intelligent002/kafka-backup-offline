@@ -1,0 +1,12 @@
+---
+- name: Envoy balancers Uninstall on node-00
+  tags:
+    - balancers_uninstall
+  when: inventory_hostname == "node-00"
+  docker_container:
+    name: "{{ item.name }}"
+    state: absent
+    force_kill: true
+  loop: "{{ balancers }}"
+  loop_control:
+    label: "{{ item.name }}"

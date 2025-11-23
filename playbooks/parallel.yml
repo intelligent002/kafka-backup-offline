@@ -20,6 +20,7 @@
 
   roles:
     - role: ../roles/acls          # Include ACLs related tasks
+    - role: ../roles/balancers     # Include Certificates related tasks
     - role: ../roles/certificates  # Include Certificates related tasks
     - role: ../roles/credentials   # Include Credentials related tasks
     - role: ../roles/configs       # Include Configs related tasks

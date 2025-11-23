@@ -42,7 +42,7 @@ function format_filesize() {
 }
 
 # Checks the free disk space on a specified mount point and logs a warning if space is below the threshold.
-# Logs a warning if the available disk space drops below 20% (or the configured `STORAGE_WARN_LOW` threshold).
+# Logs a warning if the available disk space drops below STORAGE_WARN_LOW.
 function ensure_free_space()
 {
     local mount free_storage free_percent
@@ -53,7 +53,7 @@ function ensure_free_space()
     free_storage=$(df -P "$mount" | awk 'NR==2 {print $4}')
     free_percent=$(df -P "$mount" | awk 'NR==2 {print 100 - $5}')
 
-    # Check if the free percentage is less than 20%
+    # Check if the free percentage is less than STORAGE_WARN_LOW
     if ((free_percent < STORAGE_WARN_LOW)); then
         log "WARN" "Low disk space on $mount. Available: ${free_storage} KB (${free_percent}% of total)."
     fi
@@ -119,23 +119,23 @@ function handle_configuration()
 
     # Load general configuration variables such as paths for PID and log files.
     parse_ini_file "$config_file" "general"
-    PID_FILE="${ini_data[general.PID_FILE]}"   # Path to the PID file for ensuring single script execution
-    LOG_FILE="${ini_data[general.LOG_FILE]}"   # Path to the log file for logging events
-    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}" # Log level threshold
-    INVENTORY="${ini_data[general.INVENTORY]}" # inventory folder
+    PID_FILE="${ini_data[general.PID_FILE]}"                 # Path to the PID file for ensuring single script execution
+    LOG_FILE="${ini_data[general.LOG_FILE]}"                 # Path to the log file for logging events
+    LOG_LEVEL="${ini_data[general.LOG_LEVEL]}"               # Log level threshold
+    INVENTORY="${ini_data[general.INVENTORY]}"               # Inventory folder
     ANSIBLE_ATTEMPTS="${ini_data[general.ANSIBLE_ATTEMPTS]}" # Ansible retry attempts
 
     # Load storage configuration variables for temporary and cold backup storage paths.
     parse_ini_file "$config_file" "storage"
-    STORAGE_TEMP="${ini_data[storage.STORAGE_TEMP]}"                         # Temporary storage directory on the GUI server
-    STORAGE_COLD="${ini_data[storage.STORAGE_COLD]}"                         # Permanent cold storage directory for backups
-    STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}"                 # Percentage threshold for warning
+    STORAGE_TEMP="${ini_data[storage.STORAGE_TEMP]}"         # Temporary storage directory on the GUI server
+    STORAGE_COLD="${ini_data[storage.STORAGE_COLD]}"         # Permanent cold storage directory for backups
+    STORAGE_WARN_LOW="${ini_data[storage.STORAGE_WARN_LOW]}" # Percentage threshold for warning
 
     # make sure we can log stuff
     mkdir -p "$(dirname "$LOG_FILE")"
 
     log "INFO" "Configuration loaded from '$config_file'"
-    ensure_free_space $STORAGE_COLD
+    ensure_free_space "$STORAGE_COLD"
 }
 
 # Creates a PID file to prevent multiple instances of the script from running.
@@ -247,34 +247,32 @@ function install_prerequisites()
 
 # Cron-oriented function for automated Kafka cluster backups.
 # 1. Stops all Kafka containers to ensure data consistency.
-# 2. Backs up involved vms /cluster/data/ folders: configs, certs, data etc - storing everything in single zip on cold storage.
-# 3. Starts all Kafka containers after the backup process completes.
+# 2. Rotates old backups according to policy.
+# 3. Backs up involved /data/cluster folders to a unified snapshot on cold storage.
+# 4. Starts all Kafka containers after the backup process completes.
 function cluster_backup()
 {
     log "INFO" "---------------------------------------=[ INITIATING FULL CLUSTER BACKUP ]=----------------------------------------"
     # validate storage space
-    ensure_free_space $STORAGE_COLD
-
+    ensure_free_space "$STORAGE_COLD"
     # offline actions to maintain data integrity
     containers_stop
     cluster_rotate
     cluster_backup_run
     containers_start
-
     # validate storage space
-    ensure_free_space $STORAGE_COLD
+    ensure_free_space "$STORAGE_COLD"
     log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER BACKUP ]=----------------------------------------"
 }
 
-# Executes the Ansible playbook responsible for performing the Kafka cluster backup.
-# Returns the exit code from run_ansible_routine.
+# Executes the Ansible playbook responsible for rotating backups.
 function cluster_rotate()
 {
-    run_ansible_routine "Kafka Cluster Backup" "cluster_rotate"
+    run_ansible_routine "Kafka Cluster Backup Rotation" "cluster_rotate"
     return $?
 }
+
 # Executes the Ansible playbook responsible for performing the Kafka cluster backup.
-# Returns the exit code from run_ansible_routine.
 function cluster_backup_run()
 {
     run_ansible_routine "Kafka Cluster Backup" "cluster_backup"
@@ -290,35 +288,41 @@ function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
     # stop everything
-    containers_remove
-
+    containers_uninstall
     # regenerate all components
     configs_generate
     credentials_generate
     certificates_generate
     data_format
-
     # apply ACL, on running containers, they will produce errors in logs as running without ACLs.
-    containers_run
+    containers_install
     acls_apply
-
     # start containers from scratch, to: 1 - start failed nodes, 2 - wipe errors about missing ACLs.
-    containers_remove
-    containers_run
+    containers_uninstall
+    containers_install
+    balancers_install
     log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
+}
+
+function cluster_restore()
+{
+    log "INFO" "---------------------------------------=[ INITIATING FULL CLUSTER RESTORE ]=----------------------------------------"
+    containers_stop
+    cluster_restore_run $1
+    containers_start
+    log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER RESTORE ]=----------------------------------------"
 }
 
 # Restores a Kafka cluster snapshot from the provided archive file.
 # Pass the snapshot path as the first argument.
-function cluster_restore()
+function cluster_restore_run()
 {
     local extra_vars="--extra-vars={\"restore_archive\":\"$1\"}"
     run_ansible_routine "Kafka Snapshot Restore" "cluster_restore" "$extra_vars"
     return $?
 }
 
-# Run the cluster reboot playbook via Ansible
-# Return the exit code to the caller
+# Run the cluster reboot playbook via Ansible.
 function cluster_reboot()
 {
     run_ansible_routine "Kafka Cluster Reboot" "cluster_reboot"
@@ -374,9 +378,9 @@ function data_format()
 
 # Starts Kafka containers across all cluster nodes using Ansible.
 # Ensures each node is initialized according to its defined service role.
-function containers_run()
+function containers_install()
 {
-    run_ansible_routine "Kafka Containers Run" "containers_run"
+    run_ansible_routine "Kafka Containers Run" "containers_install"
     return $?
 }
 
@@ -405,44 +409,75 @@ function containers_restart()
 
 # Removes Kafka containers across all cluster nodes using Ansible.
 # Ensures each node is cleaned up consistently without leaving residual state.
-function containers_remove()
+function containers_uninstall()
 {
-    run_ansible_routine "Kafka Containers Remove" "containers_remove"
+    run_ansible_routine "Kafka Containers Remove" "containers_uninstall"
     return $?
 }
 
-# Deploy portainer on all nodes
-function gui_portainer_install()
+# Envoy Balancers containers – managed separately via dedicated Ansible tags.
+function balancers_install()
 {
-    run_ansible_routine "GUI Portainer - Install" "gui_portainer_install"
+    run_ansible_routine "Envoy Balancers - Install" "balancers_install"
     return $?
 }
 
-# Start portainer on all nodes
-function gui_portainer_start()
+function balancers_start()
 {
-    run_ansible_routine "GUI Portainer - Start" "gui_portainer_start"
+    run_ansible_routine "Envoy Balancers - Start" "balancers_start"
     return $?
 }
 
-# Stop portainer on all nodes
-function gui_portainer_stop()
+function balancers_stop()
 {
-    run_ansible_routine "GUI Portainer - Stop" "gui_portainer_stop"
+    run_ansible_routine "Envoy Balancers - Stop" "balancers_stop"
     return $?
 }
 
-# Restart portainer on all nodes
-function gui_portainer_restart()
+function balancers_restart()
 {
-    run_ansible_routine "GUI Portainer - Restart" "gui_portainer_restart"
+    run_ansible_routine "Envoy Balancers - Restart" "balancers_restart"
     return $?
 }
 
-# Uninstall portainer on all nodes
-function gui_portainer_uninstall()
+function balancers_uninstall()
 {
-    run_ansible_routine "GUI Portainer - Uninstall" "gui_portainer_uninstall"
+    run_ansible_routine "Envoy Balancers - Uninstall" "balancers_uninstall"
+    return $?
+}
+
+# Deploy Portainer on all nodes
+function gui_portainer_ce_install()
+{
+    run_ansible_routine "GUI Portainer - Install" "gui_portainer_ce_install"
+    return $?
+}
+
+# Start Portainer on all nodes
+function gui_portainer_ce_start()
+{
+    run_ansible_routine "GUI Portainer - Start" "gui_portainer_ce_start"
+    return $?
+}
+
+# Stop Portainer on all nodes
+function gui_portainer_ce_stop()
+{
+    run_ansible_routine "GUI Portainer - Stop" "gui_portainer_ce_stop"
+    return $?
+}
+
+# Restart Portainer on all nodes
+function gui_portainer_ce_restart()
+{
+    run_ansible_routine "GUI Portainer - Restart" "gui_portainer_ce_restart"
+    return $?
+}
+
+# Uninstall Portainer on all nodes
+function gui_portainer_ce_uninstall()
+{
+    run_ansible_routine "GUI Portainer - Uninstall" "gui_portainer_ce_uninstall"
     return $?
 }
 
@@ -503,141 +538,81 @@ function show_warning_message() {
     whiptail --title "Warning" --msgbox "$1" 10 60
 }
 
-# Displays the main menu using Whiptail for managing Kafka backup and restore.
-# Allows navigation to submenus. Exits when the user selects "Quit" or presses ESC/cancel.
+# Main menu – top level
 function menu_main() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Quit" \
-            --menu "Choose a section:" 18 60 8 \
+            --menu "Main > Choose a section:" 18 80 10 \
             "1" "Quit" \
-            "2" "Cluster" \
-            "3" "Components" \
-            "4" "GUI" \
+            "2" "Cluster Operations" \
+            "3" "Cluster Configurations" \
+            "4" "Service Containers" \
             "5" "Prerequisites" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             exit 0
         fi
 
-        # Handle user choices
         case "$choice" in
             1) exit 0 ;;
-            2) menu_cluster ;;
-            3) menu_components ;;
-            4) menu_gui ;;
+            2) menu_cluster_operations ;;
+            3) menu_cluster_configurations ;;
+            4) menu_service_containers ;;
             5) menu_prerequisites ;;
         esac
     done
 }
 
-# Displays the Prerequisites menu using Whiptail for managing auxiliary tasks.
-# Provides options to deploy SSH keys and prerequisites across all nodes.
-# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_prerequisites() {
+# Cluster Operations menu
+function menu_cluster_operations() {
     while true; do
-        # Display Whiptail menu for choosing an prerequisites-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Prerequisites > Choose an action:" 18 60 8 \
-            "1" "Return to Main Menu" \
-            "2" "Deploy SSH certificate - (ssh-copy-id)" \
-            "3" "Deploy prerequisites - (docker etc)" \
+            --menu "Main > Cluster Operations > Choose an action:" 18 80 10 \
+            "1" "Back to Main Menu" \
+            "2" "Backup" \
+            "3" "Restore" \
+            "4" "Reboot" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit the function if ESC or cancel is pressed
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
-        # Handle the user's menu choice
         case "$choice" in
             1)
-               # Return to the parent menu
-               return 0 ;;
+               return 0
+               ;;
             2)
-               install_ssh_keys
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "SSH public key deployed successfully on all nodes!"
-               else
-                    show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
-               fi
-               ;;
-            3)
-               install_prerequisites
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Prerequisites were deployed on all nodes successfully!"
-               else
-                    show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
-               fi
-               ;;
-        esac
-    done
-}
-
-# Displays the Cluster menu.
-function menu_cluster() {
-    while true; do
-        # Display Whiptail menu for choosing an action
-        choice=$(whiptail --title "Kafka Backup Offline" \
-            --cancel-button "Back" \
-            --menu "Cluster > Choose an action:" 18 60 8 \
-            "1" "Return to Main Menu" \
-            "2" "Cluster Backup" \
-            "3" "Cluster Restore" \
-            "4" "Cluster Reboot" \
-            "5" "Cluster Wipe & Reinstall" \
-            3>&1 1>&2 2>&3)
-
-        # Capture the exit status of whiptail
-        local exit_status=$?
-
-        # Exit the function if ESC or cancel is pressed
-        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
-            return 0
-        fi
-
-        # Handle the user's menu choice
-        case "$choice" in
-            1) return 0 ;;
-            2) cluster_backup
+               cluster_backup
                if [[ $? -eq 0 ]]; then
                     show_success_message "Cluster Backup was successful!"
                else
                     show_failure_message "Cluster Backup Failed!\n\nExit the tool and review the logs."
                fi
                ;;
-            3) menu_cluster_restore ;;
-            4) cluster_reboot
+            3)
+               menu_cluster_restore
+               ;;
+            4)
+               cluster_reboot
                if [[ $? -eq 0 ]]; then
                     show_success_message "Cluster reboot was issued successfully!"
                else
                     show_failure_message "Failed to reboot the cluster!\n\nExit the tool and review the logs."
                fi
                ;;
-            5) cluster_reinstall
-               if [[ $? -eq 0 ]]; then
-                    show_success_message "Cluster reinstall was performed successfully!"
-               else
-                    show_failure_message "Failed to reinstall the cluster!\n\nExit the tool and review the logs."
-               fi
-               ;;
         esac
     done
 }
 
-# Displays a Whiptail menu for restoring Kafka data from backup files.
-# Lists available backup files with their sizes and allows the user to select one for restoration.
-# If no backups are found, shows a warning and exits.
-# Calls `cluster_restore` with the selected backup file.
+# Cluster Restore menu – select snapshot to restore.
 function menu_cluster_restore()
 {
     local storage backup_files choice selected_backup
@@ -662,7 +637,7 @@ function menu_cluster_restore()
     fi
 
     # Prepare options for the menu
-    local menu_options=("back" "Return to cluster Menu") # Add a back option first
+    local menu_options=("back" "Return to Cluster Operations Menu") # Add a back option first
     for i in "${!backup_files[@]}"; do
         menu_options+=("$i" "${backup_files[$i]}") # Append each backup file as a menu option
     done
@@ -670,10 +645,9 @@ function menu_cluster_restore()
     # Display the menu and capture the user's choice
     choice=$(whiptail --title "Kafka Backup Offline" \
         --cancel-button "Back" \
-        --menu "Cluster > Restore > Choose a backup file to restore:" 40 140 32 \
+        --menu "Main > Cluster Operations > Restore > Choose a backup file to restore:" 40 140 32 \
         "${menu_options[@]}" 3>&1 1>&2 2>&3)
 
-    # Capture the exit status of whiptail
     local exit_status=$?
 
     # Exit on ESC or cancel
@@ -697,74 +671,108 @@ function menu_cluster_restore()
     fi
 }
 
-# Displays the Components menu.
-function menu_components() {
+# Cluster Configurations menu
+function menu_cluster_configurations() {
     while true; do
-        # Display Whiptail menu for choosing a certificate-related action
         choice=$(whiptail --title "Kafka Backup Offline" \
             --cancel-button "Back" \
-            --menu "Components > Choose an action:" 18 60 8 \
-            "1" "Return to Main Menu" \
+            --menu "Main > Cluster Configurations > Choose an action:" 18 80 10 \
+            "1" "Back to Main Menu" \
             "2" "Apply Default ACLs" \
             "3" "Regenerate Certificates" \
-            "4" "Regenerate Configs" \
-            "5" "Regenerate Credentials" \
-            "6" "Containers Kafka" \
+            "4" "Regenerate Credentials" \
+            "5" "Regenerate Configs" \
+            "6" "Cluster Wipe & Reinstall (Dangerous)" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of the Whiptail menu
         local exit_status=$?
 
-        # Exit the function if ESC or cancel is pressed
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
-        # Handle user choices
         case "$choice" in
-            1) return 0 ;;
-            2) acls_apply
+            1)
+               return 0
+               ;;
+            2)
+               acls_apply
                if [[ $? -eq 0 ]]; then
                     show_success_message "ACLs were applied successfully!"
                else
                     show_failure_message "Failed to apply ACLs!\n\nExit the tool and review the logs."
                fi
                ;;
-            3) certificates_generate
+            3)
+               certificates_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Certificates were generated successfully!"
                else
                     show_failure_message "Failed to generate certificates!\n\nExit the tool and review the logs."
                fi
                ;;
-            4) configs_generate
+            4)
+               credentials_generate
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Credentials were generated successfully!"
+               else
+                    show_failure_message "Failed to generate credentials!\n\nExit the tool and review the logs."
+               fi
+               ;;
+            5)
+               configs_generate
                if [[ $? -eq 0 ]]; then
                     show_success_message "Configuration was generated successfully!"
                else
                     show_failure_message "Failed to generate configuration!\n\nExit the tool and review the logs."
                fi
                ;;
-            5) credentials_generate
+            6)
+               cluster_reinstall
                if [[ $? -eq 0 ]]; then
-                    show_success_message "Credentials was generated successfully!"
+                    show_success_message "Cluster reinstall was performed successfully!"
                else
-                    show_failure_message "Failed to generate credentials!\n\nExit the tool and review the logs."
+                    show_failure_message "Failed to reinstall the cluster!\n\nExit the tool and review the logs."
                fi
                ;;
-            6) menu_containers_kafka ;;
-            7) menu_containers_balancers ;;
         esac
     done
 }
 
-# Displays the Containers menu using Whiptail for managing Kafka containers.
-# Provides options to run, start, stop, restart, or remove containers.
-# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
+# Service Containers – Kafka, Envoy Balancers, GUI
+function menu_service_containers() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > Choose a group:" 18 80 10 \
+            "1" "Back to Main Menu" \
+            "2" "Kafka Services" \
+            "3" "Envoy Balancers" \
+            "4" "GUI Services" \
+            3>&1 1>&2 2>&3)
+
+        local exit_status=$?
+
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1) return 0 ;;
+            2) menu_containers_kafka ;;
+            3) menu_balancers ;;
+            4) menu_gui ;;
+        esac
+    done
+}
+
+# Kafka Services containers menu
 function menu_containers_kafka() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Components > Containers Kafka > Choose an action" 18 60 8 \
-            "1" "Return to Components Menu" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > Kafka Services > Choose an action" 18 80 10 \
+            "1" "Back" \
             "2" "Install" \
             "3" "Start" \
             "4" "Stop" \
@@ -772,69 +780,67 @@ function menu_containers_kafka() {
             "6" "Uninstall" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
         case "$choice" in
             1)
-               return 0 ;;
+               return 0
+               ;;
             2)
-               containers_run
+               containers_install
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully started!\nAll services are now running."
+                   show_success_message "Kafka containers were successfully installed and started!"
                else
-                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Unable to install/start Kafka containers!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
                containers_start
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+                   show_success_message "Kafka containers were successfully started!"
                else
-                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to start Kafka containers!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
                containers_stop
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+                   show_success_message "Kafka containers were successfully stopped!"
                else
-                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Unable to stop Kafka containers!\n\nExit the tool and review the logs."
                fi
                ;;
             5)
                containers_restart
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+                   show_success_message "Kafka containers were successfully restarted!"
                else
-                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to restart Kafka containers!\n\nExit the tool and review the logs."
                fi
                ;;
             6)
-               containers_remove
+               containers_uninstall
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully removed!\nResources have been freed."
+                   show_success_message "Kafka containers were successfully removed!"
                else
-                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to remove Kafka containers!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
     done
 }
 
-# Displays the Containers menu using Whiptail for managing Kafka containers.
-# Provides options to run, start, stop, restart, or remove containers.
-# Returns to the main menu when "Back" is selected or ESC/cancel is pressed.
-function menu_containers_balancers() {
+# Envoy Balancers containers menu
+function menu_balancers() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "Components > Containers Balancers > Choose an action" 18 60 8 \
-            "1" "Return to Components Menu" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > Envoy Balancers > Choose an action" 18 80 10 \
+            "1" "Back" \
             "2" "Install" \
             "3" "Start" \
             "4" "Stop" \
@@ -842,75 +848,73 @@ function menu_containers_balancers() {
             "6" "Uninstall" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
 
         case "$choice" in
             1)
-               return 0 ;;
+               return 0
+               ;;
             2)
-               containers_run
+               balancers_install
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully started!\nAll services are now running."
+                   show_success_message "Envoy balancers were successfully installed and started!"
                else
-                   show_failure_message "Unable to start the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Unable to install/start Envoy balancers!\n\nExit the tool and review the logs."
                fi
                ;;
             3)
-               containers_start
+               balancers_start
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully resumed!\nPreviously stopped services are now active."
+                   show_success_message "Envoy balancers were successfully started!"
                else
-                   show_failure_message "Failed to resume the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to start Envoy balancers!\n\nExit the tool and review the logs."
                fi
                ;;
             4)
-               containers_stop
+               balancers_stop
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully stopped!\nAll services are now inactive."
+                   show_success_message "Envoy balancers were successfully stopped!"
                else
-                   show_failure_message "Unable to stop the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Unable to stop Envoy balancers!\n\nExit the tool and review the logs."
                fi
                ;;
             5)
-               containers_restart
+               balancers_restart
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully restarted!\nAll services have been refreshed."
+                   show_success_message "Envoy balancers were successfully restarted!"
                else
-                   show_failure_message "Failed to restart the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to restart Envoy balancers!\n\nExit the tool and review the logs."
                fi
                ;;
             6)
-               containers_remove
+               balancers_uninstall
                if [[ $? -eq 0 ]]; then
-                   show_success_message "The containers were successfully removed!\nResources have been freed."
+                   show_success_message "Envoy balancers were successfully removed!"
                else
-                   show_failure_message "Failed to remove the containers!\n\nExit the tool and review the logs."
+                   show_failure_message "Failed to remove Envoy balancers!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
     done
 }
 
-# Displays the GUI menu.
+# GUI Services top-level menu (Portainer & KPow)
 function menu_gui() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "GUI > Choose an action" 18 60 8 \
-            "1" "Return to Main Menu" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > GUI Services > Choose an action" 18 80 10 \
+            "1" "Back" \
             "2" "Portainer-CE" \
-            "3" "KPOW-CE" \
+            "3" "KPow-CE" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
@@ -927,8 +931,9 @@ function menu_gui() {
 function menu_gui_portainer() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "GUI > Portainer-CE > Choose an action" 18 60 8 \
-            "1" "Return to GUI Menu" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > GUI Services > Portainer-CE > Choose an action" 18 80 10 \
+            "1" "Back" \
             "2" "Install" \
             "3" "Start" \
             "4" "Stop" \
@@ -936,10 +941,8 @@ function menu_gui_portainer() {
             "6" "Uninstall" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
@@ -948,7 +951,7 @@ function menu_gui_portainer() {
             1)
                return 0 ;;
             2)
-               gui_portainer_install
+               gui_portainer_ce_install
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was installed on all nodes!"
                else
@@ -956,7 +959,7 @@ function menu_gui_portainer() {
                fi
                ;;
             3)
-               gui_portainer_start
+               gui_portainer_ce_start
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was started on all nodes!"
                else
@@ -964,7 +967,7 @@ function menu_gui_portainer() {
                fi
                ;;
             4)
-               gui_portainer_stop
+               gui_portainer_ce_stop
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was stopped on all nodes!"
                else
@@ -972,7 +975,7 @@ function menu_gui_portainer() {
                fi
                ;;
             5)
-               gui_portainer_restart
+               gui_portainer_ce_restart
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was restarted on all nodes!"
                else
@@ -980,7 +983,7 @@ function menu_gui_portainer() {
                fi
                ;;
             6)
-               gui_portainer_uninstall
+               gui_portainer_ce_uninstall
                if [[ $? -eq 0 ]]; then
                     show_success_message "Portainer-CE was uninstalled on all nodes!"
                else
@@ -995,8 +998,9 @@ function menu_gui_portainer() {
 function menu_gui_kpow_ce() {
     while true; do
         choice=$(whiptail --title "Kafka Backup Offline" \
-            --menu "GUI > KPOW-CE > Choose an action" 18 60 8 \
-            "1" "Return to GUI Menu" \
+            --cancel-button "Back" \
+            --menu "Main > Service Containers > GUI Services > KPow-CE > Choose an action" 18 80 10 \
+            "1" "Back" \
             "2" "Install" \
             "3" "Start" \
             "4" "Stop" \
@@ -1004,10 +1008,8 @@ function menu_gui_kpow_ce() {
             "6" "Uninstall" \
             3>&1 1>&2 2>&3)
 
-        # Capture the exit status of whiptail
         local exit_status=$?
 
-        # Exit on ESC or cancel
         if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
             return 0
         fi
@@ -1018,7 +1020,7 @@ function menu_gui_kpow_ce() {
             2)
                gui_kpow_ce_install
                if [[ $? -eq 0 ]]; then
-                    show_success_message "KPOW-CE was installed on all nodes!"
+                    show_success_message "KPOW-CE was installed!"
                else
                     show_failure_message "Failed to install KPOW-CE\n\nExit the tool and review the logs."
                fi
@@ -1026,7 +1028,7 @@ function menu_gui_kpow_ce() {
             3)
                gui_kpow_ce_start
                if [[ $? -eq 0 ]]; then
-                    show_success_message "KPOW-CE was started on all nodes!"
+                    show_success_message "KPOW-CE was started!"
                else
                     show_failure_message "Failed to start KPOW-CE\n\nExit the tool and review the logs."
                fi
@@ -1034,7 +1036,7 @@ function menu_gui_kpow_ce() {
             4)
                gui_kpow_ce_stop
                if [[ $? -eq 0 ]]; then
-                    show_success_message "KPOW-CE was stopped on all nodes!"
+                    show_success_message "KPOW-CE was stopped!"
                else
                     show_failure_message "Failed to stop KPOW-CE\n\nExit the tool and review the logs."
                fi
@@ -1042,7 +1044,7 @@ function menu_gui_kpow_ce() {
             5)
                gui_kpow_ce_restart
                if [[ $? -eq 0 ]]; then
-                    show_success_message "KPOW-CE was restarted on all nodes!"
+                    show_success_message "KPOW-CE was restarted!"
                else
                     show_failure_message "Failed to restart KPOW-CE\n\nExit the tool and review the logs."
                fi
@@ -1050,9 +1052,49 @@ function menu_gui_kpow_ce() {
             6)
                gui_kpow_ce_uninstall
                if [[ $? -eq 0 ]]; then
-                    show_success_message "KPOW-CE was uninstalled on all nodes!"
+                    show_success_message "KPOW-CE was uninstalled!"
                else
                     show_failure_message "Failed to uninstall KPOW-CE\n\nExit the tool and review the logs."
+               fi
+               ;;
+        esac
+    done
+}
+
+# Prerequisites menu
+function menu_prerequisites() {
+    while true; do
+        choice=$(whiptail --title "Kafka Backup Offline" \
+            --cancel-button "Back" \
+            --menu "Main > Prerequisites > Choose an action:" 18 80 10 \
+            "1" "Back to Main Menu" \
+            "2" "Deploy SSH Keys (ssh-copy-id)" \
+            "3" "Deploy System Prerequisites (Docker etc.)" \
+            3>&1 1>&2 2>&3)
+
+        local exit_status=$?
+
+        if [[ $exit_status -eq 1 || $exit_status -eq 255 ]]; then
+            return 0
+        fi
+
+        case "$choice" in
+            1)
+               return 0 ;;
+            2)
+               install_ssh_keys
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "SSH public key deployed successfully on all nodes!"
+               else
+                    show_failure_message "Failed to deploy SSH public key.\n\nExit the tool and review the logs."
+               fi
+               ;;
+            3)
+               install_prerequisites
+               if [[ $? -eq 0 ]]; then
+                    show_success_message "Prerequisites were deployed on all nodes successfully!"
+               else
+                    show_failure_message "Failed to deploy prerequisites!\n\nExit the tool and review the logs."
                fi
                ;;
         esac
@@ -1102,11 +1144,12 @@ function help()
     log "INFO" ""
     log "INFO" "                          1. Validate free storage space on the cold backup location."
     log "INFO" "                          2. Stop all Kafka containers on all nodes (offline mode)."
-    log "INFO" "                          3. Create per-node archives of /data/cluster into a temporary folder."
-    log "INFO" "                          4. Transfer per-node archives to node-00."
-    log "INFO" "                          5. Pack a unified cluster snapshot (tar.xz) in cold storage."
-    log "INFO" "                          6. Start all Kafka containers back online."
-    log "INFO" "                          7. Validate free storage space after backup completion."
+    log "INFO" "                          3. Rotate old backups according to storage policy."
+    log "INFO" "                          4. Create per-node archives of /data/cluster into a temporary folder."
+    log "INFO" "                          5. Transfer per-node archives to node-00."
+    log "INFO" "                          6. Pack a unified cluster snapshot (tar.xz) in cold storage."
+    log "INFO" "                          7. Start all Kafka containers back online."
+    log "INFO" "                          8. Validate free storage space after backup completion."
     log "INFO" ""
     log "INFO" "  cluster_reboot        Restart Kafka containers across all nodes."
     log "INFO" ""
