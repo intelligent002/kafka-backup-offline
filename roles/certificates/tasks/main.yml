@@ -2,16 +2,3 @@
 - name: Run certificates generate
   include_tasks: certificates_generate.yml
   tags: certificates_generate
-
-- name: Run certificates backup
-  include_tasks: certificates_backup.yml
-  tags: certificates_backup
-
-- name: Run certificates restore
-  include_tasks: certificates_restore.yml
-  tags: certificates_restore
-
-- name: Rotate old certificates backups
-  include_tasks: certificates_rotate.yml
-  tags: certificates_rotate
-
