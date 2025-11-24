@@ -171,8 +171,8 @@ kafka_data_format:
   - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
     image: "apache/kafka:3.9.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    restart_policy: "never"
-    rm: true
+    restart_policy: "no"
+    auto_remove: true
     volumes:
       - "{{ node_config_path }}/:/mnt/shared/config"
       - "{{ node_data_path }}:/var/lib/kafka/data"

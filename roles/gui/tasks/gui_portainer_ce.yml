@@ -11,7 +11,7 @@
     command: "{{ container.command | default(omit) }}"
     state: started
     restart_policy: "{{ container.restart_policy | default('always') }}"
-    rm: "{{ container.rm | default(omit) }}"
+    auto_remove: "{{ container.rm | default(omit) }}"
     memory: "{{ container.memory | default(omit) }}"
     ports: "{{ container.ports | default(omit) }}"
     env: "{{ container.env | default(omit) }}"
