@@ -327,7 +327,7 @@ gui_kpow:
       timeout: "10s"
 
   - name: kpow_ce_proxy
-    image: "nginx:1.27-alpine"
+    image: "nginx:1.29.3-alpine"
     hostname: "kpow_ce_proxy"
     restart_policy: "always"
     ports:
