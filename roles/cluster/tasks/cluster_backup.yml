@@ -31,6 +31,7 @@
     cmd: >
       folder="{{ item.path | basename }}";
       cd "{{ node_storage_base }}";
+      set -euo pipefail;
       tar -cf - "$folder" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-$folder.tar.xz"
 
 # -------------------------------------------------------------------
@@ -73,6 +74,7 @@
   when: inventory_hostname == "node-00"
   ansible.builtin.shell:
     cmd: >
+      set -euo pipefail;
       tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_cluster_backup_file }}"
 
 # -------------------------------------------------------------------
