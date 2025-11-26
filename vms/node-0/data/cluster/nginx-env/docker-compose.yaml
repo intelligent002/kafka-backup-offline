@@ -1,0 +1,40 @@
+# Named volumes for persistent data storage
+services:
+
+  envoy:
+    image: envoyproxy/envoy:v1.34.10
+    hostname: node-00.intel.r7g.org
+    container_name: node-00.intel.r7g.org
+    ports:
+      - "8400:8443"        # Exposes Envoy to host
+      - "9000:9000"        # Exposes Envoy to host
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./ssl:/ssl:ro
+    restart: always
+
+  node-01:
+    image: nginx:1.29.3-alpine
+    hostname: node-01.intel.r7g.org
+    container_name: node-01.intel.r7g.org
+    ports:
+      - "8401:8401"
+    restart: always
+    volumes:
+      - ./conf.d/nginx-node-01.conf:/etc/nginx/nginx.conf:ro
+      - ./conf.d/server-node-01.conf:/etc/nginx/conf.d/server-node-01.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+
+  node-02:
+    image: nginx:1.29.3-alpine
+    hostname: node-02.intel.r7g.org
+    container_name: node-02.intel.r7g.org
+    ports:
+      - "8402:8402"
+    restart: always
+    volumes:
+      - ./conf.d/nginx-node-02.conf:/etc/nginx/nginx.conf:ro
+      - ./conf.d/server-node-02.conf:/etc/nginx/conf.d/server-node-02.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    command: [nginx-debug, '-g', 'daemon off;']
