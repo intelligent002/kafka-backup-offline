@@ -1,164 +1,42 @@
-static_resources:
-  ###############################################
-  # DOWNSTREAM LISTENER WITH TLS + SNI VERIFY
-  ###############################################
-  listeners:
-  - name: https_listener
-    address:
-      socket_address:
-        address: 0.0.0.0
-        port_value: {{ port_connect_balancer_int }}
-    listener_filters:
-      - name: envoy.filters.listener.tls_inspector
-        typed_config:
-          "@type": type.googleapis.com/envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector
-    filter_chains:
-      - filter_chain_match:
-          server_names: [ "{{ hostvars['node-00']['hostname'] }}" ]
-        transport_socket:
-          name: envoy.transport_sockets.tls
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
-            common_tls_context:
-              tls_params:
-                tls_minimum_protocol_version: TLSv1_3
-                tls_maximum_protocol_version: TLSv1_3
-              tls_certificates:
-                - certificate_chain: { filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.crt" }
-                  private_key: { filename: "{{ node_certificates_path }}/{{ hostvars['node-00']['hostname'] }}.key" }
-              validation_context:
-                trusted_ca: { filename: "{{ node_certificates_path }}/ca.crt" }
-            require_client_certificate: false
-        filters:
-          - name: envoy.filters.network.http_connection_manager
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-              http_filters:
-                - name: envoy.filters.http.router
-                  typed_config:
-                    "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-              stat_prefix: ingress_https
-              access_log:
-                - name: envoy.access_loggers.stdout
-                  typed_config:
-                    "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
-                    log_format:
-                      json_format:
-                        start_time: "%START_TIME%"
-                        protocol: "%PROTOCOL%"
-                        method: "%REQ(:METHOD)%"
-                        path: "%REQ(:PATH)%"
-                        response_code: "%RESPONSE_CODE%"
-                        user_agent: "%REQ(USER-AGENT)%"
-                        response_flags: "%RESPONSE_FLAGS%"
-                        bytes_received: "%BYTES_RECEIVED%"
-                        bytes_sent: "%BYTES_SENT%"
-                        duration_ms: "%DURATION%"
-                        upstream_service_time_ms: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
-                        x_forwarded_for: "%REQ(X-FORWARDED-FOR)%"
-                        request_id: "%REQ(X-REQUEST-ID)%"
-                        authority: "%REQ(:AUTHORITY)%"
-                        upstream_host: "%UPSTREAM_HOST%"
-              route_config:
-                name: local_route
-                virtual_hosts:
-                  - name: backend_services
-                    domains: [ "*" ]
-                    routes:
-                      - match: { prefix: "/" }
-                        route:
-                          weighted_clusters:
-                            clusters:
+global
+  log stdout format raw local0
+  tune.ssl.default-dh-param 2048
+  ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12
+  ssl-default-server-options no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12
+
+defaults
+  mode http
+  option dontlognull
+  option http-server-close
+  timeout connect 5s
+  timeout client 60s
+  timeout server 60s
+  log-format "{\"ts\":\"%t\",\"ip\":\"%ci\",\"server\":\"%s\",\"http\":{\"request\":\"%r\",\"status\":%ST,\"bytes\":%B},\"tls_front\":{\"enabled\":%[ssl_fc],\"protocol\":\"%[ssl_fc_protocol]\",\"sni\":\"%[ssl_fc_sni]\",\"client_cert_present\":%[ssl_c_used],\"client_verify_code\":%[ssl_c_verify],\"client_cn\":\"%[ssl_c_s_dn(cn)]\",\"client_subject\":\"%[ssl_c_s_dn]\",\"client_issuer\":\"%[ssl_c_i_dn]\"},\"timings\":{\"total_ms\":%Tt,\"connect_ms\":%Tc,\"handshake_ms\":%Th,\"queue_ms\":%Tw,\"response_ms\":%Tr} }"
+
+frontend health
+  bind 0.0.0.0:8080
+  monitor-uri /health
+
+frontend metrics
+  bind 0.0.0.0:9940
+  http-request use-service prometheus-exporter
+
+frontend fe_kafka_connect
+  log stdout format raw local0
+  bind 0.0.0.0:{{ port_connect_balancer_int }} ssl crt /data/cluster/certificates/node-00.intel.r7g.org.pem ca-file /data/cluster/certificates/ca.crt verify optional
+  http-request deny if !{ ssl_c_verify 0 }
+
 {% for host in groups['connect'] %}
-                              - name: {{ host | replace('-', '') }}_cluster
-                                weight: 100
-                                host_rewrite_literal: "{{ hostvars[host]['hostname'] }}"
+  use_backend be_{{ host | replace('-', '_') }} if { srv_is_up(be_{{ host | replace('-', '_') }}/{{ hostvars[host]['hostname'] }}) }
 {% endfor %}
 
-  clusters:
 {% for host in groups['connect'] %}
-  ###############################################
-  # UPSTREAM CLUSTER FOR {{ host | replace('-', '') }}_cluster
-  ###############################################
-  - name: {{ host | replace('-', '') }}_cluster
-    type: STRICT_DNS
-    lb_policy: ROUND_ROBIN
-    connect_timeout: 5s
-
-    load_assignment:
-      cluster_name: {{ host | replace('-', '') }}_cluster
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: {{ hostvars[host]['hostname'] }}
-                port_value: {{ port_connect_rest_ext }}
-
-    health_checks:
-      - timeout: 5s
-        interval: 15s
-        unhealthy_threshold: 1
-        healthy_threshold: 3
-        http_health_check:
-          path: "/health"
-          host: "{{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }}"
-          expected_statuses:
-            - start: 200
-              end: 201
-
-    transport_socket:
-      name: envoy.transport_sockets.tls
-      typed_config:
-        "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-        sni: "{{ hostvars[host]['hostname'] }}"
-        common_tls_context:
-          tls_params:
-            tls_minimum_protocol_version: TLSv1_3
-            tls_maximum_protocol_version: TLSv1_3
-          tls_certificates:
-          - certificate_chain: { filename: "{{ node_certificates_path }}/users/admin/admin.crt" }
-            private_key:       { filename: "{{ node_certificates_path }}/users/admin/admin.key" }
-          validation_context:
-            trusted_ca: { filename: "{{ node_certificates_path }}/CA/ca.crt" }
-
+backend be_{{ host | replace('-', '_') }}
+  mode http
+  http-request set-header Host {{ hostvars[host]['hostname'] }}
+  option httpchk GET /health
+  http-check send hdr Host {{ hostvars[host]['hostname'] }}
+  http-check expect status 200
+  http-after-response set-header X-Upstream-Node {{ hostvars[host]['hostname'] }}
+  server {{ hostvars[host]['hostname'] }} {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_int }} ssl crt /data/cluster/certificates/users/admin/admin.pem ca-file /data/cluster/certificates/ca.crt verify required sni str({{ hostvars[host]['hostname'] }}) check check-ssl inter 15s fall 1 rise 2
 {% endfor %}
-
-###############################################
-# ADMIN INTERFACE
-###############################################
-admin:
-  address:
-    socket_address:
-      address: 0.0.0.0
-      port_value: {{ port_connect_balancer_admin_int }}
-  access_log:
-    - name: envoy.access_loggers.stdout
-      typed_config:
-        "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
-        log_format:
-          json_format:
-            start_time: "%START_TIME%"
-            protocol: "%PROTOCOL%"
-            method: "%REQ(:METHOD)%"
-            path: "%REQ(:PATH)%"
-            response_code: "%RESPONSE_CODE%"
-            user_agent: "%REQ(USER-AGENT)%"
-            response_flags: "%RESPONSE_FLAGS%"
-            bytes_received: "%BYTES_RECEIVED%"
-            bytes_sent: "%BYTES_SENT%"
-            duration_ms: "%DURATION%"
-            upstream_service_time_ms: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
-            x_forwarded_for: "%REQ(X-FORWARDED-FOR)%"
-            request_id: "%REQ(X-REQUEST-ID)%"
-            authority: "%REQ(:AUTHORITY)%"
-            upstream_host: "%UPSTREAM_HOST%"
-
-overload_manager:
-  refresh_interval: 0.5s
-  resource_monitors:
-    - name: "envoy.resource_monitors.global_downstream_max_connections"
-      typed_config:
-        "@type": type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig
-        max_active_downstream_connections: 100000
-
