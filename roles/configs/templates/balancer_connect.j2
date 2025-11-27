@@ -38,6 +38,27 @@ static_resources:
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
               stat_prefix: ingress_https
+              access_log:
+                - name: envoy.access_loggers.stdout
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+                    log_format:
+                      json_format:
+                        start_time: "%START_TIME%"
+                        protocol: "%PROTOCOL%"
+                        method: "%REQ(:METHOD)%"
+                        path: "%REQ(:PATH)%"
+                        response_code: "%RESPONSE_CODE%"
+                        user_agent: "%REQ(USER-AGENT)%"
+                        response_flags: "%RESPONSE_FLAGS%"
+                        bytes_received: "%BYTES_RECEIVED%"
+                        bytes_sent: "%BYTES_SENT%"
+                        duration_ms: "%DURATION%"
+                        upstream_service_time_ms: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+                        x_forwarded_for: "%REQ(X-FORWARDED-FOR)%"
+                        request_id: "%REQ(X-REQUEST-ID)%"
+                        authority: "%REQ(:AUTHORITY)%"
+                        upstream_host: "%UPSTREAM_HOST%"
               route_config:
                 name: local_route
                 virtual_hosts:
@@ -118,8 +139,20 @@ admin:
         log_format:
           json_format:
             start_time: "%START_TIME%"
-            response_code: "%RESPONSE_CODE%"
+            protocol: "%PROTOCOL%"
             method: "%REQ(:METHOD)%"
+            path: "%REQ(:PATH)%"
+            response_code: "%RESPONSE_CODE%"
+            user_agent: "%REQ(USER-AGENT)%"
+            response_flags: "%RESPONSE_FLAGS%"
+            bytes_received: "%BYTES_RECEIVED%"
+            bytes_sent: "%BYTES_SENT%"
+            duration_ms: "%DURATION%"
+            upstream_service_time_ms: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+            x_forwarded_for: "%REQ(X-FORWARDED-FOR)%"
+            request_id: "%REQ(X-REQUEST-ID)%"
+            authority: "%REQ(:AUTHORITY)%"
+            upstream_host: "%UPSTREAM_HOST%"
 
 overload_manager:
   refresh_interval: 0.5s
