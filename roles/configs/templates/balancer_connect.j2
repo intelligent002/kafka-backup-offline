@@ -11,32 +11,75 @@ defaults
   timeout connect 5s
   timeout client 60s
   timeout server 60s
-  log-format "{\"ts\":\"%t\",\"ip\":\"%ci\",\"server\":\"%s\",\"http\":{\"request\":\"%r\",\"status\":%ST,\"bytes\":%B},\"tls_front\":{\"enabled\":%[ssl_fc],\"protocol\":\"%[ssl_fc_protocol]\",\"sni\":\"%[ssl_fc_sni]\",\"client_cert_present\":%[ssl_c_used],\"client_verify_code\":%[ssl_c_verify],\"client_cn\":\"%[ssl_c_s_dn(cn)]\",\"client_subject\":\"%[ssl_c_s_dn]\",\"client_issuer\":\"%[ssl_c_i_dn]\"},\"timings\":{\"total_ms\":%Tt,\"connect_ms\":%Tc,\"handshake_ms\":%Th,\"queue_ms\":%Tw,\"response_ms\":%Tr} }"
 
+  unique-id-format %{+X}o%ci-%cp-%fi-%fp-%Ts
+  unique-id-header X-Request-ID
+
+  log-format "{\"ts\":\"%t\",\"uid\":\"%ID\",\"client_ip\":\"%ci\",\"client_port\":\"%cp\",\"frontend\":\"%ft\",\"backend\":\"%b\",\"server\":\"%s\",\"upstream_addr\":\"%si:%sp\",\"http_request\":\"%r\",\"status\":%ST,\"bytes\":%B,\"tls\":{\"enabled\":%[ssl_fc],\"protocol\":\"%[ssl_fc_protocol]\",\"frontend_sni\":\"%[ssl_fc_sni]\",\"client_cn\":\"%[ssl_c_s_dn(cn)]\",\"client_verify\":%[ssl_c_verify]},\"timings\":{\"total_ms\":%Tt,\"connect_ms\":%Tc,\"handshake_ms\":%Th,\"queue_ms\":%Tw,\"response_ms\":%Tr},\"retries\":%rc,\"srv_queue\":%sq,\"backend_queue\":%bq,\"upstream\":\"%[srv_name]\"}"
+
+################################################################
+# HEALTH ENDPOINT
+################################################################
 frontend health
-  bind 0.0.0.0:8080
+  bind 0.0.0.0:{{ port_connect_balancer_health_int }}
   monitor-uri /health
 
+################################################################
+# PROMETHEUS METRICS
+################################################################
 frontend metrics
-  bind 0.0.0.0:9940
+  bind 0.0.0.0:{{ port_connect_balancer_prometheus_int }}
   http-request use-service prometheus-exporter
 
-frontend fe_kafka_connect
-  log stdout format raw local0
-  bind 0.0.0.0:{{ port_connect_balancer_int }} ssl crt /data/cluster/certificates/node-00.intel.r7g.org.pem ca-file /data/cluster/certificates/ca.crt verify optional
-  http-request deny if !{ ssl_c_verify 0 }
-
+################################################################
+# SINGLE-NODE BACKENDS (Separate health check vs traffic SNI)
+################################################################
 {% for host in groups['connect'] %}
-  use_backend be_{{ host | replace('-', '_') }} if { srv_is_up(be_{{ host | replace('-', '_') }}/{{ hostvars[host]['hostname'] }}) }
-{% endfor %}
-
-{% for host in groups['connect'] %}
-backend be_{{ host | replace('-', '_') }}
+backend be_connect_{{ host | replace('-', '_') }}
   mode http
+  balance roundrobin
+  option log-health-checks
+
+  # TRAFFIC: Full SNI + Host header
   http-request set-header Host {{ hostvars[host]['hostname'] }}
-  option httpchk GET /health
-  http-check send hdr Host {{ hostvars[host]['hostname'] }}
+  server {{ host | replace('-', '_') }} {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }} ssl crt {{ node_certificates_path }}/users/admin/admin.pem ca-file {{ node_certificates_path }}/CA/ca.crt verify required sni str({{ hostvars[host]['hostname'] }}) check check-ssl inter 15s fall 1 rise 2
+
+  # HEALTH CHECK: Host header
+  option httpchk
+  http-check connect ssl
+  http-check send meth GET uri /health ver HTTP/1.1 hdr Host {{ hostvars[host]['hostname'] }}
   http-check expect status 200
-  http-after-response set-header X-Upstream-Node {{ hostvars[host]['hostname'] }}
-  server {{ hostvars[host]['hostname'] }} {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_int }} ssl crt /data/cluster/certificates/users/admin/admin.pem ca-file /data/cluster/certificates/ca.crt verify required sni str({{ hostvars[host]['hostname'] }}) check check-ssl inter 15s fall 1 rise 2
 {% endfor %}
+
+################################################################
+# INTERNAL FRONTENDS (Plain HTTP loopback)
+################################################################
+{% for host in groups['connect'] %}
+frontend fe_connect_{{ host | replace('-', '_') }}
+  bind 127.0.0.1:{{ 8001 + loop.index0 }}
+  default_backend be_connect_{{ host | replace('-', '_') }}
+{% endfor %}
+
+################################################################
+# CLUSTER BACKEND (TCP checks to internal frontends)
+################################################################
+backend be_connect_group
+  mode http
+  balance roundrobin
+  option log-health-checks
+
+{% for host in groups['connect'] %}
+  server {{ host | replace('-', '_') }} 127.0.0.1:{{ 8001 + loop.index0 }} track be_connect_{{ host | replace('-', '_') }}/{{ host | replace('-', '_') }}
+{% endfor %}
+
+################################################################
+# FRONTEND (mTLS) — KAFKA CONNECT LB ENTRYPOINT
+################################################################
+frontend fe_connect_group
+  log global
+  bind 0.0.0.0:{{ port_connect_balancer_int }} ssl crt {{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.pem ca-file {{ node_certificates_path }}/CA/ca.crt verify optional alpn h2,http/1.1
+
+  http-request deny if !{ ssl_c_verify 0 }
+  # Mark which node answered
+  http-after-response set-header X-Upstream-Node %[srv_name].intel.r7g.org
+  default_backend be_connect_group
