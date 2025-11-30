@@ -35,12 +35,12 @@ CONNECT_NAME={{ KPOW_CE_CONNECT_NAME }}
 CONNECT_AUTO_RESTART=*
 CONNECT_REST_URL=https://{{ hostvars['node-00']['hostname'] }}:{{ port_connect_balancer_ext }}
 CONNECT_PERMISSIVE_SSL=false
-CONNECT_SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/admin.jks
+CONNECT_SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/users/admin/admin.p12
 CONNECT_SSL_KEYSTORE_PASSWORD={{ certificate_password }}
-CONNECT_SSL_KEYSTORE_TYPE=JKS
-CONNECT_SSL_TRUSTSTORE_LOCATION={{ node_certificates_path }}/shared.truststore.jks
+CONNECT_SSL_KEYSTORE_TYPE=PKCS12
+CONNECT_SSL_TRUSTSTORE_LOCATION={{ node_certificates_path }}/shared.truststore.p12
 CONNECT_SSL_TRUSTSTORE_PASSWORD={{ certificate_password }}
-CONNECT_SSL_TRUSTSTORE_TYPE=JKS
+CONNECT_SSL_TRUSTSTORE_TYPE=PKCS12
 
 # KSQL Configuration
 KSQLDB_NAME={{ KPOW_CE_KSQLDB_NAME }}

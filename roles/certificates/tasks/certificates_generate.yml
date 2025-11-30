@@ -116,12 +116,27 @@
     -extfile {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.cnf
   loop: "{{ groups['all'] }}"
 
-- name: Generate full-chain certificates (node.crt + ca.crt)
+- name: Generate Nodes Full Chain (node.crt + ca.crt)
   tags:
     - certificates_generate
   when: inventory_hostname == "node-00"
-  ansible.builtin.shell: >
-    cat {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt {{ certificates_store_path }}/CA/ca.crt > {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem
+  ansible.builtin.shell: |
+    cat {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
+        {{ certificates_store_path }}/CA/ca.crt \
+    >   {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.fullchain.pem
+  loop: "{{ groups['all'] }}"
+  loop_control:
+    label: "{{ hostvars[item].hostname }}"
+
+- name: Generate Nodes Certificate Chain Bundle (node.crt + ca.crt + node.key)
+  tags:
+    - certificates_generate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell: |
+    cat {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.crt \
+        {{ certificates_store_path }}/CA/ca.crt \
+        {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.key \
+    >   {{ certificates_store_path }}/nodes/{{ hostvars[item].hostname }}/{{ hostvars[item].hostname }}.pem
   loop: "{{ groups['all'] }}"
   loop_control:
     label: "{{ hostvars[item].hostname }}"
@@ -198,6 +213,31 @@
     -out {{ certificates_store_path }}/users/{{ item }}/{{ item }}.crt \
     -days 3650 -extensions v3_req 
   loop: "{{ credentials | map(attribute='username') | list }}"
+
+- name: Generate Users Full Chain (node.crt + ca.crt)
+  tags:
+    - certificates_generate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell: |
+    cat {{ certificates_store_path }}/users/{{ item }}/{{ item }}.crt \
+        {{ certificates_store_path }}/CA/ca.crt \
+    >   {{ certificates_store_path }}/users/{{ item }}/{{ item }}.fullchain.pem
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Generate Users Certificate Chain Bundle (node.crt + ca.crt + node.key)
+  tags:
+    - certificates_generate
+  when: inventory_hostname == "node-00"
+  ansible.builtin.shell: |
+    cat {{ certificates_store_path }}/users/{{ item }}/{{ item }}.crt \
+        {{ certificates_store_path }}/CA/ca.crt \
+        {{ certificates_store_path }}/users/{{ item }}/{{ item }}.key \
+    > {{ certificates_store_path }}/users/{{ item }}/{{ item }}.pem
+  loop: "{{ credentials | map(attribute='username') | list }}"
+  loop_control:
+    label: "{{ item }}"
 
 - name: Generate PKCS#12 user keystores
   tags:

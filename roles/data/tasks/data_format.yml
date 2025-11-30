@@ -49,7 +49,7 @@
     command: "{{ item.command | default(omit) }}"
     state: started
     restart_policy: "{{ item.restart_policy | default('always') }}"
-    rm: "{{ item.rm | default(omit) }}"
+    auto_remove: "{{ item.auto_remove | default(omit) }}"
     memory: "{{ item.memory | default(omit) }}"
     ports: "{{ item.ports | default(omit) }}"
     env: "{{ item.env | default(omit) }}"
