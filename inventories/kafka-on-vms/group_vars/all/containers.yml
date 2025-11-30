@@ -4,7 +4,7 @@ heap_size_percent: 50
 kafka_services:
   - role: "controllers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+     image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -36,7 +36,7 @@ kafka_services:
 
   - role: "brokers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -70,7 +70,7 @@ kafka_services:
 
   - role: "schema"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:7.9.0"
+    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:8.1.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -103,7 +103,7 @@ kafka_services:
 
   - role: "connect"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:3.9.0"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -114,6 +114,7 @@ kafka_services:
         -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
         -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
+        -Djavax.net.debug=ssl,handshake,verbose
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
         -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
@@ -136,7 +137,7 @@ kafka_services:
 
   - role: "ksql"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
+    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:8.1.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -169,7 +170,7 @@ kafka_services:
 
 kafka_data_format:
   - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "apache/kafka:3.9.0"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "no"
     auto_remove: true
@@ -191,7 +192,7 @@ kafka_data_format:
 balancers:
   - role: "balancer-ksql"
     name: "balancer-ksql"
-    image: "envoyproxy/envoy:v1.33.0"
+    image: "envoyproxy/envoy:v1.36.2"
     hostname: "balancer-ksql"
     restart_policy: "always"
     ports:
@@ -203,17 +204,16 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
-        timeout 9 cat <&3 | grep -q LIVE &&
+        echo -e "GET /ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && timeout 2 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
       timeout: 10s
-      retries: 5
-      start_period: 5s
+      retries: 3
+      start_period: 20s
 
   - role: "balancer-connect"
     name: "balancer-connect"
-    image: "envoyproxy/envoy:v1.33.0"
+    image: "envoyproxy/envoy:v1.36.2"
     hostname: "balancer-connect"
     restart_policy: "always"
     ports:
@@ -225,17 +225,16 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
-        timeout 9 cat <&3 | grep -q LIVE &&
+        echo -e "GET /ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && timeout 2 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
       timeout: 10s
-      retries: 5
-      start_period: 5s
+      retries: 3
+      start_period: 20s
 
   - role: "balancer-schema"
     name: "balancer-schema"
-    image: "envoyproxy/envoy:v1.33.0"
+    image: "envoyproxy/envoy:v1.36.2"
     hostname: "balancer-schema"
     restart_policy: "always"
     ports:
@@ -247,17 +246,16 @@ balancers:
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} &&
-        echo -e "GET /ready HTTP/1.1\nHost: localhost\n\n" >&3 &&
-        timeout 9 cat <&3 | grep -q LIVE &&
+        echo -e "GET /ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 && timeout 2 cat <&3 | grep -q LIVE &&
         { echo OK; exit 0; } || { echo unhealthy; exit 1; }'
       interval: 60s
       timeout: 10s
-      retries: 5
-      start_period: 5s
+      retries: 3
+      start_period: 20s
 
 gui_portainer:
   - name: portainer
-    image: "portainer/portainer-ee:2.33.4-alpine"
+    image: "portainer/portainer-ee:2.33.5-alpine"
     hostname: "portainer"
     restart_policy: "always"
     ports:

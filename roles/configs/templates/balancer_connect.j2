@@ -1,85 +1,189 @@
-global
-  log stdout format raw local0
-  tune.ssl.default-dh-param 2048
-  ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12
-  ssl-default-server-options no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12
-
-defaults
-  mode http
-  option dontlognull
-  option http-server-close
-  timeout connect 5s
-  timeout client 60s
-  timeout server 60s
-
-  unique-id-format %{+X}o%ci-%cp-%fi-%fp-%Ts
-  unique-id-header X-Request-ID
-
-  log-format "{\"ts\":\"%t\",\"uid\":\"%ID\",\"client_ip\":\"%ci\",\"client_port\":\"%cp\",\"frontend\":\"%ft\",\"backend\":\"%b\",\"server\":\"%s\",\"upstream_addr\":\"%si:%sp\",\"http_request\":\"%r\",\"status\":%ST,\"bytes\":%B,\"tls\":{\"enabled\":%[ssl_fc],\"protocol\":\"%[ssl_fc_protocol]\",\"frontend_sni\":\"%[ssl_fc_sni]\",\"client_cn\":\"%[ssl_c_s_dn(cn)]\",\"client_verify\":%[ssl_c_verify]},\"timings\":{\"total_ms\":%Tt,\"connect_ms\":%Tc,\"handshake_ms\":%Th,\"queue_ms\":%Tw,\"response_ms\":%Tr},\"retries\":%rc,\"srv_queue\":%sq,\"backend_queue\":%bq,\"upstream\":\"%[srv_name]\"}"
-
-################################################################
-# HEALTH ENDPOINT
-################################################################
-frontend health
-  bind 0.0.0.0:{{ port_connect_balancer_health_int }}
-  monitor-uri /health
-
-################################################################
-# PROMETHEUS METRICS
-################################################################
-frontend metrics
-  bind 0.0.0.0:{{ port_connect_balancer_prometheus_int }}
-  http-request use-service prometheus-exporter
-
-################################################################
-# SINGLE-NODE BACKENDS (Separate health check vs traffic SNI)
-################################################################
+static_resources:
+  listeners:
+    - name: https_listener
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: {{ port_connect_balancer_int }}
+      listener_filters:
+        - name: envoy.filters.listener.tls_inspector
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector
+      filter_chains:
+        - filter_chain_match:
+            server_names: ["{{ hostvars['node-00']['hostname'] }}"]
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_3
+                  tls_maximum_protocol_version: TLSv1_3
+                alpn_protocols: ["h2", "http/1.1"]
+                tls_certificates:
+                  - certificate_chain:
+                      filename: "{{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                    private_key:
+                      filename: "{{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
+                validation_context:
+                  trusted_ca:
+                    filename: "{{ node_certificates_path }}/CA/ca.crt"
+              require_client_certificate: false
+          filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_https
+                use_remote_address: true
+                request_timeout: 5s
+                stream_idle_timeout: 30s
+                common_http_protocol_options:
+                  idle_timeout: 60s
+                route_config:
+                  name: secure_route
+                  response_headers_to_add:
+                    - header:
+                        key: "X-Upstream-Node"
+                        value: "%UPSTREAM_HOST%"
+                  virtual_hosts:
+                    - name: node_backends
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: secure_nodes
+                            timeout: 5s
+                            idle_timeout: 15s
+                            auto_host_rewrite: true
+                            retry_policy:
+                              retry_on: connect-failure,reset,5xx
+                              num_retries: 3
+                              per_try_timeout: 1s
+                              host_selection_retry_max_attempts: 3
+                http_filters:
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+                access_log:
+                  - name: envoy.access_loggers.stdout
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+                      log_format:
+                        json_format:
+                          timestamp: "%START_TIME%"
+                          method: "%REQ(:METHOD)%"
+                          path: "%REQ(:PATH)%"
+                          authority: "%REQ(:AUTHORITY)%"
+                          client_ip: "%DOWNSTREAM_REMOTE_ADDRESS%"
+                          protocol: "%PROTOCOL%"
+                          request_id: "%REQ(X-REQUEST-ID)%"
+                          response_code: "%RESPONSE_CODE%"
+                          response_flags: "%RESPONSE_FLAGS%"
+                          bytes_received: "%BYTES_RECEIVED%"
+                          bytes_sent: "%BYTES_SENT%"
+                          duration_ms: "%DURATION%"
+                          upstream_service_time: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+                          tls_version: "%DOWNSTREAM_TLS_VERSION%"
+                          tls_cipher: "%DOWNSTREAM_TLS_CIPHER%"
+                          client_cert_subject: "%DOWNSTREAM_PEER_SUBJECT%"
+                          client_cert_issuer: "%DOWNSTREAM_PEER_ISSUER%"
+                          sni: "%REQUESTED_SERVER_NAME%"
+  clusters:
+    - name: secure_nodes
+      connect_timeout: 3s
+      type: STRICT_DNS
+      dns_lookup_family: V4_ONLY
+      lb_policy: LEAST_REQUEST
+      common_lb_config:
+        healthy_panic_threshold:
+          value: 0
+      circuit_breakers:
+        thresholds:
+          - priority: DEFAULT
+            max_connections: 1024
+            max_pending_requests: 1024
+            max_requests: 1024
+            max_retries: 3
+      close_connections_on_host_health_failure: true
+      load_assignment:
+        cluster_name: secure_nodes
+        endpoints:
+          - lb_endpoints:
 {% for host in groups['connect'] %}
-backend be_connect_{{ host | replace('-', '_') }}
-  mode http
-  balance roundrobin
-  option log-health-checks
-
-  # TRAFFIC: Full SNI + Host header
-  http-request set-header Host {{ hostvars[host]['hostname'] }}
-  server {{ host | replace('-', '_') }} {{ hostvars[host]['hostname'] }}:{{ port_connect_rest_ext }} ssl crt {{ node_certificates_path }}/users/admin/admin.pem ca-file {{ node_certificates_path }}/CA/ca.crt verify required sni str({{ hostvars[host]['hostname'] }}) check check-ssl inter 15s fall 1 rise 2
-
-  # HEALTH CHECK: Host header
-  option httpchk
-  http-check connect ssl
-  http-check send meth GET uri /health ver HTTP/1.1 hdr Host {{ hostvars[host]['hostname'] }}
-  http-check expect status 200
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: {{ hostvars[host]['hostname'] }}
+                      port_value: {{ port_connect_rest_ext }}
+                  health_check_config:
+                    hostname: {{ hostvars[host]['hostname'] }}
+                metadata:
+                  filter_metadata:
+                    envoy.lb:
+                      host_header: "{{ hostvars[host]['hostname'] }}"
+                    envoy.transport_socket_match:
+                      sni_label: "{{ host }}"
+{% endfor %}
+      health_checks:
+        - timeout: 2s
+          interval: 15s
+          unhealthy_threshold: 1
+          healthy_threshold: 2
+          http_health_check:
+            path: "/health"
+            codec_client_type: HTTP1
+            expected_statuses:
+              - start: 200
+                end: 201
+          event_logger:
+            - name: envoy.health_check.event_logger.file
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.health_check.event_sinks.file.v3.HealthCheckEventFileSink
+                event_log_path: /dev/stdout
+      transport_socket_matches:
+{% for host in groups['connect'] %}
+        - name: {{ host }}
+          match:
+            sni_label: "{{ host }}"
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+              sni: {{ hostvars[host]['hostname'] }}
+              common_tls_context:
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_3
+                  tls_maximum_protocol_version: TLSv1_3
+                tls_certificates:
+                  - certificate_chain:
+                      filename: "{{ node_certificates_path }}/users/admin/admin.crt"
+                    private_key:
+                      filename: "{{ node_certificates_path }}/users/admin/admin.key"
+                validation_context:
+                  trusted_ca:
+                    filename: "{{ node_certificates_path }}/CA/ca.crt"
 {% endfor %}
 
-################################################################
-# INTERNAL FRONTENDS (Plain HTTP loopback)
-################################################################
-{% for host in groups['connect'] %}
-frontend fe_connect_{{ host | replace('-', '_') }}
-  bind 127.0.0.1:{{ 8001 + loop.index0 }}
-  default_backend be_connect_{{ host | replace('-', '_') }}
-{% endfor %}
-
-################################################################
-# CLUSTER BACKEND (TCP checks to internal frontends)
-################################################################
-backend be_connect_group
-  mode http
-  balance roundrobin
-  option log-health-checks
-
-{% for host in groups['connect'] %}
-  server {{ host | replace('-', '_') }} 127.0.0.1:{{ 8001 + loop.index0 }} track be_connect_{{ host | replace('-', '_') }}/{{ host | replace('-', '_') }}
-{% endfor %}
-
-################################################################
-# FRONTEND (mTLS) — KAFKA CONNECT LB ENTRYPOINT
-################################################################
-frontend fe_connect_group
-  log global
-  bind 0.0.0.0:{{ port_connect_balancer_int }} ssl crt {{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.pem ca-file {{ node_certificates_path }}/CA/ca.crt verify optional alpn h2,http/1.1
-
-  http-request deny if !{ ssl_c_verify 0 }
-  # Mark which node answered
-  http-after-response set-header X-Upstream-Node %[srv_name].intel.r7g.org
-  default_backend be_connect_group
+admin:
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: {{ port_connect_balancer_admin_int }}
+  access_log:
+    - name: envoy.access_loggers.stdout
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+        log_format:
+          json_format:
+            start_time: "%START_TIME%"
+            response_code: "%RESPONSE_CODE%"
+            method: "%REQ(:METHOD)%"
+overload_manager:
+  refresh_interval: 0.25s
+  resource_monitors:
+    - name: envoy.resource_monitors.global_downstream_max_connections
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig
+        max_active_downstream_connections: 100000
