@@ -4,7 +4,7 @@ heap_size_percent: 50
 kafka_services:
   - role: "controllers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-     image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
