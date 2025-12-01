@@ -10,7 +10,6 @@
 # -------------------------------------------------------------------
 - name: Discover cluster folders on nodes
   tags: cluster_backup
-  when: "'cluster' in group_names"
   ansible.builtin.find:
     paths: "{{ node_storage_base }}"
     file_type: directory
@@ -18,12 +17,23 @@
   register: cluster_dirs
 
 # -------------------------------------------------------------------
+# Prepare backup directory in temp node storage
+# -------------------------------------------------------------------
+- name: Ensure backup folder exists in node temp storage
+  tags: cluster_backup
+  ansible.builtin.file:
+    path: "{{ node_temp_path }}/backup"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    state: directory
+
+# -------------------------------------------------------------------
 # Create per-folder archives on each node
 #   Example: /data/tmp/node-04/node-04-data.tar.xz
 # -------------------------------------------------------------------
 - name: Create archives per discovered folder on nodes
   tags: cluster_backup
-  when: "'cluster' in group_names"
   loop: "{{ cluster_dirs.files }}"
   loop_control:
     label: "{{ item.path | basename }}"
@@ -32,22 +42,30 @@
       folder="{{ item.path | basename }}";
       cd "{{ node_storage_base }}";
       set -euo pipefail;
-      tar -cf - "$folder" | xz > "{{ node_temp_path }}/{{ inventory_hostname }}-$folder.tar.xz"
+      tar -cf - "$folder" | xz > "{{ node_temp_path }}/backup/{{ inventory_hostname }}-$folder.tar.xz"
 
 # -------------------------------------------------------------------
-# Pull node archives into node-00
-#   Final layout on node-00:
-#   /data/tmp/node-04/*.tar.xz
+# Prepare backup directory in cold storage
+# -------------------------------------------------------------------
+- name: Ensure zip-of-zips folder exists in central temp storage
+  tags: cluster_backup
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ storage_temp_path }}/zip-of-zips"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    state: directory
 
-
+# -------------------------------------------------------------------
+# Pull all the zips to central folder into zip-of-zips
 # -------------------------------------------------------------------
 - name: Pull node snapshot archives to central
   tags: cluster_backup
-  when: "'cluster' in group_names"
   delegate_to: node-00
   synchronize:
-    src: "{{ node_temp_path }}/"
-    dest: "{{ storage_temp_path }}/{{ inventory_hostname }}/"
+    src: "{{ node_temp_path }}/backup/"
+    dest: "{{ storage_temp_path }}/zip-of-zips/{{ inventory_hostname }}/"
     mode: pull
     rsync_opts:
       - "--timeout=60"
@@ -61,10 +79,10 @@
   when: inventory_hostname == "node-00"
   ansible.builtin.file:
     path: "{{ central_cluster_backup_path }}"
-    state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
     mode: "{{ chmod_data }}"
+    state: directory
 
 # -------------------------------------------------------------------
 # Build final "zip-of-zips" on node-00
@@ -75,7 +93,7 @@
   ansible.builtin.shell:
     cmd: >
       set -euo pipefail;
-      tar -cf - -C {{ storage_temp_path }} ./ | xz > "{{ central_cluster_backup_file }}"
+      tar -cf - -C {{ storage_temp_path }}/zip-of-zips ./ | xz > "{{ central_cluster_backup_file }}"
 
 # -------------------------------------------------------------------
 # Manifest & checksum

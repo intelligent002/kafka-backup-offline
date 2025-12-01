@@ -89,7 +89,6 @@ static_resources:
                           tls_cipher: "%DOWNSTREAM_TLS_CIPHER%"
                           client_cert_subject: "%DOWNSTREAM_PEER_SUBJECT%"
                           client_cert_issuer: "%DOWNSTREAM_PEER_ISSUER%"
-                          sni: "%REQUESTED_SERVER_NAME%"
   clusters:
     - name: secure_nodes
       connect_timeout: 3s

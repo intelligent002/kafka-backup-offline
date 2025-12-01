@@ -89,7 +89,6 @@ static_resources:
                           tls_cipher: "%DOWNSTREAM_TLS_CIPHER%"
                           client_cert_subject: "%DOWNSTREAM_PEER_SUBJECT%"
                           client_cert_issuer: "%DOWNSTREAM_PEER_ISSUER%"
-                          sni: "%REQUESTED_SERVER_NAME%"
   clusters:
     - name: secure_nodes
       connect_timeout: 3s
@@ -177,9 +176,23 @@ admin:
         "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
         log_format:
           json_format:
-            start_time: "%START_TIME%"
-            response_code: "%RESPONSE_CODE%"
+            timestamp: "%START_TIME%"
             method: "%REQ(:METHOD)%"
+            path: "%REQ(:PATH)%"
+            authority: "%REQ(:AUTHORITY)%"
+            client_ip: "%DOWNSTREAM_REMOTE_ADDRESS%"
+            protocol: "%PROTOCOL%"
+            request_id: "%REQ(X-REQUEST-ID)%"
+            response_code: "%RESPONSE_CODE%"
+            response_flags: "%RESPONSE_FLAGS%"
+            bytes_received: "%BYTES_RECEIVED%"
+            bytes_sent: "%BYTES_SENT%"
+            duration_ms: "%DURATION%"
+            upstream_service_time: "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%"
+            tls_version: "%DOWNSTREAM_TLS_VERSION%"
+            tls_cipher: "%DOWNSTREAM_TLS_CIPHER%"
+            client_cert_subject: "%DOWNSTREAM_PEER_SUBJECT%"
+            client_cert_issuer: "%DOWNSTREAM_PEER_ISSUER%"
 overload_manager:
   refresh_interval: 0.25s
   resource_monitors:
