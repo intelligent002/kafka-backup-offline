@@ -137,7 +137,7 @@ kafka_services:
 
   - role: "ksql"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
+    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.8.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
