@@ -95,10 +95,6 @@ credentials:
         resource_name: "cdc-postgresql-schemahistory"
         operation: [ "Describe", "Read" ]
 
-      - resource_type: "group"
-        resource_name: "cdc-oracledb-schemahistory"
-        operation: [ "Describe", "Read" ]
-
       - resource_type: "transactional-id"
         resource_name: "*"
         operation: [ "All" ]
@@ -220,10 +216,6 @@ credentials:
         resource_name: "cdc-postgresql-schemahistory"
         operation: [ "Describe", "Read" ]
 
-      - resource_type: "group"
-        resource_name: "cdc-oracledb-schemahistory"
-        operation: [ "Describe", "Read" ]
-
       - resource_type: "transactional-id"
         resource_name: "*"
         operation: [ "All" ]
@@ -279,10 +271,6 @@ credentials:
         resource_name: "cdc-postgresql-schemahistory"
         operation: [ "Describe", "Read" ]
 
-      - resource_type: "group"
-        resource_name: "cdc-oracledb-schemahistory"
-        operation: [ "Describe", "Read" ]
-
       - resource_type: "transactional-id"
         resource_name: "*"
         operation: [ "All" ]
@@ -336,10 +324,6 @@ credentials:
 
       - resource_type: "group"
         resource_name: "cdc-postgresql-schemahistory"
-        operation: [ "Describe", "Read" ]
-
-      - resource_type: "group"
-        resource_name: "cdc-oracledb-schemahistory"
         operation: [ "Describe", "Read" ]
 
       - resource_type: "transactional-id"

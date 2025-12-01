@@ -1,16 +1,8 @@
 ---
 - name: Remove temporal folder on node-00
   tags:
-    - certificates_backup
-    - certificates_restore
     - cluster_backup
     - cluster_restore
-    - configs_backup
-    - configs_restore
-    - credentials_backup
-    - credentials_restore
-    - data_backup
-    - data_restore
     - temp_cleanup
   when: inventory_hostname == "node-00"
   ansible.builtin.file:
@@ -19,16 +11,8 @@
 
 - name: Create temporal folder on central
   tags:
-    - certificates_backup
-    - certificates_restore
     - cluster_backup
     - cluster_restore
-    - configs_backup
-    - configs_restore
-    - credentials_backup
-    - credentials_restore
-    - data_backup
-    - data_restore
     - temp_cleanup
   when: inventory_hostname == "node-00"
   ansible.builtin.file:
@@ -38,16 +22,8 @@
 
 - name: Remove temporal folder on nodes
   tags:
-    - certificates_backup
-    - certificates_restore
     - cluster_backup
     - cluster_restore
-    - configs_backup
-    - configs_restore
-    - credentials_backup
-    - credentials_restore
-    - data_backup
-    - data_restore
     - temp_cleanup
   ansible.builtin.file:
     path: "{{ node_temp_path }}"
@@ -55,16 +31,8 @@
 
 - name: Create temporal folder on nodes
   tags:
-    - certificates_backup
-    - certificates_restore
     - cluster_backup
     - cluster_restore
-    - configs_backup
-    - configs_restore
-    - credentials_backup
-    - credentials_restore
-    - data_backup
-    - data_restore
     - temp_cleanup
   ansible.builtin.file:
     path: "{{ node_temp_path }}"

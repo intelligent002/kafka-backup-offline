@@ -288,6 +288,9 @@ function cluster_reinstall()
 {
     log "WARN" "--------------------------------------=[ INITIATING FULL CLUSTER REINSTALL ]=--------------------------------------"
     # stop everything
+    gui_portainer_ce_uninstall
+    gui_kpow_ce_uninstall
+    balancers_uninstall
     containers_uninstall
     # regenerate all components
     configs_generate
@@ -301,6 +304,8 @@ function cluster_reinstall()
     containers_uninstall
     containers_install
     balancers_install
+    gui_portainer_ce_install
+    gui_kpow_ce_install
     log "WARN" "--------------------------------------=[ COMPLETED FULL CLUSTER REINSTALL ]=---------------------------------------"
 }
 
