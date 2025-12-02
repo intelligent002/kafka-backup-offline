@@ -12,7 +12,7 @@ SSL://{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext
 
 # cluster connection
 SECURITY_PROTOCOL=SSL
-SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=
+SSL_ENDPOINT_IDENTIFICATION_ALGORITHM=HTTPS
 SSL_PROTOCOL=TLSv1.3
 SSL_KEYSTORE_LOCATION={{ node_certificates_path }}/users/admin/admin.jks
 SSL_KEYSTORE_PASSWORD={{ certificate_password }}
