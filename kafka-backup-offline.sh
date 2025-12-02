@@ -214,10 +214,10 @@ function run_ansible_routine()
     while [[ $attempt -le $max_attempts ]]; do
         log "INFO" "Routine - ${routine^} - started (attempt #${attempt} of ${max_attempts})"
         "${docker_command[@]}" && {
-            log "INFO" "Routine - ${routine^} - OK"
+            log "INFO" "Routine - ${routine^} - OK - (attempt #${attempt} of ${max_attempts})"
             return 0
         }
-        log "WARN" "Routine - ${routine^} - Failed attempt #${attempt} of ${max_attempts}, retrying."
+        log "WARN" "Routine - ${routine^} - Failed (attempt #${attempt} of ${max_attempts}), retrying."
         ((attempt++))
     done
 
