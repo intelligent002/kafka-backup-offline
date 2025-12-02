@@ -148,7 +148,10 @@ kafka_services:
       KAFKA_HEAP_OPTS: >-
         -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
         -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
-      KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
+      KSQL_OPTS: >-
+        -Dhttps.protocols=TLSv1.3 
+        -Djdk.tls.client.protocols=TLSv1.3 
+        -Djdk.tls.server.protocols=TLSv1.3
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -299,8 +302,9 @@ gui_kpow:
     env:
       JVM_OPTS: |
         -Djava.awt.headless=true
-        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.jks
+        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.p12
         -Djavax.net.ssl.trustStorePassword={{ certificate_password }}
+        -Djavax.net.ssl.trustStoreType=PKCS12
         -Dorg.xerial.snappy.tempdir=/opt/factorhouse/tmp
         -server
         -Xmx512m -Xms256m
