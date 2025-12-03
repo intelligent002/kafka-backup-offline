@@ -4,7 +4,7 @@ heap_size_percent: 50
 kafka_services:
   - role: "controllers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -36,7 +36,7 @@ kafka_services:
 
   - role: "brokers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -70,7 +70,7 @@ kafka_services:
 
   - role: "schema"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:8.1.0"
+    image: "confluentinc/cp-schema-registry:8.1.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -103,7 +103,7 @@ kafka_services:
 
   - role: "connect"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -137,7 +137,7 @@ kafka_services:
 
   - role: "ksql"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
+    image: "confluentinc/cp-ksqldb-server:7.9.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -173,7 +173,7 @@ kafka_services:
 
 kafka_data_format:
   - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "no"
     auto_remove: true
