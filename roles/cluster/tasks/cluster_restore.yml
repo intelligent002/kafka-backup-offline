@@ -22,16 +22,29 @@
     msg: "The specified restore archive {{ restore_archive }} does not exist!"
 
 # -------------------------------------------------------------------
+# Prepare backup directory in cold storage
+# -------------------------------------------------------------------
+- name: Ensure zip-of-zips folder exists in central temp storage
+  tags: cluster_restore
+  when: inventory_hostname == "node-00"
+  ansible.builtin.file:
+    path: "{{ storage_temp_path }}/zip-of-zips/"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "{{ chmod_data }}"
+    state: directory
+
+# -------------------------------------------------------------------
 # Extract snapshot on node-00 into a temp directory
 # -------------------------------------------------------------------
-- name: Extract snapshot tar.xz into temp
+- name: Extract snapshot tar.xz into temp/zip-of-zips
   tags:
     - cluster_restore
   when: inventory_hostname == "node-00"
   ansible.builtin.shell:
     cmd: >
       xz -dc "{{ restore_archive }}" |
-      tar -xf - -C "{{ storage_temp_path }}"
+      tar -xf - -C "{{ storage_temp_path }}/zip-of-zips/"
 
 # -------------------------------------------------------------------
 # Push per-node archives to each node
@@ -39,11 +52,10 @@
 - name: Push archives back to nodes
   tags:
     - cluster_restore
-  when: "'cluster' in group_names"
   delegate_to: node-00
   synchronize:
-    src: "{{ storage_temp_path }}/{{ inventory_hostname }}/"
-    dest: "{{ node_temp_path }}/"
+    src: "{{ storage_temp_path }}/zip-of-zips/{{ inventory_hostname }}/"
+    dest: "{{ node_temp_path }}/restore/"
     mode: push
     rsync_opts:
       - "--delete"
@@ -52,7 +64,6 @@
 - name: Remove Cluster Folders on nodes
   tags:
     - cluster_restore
-  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ node_data_store }}"
     state: absent
@@ -60,7 +71,6 @@
 - name: Create Cluster Folders on nodes
   tags:
     - cluster_restore
-  when: "'cluster' in group_names"
   ansible.builtin.file:
     path: "{{ node_data_store }}"
     owner: "{{ owner_user_data }}"
@@ -75,9 +85,8 @@
 - name: Restore cluster data from archives
   tags:
     - cluster_restore
-  when: "'cluster' in group_names"
   ansible.builtin.shell:
     cmd: >
-      for archive in {{ node_temp_path }}/*.tar.xz; do
+      for archive in {{ node_temp_path }}/restore/*.tar.xz; do
         xz -dc "$archive" | tar -xpf - -C "{{ node_storage_base }}";
       done

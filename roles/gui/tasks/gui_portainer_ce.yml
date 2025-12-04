@@ -56,6 +56,7 @@
     name: "{{ container.name }}"
     state: absent
     force_kill: true
+  ignore_errors: true
 
 - name: Remove portainer_data volume on all nodes
   tags: gui_portainer_ce_uninstall

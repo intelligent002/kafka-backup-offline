@@ -4,7 +4,7 @@ heap_size_percent: 50
 kafka_services:
   - role: "controllers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -36,7 +36,7 @@ kafka_services:
 
   - role: "brokers"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -70,7 +70,7 @@ kafka_services:
 
   - role: "schema"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-schema-registry:8.1.0"
+    image: "confluentinc/cp-schema-registry:8.1.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -103,7 +103,7 @@ kafka_services:
 
   - role: "connect"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -137,7 +137,7 @@ kafka_services:
 
   - role: "ksql"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/confluentinc/cp-ksqldb-server:7.9.0"
+    image: "confluentinc/cp-ksqldb-server:7.9.0"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -148,7 +148,10 @@ kafka_services:
       KAFKA_HEAP_OPTS: >-
         -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
         -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
-      KSQL_OPTS: "-Djdk.tls.client.protocols=TLSv1.3 -Dhttps.protocols=TLSv1.3 -Djdk.tls.server.protocols=TLSv1.3"
+      KSQL_OPTS: >-
+        -Dhttps.protocols=TLSv1.3 
+        -Djdk.tls.client.protocols=TLSv1.3 
+        -Djdk.tls.server.protocols=TLSv1.3
       KAFKA_JMX_OPTS: |
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
@@ -170,7 +173,7 @@ kafka_services:
 
 kafka_data_format:
   - name: "kafka-storage-format-{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "docker.artifactory.intel.r7g.org/apache/kafka:4.1.1"
+    image: "apache/kafka:4.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "no"
     auto_remove: true
@@ -299,8 +302,9 @@ gui_kpow:
     env:
       JVM_OPTS: |
         -Djava.awt.headless=true
-        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.jks
+        -Djavax.net.ssl.trustStore={{ node_certificates_path }}/shared.truststore.p12
         -Djavax.net.ssl.trustStorePassword={{ certificate_password }}
+        -Djavax.net.ssl.trustStoreType=PKCS12
         -Dorg.xerial.snappy.tempdir=/opt/factorhouse/tmp
         -server
         -Xmx512m -Xms256m

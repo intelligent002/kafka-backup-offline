@@ -11,6 +11,7 @@
   loop: "{{ kafka_services }}"
   loop_control:
     label: "{{ item.role }}"
+  ignore_errors: true
 
 - name: Remove folder for application logs
   tags:
