@@ -21,20 +21,24 @@ value.converter.schemas.enable=true
 
 ########################################################################################################################
 # Connect System Topics
+
 # Topic to use for storing offsets. This topic should have many partitions, be replicated and compacted.
-offset.storage.topic=__connect_offset
+offset.storage.cleanup.policy=compact
+offset.storage.partitions=50
 offset.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
-offset.storage.partitions=25
+offset.storage.topic=__connect_offset
 
 # Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated,and compacted topic.
-config.storage.topic=__connect_config
+config.storage.cleanup.policy=compact
+config.storage.partitions=1
 config.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
+config.storage.topic=__connect_config
 
 # Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
-status.storage.topic=__connect_status
-status.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
-# better to keep at 5
+status.storage.cleanup.policy=compact
 status.storage.partitions=5
+status.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
+status.storage.topic=__connect_status
 
 ########################################################################################################################
 # Flushing
