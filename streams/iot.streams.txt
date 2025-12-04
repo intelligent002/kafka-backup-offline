@@ -64,22 +64,6 @@ SELECT
   payload->after->temperature AS temperature
 FROM iot_temp_stream_raw
 WHERE payload->after IS NOT NULL
-PARTITION BY payload->after->device_id
-EMIT CHANGES;
-
-CREATE STREAM iot_temp_stream_clean
-  WITH (
-    KAFKA_TOPIC='iot_temp_stream_clean',
-    VALUE_FORMAT='AVRO',
-    PARTITIONS=3
-  ) AS
-SELECT
-  payload->after->id AS id,
-  payload->after->device_id AS device_id,
-  payload->after->ts AS ts,
-  payload->after->temperature AS temperature
-FROM iot_temp_stream_raw
-WHERE payload->after IS NOT NULL
   AND payload->after->id IS NOT NULL
   AND payload->after->device_id IS NOT NULL
   AND payload->after->ts IS NOT NULL
@@ -125,3 +109,15 @@ LEFT JOIN iot_meta_table m
   ON c.device_id = m.device_id
   PARTITION BY c.device_id
 EMIT CHANGES;
+
+
+remove:
+
+DROP STREAM iot_temp_stream_enriched DELETE TOPIC;
+DROP STREAM iot_temp_stream_rejected DELETE TOPIC;
+DROP STREAM iot_meta_stream_clean;
+DROP STREAM iot_temp_stream_clean DELETE TOPIC;
+DROP STREAM iot_meta_stream_raw;
+DROP TABLE iot_meta_table DELETE TOPIC;
+DROP STREAM iot_temp_stream_raw;
+

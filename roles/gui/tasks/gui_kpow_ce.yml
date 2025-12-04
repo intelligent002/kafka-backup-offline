@@ -66,3 +66,4 @@
   loop: "{{ gui_kpow }}"
   loop_control:
     label: "{{ item.name }}"
+  ignore_errors: true

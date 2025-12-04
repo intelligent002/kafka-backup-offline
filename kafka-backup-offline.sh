@@ -214,10 +214,10 @@ function run_ansible_routine()
     while [[ $attempt -le $max_attempts ]]; do
         log "INFO" "Routine - ${routine^} - started (attempt #${attempt} of ${max_attempts})"
         "${docker_command[@]}" && {
-            log "INFO" "Routine - ${routine^} - OK"
+            log "INFO" "Routine - ${routine^} - OK - (attempt #${attempt} of ${max_attempts})"
             return 0
         }
-        log "WARN" "Routine - ${routine^} - Failed attempt #${attempt} of ${max_attempts}, retrying."
+        log "WARN" "Routine - ${routine^} - Failed (attempt #${attempt} of ${max_attempts}), retrying."
         ((attempt++))
     done
 
@@ -312,9 +312,13 @@ function cluster_reinstall()
 function cluster_restore()
 {
     log "INFO" "---------------------------------------=[ INITIATING FULL CLUSTER RESTORE ]=----------------------------------------"
-    containers_stop
+    gui_kpow_ce_uninstall
+    balancers_uninstall
+    containers_uninstall
     cluster_restore_run $1
-    containers_start
+    containers_install
+    balancers_install
+    gui_kpow_ce_install
     log "INFO" "----------------------------------------=[ COMPLETED FULL CLUSTER RESTORE ]=----------------------------------------"
 }
 

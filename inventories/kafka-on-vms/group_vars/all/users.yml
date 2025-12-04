@@ -44,6 +44,13 @@ credentials:
         resource_name: "cluster-schema"
         operation: [ "Read", "Describe" ]
 
+  - username: "kpow-connect"
+    password: "insecure"
+    permissions:
+      - resource_type: "topic"
+        resource_name: "*"
+        operation: "All"
+
   - username: "connector"
     password: "insecure"
     permissions:

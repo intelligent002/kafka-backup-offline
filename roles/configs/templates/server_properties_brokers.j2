@@ -113,6 +113,9 @@ default.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 # that must acknowledge a write for the write to be considered successful.
 min.insync.replicas={{ ((groups['brokers'] | default([])) | length) }}
 
+# wait for ISR leader, do not choose from OSR
+unclean.leader.election.enable=false
+
 # The replication factor for the __consumer_offsets topic (set higher to ensure availability).
 # Internal topic creation will fail until the cluster size meets this replication factor requirement.
 offsets.topic.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
@@ -124,6 +127,7 @@ transaction.state.log.min.isr={{ [(groups['brokers'] | length) - 1, 1] | max }}
 
 ########################################################################################################################
 # Kafka Connect Internal Topics (auto-created with cleanup.policy=compact) replication factors
+
 config.storage.replication.factor=3
 status.storage.replication.factor=3
 offset.storage.replication.factor=3
