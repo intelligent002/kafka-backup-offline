@@ -1,0 +1,124 @@
+# ======================================================
+# Kafka Clusters Configuration
+# Define all Kafka cluster-specific settings and related integrations.
+# ======================================================
+kafka:
+  clusters:
+    - name: Apache Kafka 4.1.0
+      bootstrap-servers: SSL://node-04.intel.r7g.org:9093,SSL://node-05.intel.r7g.org:9093,SSL://node-06.intel.r7g.org:9093  # List of Kafka broker addresses
+
+      # SSL configuration for secure connection to Kafka brokers
+      ssl:
+        truststore-location: /data/cluster/certificates/shared.truststore.p12
+        truststore-password: insecure
+        truststore-type: PKCS12
+        verify-ssl: true
+
+      # Global Kafka client properties
+      properties:
+        "security.protocol": SSL
+        "ssl.enabled.protocols": TLSv1.3
+        "ssl.key.password": insecure
+        "ssl.keystore.location": /data/cluster/certificates/users/admin/admin.p12
+        "ssl.keystore.password": insecure
+        "ssl.keystore.type": PKCS12
+        "ssl.truststore.location": /data/cluster/certificates/shared.truststore.p12
+        "ssl.truststore.password": insecure
+        "ssl.truststore.type": PKCS12
+
+      # Schema Registry connection and authentication details
+      schemaRegistry: https://node-00.intel.r7g.org:9030
+      schema-registry-ssl:
+        keystore-location: /data/cluster/certificates/users/admin/admin.jks
+        keystore-password: insecure
+
+      # ksqlDB connection and security settings
+      ksqldb-server: https://node-00.intel.r7g.org:9050
+      ksqldb-server-ssl:
+        keystore-location: /data/cluster/certificates/users/admin/admin.jks
+        keystore-password: insecure
+
+      # Kafka Connect REST endpoint and optional authentication
+      kafka-connect:
+        - name: Apache Connect 4.1.0
+          address: https://node-00.intel.r7g.org:9040
+          keystore-location: /data/cluster/certificates/users/admin/admin.jks
+          keystore-password: insecure
+
+      default-key-serde: String
+      default-value-serde: SchemaRegistry
+
+      # Monitoring and metrics collection from the cluster
+#      metrics:
+#        type: JMX  # Available options: JMX or PROMETHEUS
+#        port: 9997  # Port to collect JMX metrics
+#        username: Auth username
+#        password: Auth password
+#        ssl: false  # Whether to use SSL for metrics endpoint
+#        keystore-location: path/to/keystore/file.jks
+#        keystore-password: password
+
+
+      # Kafka Consumer configuration overrides
+      consumer-properties:
+        "max.partition.fetch.bytes": 1048576
+
+      # Kafka Producer configuration overrides
+      producer-properties:
+        "enable.idempotence": false
+
+      read-only: false  # Prevent write operations from the UI
+
+      polling-throttle-rate: 0  # Delay (seconds) between polling intervals in UI; 0 = no throttling
+
+  # Prefix to identify internal Kafka topics used by system tools
+  internalTopicPrefix: "__"
+
+  # Timeout for admin Kafka operations (in milliseconds)
+  admin-client-timeout: 30000
+
+  # Polling behavior for consumer previews in the UI
+  polling:
+    poll-timeout-ms: 1000  # How long to wait for new records (ms)
+    max-page-size: 500  # Maximum number of records per poll
+    default-page-size: 100  # Default number of records per poll
+
+# ======================================================
+# Model Context Protocol config
+# ======================================================
+mcp:
+  enabled: true # Enable MCP (ModelContextProtocol) endpoint
+
+# ======================================================
+# WebClient Settings
+# Configuration for HTTP clients used by the app.
+# ======================================================
+webclient:
+  response-timeout-ms: 20000  # Timeout for all outgoing HTTP requests
+  max-in-memory-buffer-size: 20MB  # Maximum buffer size for handling responses
+
+# ======================================================
+# Spring Boot Actuator
+# Enables health, info, and Prometheus endpoints for monitoring.
+# ======================================================
+management:
+  endpoint:
+    info:
+      enabled: true
+    health:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "info,health,prometheus"
+
+# ======================================================
+# Application Logging Configuration
+# Configure logging levels for specific packages.
+# ======================================================
+logging:
+  level:
+    root: INFO
+    io.kafbat.ui: DEBUG
+    reactor.netty.http.server.AccessLog: INFO
+    org.hibernate.validator: WARN
