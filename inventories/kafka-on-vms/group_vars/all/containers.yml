@@ -110,11 +110,18 @@ kafka_services:
       - "{{ hostvars[inventory_hostname]['port_jmx_monitoring_ext'] }}:{{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}"
       - "{{ hostvars[inventory_hostname]['port_connect_rest_ext'] }}:{{ hostvars[inventory_hostname]['port_connect_rest_int'] }}"
     env:
+      TOPIC_MAKER_AUTO_CREATE: "true"
+      TOPIC_MAKER_BROKERS: "{% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+      TOPIC_MAKER_CONFIG: "/mnt/shared/config/kraft.properties"
+      TOPIC_MAKER_TOPICS: "__connect_offset:50:3,__connect_config:1:3,__connect_status:5:3"
+      TOPIC_MAKER_TCP_RETRIES: "30"
+      TOPIC_MAKER_TCP_DELAY: "5"
+      TOPIC_MAKER_KAFKA_RETRIES: "5"
+      TOPIC_MAKER_KAFKA_DELAY: "5"
       KAFKA_HEAP_OPTS: >-
         -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
         -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
       KAFKA_JMX_OPTS: |
-        -Djavax.net.debug=ssl,handshake,verbose
         -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]['ansible_host'] }}
         -Dcom.sun.management.jmxremote
         -Dcom.sun.management.jmxremote.port={{ hostvars[inventory_hostname]['port_jmx_monitoring_int'] }}
@@ -131,8 +138,10 @@ kafka_services:
       - "{{ hostvars[inventory_hostname]['node_plugins_path'] }}:/usr/share/java"
     command:
       [
-        "/opt/kafka/bin/connect-distributed.sh",
-        "/mnt/shared/config/kraft.properties"
+        "bash",
+        "-c",
+        "/mnt/shared/config/topic-maker.sh && \
+         /opt/kafka/bin/connect-distributed.sh /mnt/shared/config/kraft.properties"
       ]
 
   - role: "ksql"
