@@ -13,18 +13,28 @@ log_error() { echo "[STARTER] ERROR: $*" >&2; }
 # ------------------------------
 # Static Configuration ENV
 # ------------------------------
+TOPIC_MAKER_ANTI_STORM_SLEEP="${TOPIC_MAKER_ANTI_STORM_SLEEP:-600}"
 TOPIC_MAKER_AUTO_CREATE="${TOPIC_MAKER_AUTO_CREATE:-true}"
 TOPIC_MAKER_BROKERS="${TOPIC_MAKER_BROKERS:-}"
 TOPIC_MAKER_CONFIG="${TOPIC_MAKER_CONFIG:-/mnt/shared/config/kraft.properties}"
-TOPIC_MAKER_TOPICS="${TOPIC_MAKER_TOPICS:-__connect_offset:50:3,__connect_config:1:3,__connect_status:5:3}"
-TOPIC_MAKER_TCP_RETRIES="${TOPIC_MAKER_TCP_RETRIES:-30}"
-TOPIC_MAKER_TCP_DELAY="${TOPIC_MAKER_TCP_DELAY:-1}"
-TOPIC_MAKER_KAFKA_RETRIES="${TOPIC_MAKER_KAFKA_RETRIES:-3}"
+TOPIC_MAKER_DEBUG="${TOPIC_MAKER_DEBUG:-false}"
 TOPIC_MAKER_KAFKA_DELAY="${TOPIC_MAKER_KAFKA_DELAY:-1}"
+TOPIC_MAKER_KAFKA_RETRIES="${TOPIC_MAKER_KAFKA_RETRIES:-3}"
+TOPIC_MAKER_TCP_DELAY="${TOPIC_MAKER_TCP_DELAY:-1}"
+TOPIC_MAKER_TCP_RETRIES="${TOPIC_MAKER_TCP_RETRIES:-30}"
+TOPIC_MAKER_TOPICS="${TOPIC_MAKER_TOPICS:-__connect_offset:50:3,__connect_config:1:3,__connect_status:5:3}"
+
+# prevent restart storm
+sleep_and_quit() {
+  log_error "Sleeping for [$TOPIC_MAKER_ANTI_STORM_SLEEP] seconds before exit to avoid restart storm..."
+  sleep $TOPIC_MAKER_ANTI_STORM_SLEEP
+  exit 1
+}
+
 # minimum sanity
 if [[ -z "$TOPIC_MAKER_BROKERS" ]]; then
   log_error "TOPIC_MAKER_BROKERS is required (e.g. host1:9093,host2:9093)."
-  exit 1
+  sleep_and_quit
 fi
 # ------------------------------------------------------------
 # Low-level executor
@@ -54,9 +64,11 @@ executor() {
 
   rm -f "$out_file" "$err_file"
 
-#  echo "STDOUT: [$stdout_content]"
-#  echo "STDERR: [$stderr_content]"
-#  echo "EXIT:   [$rc]"
+  if [[ "$TOPIC_MAKER_DEBUG" == "true" ]]; then
+    echo "STDOUT: [$stdout_content]"
+    echo "STDERR: [$stderr_content]"
+    echo "EXIT:   [$rc]"
+  fi
 
   # --- HARD FAILURE detection: fatal, non-retryable ---
   if [[ -n "$stderr_content" ]]; then
@@ -84,7 +96,7 @@ executor() {
       *"InvalidReplicationFactorException"*)
         log_error "Fatal error while executing command."
         log_error "STDERR: $stderr_content"
-        exit 1
+        sleep_and_quit
         ;;
     esac
   fi
@@ -119,8 +131,8 @@ model_select_broker() {
     sleep "$TOPIC_MAKER_TCP_DELAY"
   done
 
-  log_error "No reachable brokers found after [$TCP_RETRIES] attempts!"
-  exit 1
+  log_error "No reachable brokers found after [$TOPIC_MAKER_TCP_RETRIES] attempts!"
+  sleep_and_quit
 }
 
 # ------------------------------------------------------------
@@ -140,10 +152,6 @@ model_topic_exists() {
           --command-config "$2" \
           --list
       ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG"
-
-#    echo "STDOUT: [$OUT]"
-#    echo "STDERR: [$ERR]"
-#    echo "EXIT:   [$RC]"
 
     # rc != 0 → transient failure → retry
     if [[ "$RC" -ne 0 ]]; then
@@ -185,10 +193,6 @@ model_topic_create() {
           --config cleanup.policy=compact
       ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t" "$p" "$r"
 
-#    echo "STDOUT: [$OUT]"
-#    echo "STDERR: [$ERR]"
-#    echo "EXIT:   [$RC]"
-
     if [[ "$RC" -eq 0 ]]; then
       log_info "Topic [$t] creation ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] OK"
       return 0
@@ -215,10 +219,6 @@ model_topic_metadata() {
           --command-config "$2" \
           --describe --topic "$3"
       ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t"
-
-#    echo "STDOUT: [$OUT]"
-#    echo "STDERR: [$ERR]"
-#    echo "EXIT:   [$RC]"
 
     if [[ "$RC" -ne 0 ]]; then
       log_info "Topic [$t] metadata fetch ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] FAILED (rc=$RC)"
@@ -256,12 +256,17 @@ topic_create() {
     log_info "Topic [$topic] presence validation is done, topic is absent."
   fi
 
+  if [[ "$TOPIC_MAKER_AUTO_CREATE" != "true" ]]; then
+    log_info "Topic [$topic] creation skipped, since TOPIC_MAKER_AUTO_CREATE is disabled."
+    sleep_and_quit
+  fi
+
   log_info "Topic [$topic] creation started:"
   if model_topic_create "$topic" "$partitions" "$replication_factor"; then
     log_info "Topic [$topic] creation is done, topic should be present."
   else
     log_error "Topic [$topic] creation is done, failed to create."
-    exit 1
+    sleep_and_quit
   fi
 
   log_info "Topic [$topic] presence validation after creation started:"
@@ -269,7 +274,7 @@ topic_create() {
     log_info "Topic [$topic] presence validation after creation is done, topic is present."
   else
     log_error "Topic [$topic] presence validation after creation is done, topic is absent after creation."
-    exit 1
+    sleep_and_quit
   fi
 }
 
@@ -283,14 +288,14 @@ topic_validate() {
 
   if ! raw_meta="$(model_topic_metadata "$topic")"; then
     log_error "Topic [$topic] configuration fetching is done, unable to fetch metadata."
-    exit 1
+    sleep_and_quit
   fi
 
   meta="$(printf '%s\n' "$raw_meta" | grep 'Configs:' | head -n 1)"
 
   if [[ -z "$meta" ]]; then
     log_error "Topic [$topic] configuration fetching is done, unable to parse metadata."
-    exit 1
+    sleep_and_quit
   else
     log_info "Topic [$topic] configuration fetching is done, metadata fetched."
   fi
@@ -306,7 +311,7 @@ topic_validate() {
 
   if [[ -z "$partitions" || -z "$replication_factor" ]]; then
     log_error "Topic [$topic] configuration parsing failure: missing partitions or replication factor"
-    exit 1
+    errors=$((errors+1))
   fi
 
   if [[ "$partitions" -lt "$expected_partitions" ]]; then
@@ -334,7 +339,7 @@ topic_validate() {
     log_info "Topic [$topic] configuration validation is done."
   else
     log_error "Topic [$topic] configuration validation is done, failures detected."
-    exit 1
+    sleep_and_quit
   fi
 }
 
@@ -348,6 +353,15 @@ function controller() {
   # choose the broker to work with
   model_select_broker
 
+  # iterate over topics: create & validate
+  BROKER_COUNT=${#BROKER_LIST[@]}
+
+  # edge case validation, should never happen
+  if [[ -z "${SELECTED_BROKER:-}" ]]; then
+    log_error "No broker selected — internal error"
+    sleep_and_quit
+  fi
+
   # prepare topics array
   local IFS=','
   REQUIRED_TOPICS=()
@@ -356,9 +370,14 @@ function controller() {
     REQUIRED_TOPICS+=("$entry")   # "name:partitions:replication"
   done
 
-  # iterate over topics: create & validate
   for line in "${REQUIRED_TOPICS[@]}"; do
     IFS=':' read -r NAME PART REPLICATION_FACTOR <<< "$line"
+
+    if (( REPLICATION_FACTOR > BROKER_COUNT )); then
+        log_error "Replication factor [$REPLICATION_FACTOR] is above the available brokers [$BROKER_COUNT] count"
+        sleep_and_quit
+    fi
+
     topic_create   "$NAME" "$PART" "$REPLICATION_FACTOR"
     topic_validate "$NAME" "$PART" "$REPLICATION_FACTOR"
   done
