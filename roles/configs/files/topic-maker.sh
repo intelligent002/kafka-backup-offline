@@ -18,9 +18,9 @@ TOPIC_MAKER_AUTO_CREATE="${TOPIC_MAKER_AUTO_CREATE:-true}"
 TOPIC_MAKER_BROKERS="${TOPIC_MAKER_BROKERS:-}"
 TOPIC_MAKER_CONFIG="${TOPIC_MAKER_CONFIG:-/mnt/shared/config/kraft.properties}"
 TOPIC_MAKER_DEBUG="${TOPIC_MAKER_DEBUG:-false}"
-TOPIC_MAKER_KAFKA_DELAY="${TOPIC_MAKER_KAFKA_DELAY:-1}"
-TOPIC_MAKER_KAFKA_RETRIES="${TOPIC_MAKER_KAFKA_RETRIES:-3}"
-TOPIC_MAKER_TCP_DELAY="${TOPIC_MAKER_TCP_DELAY:-1}"
+TOPIC_MAKER_KAFKA_DELAY="${TOPIC_MAKER_KAFKA_DELAY:-3}"
+TOPIC_MAKER_KAFKA_RETRIES="${TOPIC_MAKER_KAFKA_RETRIES:-5}"
+TOPIC_MAKER_TCP_DELAY="${TOPIC_MAKER_TCP_DELAY:-3}"
 TOPIC_MAKER_TCP_RETRIES="${TOPIC_MAKER_TCP_RETRIES:-30}"
 TOPIC_MAKER_TOPICS="${TOPIC_MAKER_TOPICS:-__connect_offset:50:3,__connect_config:1:3,__connect_status:5:3}"
 
@@ -111,7 +111,12 @@ executor() {
 # ------------------------------------------------------------
 model_select_broker() {
   local IFS=','
+
+  # create brokers list out of brokers passed in
   read -ra BROKER_LIST <<< "$TOPIC_MAKER_BROKERS"
+
+  # count the brokers for further usage
+  BROKER_COUNT=${#BROKER_LIST[@]}
 
   for ((attempt=1; attempt<=TOPIC_MAKER_TCP_RETRIES; attempt++)); do
     for entry in "${BROKER_LIST[@]}"; do
@@ -151,17 +156,15 @@ model_topic_exists() {
           --bootstrap-server "$1" \
           --command-config "$2" \
           --list
-      ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG"
+      ' _ "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG"
 
-    # rc != 0 → transient failure → retry
-    if [[ "$RC" -ne 0 ]]; then
+    if (( RC != 0 )); then
       log_info "Topic [$t] presence check ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] FAILED (rc=$RC)"
       sleep "$TOPIC_MAKER_KAFKA_DELAY"
       continue
     fi
 
-    # rc == 0 → check if topic present
-    if printf '%s\n' "$OUT" | grep -Fxq -- "$t"; then
+    if grep -Fxq "$t" <<< "$OUT"; then
       log_info "Topic [$t] presence check ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] OK"
       return 0
     fi
@@ -191,9 +194,9 @@ model_topic_create() {
           --partitions "$4" \
           --replication-factor "$5" \
           --config cleanup.policy=compact
-      ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t" "$p" "$r"
+      ' _ "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t" "$p" "$r"
 
-    if [[ "$RC" -eq 0 ]]; then
+    if (( RC == 0 )); then
       log_info "Topic [$t] creation ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] OK"
       return 0
     fi
@@ -218,15 +221,14 @@ model_topic_metadata() {
           --bootstrap-server "$1" \
           --command-config "$2" \
           --describe --topic "$3"
-      ' bash "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t"
+      ' _ "$SELECTED_BROKER" "$TOPIC_MAKER_CONFIG" "$t"
 
-    if [[ "$RC" -ne 0 ]]; then
+    if (( RC != 0 )); then
       log_info "Topic [$t] metadata fetch ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] FAILED (rc=$RC)"
       sleep "$TOPIC_MAKER_KAFKA_DELAY"
       continue
     fi
 
-    # Heuristic: metadata is considered present if we see a 'Configs:' line
     if printf '%s\n' "$OUT" | grep -q 'Configs:'; then
       log_info "Topic [$t] metadata fetch ... [$i/$TOPIC_MAKER_KAFKA_RETRIES] OK"
       printf '%s\n' "$OUT"
@@ -247,6 +249,11 @@ model_topic_metadata() {
 
 topic_create() {
   local topic="$1" partitions="$2" replication_factor="$3"
+
+  if (( replication_factor > BROKER_COUNT )); then
+    log_error "Topic [$topic] the replication factor [$replication_factor] is above broker count [$BROKER_COUNT]"
+    sleep_and_quit
+  fi
 
   log_info "Topic [$topic] presence validation started:"
   if model_topic_exists "$topic"; then
@@ -311,17 +318,17 @@ topic_validate() {
 
   if [[ -z "$partitions" || -z "$replication_factor" ]]; then
     log_error "Topic [$topic] configuration parsing failure: missing partitions or replication factor"
-    errors=$((errors+1))
+    sleep_and_quit
   fi
 
-  if [[ "$partitions" -lt "$expected_partitions" ]]; then
+  if (( partitions < expected_partitions )); then
     log_error "Topic [$topic] configuration validation failure: partitions mismatch - expected [$expected_partitions], got [$partitions]"
     errors=$((errors+1))
   else
     log_info "Topic [$topic] configuration validation pass: property [partitions]         value is [$partitions]"
   fi
 
-  if [[ "$replication_factor" -lt "$expected_replication_factor" ]]; then
+  if (( replication_factor < expected_replication_factor )); then
     log_error "Topic [$topic] configuration validation failure: replication factor mismatch - expected [$expected_replication_factor], got [$replication_factor]"
     errors=$((errors+1))
   else
@@ -343,40 +350,33 @@ topic_validate() {
   fi
 }
 
+function prepare_topics() {
+  local IFS
+
+  REQUIRED_TOPICS=()
+  IFS=',' read -ra __topic_entries <<< "$TOPIC_MAKER_TOPICS"
+  for entry in "${__topic_entries[@]}"; do
+    REQUIRED_TOPICS+=("$entry")
+  done
+}
+
 # =========================================================
 # CONTROLLER (Thin, readable flow)
 # =========================================================
 function controller() {
+  local IFS
   echo "---------------------------------------------------------------"
   log_info "Kafka Connect Startup Initializer"
 
   # choose the broker to work with
   model_select_broker
 
-  # iterate over topics: create & validate
-  BROKER_COUNT=${#BROKER_LIST[@]}
-
-  # edge case validation, should never happen
-  if [[ -z "${SELECTED_BROKER:-}" ]]; then
-    log_error "No broker selected — internal error"
-    sleep_and_quit
-  fi
-
   # prepare topics array
-  local IFS=','
-  REQUIRED_TOPICS=()
-  read -ra __topic_entries <<< "$TOPIC_MAKER_TOPICS"
-    for entry in "${__topic_entries[@]}"; do
-    REQUIRED_TOPICS+=("$entry")   # "name:partitions:replication"
-  done
+  prepare_topics
 
+  # iterate over topics and act
   for line in "${REQUIRED_TOPICS[@]}"; do
     IFS=':' read -r NAME PART REPLICATION_FACTOR <<< "$line"
-
-    if (( REPLICATION_FACTOR > BROKER_COUNT )); then
-        log_error "Replication factor [$REPLICATION_FACTOR] is above the available brokers [$BROKER_COUNT] count"
-        sleep_and_quit
-    fi
 
     topic_create   "$NAME" "$PART" "$REPLICATION_FACTOR"
     topic_validate "$NAME" "$PART" "$REPLICATION_FACTOR"
