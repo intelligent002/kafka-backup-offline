@@ -7,7 +7,7 @@
     state: directory
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_configs }}'
+    mode: "{{ chmod_configs }}"
 
 - name: Determine template dynamically
   tags: configs_generate
@@ -23,7 +23,17 @@
     dest: "{{ node_config_file }}"
     owner: "{{ owner_user_data }}"
     group: "{{ owner_group_data }}"
-    mode: '{{ chmod_configs }}'
+    mode: "{{ chmod_configs }}"
+
+- name: Deploy topic-maker script
+  tags: configs_generate
+  when: "'connect' in group_names"
+  ansible.builtin.copy:
+    src: "topic-maker.sh"
+    dest: "{{ node_config_path }}/topic-maker.sh"
+    owner: "{{ owner_user_data }}"
+    group: "{{ owner_group_data }}"
+    mode: "0755"
 
 - name: Deploy Balancer Schema config
   tags: configs_generate
