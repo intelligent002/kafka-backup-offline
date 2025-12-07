@@ -8,6 +8,7 @@
     name: "{{ container.name }}"
     hostname: "{{ container.hostname }}"
     image: "{{ container.image }}"
+    entrypoint: "{{ container.entrypoint | default(omit) }}"
     command: "{{ container.command | default(omit) }}"
     state: started
     restart_policy: "{{ container.restart_policy | default('always') }}"
