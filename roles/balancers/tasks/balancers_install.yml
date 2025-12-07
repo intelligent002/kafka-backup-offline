@@ -7,6 +7,7 @@
     name: "{{ item.name }}"
     hostname: "{{ item.hostname }}"
     image: "{{ item.image }}"
+    entrypoint: "{{ item.entrypoint | default(omit) }}"
     command: "{{ item.command | default(omit) }}"
     state: started
     restart_policy: "{{ item.restart_policy | default('always') }}"

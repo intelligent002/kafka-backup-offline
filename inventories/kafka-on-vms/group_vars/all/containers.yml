@@ -70,7 +70,7 @@ kafka_services:
 
   - role: "schema"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "confluentinc/cp-schema-registry:8.1.0"
+    image: "confluentinc/cp-schema-registry:8.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -147,7 +147,7 @@ kafka_services:
 
   - role: "ksql"
     name: "{{ hostvars[inventory_hostname]['hostname'] }}"
-    image: "confluentinc/cp-ksqldb-server:7.9.0"
+    image: "confluentinc/cp-ksqldb-server:8.1.1"
     hostname: "{{ hostvars[inventory_hostname]['hostname'] }}"
     restart_policy: "always"
     ports:
@@ -170,15 +170,18 @@ kafka_services:
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
     volumes:
-      - "{{ hostvars[inventory_hostname]['node_config_path'] }}:/mnt/shared/config"
+      - "{{ hostvars[inventory_hostname]['node_config_path'] }}/kraft.properties:/etc/ksqldb/ksql-server.properties"
       - "{{ hostvars[inventory_hostname]['node_certificates_path'] }}:/etc/kafka/secrets"
       - "{{ hostvars[inventory_hostname]['node_credentials_path'] }}:/credentials"
       - "{{ hostvars[inventory_hostname]['node_data_path'] }}:/ksql/data"
       - "{{ hostvars[inventory_hostname]['node_logs_path'] }}:/var/log/ksqldb"
+    entrypoint:
+      [
+        "/usr/bin/ksql-server-start"
+      ]
     command:
       [
-        "/usr/bin/ksql-server-start",
-        "/mnt/shared/config/kraft.properties"
+        "/etc/ksqldb/ksql-server.properties"
       ]
 
 kafka_data_format:
