@@ -10,14 +10,30 @@ group.id=cluster-connect
 
 ########################################################################################################################
 # Converters / Serders
-# The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
-# need to configure these based on the format they want their data in when loaded from or stored into Kafka
-key.converter=org.apache.kafka.connect.json.JsonConverter
-value.converter=org.apache.kafka.connect.json.JsonConverter
+# this settings are used for connect server itself.
+# The converters specify the format of data in Kafka and how to translate it into Connect data.
+# Every Connector will need to configure these based on the format they want their data in Kafka
+# key.converter=org.apache.kafka.connect.json.JsonConverter
+# value.converter=org.apache.kafka.connect.json.JsonConverter
 
 # Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply it to
+key.converter=io.confluent.connect.avro.AvroConverter
 key.converter.schemas.enable=true
+key.converter.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
+key.converter.schema.registry.ssl.key.password={{ certificate_password }}
+key.converter.schema.registry.ssl.keystore.location=/etc/kafka/secrets/admin.jks
+key.converter.schema.registry.ssl.keystore.password={{ certificate_password }}
+key.converter.schema.registry.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+key.converter.schema.registry.ssl.truststore.password={{ certificate_password }}
+
+value.converter=io.confluent.connect.avro.AvroConverter
 value.converter.schemas.enable=true
+value.converter.schema.registry.url=https://{{ hostvars['node-00']['hostname'] }}:{{ port_schema_balancer_ext }}
+value.converter.schema.registry.ssl.key.password={{ certificate_password }}
+value.converter.schema.registry.ssl.keystore.location=/etc/kafka/secrets/admin.jks
+value.converter.schema.registry.ssl.keystore.password={{ certificate_password }}
+value.converter.schema.registry.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
+value.converter.schema.registry.ssl.truststore.password={{ certificate_password }}
 
 ########################################################################################################################
 # Connect System Topics

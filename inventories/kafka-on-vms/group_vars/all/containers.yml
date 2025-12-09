@@ -114,6 +114,7 @@ kafka_services:
       TOPIC_MAKER_AUTO_CREATE: "true"
       TOPIC_MAKER_BROKERS: "{% for host in (groups['combined'] | default([])) + (groups['brokers'] | default([])) %}{{ hostvars[host]['hostname'] }}:{{ hostvars[host]['port_consumer_mtls_ext'] }}{% if not loop.last %},{% endif %}{% endfor %}"
       TOPIC_MAKER_CONFIG: "/mnt/shared/config/kraft.properties"
+      TOPIC_MAKER_DEBUG: "false"
       TOPIC_MAKER_KAFKA_DELAY: "5"
       TOPIC_MAKER_KAFKA_RETRIES: "5"
       TOPIC_MAKER_TCP_DELAY: "5"

@@ -12,10 +12,10 @@ owner_user_data: 1000
 owner_group_data: 1000
 
 # Certificate file permissions
-chmod_certificates: 0644
+chmod_certificates: 0755
 
 # Credentials file permissions
-chmod_credentials: 0644
+chmod_credentials: 0755
 
 # Config folder permissions
 chmod_configs: 0755
