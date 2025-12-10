@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/intelligent002/kafka-backup-offline/refs/heads/main/docs/logo-200.png" width="25" style="vertical-align: middle;"/> **Kafka-Backup-Offline Utility**
+# <img src="https://raw.githubusercontent.com/intelligent002/kafka-backup-offline/refs/heads/main/docs/logo-200.png" width="35" style="vertical-align: middle;"/> **Kafka-Backup-Offline Utility**
 
 ## **Project Overview**
 
