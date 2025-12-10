@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/intelligent002/kafka-backup-offline/docs/logo.png" width="200"/>
+  <img src="https://raw.githubusercontent.com/intelligent002/kafka-backup-offline/refs/heads/main/docs/logo-200.png" width="200"/>
 </p>
 
 # **Kafka-Backup-Offline Utility**
