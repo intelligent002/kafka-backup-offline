@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/intelligent002/kafka-backup-offline/docs/logo.png" width="200"/>
+</p>
+
 # **Kafka-Backup-Offline Utility**
 
 ## **Project Overview**
