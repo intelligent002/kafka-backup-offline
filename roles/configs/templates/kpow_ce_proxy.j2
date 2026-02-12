@@ -4,7 +4,7 @@ events {
 
 http {
     upstream kpow_ce_console {
-        server {{ hostvars['node-00']['hostname'] }}:{{ port_kpow_ce_console_ext }};
+        server {{ hostvars['node-00']['ansible_host'] }}:{{ port_kpow_ce_console_ext }};
     }
 
     # Redirect HTTP:80 to HTTPS
