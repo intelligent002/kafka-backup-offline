@@ -21,7 +21,7 @@ kafkastore.ssl.keystore.type=JKS
 kafkastore.ssl.truststore.location=/etc/kafka/secrets/shared.truststore.jks
 kafkastore.ssl.truststore.password={{ certificate_password }}
 kafkastore.ssl.truststore.type=JKS
-kafkastore.topic.replication.factor=3
+kafkastore.topic.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 kafkastore.topic=_schemas
 
 # Enable Inter-Instance Communication

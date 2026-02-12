@@ -128,9 +128,9 @@ transaction.state.log.min.isr={{ [(groups['brokers'] | length) - 1, 1] | max }}
 ########################################################################################################################
 # Kafka Connect Internal Topics (auto-created with cleanup.policy=compact) replication factors
 
-config.storage.replication.factor=3
-status.storage.replication.factor=3
-offset.storage.replication.factor=3
+config.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
+status.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
+offset.storage.replication.factor={{ ((groups['brokers'] | default([])) | length) }}
 
 ########################################################################################################################
 # Transactions
