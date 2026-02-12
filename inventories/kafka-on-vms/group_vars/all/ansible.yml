@@ -5,7 +5,7 @@ ansible_python_interpreter: /usr/bin/python
 
 # Connection to cluster nodes
 ansible_user: root
-ansible_private_key_file: /root/.ssh/id_rsa
+ansible_private_key_file: /home/root/.ssh/id_rsa
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
 # === Restore archive parameter ========================================================================================
