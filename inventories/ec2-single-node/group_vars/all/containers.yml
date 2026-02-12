@@ -217,7 +217,7 @@ balancers:
       - "{{ port_ksql_balancer_admin_ext }}:{{ port_ksql_balancer_admin_int }}"
     volumes:
       - "/data:/data:ro"
-      - "/data/cluster/config/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro"
+      - "{{ node_config_path }}/balancer-ksql.yaml:/etc/envoy/envoy.yaml:ro"
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_ksql_balancer_admin_int }} &&
@@ -238,7 +238,7 @@ balancers:
       - "{{ port_connect_balancer_admin_ext }}:{{ port_connect_balancer_admin_int }}"
     volumes:
       - "/data:/data:ro"
-      - "/data/cluster/config/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro"
+      - "{{ node_config_path }}/balancer-connect.yaml:/etc/envoy/envoy.yaml:ro"
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_connect_balancer_admin_int }} &&
@@ -259,7 +259,7 @@ balancers:
       - "{{ port_schema_balancer_admin_ext }}:{{ port_schema_balancer_admin_int }}"
     volumes:
       - "/data:/data:ro"
-      - "/data/cluster/config/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro"
+      - "{{ node_config_path }}/balancer-schema.yaml:/etc/envoy/envoy.yaml:ro"
     healthcheck:
       test: >
         bash -c 'exec 3<>/dev/tcp/localhost/{{ port_schema_balancer_admin_int }} &&
