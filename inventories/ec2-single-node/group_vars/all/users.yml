@@ -133,7 +133,7 @@ credentials:
         resource_name: "*"
         operation: "Read"
 
-  - username: "node-03.intel.r7g.org"
+  - username: "schema-ec2-kafka-outburn.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
@@ -146,7 +146,7 @@ credentials:
         resource_name: "*"
         operation: "All"
 
-  - username: "node-04.intel.r7g.org"
+  - username: "connect-ec2-kafka-outburn.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "cluster"
@@ -201,7 +201,7 @@ credentials:
         resource_name: "*"
         operation: [ "All" ]
 
-  - username: "node-05.intel.r7g.org"
+  - username: "ksql-ec2-kafka-outburn.r7g.org"
     password: "insecure"
     permissions:
       - resource_type: "topic"
@@ -216,3 +216,5 @@ credentials:
       - resource_type: "transactional-id"
         resource_name: "*"
         operation: "All"
+
+
