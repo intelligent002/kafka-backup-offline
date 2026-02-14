@@ -119,7 +119,7 @@ kafka_services:
       TOPIC_MAKER_KAFKA_RETRIES: "5"
       TOPIC_MAKER_TCP_DELAY: "5"
       TOPIC_MAKER_TCP_RETRIES: "30"
-      TOPIC_MAKER_TOPICS: "__connect_offset:50:3,__connect_config:1:3,__connect_status:5:3"
+      TOPIC_MAKER_TOPICS: "__connect_offset:50:1,__connect_config:1:1,__connect_status:5:1"
       KAFKA_HEAP_OPTS: >-
         -Xms{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
         -Xmx{{ ((ansible_memtotal_mb * (heap_size_percent | default(50))) / 100) | int }}M
