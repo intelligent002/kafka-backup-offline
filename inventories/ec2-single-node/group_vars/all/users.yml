@@ -5,7 +5,7 @@
 use_credentials: true
 
 # Directory on central for credentials generation.
-storage_credentials_path: "/data/cluster/credentials"
+storage_credentials_path: "/data/single-node/credentials"
 
 # this is the only source of truth for the deployments
 # * credentials file is generated according to this list
