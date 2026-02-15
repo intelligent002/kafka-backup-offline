@@ -23,7 +23,7 @@ static_resources:
                 alpn_protocols: ["h2", "http/1.1"]
                 tls_certificates:
                   - certificate_chain:
-                      filename: "{{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.crt"
+                      filename: "{{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.fullchain.pem"
                     private_key:
                       filename: "{{ node_certificates_path }}/nodes/{{ hostvars['node-00']['hostname'] }}/{{ hostvars['node-00']['hostname'] }}.key"
                 validation_context:
@@ -157,7 +157,7 @@ static_resources:
                   tls_maximum_protocol_version: TLSv1_3
                 tls_certificates:
                   - certificate_chain:
-                      filename: "{{ node_certificates_path }}/users/admin/admin.crt"
+                      filename: "{{ node_certificates_path }}/users/admin/admin.fullchain.pem"
                     private_key:
                       filename: "{{ node_certificates_path }}/users/admin/admin.key"
                 validation_context:
