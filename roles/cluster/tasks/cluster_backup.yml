@@ -58,7 +58,7 @@
     state: directory
 
 # -------------------------------------------------------------------
-# Pull all the zips to central folder into zip-of-zips
+# Pull all the zips to the central folder into zip-of-zips
 # -------------------------------------------------------------------
 - name: Pull node snapshot archives to central
   tags: cluster_backup
