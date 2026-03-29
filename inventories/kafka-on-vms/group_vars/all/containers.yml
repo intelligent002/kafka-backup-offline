@@ -209,7 +209,7 @@ kafka_data_format:
 balancers:
   - role: "balancer-ksql"
     name: "balancer-ksql"
-    image: "envoyproxy/envoy:v1.36.4"
+    image: "envoyproxy/envoy:v1.37.1"
     hostname: "balancer-ksql"
     restart_policy: "always"
     ports:
@@ -230,7 +230,7 @@ balancers:
 
   - role: "balancer-connect"
     name: "balancer-connect"
-    image: "envoyproxy/envoy:v1.36.2"
+    image: "envoyproxy/envoy:v1.37.1"
     hostname: "balancer-connect"
     restart_policy: "always"
     ports:
@@ -251,7 +251,7 @@ balancers:
 
   - role: "balancer-schema"
     name: "balancer-schema"
-    image: "envoyproxy/envoy:v1.36.2"
+    image: "envoyproxy/envoy:v1.37.1"
     hostname: "balancer-schema"
     restart_policy: "always"
     ports:
