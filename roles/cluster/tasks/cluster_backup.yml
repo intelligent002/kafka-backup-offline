@@ -39,10 +39,10 @@
     label: "{{ item.path | basename }}"
   ansible.builtin.shell:
     cmd: >
+      set -eu;
       folder="{{ item.path | basename }}";
       cd "{{ node_storage_base }}";
-      set -euo pipefail;
-      tar -cf - "$folder" | xz > "{{ node_temp_path }}/backup/{{ inventory_hostname }}-$folder.tar.xz"
+      tar -cJf "{{ node_temp_path }}/backup/{{ inventory_hostname }}-$folder.tar.xz" "$folder"
 
 # -------------------------------------------------------------------
 # Prepare backup directory in cold storage
@@ -92,8 +92,8 @@
   when: inventory_hostname == "node-00"
   ansible.builtin.shell:
     cmd: >
-      set -euo pipefail;
-      tar -cf - -C {{ storage_temp_path }}/zip-of-zips ./ | xz > "{{ central_cluster_backup_file }}"
+      set -eu;
+      tar -cJf "{{ central_cluster_backup_file }}" -C {{ storage_temp_path }}/zip-of-zips ./
 
 # -------------------------------------------------------------------
 # Manifest & checksum

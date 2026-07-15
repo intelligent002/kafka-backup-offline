@@ -3,9 +3,13 @@
 # Specifies the Python interpreter to be used on the remote nodes.
 ansible_python_interpreter: /usr/bin/python3
 
+# SSH key pair used to reach the cluster nodes. It has to live under /data, the only host
+# folder mounted into the ansible container. The public key is expected next to it, as <ssh_key_file>.pub
+ssh_key_file: /data/ansible/ec2-user/.ssh/id_rsa
+
 # Connection to cluster nodes
 ansible_user: ec2-user
-ansible_private_key_file: /data/ansible/ec2-user/.ssh/id_rsa
+ansible_private_key_file: "{{ ssh_key_file }}"
 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
 # === Restore archive parameter ========================================================================================

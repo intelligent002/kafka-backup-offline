@@ -43,8 +43,8 @@
   when: inventory_hostname == "node-00"
   ansible.builtin.shell:
     cmd: >
-      xz -dc "{{ restore_archive }}" |
-      tar -xf - -C "{{ storage_temp_path }}/zip-of-zips/"
+      set -eu;
+      tar -xJf "{{ restore_archive }}" -C "{{ storage_temp_path }}/zip-of-zips/"
 
 # -------------------------------------------------------------------
 # Push per-node archives to each node
@@ -87,6 +87,7 @@
     - cluster_restore
   ansible.builtin.shell:
     cmd: >
+      set -eu;
       for archive in {{ node_temp_path }}/restore/*.tar.xz; do
-        xz -dc "$archive" | tar -xpf - -C "{{ node_storage_base }}";
+        tar -xpJf "$archive" -C "{{ node_storage_base }}";
       done
