@@ -272,7 +272,7 @@ balancers:
 
 gui_portainer:
   - name: portainer
-    image: "portainer/portainer-ee:2.39.4-alpine"
+    image: "portainer/portainer-ee:2.44.0-alpine"
     hostname: "portainer"
     restart_policy: "always"
     ports:
@@ -304,7 +304,7 @@ gui_portainer:
 
 gui_kpow:
   - name: kpow_ce_console
-    image: "factorhouse/kpow-ce:96.1"
+    image: "factorhouse/kpow-ce:96.4"
     hostname: "kpow_ce_console"
     restart_policy: "always"
     ports:
